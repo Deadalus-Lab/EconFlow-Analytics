@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# LOAD-BEARING, NOT COSMETIC.
+#
+# The artifact generators run in `--check` mode as continuous-integration gates
+# and compare committed files BYTE FOR BYTE. A CRLF checkout would fail them for
+# a reason that has nothing to do with the code. Normalising line endings in the
+# repository is therefore a correctness requirement, not a style preference.
+
+*           text=auto eol=lf
+
+# Binary — never touched, never diffed as text. Parquet fixtures exist
+# specifically to prove that bytes survive a serialisation boundary intact.
+*.parquet   binary
+*.tar.gz    binary
+*.png       binary
+
+# Explicitly text, so no heuristic can decide otherwise for a generated artifact
+# whose bytes are pinned.
+*.py        text eol=lf
+*.pyi       text eol=lf
+*.toml      text eol=lf
+*.json      text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.sh        text eol=lf
+*.md        text eol=lf
+
+# Generated — collapsed in review and excluded from language statistics.
+#
+# THE GENERATED TIER IS THE LARGEST ENTRY HERE AND THE EASIEST TO MISREAD.
+# `engine/src/econflow_engine/generated/` is 64 machine-written modules emitted
+# by `scripts/gen_schemas.py` from a committed artifact. Marking it generated is
+# what stops it dominating the language breakdown and drowning a reviewer in a
+# diff nobody hand-wrote. It is still gated, far more strictly than review would
+# manage, by that generator's `--check` mode.
+engine/src/econflow_engine/generated/**  linguist-generated
+engine/artifacts/*.json                  linguist-generated
+uv.lock                                  linguist-generated
+engine/METHOD-SELECTION.yaml             linguist-generated
+engine/METHOD-SELECTION-TREES.yaml       linguist-generated
+engine/sbom.cdx.json                     linguist-generated
+engine/THIRD-PARTY-LICENSES.md           linguist-documentation
+engine/METHOD-SELECTION.md               linguist-documentation

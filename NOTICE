@@ -1,0 +1,89 @@
+EconFlow Analytics
+Copyright (C) 2026 Panagiotis Tsikos
+
+This product is licensed under the GNU Affero General Public License, version 3
+only. The complete licence text is in `LICENSE` at the repository root.
+
+SPDX-License-Identifier: AGPL-3.0-only
+
+
+## Scope
+
+The entire repository is AGPL-3.0-only — every directory and every language,
+without exception. There is no dual licence, no per-directory rule and no
+commercial-use carve-out.
+
+Copyleft here is a choice rather than an inheritance. The Python scientific
+stack the engine builds on is uniformly permissive — BSD-3-Clause, Apache-2.0
+and MIT — so no dependency compels any licence at all. The Affero variant is
+chosen because the deployed form of this project is a hosted compute engine, and
+section 13 is what obliges an operator who modifies it to offer the
+corresponding source to the users who reach it over a network. `LICENSE` sets
+out that reasoning in full before the licence text.
+
+One constraint follows and is recorded here so that it is not rediscovered
+during a dependency review: AGPL-3.0 is **not** compatible with GPL-2.0-only
+code, so a GPL-2.0-only dependency can no longer be admitted to this tree.
+
+
+## Third-party components
+
+The runtime image ships pinned third-party Python packages. Their attribution
+register — every package, version and declared licence — is in
+`engine/THIRD-PARTY-LICENSES.md`, generated from the committed `uv.lock` by
+`engine/scripts/gen_third_party.py` and gated against drift in continuous
+integration. A machine-readable bill of materials is in `engine/sbom.cdx.json`
+(CycloneDX).
+
+Each installed distribution keeps its own metadata and, where it ships one, its
+own licence file, inside the image under the virtual environment's
+`site-packages`.
+
+CPython itself is distributed under the Python Software Foundation License,
+which is permissive and GPL-compatible; its licence text ships with the
+interpreter.
+
+Galaxy is MIT-licensed and is an upstream dependency, not vendored code. A
+permissive dependency combines with a copyleft work without difficulty.
+
+
+## Corresponding source
+
+Corresponding source for the copyleft components is available three ways:
+
+1. **From the upstream index** — every package is pinned in `uv.lock` by exact
+   name, version and hash. PyPI artifacts are immutable: a released filename and
+   its hash can never be replaced, so the pin identifies exact bytes. Sources are
+   reachable per package at `https://pypi.org/project/<NAME>/<VERSION>/`.
+
+2. **By reproducing the build** — `uv sync --locked` against the committed
+   `uv.lock` retrieves the identical artifacts on any machine, and verifies each
+   one against the recorded hash.
+
+3. **On request** — the Licensor will provide, for any recipient of the image
+   and for at least three years, a complete machine-readable copy of the
+   corresponding source of the copyleft components, on a medium customarily used
+   for software interchange, for no more than the cost of distribution.
+
+   Contact: open an issue titled "AGPL source request" at
+   <https://github.com/Deadalus-Lab/EconFlow-Analytics/issues>. If the repository is
+   ever unavailable, use GitHub's private vulnerability reporting on the same
+   repository, which reaches the maintainers directly.
+
+   This is a channel rather than an email address, deliberately: a published
+   address is permanently harvested, and git authorship already uses GitHub's
+   routed no-reply address for the same reason. The obligation is unaffected —
+   the channel is monitored, and a request made through it is answered on the
+   terms stated above.
+
+
+## Network use
+
+Section 13 is the operative clause for anyone running this software as a
+service. If you modify EconFlow Analytics and let users interact with it
+remotely over a network, you must offer those users the corresponding source of
+your modified version. Deploying without distributing a binary does not avoid
+the obligation; that is the entire point of choosing the Affero variant.
+
+The engine's own source — the 251 wrappers, the gates and the tests — is in this
+repository, licensed AGPL-3.0-only. See `LICENSE`.

@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# What is NOT published. The root is DENY-BY-DEFAULT: `/*` hides every root
+# entry and the block below re-admits exactly the 25 that publish.
+#
+# Why deny-by-default, and ONLY at the root: this repository is public from its
+# first commit and its history can never be rewritten, so a conventional
+# deny-list -- where inclusion is the default -- makes anything nobody thought
+# to exclude permanent on the first `git add -A`. Root-only strictness keeps
+# normal tracking inside the language roots, so a new wrapper still appears in
+# `git status`.
+#
+# This list must equal .github/root-manifest.txt, and
+# .github/scripts/check-root-visibility.sh asserts that they agree.
+#
+# PRECISELY WHAT THAT GATE PROVES, now that the root denies by default. It sees
+# only what git will publish. A stray root file with no `!` line here is
+# invisible to it -- and that is correct rather than a hole, because such a file
+# is also not stageable by `git add -A`, so it cannot reach the public surface
+# at all. The gate therefore catches the two things that CAN change that
+# surface: an entry re-admitted here but absent from the manifest (APPEARED),
+# and an entry in the manifest that stopped being re-admitted (VANISHED). Both
+# were verified with a planted defect when this file was written.
+
+/*
+
+!/.coderabbit.yaml
+!/.dockerignore
+!/.gitattributes
+!/.github
+!/.gitignore
+!/.gitleaks.toml
+!/.pre-commit-config.yaml
+!/.python-version
+!/ARCHITECTURE.md
+!/CHANGELOG.md
+!/CITATION.cff
+!/CODE_OF_CONDUCT.md
+!/CONTRIBUTING.md
+!/Dockerfile
+!/LICENSE
+!/NOTICE
+!/README.md
+!/SECURITY.md
+!/backend
+!/deploy
+!/docs
+!/engine
+!/frontend
+!/pyproject.toml
+!/uv.lock
+
+# ---- working files, never published -----------------------------------------
+# Redundant against `/*` above and kept deliberately: an explicit deny states
+# the intent, so re-admitting one of these has to be a conscious act.
+CLAUDE.md
+todo.md
+.claude/
+.private/
+
+# ---- local tool caches ------------------------------------------------------
+.fastembed_cache/
+.token-optimizer/
+.import_linter_cache/
+
+# ---- Python -----------------------------------------------------------------
+# THE GENERATED TIER IS NOT LISTED HERE, AND THAT IS THE POINT.
+# `engine/src/econflow_engine/generated/` is machine-written by
+# `scripts/gen_schemas.py`, and the reflex with generated code is to ignore it.
+# It is COMMITTED deliberately: the generated form is what gets reviewed in a
+# diff, and the artifact-drift gate re-emits it in `--check` mode and compares
+# byte for byte. Ignoring it would delete the review surface and leave the gate
+# comparing the generator against itself.
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+build/
+*.egg-info/
+
+# ---- TypeScript (frontend/) -------------------------------------------------
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# ---- OS / editor ------------------------------------------------------------
+.DS_Store
+*~
