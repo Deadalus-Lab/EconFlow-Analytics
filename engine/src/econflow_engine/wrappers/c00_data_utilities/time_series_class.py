@@ -1,0 +1,297 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``time_series_class`` -- METHOD-SELECTION card #78.
+
+#78 Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary)
+
+Category 00-data-utilities; module ``time_series_class``.
+
+Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+
+See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
+traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c00_data_utilities import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "ts_aggregate",
+    "ts_combine",
+    "ts_convert",
+    "ts_fill_regular",
+    "ts_lag_series",
+    "ts_limit_span",
+    "ts_rebase",
+    "ts_standardize",
+    "ts_stats",
+    "ts_transform",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def ts_convert(
+    *,
+    x: pd.Series,
+    to: Literal["series", "indexed_series", "tidy_frame", "frame"] | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_convert`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to a series (ts/mts/df — resolved from the registry).
+        to: [enum, optional] Target representation (default series): series = a values+index series·
+            indexed_series = an irregularly indexed series· tidy_frame = a long tidy table· frame =
+            a wide table.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_convert: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_transform(
+    *,
+    x: pd.Series,
+    transform: Literal["diff", "pc", "pcy", "pca"] | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_transform`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to the series to transform.
+        transform: [enum, optional] diff=plain difference, pc=q/q %, pcy=YoY %, pca=annualized pc.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_transform: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_rebase(
+    *,
+    x: pd.Series,
+    base: str | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_rebase`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to the series to convert into an index (index=1).
+        base: [string, optional] Base DATE (e.g. '2015-01-01'); NOT a number. Empty = 1st period.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_rebase: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_standardize(
+    *,
+    x: pd.Series,
+    center: bool | None = None,
+    scale: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_standardize`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to the series to center/scale (z-scores).
+        center: [boolean, optional] Subtract the mean (default True). Default ``True``.
+        scale: [boolean, optional] Divide by sd (default True). Default ``True``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_standardize: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_lag_series(
+    *,
+    x: pd.Series,
+    by: int | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_lag_series`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to the series to shift.
+        by: [integer, optional] Integer number of periods to shift (negative = lead; default 1).
+            Default ``1``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_lag_series: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_aggregate(
+    *,
+    x: pd.Series,
+    to: Literal["year", "quarter", "month", "week", "day", "hour", "min", "sec"] | None = None,
+    aggregate: Literal["mean", "sum", "first", "last"] | None = None,
+    na_rm: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_aggregate`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to the series to aggregate (ONLY towards a lower
+            frequency).
+        to: [enum, optional] Target frequency (it must be lower; default year).
+        aggregate: [enum, optional] Aggregation function (default mean; flow->sum,
+            index/rate->mean).
+        na_rm: [boolean, optional] Ignore NA in the aggregation (default False). Default ``False``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_aggregate: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_limit_span(
+    *,
+    x: pd.Series,
+    start: str | None = None,
+    end: str | None = None,
+    extend: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_limit_span`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to the series whose time span is to be limited.
+        start: [string, optional] Start date (e.g. '2016-01-01'); at least one of start/end.
+        end: [string, optional] End date (e.g. '2018-12-01').
+        extend: [boolean, optional] Extend with NA beyond the data (default False). Default
+            ``False``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_limit_span: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_fill_regular(
+    *,
+    x: pd.Series,
+    fill: float | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_fill_regular`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to a series with implicit time gaps to materialize.
+        fill: [number, optional] Value used to fill the gaps (default NA).
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_fill_regular: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_combine(
+    *,
+    series1: pd.Series,
+    series2: pd.Series,
+    method: Literal["c", "bind"] | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_combine`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        series1: [series_handle, required] Handle to the 1st series to combine.
+        series2: [series_handle, required] Handle to the 2nd series to combine.
+        method: [enum, optional] c=column-bind (aligned on time), bind=row-bind (default c).
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_combine: not implemented. The method card is in ./README.md."
+    )
+
+
+def ts_stats(
+    *,
+    x: pd.Series,
+    spark: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``ts_stats`` -- METHOD-SELECTION card #78.
+
+    Time series class unification + basic transformations
+    (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary).
+
+    Category 00-data-utilities; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to a series, for descriptive statistics per series.
+        spark: [boolean, optional] Add a sparkline string (default False). Default ``False``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ts_stats: not implemented. The method card is in ./README.md."
+    )

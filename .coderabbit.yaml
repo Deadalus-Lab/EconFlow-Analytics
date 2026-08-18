@@ -1,0 +1,115 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# CodeRabbit — AI review, ADVISORY ONLY.
+#
+# Never a required check. It is non-deterministic, so a required check that can
+# answer differently on a re-run is not a gate. The deterministic gates in
+# ci.yml decide what is correct; this decides what is worth a second look.
+#
+# It does work on pull requests from forks, which is why it is the review layer
+# outside contributors actually get -- claude-review.yml cannot run there,
+# because fork pull requests receive no secrets.
+language: en-GB
+
+reviews:
+  profile: assertive
+  request_changes_workflow: false
+  high_level_summary: true
+  review_status: true
+  poem: false
+  collapse_walkthrough: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  # Excluded because reviewing them is worse than useless: they are generated,
+  # byte-pinned, and enormous. A 2.7 MB diff of machine-written JSON would
+  # crowd out every comment about code a human wrote.
+  #
+  # These files are not unreviewed -- they are gated far more strictly than a
+  # language model could manage, by the `--check` generators and the SHA-256
+  # sidecars in the artifact-drift job. Regenerating them must reproduce the
+  # committed bytes exactly.
+  path_filters:
+    - "!engine/artifacts/**"
+    - "!engine/src/econflow_engine/generated/**"
+    - "!**/METHOD-SELECTION.md"
+    - "!**/METHOD-SELECTION.yaml"
+    - "!**/METHOD-SELECTION-TREES.yaml"
+    - "!uv.lock"
+    - "!engine/sbom.cdx.json"
+    - "!engine/THIRD-PARTY-LICENSES.md"
+    - "!engine/fixtures/**"
+
+  path_instructions:
+    - path: "engine/src/econflow_engine/wrappers/**/*.py"
+      instructions: |
+        These are Layer 1 wrappers. Every one follows the same shape, and the
+        uniformity is load-bearing -- it is what makes generated tooling
+        possible across all 251 modules. Check specifically:
+
+        1. Arguments taken ONLY from the upstream package documentation, each
+           carrying its documented default. Never an invented argument.
+        2. Gates raise and refuse to compute; they never warn. A gate is a
+           refusal, not a suggestion. Flag any gate softened to a warning, made
+           conditional, or deleted.
+        3. A structured result as output. Never printing, never plotting -- the
+           engine emits chart DATA, the browser renders.
+        4. Examples in the docstring, never at module scope, so importing a
+           module never executes one.
+        5. An implementation-note footer recording functions used, what was
+           deliberately omitted, and the gates added.
+
+        Also flag: any network call (the engine makes none -- 0 of 251), any
+        `eval`, `exec`, `pickle` or `getattr` on user input, and any stochastic
+        method that does not take a mandatory seed.
+
+        NOTE ON WHAT IS NO LONGER A DEFECT. This file used to require a uniquely
+        named call helper per wrapper, because every wrapper was sourced into
+        one shared global environment and two files defining the same helper
+        name meant the last one loaded silently won. Python modules have their
+        own namespaces, so that collision cannot occur and the rule has been
+        removed rather than carried over as ritual. Two modules defining a
+        private helper of the same name is now unremarkable.
+
+    - path: "engine/scripts/*.py"
+      instructions: |
+        Generators. Their output is committed, and the artifact-drift job
+        re-runs them in `--check` mode and compares byte for byte. A change here
+        that alters emitted formatting -- even whitespace or a comment in a
+        template -- moves every generated file. If a generator changed and the
+        generated tier did not, say so explicitly.
+
+    - path: "engine/tests/**/*.py"
+      instructions: |
+        The suite is the correctness guarantee. Flag any test weakened rather
+        than fixed: a `skip` or `xfail` added to make a failure disappear, an
+        assertion loosened, a `pytest.raises` deleted, or a mutation-proof check
+        replaced by a shape check. A test that no longer distinguishes right
+        from wrong is worse than no test, because it reports success.
+
+    - path: "backend/**"
+      instructions: |
+        THE ENGINE BOUNDARY. No statistic is ever computed outside `engine/`.
+        Flag any dependency on numpy, scipy, statsmodels, pandas, patsy,
+        formulaic, scikit-learn, pyarrow, polars, arch or linearmodels appearing
+        in any dependency group here, and any code that computes a summary
+        statistic rather than moving data around. A CI gate enforces the
+        declarations; nothing enforces the arithmetic, so this is where a human
+        or a model has to look.
+
+    - path: ".github/**"
+      instructions: |
+        Gate definitions. Flag any anti-vacuity assertion that was removed or
+        loosened -- the minimum-file-count checks, the package-count assertion,
+        the gitleaks positive control and the engine-boundary positive control
+        exist so that a gate cannot pass by examining nothing. Flag any
+        third-party action not pinned to a full commit SHA. Flag any use of
+        `grep --include`, `--exclude-dir` or `grep -P` in a gate script: those
+        are GNU extensions that behave differently under ugrep, and a gate that
+        undercounts silently is the failure mode this repository fears most.
+
+chat:
+  auto_reply: true

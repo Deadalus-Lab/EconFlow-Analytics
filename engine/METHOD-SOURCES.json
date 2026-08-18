@@ -1,0 +1,4951 @@
+{
+  "_comment": [
+    "THE IMPLEMENTATION-SOURCE REGISTER. One row per wrapper module, keyed",
+    "package/module. It answers the one question the catalogue cannot: which",
+    "Python library, or which paper, will implement this module.",
+    "",
+    "THE STATES. Every row is seeded 'planned' with library and paper both",
+    "null. A row becomes 'selected' when it names EITHER a library pinned in",
+    "uv.lock OR a paper with an identifier, never both, and never neither.",
+    "The wrapper docstrings read their 'Reference implementation:' line from",
+    "here, so a row filled in is a docstring corrected on the next generation.",
+    "",
+    "It is REBUILT from the sealed cards rather than edited alongside them,",
+    "so it cannot drift from the catalogue it describes."
+  ],
+  "n_modules": 251,
+  "n_node_fns": 913,
+  "modules": {
+    "c00_data_utilities/analytic_ols_closed": {
+      "module": "analytic_ols_closed",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        121
+      ],
+      "methods": [
+        "Analytic OLS on a CLOSED formula: a deterministic time trend (linear/quadratic) + the detrended series, or response ~ named numeric predictor columns (lm + broom tidy/glance)"
+      ],
+      "node_fns": [
+        "ols_regress",
+        "ols_trend"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/benchmarking_high_frequency": {
+      "module": "benchmarking_high_frequency",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        115
+      ],
+      "methods": [
+        "Benchmarking a high-frequency indicator to a low-frequency total (two-step Prais-Winsten regression + additive Denton smoothing)"
+      ],
+      "node_fns": [
+        "dsg_annual_benchmark",
+        "dsg_in_sample",
+        "dsg_two_steps_benchmark"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/business_day_calendar": {
+      "module": "business_day_calendar",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        112
+      ],
+      "methods": [
+        "Business-day calendar + working-day arithmetic (create.calendar/bizdays/offset/adjust/bizseq) from a closed specification (holidays + weekdays)"
+      ],
+      "node_fns": [
+        "bizc_adjust",
+        "bizc_bizdays",
+        "bizc_bizseq",
+        "bizc_create_calendar",
+        "bizc_offset"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/calendar_effects_holidays": {
+      "module": "calendar_effects_holidays",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        254
+      ],
+      "methods": [
+        "CALENDAR EFFECTS: holidays for G7+CH & financial centres (NYSE/LONDON/ZURICH/TSX) -> NAMED 0/1 columns aligned to a given vector of dates + isWeekday/isBizday"
+      ],
+      "node_fns": [
+        "hd_dummies",
+        "hd_holidays",
+        "hd_list"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/canonical_disk_format": {
+      "module": "canonical_disk_format",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        98
+      ],
+      "methods": [
+        "Canonical on-disk data-format layer: Parquet/Feather/CSV readers + a Parquet writer + a lazy (hive-)partitioned Dataset"
+      ],
+      "node_fns": [
+        "arw_open_dataset",
+        "arw_read_csv",
+        "arw_read_feather",
+        "arw_read_parquet",
+        "arw_write_parquet"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/closed_vocabulary_tabular": {
+      "module": "closed_vocabulary_tabular",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        101
+      ],
+      "methods": [
+        "CLOSED-vocabulary tabular manipulation (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice)"
+      ],
+      "node_fns": [
+        "dpl_arrange",
+        "dpl_distinct",
+        "dpl_filter",
+        "dpl_group_by",
+        "dpl_join",
+        "dpl_mutate",
+        "dpl_relocate",
+        "dpl_rename",
+        "dpl_select",
+        "dpl_slice",
+        "dpl_summarise"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/composite_index_dimensionality": {
+      "module": "composite_index_dimensionality",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        117
+      ],
+      "methods": [
+        "Composite index / dimensionality reduction with PCA (PC1 composite index + loadings + variance decomposition + biplot coordinates + newdata projection + rules for the number of components + KPSS precheck)"
+      ],
+      "node_fns": [
+        "pca_biplot_coords",
+        "pca_composite",
+        "pca_n_components",
+        "pca_predict",
+        "pca_stationarity_precheck"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/correlation_filter_greedy": {
+      "module": "correlation_filter_greedy",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        252
+      ],
+      "methods": [
+        "CORRELATION FILTER: greedy removal of highly correlated variables (findCorrelation over a VALIDATED correlation matrix) + an out-of-sample APPLY with the fitted column names"
+      ],
+      "node_fns": [
+        "cf_cor_matrix",
+        "cf_filter",
+        "cf_find_correlation"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/date_parsing_rounding": {
+      "module": "date_parsing_rounding",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        111
+      ],
+      "methods": [
+        "Date parsing/rounding/components + safe month arithmetic (ymd/ym/parse_date_time, floor/ceiling/round_date, quarter/semester/year/month/wday, %m+%/%m-%)"
+      ],
+      "node_fns": [
+        "lub_component",
+        "lub_month_arith",
+        "lub_parse_date",
+        "lub_parse_datetime",
+        "lub_round_date"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/descriptive_statistics": {
+      "module": "descriptive_statistics",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        81
+      ],
+      "methods": [
+        "Descriptive statistics as data (ACF/PACF/CCF/rolling/correlation matrix + per-pair correlation inference)"
+      ],
+      "node_fns": [
+        "desc_acf",
+        "desc_ccf",
+        "desc_cor_test",
+        "desc_correlations",
+        "desc_pacf",
+        "desc_rolling"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/design_matrix_orthogonal": {
+      "module": "design_matrix_orthogonal",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        253
+      ],
+      "methods": [
+        "DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (poly + returning attr 'coefs'), INTERACTIONS without a formula surface (model_matrix), an allowlisted formula path, a COMBINATORIAL factor (interaction)"
+      ],
+      "node_fns": [
+        "ply_interaction_factor",
+        "ply_interactions",
+        "ply_model_matrix",
+        "ply_poly"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/deterministic_invertible_preprocessing": {
+      "module": "deterministic_invertible_preprocessing",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        104
+      ],
+      "methods": [
+        "Deterministic invertible preprocessing transforms (diff/standardize/normalize/box_cox/auto_lambda + tk_augment_lags/differences + pad_by_time)"
+      ],
+      "node_fns": [
+        "ttk_augment_differences",
+        "ttk_augment_lags",
+        "ttk_auto_lambda",
+        "ttk_box_cox",
+        "ttk_diff",
+        "ttk_diff_inv",
+        "ttk_normalize",
+        "ttk_pad_by_time",
+        "ttk_standardize"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/deterministic_rolling_window": {
+      "module": "deterministic_rolling_window",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        105
+      ],
+      "methods": [
+        "Deterministic rolling-window aggregations (slide_dbl/slide_index_dbl/slide_period_dbl/hop_index_vec)"
+      ],
+      "node_fns": [
+        "sld_hop_index",
+        "sld_slide",
+        "sld_slide_index",
+        "sld_slide_period"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/discretisation_numeric_column": {
+      "module": "discretisation_numeric_column",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        255
+      ],
+      "methods": [
+        "DISCRETISATION (binning) of ONE numeric column: EQUAL-POPULATION bins (sample quantiles, quantile type 7 PINNED) or EQUAL-WIDTH bins (an explicit seq over the range or over a GIVEN fixed domain) + an out-of-sample APPLY of the STORED breaks"
+      ],
+      "node_fns": [
+        "bn_apply",
+        "bn_equal_width",
+        "bn_quantile_bins"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/fast_lead_lag": {
+      "module": "fast_lead_lag",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        108
+      ],
+      "methods": [
+        "Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, froll family, frollapply closed reducer set)"
+      ],
+      "node_fns": [
+        "dt_roll",
+        "dt_roll_apply",
+        "dt_shift"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/fast_rolling_expanding": {
+      "module": "fast_rolling_expanding",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        109
+      ],
+      "methods": [
+        "Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score, quantile, rolling regression)"
+      ],
+      "node_fns": [
+        "rll_cor",
+        "rll_cov",
+        "rll_lm",
+        "rll_mean",
+        "rll_quantile",
+        "rll_scale",
+        "rll_sd",
+        "rll_var"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/fast_row_column": {
+      "module": "fast_row_column",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        116
+      ],
+      "methods": [
+        "Fast row/column panel statistics (median/var/sd/quantiles) + a diffusion index (breadth) over a numeric wide panel matrix"
+      ],
+      "node_fns": [
+        "panel_col_stats",
+        "panel_diffusion_index",
+        "panel_quantiles",
+        "panel_row_stats"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/fast_transformation": {
+      "module": "fast_transformation",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        103
+      ],
+      "methods": [
+        "Fast (grouped/panel) data transformation (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA)"
+      ],
+      "node_fns": [
+        "cll_collap",
+        "cll_cumsum",
+        "cll_diff",
+        "cll_growth",
+        "cll_lag",
+        "cll_qsu",
+        "cll_scale",
+        "cll_transform",
+        "cll_within"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/import_export_stata": {
+      "module": "import_export_stata",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        100
+      ],
+      "methods": [
+        "Import/export Stata/SPSS/SAS (.dta/.sav/.sas7bdat) with labelled metadata + labelled->factor materialisation"
+      ],
+      "node_fns": [
+        "hvn_as_factor",
+        "hvn_read_sas",
+        "hvn_read_spss",
+        "hvn_read_stata",
+        "hvn_write_stata"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/indexed_time_series": {
+      "module": "indexed_time_series",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        106
+      ],
+      "methods": [
+        "Indexed (time-stamped) time-series toolbox (periodicity->OHLC, calendar-period aggregation, index merge/join, intraday alignment)"
+      ],
+      "node_fns": [
+        "xts_align_time",
+        "xts_apply_monthly",
+        "xts_merge",
+        "xts_period_apply",
+        "xts_to_period"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/json_interchange_parse": {
+      "module": "json_interchange_parse",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        99
+      ],
+      "methods": [
+        "JSON interchange: parse (fromJSON) / serialise (toJSON) / validate / NDJSON stream in-out"
+      ],
+      "node_fns": [
+        "json_parse",
+        "json_stream_parse",
+        "json_stream_write",
+        "json_validate",
+        "json_write"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/macro_arithmetic": {
+      "module": "macro_arithmetic",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        82
+      ],
+      "methods": [
+        "Macro arithmetic (growth/annualize/deflate/rebase/per-capita/contributions)"
+      ],
+      "node_fns": [
+        "macro_contributions",
+        "macro_deflate",
+        "macro_growth",
+        "macro_per_capita",
+        "macro_rebase"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/nber_recession_chronology": {
+      "module": "nber_recession_chronology",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        119
+      ],
+      "methods": [
+        "US NBER recession chronology — recession-shading intervals + a per-date 0/1 recession dummy (nberDates)"
+      ],
+      "node_fns": [
+        "nber_recession_flag",
+        "nber_recessions"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/numeric_rescaling_axis": {
+      "module": "numeric_rescaling_axis",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        120
+      ],
+      "methods": [
+        "Numeric rescaling (min-max / around-mid) + axis break positions (extended/log) + label strings (number/percent)"
+      ],
+      "node_fns": [
+        "scale_breaks",
+        "scale_labels",
+        "scale_rescale",
+        "scale_rescale_mid"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/parametric_distributions_numeric": {
+      "module": "parametric_distributions_numeric",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        118
+      ],
+      "methods": [
+        "Parametric distributions (normal/student_t) as a numeric grid: quantile bands / cdf / density / moments (fan-chart data)"
+      ],
+      "node_fns": [
+        "dist_density_grid",
+        "dist_fan_quantiles",
+        "dist_moments",
+        "dist_prob_cdf"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/reading_delimited_fixed": {
+      "module": "reading_delimited_fixed",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        96
+      ],
+      "methods": [
+        "Reading delimited / fixed-width flat files (CSV/TSV/delim/FWF) + parse-problem diagnostics"
+      ],
+      "node_fns": [
+        "read_csv_data",
+        "read_delimited",
+        "read_fwf_data",
+        "read_parse_problems",
+        "read_tsv_data"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/reading_writing_excel": {
+      "module": "reading_writing_excel",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        97
+      ],
+      "methods": [
+        "Reading/writing Excel workbooks (.xls/.xlsx read + sheet discovery +.xlsx write)"
+      ],
+      "node_fns": [
+        "xl_excel_sheets",
+        "xl_read_excel",
+        "xl_read_openxlsx",
+        "xl_write_xlsx"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/replacement_missing_values": {
+      "module": "replacement_missing_values",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        80
+      ],
+      "methods": [
+        "Replacement of missing values (NA) in time series (Kalman/interpolation/seadec + statsNA)"
+      ],
+      "node_fns": [
+        "imputets_interpolation",
+        "imputets_kalman",
+        "imputets_seadec",
+        "imputets_statsna"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/robust_outlier_handling": {
+      "module": "robust_outlier_handling",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        114
+      ],
+      "methods": [
+        "Robust outlier handling + robust measures of location/scale (winsorize/trim/robust-z/Huber-M)"
+      ],
+      "node_fns": [
+        "dt_huber",
+        "dt_robscale",
+        "dt_trim",
+        "dt_winsorize"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/rolling_statistics_numeric": {
+      "module": "rolling_statistics_numeric",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        110
+      ],
+      "methods": [
+        "Rolling O(n) statistics (mean/sd/min/max/quantile/mad) on a numeric vector/matrix"
+      ],
+      "node_fns": [
+        "run_mad",
+        "run_max",
+        "run_mean",
+        "run_min",
+        "run_quantile",
+        "run_sd"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/rolling_windowed_series": {
+      "module": "rolling_windowed_series",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        107
+      ],
+      "methods": [
+        "Rolling / windowed series transforms (rate-of-change, momentum, moving-average smoothers, single-series rolling stats, rolling cor/cov)"
+      ],
+      "node_fns": [
+        "ttr_ma",
+        "ttr_momentum",
+        "ttr_roc",
+        "ttr_run",
+        "ttr_run_cor"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/temporal_aggregation_series": {
+      "module": "temporal_aggregation_series",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        79
+      ],
+      "methods": [
+        "Temporal (dis)aggregation of series (Chow-Lin/Fernandez/Litterman/Denton disaggregation + aggregation)"
+      ],
+      "node_fns": [
+        "td_aggregate",
+        "td_disaggregate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/tidy_reshaping_missing": {
+      "module": "tidy_reshaping_missing",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        102
+      ],
+      "methods": [
+        "Tidy-data reshaping & missing-value handling (pivot_longer/pivot_wider/separate_wider/unite/drop_na/replace_na/fill/complete/nest/unnest)"
+      ],
+      "node_fns": [
+        "tidyr_complete",
+        "tidyr_drop_na",
+        "tidyr_fill",
+        "tidyr_nest",
+        "tidyr_pivot_longer",
+        "tidyr_pivot_wider",
+        "tidyr_replace_na",
+        "tidyr_separate_wider",
+        "tidyr_unite",
+        "tidyr_unnest"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/tidy_temporal_frames": {
+      "module": "tidy_temporal_frames",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        113
+      ],
+      "methods": [
+        "Tidy temporal data frames — an explicit key/index contract + structural gap handling (has/scan/count/fill) + CLOSED-vocabulary calendar aggregation (index_by+summarise)"
+      ],
+      "node_fns": [
+        "tsib_as_tsibble",
+        "tsib_fill_gaps",
+        "tsib_gaps",
+        "tsib_index_agg"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c00_data_utilities/time_series_class": {
+      "module": "time_series_class",
+      "category": "00-data-utilities",
+      "package": "c00_data_utilities",
+      "cards": [
+        78
+      ],
+      "methods": [
+        "Time series class unification + basic transformations (convert/diff/pc/index/scale/lag/aggregate/span/combine/summary)"
+      ],
+      "node_fns": [
+        "ts_aggregate",
+        "ts_combine",
+        "ts_convert",
+        "ts_fill_regular",
+        "ts_lag_series",
+        "ts_limit_span",
+        "ts_rebase",
+        "ts_standardize",
+        "ts_stats",
+        "ts_transform"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/automatic_outlier_detection": {
+      "module": "automatic_outlier_detection",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        5
+      ],
+      "methods": [
+        "Automatic outlier detection (Chen-Liu)"
+      ],
+      "node_fns": [
+        "run_tso"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/battery_non_parametric": {
+      "module": "battery_non_parametric",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        251
+      ],
+      "methods": [
+        "Battery of NON-PARAMETRIC (rank-based) tests on CROSS-SECTION data: Wilcoxon signed rank (one sample / paired) & rank sum = Mann-Whitney (two independent) with an optional non-parametric CI + Hodges-Lehmann · Kruskal-Wallis (k >= 2 independent groups) · Friedman (unreplicated complete block design)"
+      ],
+      "node_fns": [
+        "tn_friedman",
+        "tn_kruskal",
+        "tn_wilcox"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/battery_normality_edf": {
+      "module": "battery_normality_edf",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        247
+      ],
+      "methods": [
+        "A battery of NORMALITY tests (the composite hypothesis): EDF omnibus tests (Anderson-Darling / Cramer-von Mises / Lilliefors) + the Pearson chi-square test on equiprobable classes + Shapiro-Francia, with a COMMON alpha and a tidy decision table"
+      ],
+      "node_fns": [
+        "nt_ad_test",
+        "nt_cvm_test",
+        "nt_lillie_test",
+        "nt_normality_battery",
+        "nt_pearson_test",
+        "nt_sf_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/battery_parametric_mean": {
+      "module": "battery_parametric_mean",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        250
+      ],
+      "methods": [
+        "Battery of PARAMETRIC MEAN tests on CROSS-SECTION data: t-test (one sample / two samples Welch or Student pooled / paired) · one-way ANOVA (equal variances, a full ANOVA table) · the one-way Welch (1951) test WITHOUT the equal-variance assumption"
+      ],
+      "node_fns": [
+        "tp_anova",
+        "tp_t_test",
+        "tp_welch"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/bootstrap_unit_root": {
+      "module": "bootstrap_unit_root",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        122
+      ],
+      "methods": [
+        "Bootstrap unit-root tests robust to heterogeneity/non-stationary volatility/missing data (boot ADF / union / panel GM / order of integration)"
+      ],
+      "node_fns": [
+        "bur_boot_adf",
+        "bur_boot_panel",
+        "bur_boot_union",
+        "bur_order_integration"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/covariate_augmented_dickey": {
+      "module": "covariate_augmented_dickey",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        123
+      ],
+      "methods": [
+        "Covariate-Augmented Dickey-Fuller (CADF) unit-root test — power gain from stationary covariates (Hansen 1995); a plain ADF when X=NULL"
+      ],
+      "node_fns": [
+        "run_cadf"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/detection_structural_breaks": {
+      "module": "detection_structural_breaks",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        128
+      ],
+      "methods": [
+        "Detection of structural breaks in the trend & seasonality of seasonal time series (BFAST: iterative STL + breakpoints) + near-real-time disturbance monitoring"
+      ],
+      "node_fns": [
+        "bf_bfast",
+        "bf_monitor"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/driven_locally_weighted": {
+      "module": "driven_locally_weighted",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        127
+      ],
+      "methods": [
+        "Data-driven locally-weighted regression decomposition of seasonality/trend (IPI optimal bandwidth) under short memory"
+      ],
+      "node_fns": [
+        "des_deseats"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/general_specific_selection": {
+      "module": "general_specific_selection",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        124
+      ],
+      "methods": [
+        "General-to-Specific (GETS) model selection + Indicator Saturation (IIS/SIS/TIS) for outliers & structural breaks"
+      ],
+      "node_fns": [
+        "gts_arx",
+        "gts_getsm",
+        "gts_isat"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/linearity_battery_linearity": {
+      "module": "linearity_battery_linearity",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        132
+      ],
+      "methods": [
+        "(Non-)linearity tests: a battery of linearity tests (Teraesvirta/White ANN, Keenan, McLeod-Li, Tsay, LR-threshold) + an FFT surrogate-data test"
+      ],
+      "node_fns": [
+        "nlt_nonlinearity",
+        "nlt_surrogate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/missingness_patterns_pattern": {
+      "module": "missingness_patterns_pattern",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        249
+      ],
+      "methods": [
+        "Analysis of MISSINGNESS PATTERNS (CROSS-VARIABLE): a pattern matrix 1=observed/0=missing + counts per pattern + an EXACT MONOTONICITY check (Van Buuren) · NA runs/spans per variable (a ragged edge / mixed frequency) · co-missingness per PAIR (rr/rm/mr/mm)"
+      ],
+      "node_fns": [
+        "mp_pairs",
+        "mp_pattern",
+        "mp_runs"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/multivariate_outlier_detection": {
+      "module": "multivariate_outlier_detection",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        246
+      ],
+      "methods": [
+        "MULTIVARIATE outlier detection: CLASSICAL Mahalanobis distances vs the ROBUST MCD (Deterministic MCD) at the SAME chi-square(p) cutoff + a MASKING / SWAMPING diagnostic"
+      ],
+      "node_fns": [
+        "mv_covmcd",
+        "mv_mahalanobis",
+        "mv_outliers"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/non_parametric_trend": {
+      "module": "non_parametric_trend",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        131
+      ],
+      "methods": [
+        "Non-parametric trend & change-point tests (Mann-Kendall / Theil-Sen slope / Pettitt / Seasonal MK)"
+      ],
+      "node_fns": [
+        "tr_mk",
+        "tr_pettitt",
+        "tr_sens",
+        "tr_smk"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/panel_unit_root": {
+      "module": "panel_unit_root",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        6
+      ],
+      "methods": [
+        "Panel unit-root (LLC/IPS/Fisher/Hadri + Pesaran CIPS)"
+      ],
+      "node_fns": [
+        "make_pdata_frame",
+        "run_cipstest",
+        "run_purtest"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/profiling_quality_report": {
+      "module": "profiling_quality_report",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        248
+      ],
+      "methods": [
+        "Data profiling / a quality report: a PER-COLUMN profile (type/missing/uniqueness/Joanes-Gill moments) + a dataset-level summary + RULE-BASED quality flags (blocker/warning) with a rule and a source"
+      ],
+      "node_fns": [
+        "dp_column_profile",
+        "dp_profile",
+        "dp_quality_flags"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/regularisation_decomposition_space": {
+      "module": "regularisation_decomposition_space",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        129
+      ],
+      "methods": [
+        "Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a full descriptive table including normality; diff/LOESS trend-seasonal decomposition)"
+      ],
+      "node_fns": [
+        "ps_decompose",
+        "ps_stat_desc",
+        "ps_turnpoints"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/robust_descriptives_correlation": {
+      "module": "robust_descriptives_correlation",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        130
+      ],
+      "methods": [
+        "Robust descriptives + correlation prechecks (describe / rcorr Pearson-Spearman + p-values / weighted mean-var-quantile)"
+      ],
+      "node_fns": [
+        "hm_describe",
+        "hm_rcorr",
+        "hm_wtd"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/seasonal_adjustment_13arima": {
+      "module": "seasonal_adjustment_13arima",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        4
+      ],
+      "methods": [
+        "Seasonal adjustment with X-13ARIMA-SEATS"
+      ],
+      "node_fns": [
+        "check_x13",
+        "get_series",
+        "run_seas"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/seasonal_unit_roots": {
+      "module": "seasonal_unit_roots",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        89
+      ],
+      "methods": [
+        "Seasonal unit roots & seasonal stability (HEGY / Canova-Hansen)"
+      ],
+      "node_fns": [
+        "run_ch_test",
+        "run_hegy_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/seasonality": {
+      "module": "seasonality",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        125
+      ],
+      "methods": [
+        "Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB)"
+      ],
+      "node_fns": [
+        "fried_test",
+        "kw_test",
+        "ocsb_test",
+        "qs_test",
+        "run_isseasonal",
+        "seasdum_test",
+        "welch_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/structural_change": {
+      "module": "structural_change",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        3
+      ],
+      "methods": [
+        "Structural change (Bai-Perron multiple breaks / Chow-F / CUSUM)"
+      ],
+      "node_fns": [
+        "run_Fstats",
+        "run_breakpoints",
+        "run_efp",
+        "run_sctest"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/time_series_decomposition": {
+      "module": "time_series_decomposition",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        126
+      ],
+      "methods": [
+        "Time-series decomposition (STL / classical) + feature extraction (STL strength / ACF / spectral entropy)"
+      ],
+      "node_fns": [
+        "fst_classical",
+        "fst_features",
+        "fst_stl"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/unit_root_normality": {
+      "module": "unit_root_normality",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        1
+      ],
+      "methods": [
+        "Unit-root & normality prechecks (ADF/KPSS/PP/Jarque-Bera)"
+      ],
+      "node_fns": [
+        "run_adf_test",
+        "run_jarque_bera_test",
+        "run_kpss_test",
+        "run_pp_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c01_preparation_prechecks/unit_root_suite": {
+      "module": "unit_root_suite",
+      "category": "01-preparation-prechecks",
+      "package": "c01_preparation_prechecks",
+      "cards": [
+        2
+      ],
+      "methods": [
+        "Unit-root suite (ADF/KPSS/PP/ERS-DFGLS/Zivot-Andrews)"
+      ],
+      "node_fns": [
+        "wrap_ur_df",
+        "wrap_ur_ers",
+        "wrap_ur_kpss",
+        "wrap_ur_pp",
+        "wrap_ur_za"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/caretforecast": {
+      "module": "caretforecast",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        134
+      ],
+      "methods": [
+        "caretForecast (recursive autoregressive ML forecasting via caret + conformal prediction intervals + variable importance)"
+      ],
+      "node_fns": [
+        "caf_arml",
+        "caf_conformal",
+        "caf_varimp"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/distributed_lag_ardl": {
+      "module": "distributed_lag_ardl",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        137
+      ],
+      "methods": [
+        "Distributed-lag & ARDL regression (finite DL / Koyck geometric / autoregressive DL / Almon polynomial DL)"
+      ],
+      "node_fns": [
+        "dlm_ardl",
+        "dlm_finite",
+        "dlm_koyck",
+        "dlm_poly"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/fable": {
+      "module": "fable",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        8
+      ],
+      "methods": [
+        "fable (tidy ARIMA/ETS)"
+      ],
+      "node_fns": [
+        "run_fable_arima",
+        "run_fable_ets"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/forecast": {
+      "module": "forecast",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        7
+      ],
+      "methods": [
+        "forecast (ARIMA/ETS/Theta/TBATS)"
+      ],
+      "node_fns": [
+        "run_auto_arima",
+        "run_ets",
+        "run_tbats",
+        "run_theta"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/intermittent_sparse_demand": {
+      "module": "intermittent_sparse_demand",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        135
+      ],
+      "methods": [
+        "Intermittent / sparse-demand forecasting (Croston + SBA/SBJ variants, TSB, iMAPA auto-selection, Croston decomposition)"
+      ],
+      "node_fns": [
+        "tsi_croston",
+        "tsi_decomp",
+        "tsi_imapa",
+        "tsi_tsb"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/long_memory_fractional": {
+      "module": "long_memory_fractional",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        136
+      ],
+      "methods": [
+        "Long memory / fractional integration ARFIMA(p,d,q) (ML fit + GPH/Sperio semiparametric d + fractional differencing)"
+      ],
+      "node_fns": [
+        "fdf_diffseries",
+        "fdf_fit",
+        "fdf_gph",
+        "fdf_sperio"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/maximum_entropy_bootstrap": {
+      "module": "maximum_entropy_bootstrap",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        138
+      ],
+      "methods": [
+        "Maximum Entropy Bootstrap for time series (dependence/non-stationarity preserved)"
+      ],
+      "node_fns": [
+        "meb_ensemble"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/nnfor": {
+      "module": "nnfor",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        133
+      ],
+      "methods": [
+        "nnfor (neural-network univariate forecasting: MLP ensemble + ELM)"
+      ],
+      "node_fns": [
+        "nnf_elm",
+        "nnf_mlp"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/prophet": {
+      "module": "prophet",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        9
+      ],
+      "methods": [
+        "prophet"
+      ],
+      "node_fns": [
+        "run_prophet",
+        "run_prophet_cv"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c02_univariate_forecasting/smooth": {
+      "module": "smooth",
+      "category": "02-univariate-forecasting",
+      "package": "c02_univariate_forecasting",
+      "cards": [
+        10
+      ],
+      "methods": [
+        "smooth (ADAM / ES variants)"
+      ],
+      "node_fns": [
+        "run_adam",
+        "run_auto_adam",
+        "run_auto_ces",
+        "run_ces"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/bayesian_var": {
+      "module": "bayesian_var",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        12
+      ],
+      "methods": [
+        "Bayesian VAR (Minnesota prior)"
+      ],
+      "node_fns": [
+        "bvar_companion",
+        "bvar_estimate",
+        "bvar_fevd",
+        "bvar_irf",
+        "bvar_predict",
+        "bvar_summary"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/bayesian_var_2": {
+      "module": "bayesian_var_2",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        13
+      ],
+      "methods": [
+        "Bayesian VAR (Gibbs sampler)"
+      ],
+      "node_fns": [
+        "bt_fevd",
+        "bt_irf",
+        "bt_predict",
+        "bt_summary",
+        "bt_var"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/bayesian_var_vhar": {
+      "module": "bayesian_var_vhar",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        147
+      ],
+      "methods": [
+        "Bayesian VAR & VHAR (Vector Heterogeneous AR; day/week/month long memory) with a Minnesota conjugate (analytic) / SSVS / Horseshoe prior + a posterior forecast fan"
+      ],
+      "node_fns": [
+        "bvh_predict",
+        "bvh_var",
+        "bvh_vhar"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/dynamic_factor_nowcasting": {
+      "module": "dynamic_factor_nowcasting",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        15
+      ],
+      "methods": [
+        "Dynamic Factor Model / nowcasting (routes #16)"
+      ],
+      "node_fns": [
+        "df_dfm",
+        "df_icr",
+        "df_predict",
+        "df_summary"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/hierarchical_global_local": {
+      "module": "hierarchical_global_local",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        143
+      ],
+      "methods": [
+        "Hierarchical global-local shrinkage Bayesian VAR + stochastic volatility (HS/DL/R2D2/NG/SSVS priors, posterior fan charts + LPL)"
+      ],
+      "node_fns": [
+        "bvs_estimate",
+        "bvs_irf",
+        "bvs_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/high_dimensional_mixed": {
+      "module": "high_dimensional_mixed",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        145
+      ],
+      "methods": [
+        "High-dimensional mixed-frequency regression via MIDAS-ML sparse-group LASSO (Legendre/Gegenbauer weighted high-frequency blocks -> a low-frequency target, sg-LASSO lambda + mixing gamma, CV-tuned)"
+      ],
+      "node_fns": [
+        "mml_cv",
+        "mml_fit",
+        "mml_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/high_dimensional_penalized": {
+      "module": "high_dimensional_penalized",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        142
+      ],
+      "methods": [
+        "High-dimensional penalized VAR (structured penalties + rolling-CV lambda)"
+      ],
+      "node_fns": [
+        "bvr_coef",
+        "bvr_fit",
+        "bvr_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/midas_regression": {
+      "module": "midas_regression",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        18
+      ],
+      "methods": [
+        "MIDAS regression (mixed data sampling)"
+      ],
+      "node_fns": [
+        "md_forecast",
+        "md_haht",
+        "md_midas",
+        "md_select"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/mixed_frequency_bayesian": {
+      "module": "mixed_frequency_bayesian",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        17
+      ],
+      "methods": [
+        "Mixed-Frequency Bayesian VAR"
+      ],
+      "node_fns": [
+        "mf_estimate",
+        "mf_mdd",
+        "mf_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/pca_mixed_variables": {
+      "module": "pca_mixed_variables",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        256
+      ],
+      "methods": [
+        "PCA for MIXED I(0)/I(1) variables: an h-step-ahead OLS regression per series (a constant + p own lags) -> PCA on the RESIDUALS (Hamilton-Ma-Xi)"
+      ],
+      "node_fns": [
+        "pn_cyclical_components",
+        "pn_pca_nonstationary"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/reduced_form_var": {
+      "module": "reduced_form_var",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        11
+      ],
+      "methods": [
+        "Reduced-form VAR (lag select + Granger + diagnostics + vec2var)"
+      ],
+      "node_fns": [
+        "vr_arch_test",
+        "vr_causality",
+        "vr_normality_test",
+        "vr_predict",
+        "vr_serial_test",
+        "vr_var",
+        "vr_varselect",
+        "vr_vec2var"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/sparse_dynamic_factor": {
+      "module": "sparse_dynamic_factor",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        144
+      ],
+      "methods": [
+        "Sparse Dynamic Factor Model (EM with LASSO sparse loadings; arbitrary missing data / ragged-edge nowcasting; PCA/2Stage/EM/EM-sparse)"
+      ],
+      "node_fns": [
+        "sdf_factors",
+        "sdf_fit",
+        "sdf_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/time_varying_parameter": {
+      "module": "time_varying_parameter",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        146
+      ],
+      "methods": [
+        "Time-Varying-Parameter VAR with stochastic volatility + dynamic global-local shrinkage (triple/double gamma or ridge) — shrinkTVPVAR"
+      ],
+      "node_fns": [
+        "stv_estimate",
+        "stv_forecast",
+        "stv_tvp"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c03_multivariate_nowcasting/tvp_var_stochastic": {
+      "module": "tvp_var_stochastic",
+      "category": "03-multivariate-nowcasting",
+      "package": "c03_multivariate_nowcasting",
+      "cards": [
+        14
+      ],
+      "methods": [
+        "TVP-VAR with Stochastic Volatility"
+      ],
+      "node_fns": [
+        "sv_estimate",
+        "sv_irf",
+        "sv_parameter_draws",
+        "sv_predict_density",
+        "sv_predict_draws"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/bayesian_structural_var_identified_through": {
+      "module": "bayesian_structural_var_identified_through",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        148
+      ],
+      "methods": [
+        "Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV / Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a Savage-Dickey (SDDR) identification check — bsvars"
+      ],
+      "node_fns": [
+        "bsv_estimate",
+        "bsv_fevd",
+        "bsv_hd",
+        "bsv_irf",
+        "bsv_shocks",
+        "bsv_verify"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/bayesian_structural_var_sign_zero": {
+      "module": "bayesian_structural_var_sign_zero",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        149
+      ],
+      "methods": [
+        "Bayesian Structural VAR with SIGN + ZERO + NARRATIVE restrictions (set-identified, importance sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q) — bsvarSIGNs"
+      ],
+      "node_fns": [
+        "bss_estimate",
+        "bss_fevd",
+        "bss_forecast",
+        "bss_irf"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/desparsified_debiased_lasso": {
+      "module": "desparsified_debiased_lasso",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        152
+      ],
+      "methods": [
+        "Desparsified/debiased LASSO inference (high-dimensional time series) + high-dimensional local projections (HDLP) with valid CIs — Adamek-Smeekes-Wilms"
+      ],
+      "node_fns": [
+        "dsl_desla",
+        "dsl_hdlp"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/driven_svar_identification": {
+      "module": "driven_svar_identification",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        20
+      ],
+      "methods": [
+        "Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) + HD + counterfactual + wild/mb bootstrap"
+      ],
+      "node_fns": [
+        "svar_cf",
+        "svar_fevd",
+        "svar_hd",
+        "svar_id_chol",
+        "svar_id_cv",
+        "svar_id_dc",
+        "svar_id_ngml",
+        "svar_irf",
+        "svar_mb_boot",
+        "svar_wild_boot"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/gaussian_student_mixture": {
+      "module": "gaussian_student_mixture",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        151
+      ],
+      "methods": [
+        "Gaussian / Student's-t Mixture VAR (regime switching through mixture-density weights) + GIRF/GFEVD/linear IRF — gmvarkit"
+      ],
+      "node_fns": [
+        "gmv_fit",
+        "gmv_gfevd",
+        "gmv_girf",
+        "gmv_linear_irf"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/local_projections_lp": {
+      "module": "local_projections_lp",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        22
+      ],
+      "methods": [
+        "Local projections (Jordà) + LP-IV / non-linear state-dependent / panel"
+      ],
+      "node_fns": [
+        "lp_linear",
+        "lp_linear_iv",
+        "lp_nonlinear",
+        "lp_nonlinear_iv",
+        "lp_panel",
+        "lp_panel_nl"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/residual_diagnostics_reduced": {
+      "module": "residual_diagnostics_reduced",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        153
+      ],
+      "methods": [
+        "Residual diagnostics for a reduced-form VAR: a multivariate LM autocorrelation test (+HC-robust/univariate) + a combined bootstrap ARCH test (CA/ET/MARCH) + a wild-bootstrap AC test"
+      ],
+      "node_fns": [
+        "vtt_arch",
+        "vtt_fit",
+        "vtt_portmanteau",
+        "vtt_wildboot"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/sign_restriction_svar": {
+      "module": "sign_restriction_svar",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        21
+      ],
+      "methods": [
+        "Sign-restriction SVAR (Uhlig rejection & penalty, Rubio-Ramirez/Waggoner/Zha)"
+      ],
+      "node_fns": [
+        "vsr_rwz_reject",
+        "vsr_uhlig_penalty",
+        "vsr_uhlig_reject"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/smooth_transition_threshold": {
+      "module": "smooth_transition_threshold",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        150
+      ],
+      "methods": [
+        "Smooth-transition / threshold / (m)logistic STRUCTURAL VAR (nonlinear, regime-dependent dynamics) + GIRF/GFEVD/linear IRF — sstvars"
+      ],
+      "node_fns": [
+        "sst_fit",
+        "sst_gfevd",
+        "sst_girf",
+        "sst_linear_irf"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c04_structural_shocks/svar_irf_fevd": {
+      "module": "svar_irf_fevd",
+      "category": "04-structural-shocks",
+      "package": "c04_structural_shocks",
+      "cards": [
+        19
+      ],
+      "methods": [
+        "SVAR / IRF / FEVD / Blanchard-Quah (theory-based identification)"
+      ],
+      "node_fns": [
+        "vr_bq",
+        "vr_fevd",
+        "vr_irf",
+        "vr_svar"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c05_cointegration/ardl_uecm_estimation": {
+      "module": "ardl_uecm_estimation",
+      "category": "05-cointegration",
+      "package": "c05_cointegration",
+      "cards": [
+        25
+      ],
+      "methods": [
+        "ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq"
+      ],
+      "node_fns": [
+        "ardl_auto",
+        "ardl_bounds_f",
+        "ardl_bounds_t",
+        "ardl_coint_eq",
+        "ardl_fit",
+        "ardl_multipliers",
+        "ardl_recm"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c05_cointegration/consistent_monitoring_stationarity": {
+      "module": "consistent_monitoring_stationarity",
+      "category": "05-cointegration",
+      "package": "c05_cointegration",
+      "cards": [
+        141
+      ],
+      "methods": [
+        "Consistent monitoring of stationarity & cointegration (Wagner-Wied): calibration-period estimation + a sequential detector (FM/D/IM-OLS)"
+      ],
+      "node_fns": [
+        "cmo_cointegration",
+        "cmo_stationarity"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c05_cointegration/dynardl_ardl_ecm": {
+      "module": "dynardl_ardl_ecm",
+      "category": "05-cointegration",
+      "package": "c05_cointegration",
+      "cards": [
+        26
+      ],
+      "methods": [
+        "dynardl ARDL/ECM + stochastic simulation + PSS bounds + residual diagnostics"
+      ],
+      "node_fns": [
+        "dmac_ardl",
+        "dmac_autocorr",
+        "dmac_pssbounds"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c05_cointegration/fractionally_cointegrated_var": {
+      "module": "fractionally_cointegrated_var",
+      "category": "05-cointegration",
+      "package": "c05_cointegration",
+      "cards": [
+        139
+      ],
+      "methods": [
+        "Fractionally Cointegrated VAR (Johansen-Nielsen): fractional cointegration with estimated d/b + rank tests (asymptotic + wild bootstrap) + lag selection"
+      ],
+      "node_fns": [
+        "fcv_boot_rank",
+        "fcv_estimate",
+        "fcv_lag_select",
+        "fcv_rank_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c05_cointegration/johansen_restricted_vecm": {
+      "module": "johansen_restricted_vecm",
+      "category": "05-cointegration",
+      "package": "c05_cointegration",
+      "cards": [
+        23
+      ],
+      "methods": [
+        "Johansen (ca.jo) + restricted VECM (cajorls) + Phillips-Ouliaris/Engle-Granger family (ca.po)"
+      ],
+      "node_fns": [
+        "wrap_ca_jo",
+        "wrap_ca_po",
+        "wrap_cajorls"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c05_cointegration/modified_ols_cointegrating": {
+      "module": "modified_ols_cointegrating",
+      "category": "05-cointegration",
+      "package": "c05_cointegration",
+      "cards": [
+        27
+      ],
+      "methods": [
+        "Modified-OLS cointegrating regressions: FM-OLS / D-OLS / IM-OLS"
+      ],
+      "node_fns": [
+        "creg_dols",
+        "creg_fmols",
+        "creg_imols"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c05_cointegration/nonlinear_ardl_nardl": {
+      "module": "nonlinear_ardl_nardl",
+      "category": "05-cointegration",
+      "package": "c05_cointegration",
+      "cards": [
+        140
+      ],
+      "methods": [
+        "Nonlinear (asymmetric) ARDL — NARDL (Shin-Yu-Greenwood-Nimmo) + PSS bounds + CUSUM/CUSUMQ stability"
+      ],
+      "node_fns": [
+        "nar_bounds",
+        "nar_fit",
+        "nar_stability"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c05_cointegration/vecm_estimate_johansen": {
+      "module": "vecm_estimate_johansen",
+      "category": "05-cointegration",
+      "package": "c05_cointegration",
+      "cards": [
+        24
+      ],
+      "methods": [
+        "VECM estimate + Johansen rank_test (ML-only) + rank.select + predict"
+      ],
+      "node_fns": [
+        "vecm_estimate",
+        "vecm_predict",
+        "vecm_rank_select",
+        "vecm_rank_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/bayesian_univariate_stochastic": {
+      "module": "bayesian_univariate_stochastic",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        162
+      ],
+      "methods": [
+        "Bayesian univariate Stochastic Volatility (vanilla / Student-t / leverage) via MCMC"
+      ],
+      "node_fns": [
+        "sv_predict",
+        "sv_sample",
+        "sv_simulate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/bekk_family_multivariate": {
+      "module": "bekk_family_multivariate",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        160
+      ],
+      "methods": [
+        "BEKK-family multivariate GARCH (BEKK/diagonal/scalar) + multivariate VaR + Volatility IRF"
+      ],
+      "node_fns": [
+        "bekk_estimate",
+        "bekk_var",
+        "bekk_virf"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/dcc_mgarch": {
+      "module": "dcc_mgarch",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        29
+      ],
+      "methods": [
+        "DCC-MGARCH (multivariate)"
+      ],
+      "node_fns": [
+        "dcc_fit",
+        "dcc_forecast",
+        "dcc_multispec",
+        "dcc_roll",
+        "dcc_sim",
+        "dcc_spec"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/discrete_time_markov": {
+      "module": "discrete_time_markov",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        164
+      ],
+      "methods": [
+        "Discrete-time Markov chain: estimating the transition matrix (MLE/Laplace/bootstrap CI) + long-run analytics (the stationary distribution, mean first passage times, irreducibility, period)"
+      ],
+      "node_fns": [
+        "mc_analytics",
+        "mc_fit"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/garch_midas": {
+      "module": "garch_midas",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        159
+      ],
+      "methods": [
+        "GARCH-MIDAS (a short-run GARCH × a long-run MIDAS macro component)"
+      ],
+      "node_fns": [
+        "mfg_fit",
+        "mfg_predict",
+        "mfg_simulate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/generalized_autoregressive_score": {
+      "module": "generalized_autoregressive_score",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        158
+      ],
+      "methods": [
+        "Generalized Autoregressive Score / Dynamic Conditional Score (GAS/DCS) — a time-varying volatility/location/tails"
+      ],
+      "node_fns": [
+        "gas_fit",
+        "gas_forecast",
+        "gas_simulate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/har_realized_volatility": {
+      "module": "har_realized_volatility",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        157
+      ],
+      "methods": [
+        "HAR realized-volatility models (HAR/HARJ/HARQ/HARQ-J) — estimation, rolling OOS forecasting, simulation"
+      ],
+      "node_fns": [
+        "har_estimate",
+        "har_forecast",
+        "har_simulate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/hidden_markov_viterbi": {
+      "module": "hidden_markov_viterbi",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        161
+      ],
+      "methods": [
+        "(Hierarchical) Hidden Markov Models + Viterbi global decoding + forecasting"
+      ],
+      "node_fns": [
+        "hmm_decode",
+        "hmm_fit",
+        "hmm_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/markov_switching": {
+      "module": "markov_switching",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        30
+      ],
+      "methods": [
+        "Markov switching (gaussian/lm)"
+      ],
+      "node_fns": [
+        "msw_fit",
+        "msw_intervals",
+        "msw_residuals"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/markov_switching_garch": {
+      "module": "markov_switching_garch",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        31
+      ],
+      "methods": [
+        "Markov-switching GARCH"
+      ],
+      "node_fns": [
+        "msg_fit_mcmc",
+        "msg_fit_ml",
+        "msg_predict",
+        "msg_risk",
+        "msg_sim",
+        "msg_spec",
+        "msg_state"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/multivariate_factor_stochastic": {
+      "module": "multivariate_factor_stochastic",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        163
+      ],
+      "methods": [
+        "Multivariate factor stochastic volatility (Bayesian MCMC) + model-implied & predictive covariance/correlation"
+      ],
+      "node_fns": [
+        "fsv_cov",
+        "fsv_predict",
+        "fsv_sample"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/multivariate_garch_dynamic": {
+      "module": "multivariate_garch_dynamic",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        155
+      ],
+      "methods": [
+        "Multivariate GARCH — Dynamic Conditional Correlation (DCC/aDCC/CCC)"
+      ],
+      "node_fns": [
+        "tm_cov",
+        "tm_dcc_estimate",
+        "tm_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/realized_variance_intraday": {
+      "module": "realized_variance_intraday",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        156
+      ],
+      "methods": [
+        "Realized (co)variance & intraday spot volatility from high-frequency data"
+      ],
+      "node_fns": [
+        "hf_realized_cov",
+        "hf_realized_var",
+        "hf_spot_vol"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/threshold": {
+      "module": "threshold",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        32
+      ],
+      "methods": [
+        "Threshold models (SETAR/LSTAR/STAR)"
+      ],
+      "node_fns": [
+        "lstar_fit",
+        "setar_fit",
+        "setar_select",
+        "setar_test",
+        "star_fit",
+        "thr_predict",
+        "thr_regime"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/univariate_garch_family": {
+      "module": "univariate_garch_family",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        28
+      ],
+      "methods": [
+        "Univariate GARCH family"
+      ],
+      "node_fns": [
+        "ga_diagnostics",
+        "ga_fit",
+        "ga_forecast",
+        "ga_roll",
+        "ga_sim",
+        "ga_spec"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c06_volatility_regimes/univariate_garch_family_2": {
+      "module": "univariate_garch_family_2",
+      "category": "06-volatility-regimes",
+      "package": "c06_volatility_regimes",
+      "cards": [
+        154
+      ],
+      "methods": [
+        "Univariate GARCH family (vanilla/egarch/gjr/aparch/component)"
+      ],
+      "node_fns": [
+        "tg_backtest",
+        "tg_estimate",
+        "tg_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/causal_forests_grf": {
+      "module": "causal_forests_grf",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        44
+      ],
+      "methods": [
+        "Causal forests / GRF"
+      ],
+      "node_fns": [
+        "wrap_average_treatment_effect",
+        "wrap_causal_forest",
+        "wrap_predict_causal_forest",
+        "wrap_variable_importance"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/counterfactual_intervention": {
+      "module": "counterfactual_intervention",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        90
+      ],
+      "methods": [
+        "Counterfactual intervention analysis (BSTS)"
+      ],
+      "node_fns": [
+        "run_causal_impact"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/did_imputation": {
+      "module": "did_imputation",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        37
+      ],
+      "methods": [
+        "DiD imputation (Borusyak-Jaravel-Spiess)"
+      ],
+      "node_fns": [
+        "wrap_did_imputation"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/double_debiased": {
+      "module": "double_debiased",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        45
+      ],
+      "methods": [
+        "Double/Debiased ML"
+      ],
+      "node_fns": [
+        "wrap_doubleml_data",
+        "wrap_doubleml_irm",
+        "wrap_doubleml_plr"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/fixed_effects_ols": {
+      "module": "fixed_effects_ols",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        33
+      ],
+      "methods": [
+        "Fixed-effects OLS/IV + event study"
+      ],
+      "node_fns": [
+        "fx_coeftable",
+        "fx_confint",
+        "fx_feols",
+        "fx_fitstat",
+        "fx_vcov"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/generalized_moments_hansen": {
+      "module": "generalized_moments_hansen",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        172
+      ],
+      "methods": [
+        "Generalized Method of Moments (linear IV / moment conditions) + the Hansen-Sargan J test"
+      ],
+      "node_fns": [
+        "gmm_fit",
+        "gmm_jtest"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/generalized_synthetic_control": {
+      "module": "generalized_synthetic_control",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        43
+      ],
+      "methods": [
+        "Generalized Synthetic Control (interactive FE)"
+      ],
+      "node_fns": [
+        "wrap_gsynth"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/goodman_bacon_decomposition": {
+      "module": "goodman_bacon_decomposition",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        167
+      ],
+      "methods": [
+        "Goodman-Bacon decomposition of the TWFE DiD coefficient (staggered adoption)"
+      ],
+      "node_fns": [
+        "bacon_decompose"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/hac_robust_standard": {
+      "module": "hac_robust_standard",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        35
+      ],
+      "methods": [
+        "HAC / robust standard errors"
+      ],
+      "node_fns": [
+        "wrap_sandwich_blocks",
+        "wrap_vcov_cl",
+        "wrap_vcov_hac",
+        "wrap_vcov_hc",
+        "wrap_vcov_panel"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/heterogeneity_robust_dynamic": {
+      "module": "heterogeneity_robust_dynamic",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        166
+      ],
+      "methods": [
+        "Heterogeneity-robust dynamic DiD event study (de Chaisemartin & D'Haultfoeuille; non-binary/non-absorbing treatments)"
+      ],
+      "node_fns": [
+        "didm_dyn"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/honest_robust_inference": {
+      "module": "honest_robust_inference",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        168
+      ],
+      "methods": [
+        "Honest/robust inference under relaxed parallel trends (Rambachan-Roth sensitivity analysis)"
+      ],
+      "node_fns": [
+        "honest_original_cs",
+        "honest_relmag",
+        "honest_smoothness"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/instrumental_variables_2sls": {
+      "module": "instrumental_variables_2sls",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        165
+      ],
+      "methods": [
+        "Instrumental variables / 2SLS (the modern standalone ivreg, a three-part formula) + weak-instruments / Wu-Hausman / Sargan diagnostics"
+      ],
+      "node_fns": [
+        "iv_fit"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/ipw_double_treatment": {
+      "module": "ipw_double_treatment",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        171
+      ],
+      "methods": [
+        "IPW / double-ML treatment effects (ATE/ATET, IV-LATE/LATT, causal mediation)"
+      ],
+      "node_fns": [
+        "cw_lateweight",
+        "cw_medDML",
+        "cw_treatDML",
+        "cw_treatweight"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/iv_2sls": {
+      "module": "iv_2sls",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        34
+      ],
+      "methods": [
+        "IV / 2SLS (classic)"
+      ],
+      "node_fns": [
+        "wrap_ivreg"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/rd_multiple_cutoffs": {
+      "module": "rd_multiple_cutoffs",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        169
+      ],
+      "methods": [
+        "RD with multiple cutoffs / multiple scores (multi-cutoff & multi-score RD, robust bias-corrected)"
+      ],
+      "node_fns": [
+        "rdmc_fit",
+        "rdms_fit"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/rdd": {
+      "module": "rdd",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        39
+      ],
+      "methods": [
+        "RDD (IK bandwidth, object-oriented; fuzzy->rdd_reg_lm only)"
+      ],
+      "node_fns": [
+        "wrap_rdd_bw_ik",
+        "wrap_rdd_data",
+        "wrap_rdd_reg_lm",
+        "wrap_rdd_reg_np"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/rdd_robust": {
+      "module": "rdd_robust",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        38
+      ],
+      "methods": [
+        "RDD robust (Calonico-Cattaneo-Titiunik)"
+      ],
+      "node_fns": [
+        "wrap_rdbwselect",
+        "wrap_rdrobust"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/sensitivity_unobserved_confounding": {
+      "module": "sensitivity_unobserved_confounding",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        170
+      ],
+      "methods": [
+        "Sensitivity analysis to unobserved confounding / omitted-variable bias (robustness value + OVB bounds)"
+      ],
+      "node_fns": [
+        "sens_analyze"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/staggered_did": {
+      "module": "staggered_did",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        36
+      ],
+      "methods": [
+        "Staggered DiD (Callaway-Sant'Anna)"
+      ],
+      "node_fns": [
+        "wrap_aggte",
+        "wrap_att_gt"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/synthetic_control": {
+      "module": "synthetic_control",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        40
+      ],
+      "methods": [
+        "Synthetic Control (classic, Abadie)"
+      ],
+      "node_fns": [
+        "wrap_dataprep",
+        "wrap_synth",
+        "wrap_synth_tab"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/synthetic_control_2": {
+      "module": "synthetic_control_2",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        42
+      ],
+      "methods": [
+        "Synthetic Control (tidy pipe)"
+      ],
+      "node_fns": [
+        "wrap_generate_control",
+        "wrap_generate_predictor",
+        "wrap_generate_weights",
+        "wrap_grab_loss",
+        "wrap_grab_predictor_weights",
+        "wrap_grab_significance",
+        "wrap_grab_synthetic_control",
+        "wrap_grab_unit_weights",
+        "wrap_synthetic_control"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c07_causality_policy/synthetic_control_prediction": {
+      "module": "synthetic_control_prediction",
+      "category": "07-causality-policy",
+      "package": "c07_causality_policy",
+      "cards": [
+        41
+      ],
+      "methods": [
+        "Synthetic Control + prediction intervals"
+      ],
+      "node_fns": [
+        "wrap_scdata",
+        "wrap_scest",
+        "wrap_scpi"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c08_panel_data/beck_katz_panel": {
+      "module": "beck_katz_panel",
+      "category": "08-panel-data",
+      "package": "c08_panel_data",
+      "cards": [
+        174
+      ],
+      "methods": [
+        "Beck-Katz Panel-Corrected Standard Errors (PCSE) for pooled TSCS/OLS"
+      ],
+      "node_fns": [
+        "pcse_fit",
+        "pcse_summary",
+        "pcse_vcov"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c08_panel_data/fixed_effects_individual": {
+      "module": "fixed_effects_individual",
+      "category": "08-panel-data",
+      "package": "c08_panel_data",
+      "cards": [
+        173
+      ],
+      "methods": [
+        "Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial & bootstrapped)"
+      ],
+      "node_fns": [
+        "feis_bstest",
+        "feis_fit",
+        "feis_slopes",
+        "feis_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c08_panel_data/hierarchical_multilevel_linear": {
+      "module": "hierarchical_multilevel_linear",
+      "category": "08-panel-data",
+      "package": "c08_panel_data",
+      "cards": [
+        175
+      ],
+      "methods": [
+        "Hierarchical / multilevel (mixed) models — linear & generalized (partial pooling)"
+      ],
+      "node_fns": [
+        "lme_glmer",
+        "lme_lmer",
+        "lme_ranef",
+        "lme_varcorr"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c08_panel_data/static_panel_estimators": {
+      "module": "static_panel_estimators",
+      "category": "08-panel-data",
+      "package": "c08_panel_data",
+      "cards": [
+        46,
+        47
+      ],
+      "methods": [
+        "Dynamic panel GMM (Arellano-Bond difference / Blundell-Bond system)",
+        "Static panel estimators (FE/RE/pooling/between/FD) + Hausman/LM/F"
+      ],
+      "node_fns": [
+        "pd_effects_ftest",
+        "pd_fit",
+        "pd_fixed_effects",
+        "pd_gmm_autocorr_test",
+        "pd_gmm_fit",
+        "pd_gmm_sargan_test",
+        "pd_hausman_test",
+        "pd_poolability_test",
+        "pd_random_effects"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/bayesian_global_var": {
+      "module": "bayesian_global_var",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        176
+      ],
+      "methods": [
+        "Bayesian Global VAR (multi-country shrinkage + SV): estimation + generalized-FEVD spillovers/GIRF + a posterior-predictive forecast"
+      ],
+      "node_fns": [
+        "bgvar_fit",
+        "bgvar_predict",
+        "bgvar_spillover"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/connectedness": {
+      "module": "connectedness",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        51
+      ],
+      "methods": [
+        "Connectedness (Diebold-Yılmaz, full)"
+      ],
+      "node_fns": [
+        "dy_fit",
+        "dy_table",
+        "dy_time_connectedness",
+        "dy_var"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/factor_adjusted_network": {
+      "module": "factor_adjusted_network",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        182
+      ],
+      "methods": [
+        "Factor-adjusted network estimation (high-dimensional TS): a common factor + an idiosyncratic VAR + Granger/partial-correlation networks"
+      ],
+      "node_fns": [
+        "fnets_factor",
+        "fnets_fit"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/frequency_connectedness": {
+      "module": "frequency_connectedness",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        52
+      ],
+      "methods": [
+        "Frequency connectedness (Baruník-Křehlík)"
+      ],
+      "node_fns": [
+        "fq_collapse_bounds",
+        "fq_fevd",
+        "fq_from",
+        "fq_gen_fevd",
+        "fq_get_partition",
+        "fq_net",
+        "fq_overall",
+        "fq_pairwise",
+        "fq_spillover_bk09",
+        "fq_spillover_bk12",
+        "fq_spillover_rolling_bk09",
+        "fq_spillover_rolling_bk12",
+        "fq_to"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/global_var": {
+      "module": "global_var",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        50
+      ],
+      "methods": [
+        "Global VAR (GVAR)"
+      ],
+      "node_fns": [
+        "gv_coef",
+        "gv_coef_exo",
+        "gv_coef_exo_nw",
+        "gv_coef_exo_white",
+        "gv_coef_nw",
+        "gv_coef_white",
+        "gv_fit",
+        "gv_foreign_variables",
+        "gv_residual_correlation",
+        "gv_structural"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/input_output_leontief": {
+      "module": "input_output_leontief",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        48
+      ],
+      "methods": [
+        "Input-Output / Leontief analysis (full)"
+      ],
+      "node_fns": [
+        "io_build",
+        "io_extraction",
+        "io_field_of_influence",
+        "io_field_of_influence_total",
+        "io_ghosh_inverse",
+        "io_key_sector",
+        "io_leontief_inverse",
+        "io_linkages",
+        "io_multipliers"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/input_output_leontief_2": {
+      "module": "input_output_leontief_2",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        49
+      ],
+      "methods": [
+        "Input-Output / Leontief (simple)"
+      ],
+      "node_fns": [
+        "lt_augmented_input_requirement",
+        "lt_backward_linkage",
+        "lt_employment_multiplier",
+        "lt_employment_number",
+        "lt_equilibrium_output",
+        "lt_forward_linkage",
+        "lt_income_multiplier",
+        "lt_input_requirement",
+        "lt_leontief_inverse",
+        "lt_multiplier_product_matrix",
+        "lt_output_allocation",
+        "lt_output_multiplier",
+        "lt_power_dispersion",
+        "lt_power_dispersion_cv",
+        "lt_sensitivity_dispersion",
+        "lt_sensitivity_dispersion_cv"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/moran_eigenvector_spatial": {
+      "module": "moran_eigenvector_spatial",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        180
+      ],
+      "methods": [
+        "Moran eigenvector spatial regression — eigenvector spatial filtering (ESF) & random-effects ESF (RE-ESF, an approximate Gaussian process)"
+      ],
+      "node_fns": [
+        "sp_esf",
+        "sp_meigen",
+        "sp_resf"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/network": {
+      "module": "network",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        55
+      ],
+      "methods": [
+        "Network analysis"
+      ],
+      "node_fns": [
+        "ig_centrality",
+        "ig_community_louvain",
+        "ig_connectivity",
+        "ig_from_adjacency",
+        "ig_from_edgelist"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/network_estimation_time": {
+      "module": "network_estimation_time",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        181
+      ],
+      "methods": [
+        "Network estimation for time series — a sparse VAR (Granger network) + a concentration/partial-correlation network via the NETS LASSO"
+      ],
+      "node_fns": [
+        "nets_fit"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/spatial_dynamic_panel": {
+      "module": "spatial_dynamic_panel",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        179
+      ],
+      "methods": [
+        "Spatial dynamic panel data model (Lee-Yu QML, fixed effects) + direct/indirect/total effects"
+      ],
+      "node_fns": [
+        "sp_dynpanel",
+        "sp_dynpanel_impacts"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/spatial_gmm_gs2sls": {
+      "module": "spatial_gmm_gs2sls",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        178
+      ],
+      "methods": [
+        "Spatial GMM / GS2SLS (SARAR/lag/error) with heteroskedasticity-robust SEs"
+      ],
+      "node_fns": [
+        "sp_gmm_reg"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/spatial_panel_spatial": {
+      "module": "spatial_panel_spatial",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        177
+      ],
+      "methods": [
+        "Spatial panel models (SAR/SEM/SDM · FE/RE/pooling) — ML & GM + spatial LM tests"
+      ],
+      "node_fns": [
+        "sp_panel_gm",
+        "sp_panel_lmtest",
+        "sp_panel_ml"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/spatial_regression": {
+      "module": "spatial_regression",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        53
+      ],
+      "methods": [
+        "Spatial regression (lag/error)"
+      ],
+      "node_fns": [
+        "spr_bptest",
+        "spr_fit_error",
+        "spr_fit_lag",
+        "spr_fit_sac",
+        "spr_hausman_test",
+        "spr_impacts",
+        "spr_lr_test",
+        "spr_summary"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c09_cross_section_networks/spatial_weights_diagnostics": {
+      "module": "spatial_weights_diagnostics",
+      "category": "09-cross-section-networks",
+      "package": "c09_cross_section_networks",
+      "cards": [
+        54
+      ],
+      "methods": [
+        "Spatial weights / diagnostics"
+      ],
+      "node_fns": [
+        "spw_cell2nb",
+        "spw_dnearneigh_nb",
+        "spw_geary_test",
+        "spw_joincount_test",
+        "spw_knn_nb",
+        "spw_listw",
+        "spw_listw_constants",
+        "spw_local_moran",
+        "spw_moran_test",
+        "spw_nb_diagnostics"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/bayesian_regression_time": {
+      "module": "bayesian_regression_time",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        184
+      ],
+      "methods": [
+        "Bayesian regression with time-varying (random-walk) coefficients — HMC (Stan)"
+      ],
+      "node_fns": [
+        "walker_coef",
+        "walker_fit"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/bayesian_state_space": {
+      "module": "bayesian_state_space",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        60
+      ],
+      "methods": [
+        "Bayesian state space"
+      ],
+      "node_fns": [
+        "bs_ar1_lg",
+        "bs_bsm_lg",
+        "bs_prior_spec",
+        "bs_run_mcmc"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/bayesian_time_varying": {
+      "module": "bayesian_time_varying",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        183
+      ],
+      "methods": [
+        "Bayesian time-varying-parameter (TVP) regression with global-local shrinkage (triple/double/ridge) + SV"
+      ],
+      "node_fns": [
+        "stvp_fit",
+        "stvp_forecast",
+        "stvp_lpds"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/beast_bayesian_decomposition": {
+      "module": "beast_bayesian_decomposition",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        186
+      ],
+      "methods": [
+        "BEAST — a Bayesian decomposition into trend + seasonality + change points with posterior change probabilities"
+      ],
+      "node_fns": [
+        "beast_changepoints",
+        "beast_decompose"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/dynamic_linear": {
+      "module": "dynamic_linear",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        59
+      ],
+      "methods": [
+        "Dynamic linear models (state space)"
+      ],
+      "node_fns": [
+        "dl_forecast",
+        "dl_local_level",
+        "dl_local_linear_trend",
+        "dl_trend_cycle"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/hamilton_regression_filter": {
+      "module": "hamilton_regression_filter",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        57
+      ],
+      "methods": [
+        "Hamilton regression filter"
+      ],
+      "node_fns": [
+        "hf_filter",
+        "hf_glm",
+        "hf_xts_from_long"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/hp_baxter_king": {
+      "module": "hp_baxter_king",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        56
+      ],
+      "methods": [
+        "HP / Baxter-King / Christiano-Fitzgerald filters"
+      ],
+      "node_fns": [
+        "mfl_bk_filter",
+        "mfl_bw_filter",
+        "mfl_cf_filter",
+        "mfl_hp_filter",
+        "mfl_tr_filter"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/kalman_filter_smoother": {
+      "module": "kalman_filter_smoother",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        58
+      ],
+      "methods": [
+        "Kalman filter/smoother + unobserved-components models"
+      ],
+      "node_fns": [
+        "kf_forecast",
+        "kf_local_level",
+        "kf_local_linear_trend",
+        "kf_trend_cycle"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/multivariate_state_space": {
+      "module": "multivariate_state_space",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        61
+      ],
+      "methods": [
+        "Multivariate state space (output gap / NAIRU / DFA)"
+      ],
+      "node_fns": [
+        "marss_dfa",
+        "marss_forecast",
+        "marss_glance",
+        "marss_param_cis",
+        "marss_prepare_data"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/nonparametric_detrending_output": {
+      "module": "nonparametric_detrending_output",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        189
+      ],
+      "methods": [
+        "Nonparametric detrending & output gap (loess / smoothing spline / Friedman super-smoother)"
+      ],
+      "node_fns": [
+        "np_detrend",
+        "np_output_gap"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/particle_filter_log": {
+      "module": "particle_filter_log",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        185
+      ],
+      "methods": [
+        "Particle-filter (bootstrap) log-likelihood + iterated filtering (IF2) MLE for non-linear non-Gaussian state-space models"
+      ],
+      "node_fns": [
+        "pomp_mif2",
+        "pomp_pfilter"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/seasonal_trend_decomposition": {
+      "module": "seasonal_trend_decomposition",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        187
+      ],
+      "methods": [
+        "Seasonal-Trend decomposition using Regression (AutoSTR) — trend + multiple/complex seasonality + remainder with CIs per component"
+      ],
+      "node_fns": [
+        "str_decompose",
+        "str_seasadj"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/sided_hp_filter": {
+      "module": "sided_hp_filter",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        92
+      ],
+      "methods": [
+        "One-sided HP filter (Basel III credit gap)"
+      ],
+      "node_fns": [
+        "hp_one_sided"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c10_trend_cycle_statespace/stl_decomposition_tolerant": {
+      "module": "stl_decomposition_tolerant",
+      "category": "10-trend-cycle-statespace",
+      "package": "c10_trend_cycle_statespace",
+      "cards": [
+        188
+      ],
+      "methods": [
+        "STL decomposition (seasonal-trend-loess) tolerant of NA + short series"
+      ],
+      "node_fns": [
+        "stlplus_decompose"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c11_decomposition_accounting/oaxaca": {
+      "module": "oaxaca",
+      "category": "11-decomposition-accounting",
+      "package": "c11_decomposition_accounting",
+      "cards": [
+        63
+      ],
+      "methods": [
+        "oaxaca (Blinder-Oaxaca decomposition)"
+      ],
+      "node_fns": [
+        "ox_decompose"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c11_decomposition_accounting/price_index_numbers": {
+      "module": "price_index_numbers",
+      "category": "11-decomposition-accounting",
+      "package": "c11_decomposition_accounting",
+      "cards": [
+        190
+      ],
+      "methods": [
+        "Price index numbers (bilateral/multilateral/spliced) + CPI-subindex contribution decompositions"
+      ],
+      "node_fns": [
+        "pi_bilateral",
+        "pi_contributions",
+        "pi_multilateral",
+        "pi_splice"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c11_decomposition_accounting/productivity": {
+      "module": "productivity",
+      "category": "11-decomposition-accounting",
+      "package": "c11_decomposition_accounting",
+      "cards": [
+        62
+      ],
+      "methods": [
+        "productivity (TFP / Malmquist / DEA)"
+      ],
+      "node_fns": [
+        "prod_fareprim",
+        "prod_malmquist"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/conditional_unconditional_expectiles": {
+      "module": "conditional_unconditional_expectiles",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        193
+      ],
+      "methods": [
+        "Conditional & unconditional expectiles (Expectiles-at-Risk / a GaR analogue, LAWS)"
+      ],
+      "node_fns": [
+        "exr_expectile",
+        "exr_expectile_reg"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/copula_dependence_tail": {
+      "module": "copula_dependence_tail",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        197
+      ],
+      "methods": [
+        "Copula dependence + tail dependence + goodness of fit (joint stress)"
+      ],
+      "node_fns": [
+        "cop_fit",
+        "cop_gof",
+        "cop_tail_index"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/expectile_extreme_tail": {
+      "module": "expectile_extreme_tail",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        192
+      ],
+      "methods": [
+        "Expectile-based extreme tail risk (extreme/intermediate expectiles + marginal expected shortfall + the heavy-tail index)"
+      ],
+      "node_fns": [
+        "er_expectiles",
+        "er_mes",
+        "er_tail_index"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/extreme_value_theory": {
+      "module": "extreme_value_theory",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        191
+      ],
+      "methods": [
+        "Extreme Value Theory — GEV block maxima & GP/PP/Gumbel/Exponential threshold exceedances + return levels"
+      ],
+      "node_fns": [
+        "evt_fevd",
+        "evt_return_level",
+        "evt_threshold_diag"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/joint_regression_esr": {
+      "module": "joint_regression_esr",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        194
+      ],
+      "methods": [
+        "Joint (VaR, ES) regression (Fissler-Ziegel) + an ESR-based Expected Shortfall backtest"
+      ],
+      "node_fns": [
+        "es_backtest",
+        "es_joint_reg"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/parametric_distribution_fitting": {
+      "module": "parametric_distribution_fitting",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        196
+      ],
+      "methods": [
+        "Parametric distribution fitting (fit/GOF/Cullen-Frey/bootstrap CIs)"
+      ],
+      "node_fns": [
+        "fd_bootdist",
+        "fd_descdist",
+        "fd_fit",
+        "fd_gof"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/quantile_regression": {
+      "module": "quantile_regression",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        64
+      ],
+      "methods": [
+        "Quantile regression (+ Growth-at-Risk, ABG)"
+      ],
+      "node_fns": [
+        "qr_conditional_quantiles",
+        "qr_growth_at_risk",
+        "qr_regression",
+        "qr_slope_equality"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/quantile_regression_forests": {
+      "module": "quantile_regression_forests",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        195
+      ],
+      "methods": [
+        "Quantile Regression Forests (nonparametric conditional quantiles / Growth-at-Risk)"
+      ],
+      "node_fns": [
+        "qrf_fit",
+        "qrf_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/regular_vine_copulas": {
+      "module": "regular_vine_copulas",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        198
+      ],
+      "methods": [
+        "Regular-vine copulas — a pair-copula construction of the joint dependence (structure selection + loglik + simulate)"
+      ],
+      "node_fns": [
+        "vine_loglik",
+        "vine_select",
+        "vine_sim"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/sde_scenario_generation": {
+      "module": "sde_scenario_generation",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        199
+      ],
+      "methods": [
+        "SDE scenario generation (short-rate/asset diffusion paths) + a martingale no-arbitrage check"
+      ],
+      "node_fns": [
+        "esg_martingale_test",
+        "esg_simdiff"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/skew_fit_fitted": {
+      "module": "skew_fit_fitted",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        95
+      ],
+      "methods": [
+        "Skew-t fit to fitted quantiles (ABG Growth-at-Risk «step 2») + density/ES"
+      ],
+      "node_fns": [
+        "st_density",
+        "st_fit_quantiles",
+        "st_shortfall"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c12_distribution_risk/value_risk_expected": {
+      "module": "value_risk_expected",
+      "category": "12-distribution-risk",
+      "package": "c12_distribution_risk",
+      "cards": [
+        65
+      ],
+      "methods": [
+        "Value-at-Risk / Expected Shortfall / downside-risk / component-VaR"
+      ],
+      "node_fns": [
+        "pa_component_var",
+        "pa_downside_risk",
+        "pa_expected_shortfall",
+        "pa_returns_from_long",
+        "pa_var"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c13_dsge_general_equilibrium/computable_applied_general": {
+      "module": "computable_applied_general",
+      "category": "13-dsge-general-equilibrium",
+      "package": "c13_dsge_general_equilibrium",
+      "cards": [
+        202
+      ],
+      "methods": [
+        "Computable/Applied General Equilibrium — a structural dynamic model (sdm) with a Leontief/Cobb-Douglas/CES demand structure; equilibrium prices, activity levels, growth rate"
+      ],
+      "node_fns": [
+        "cge_solve"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c13_dsge_general_equilibrium/small_linear_dsge": {
+      "module": "small_linear_dsge",
+      "category": "13-dsge-general-equilibrium",
+      "package": "c13_dsge_general_equilibrium",
+      "cards": [
+        200
+      ],
+      "methods": [
+        "Small linear(ized) DSGE: Klein (2000) solution + Kalman-filter ML estimation, structural IRFs, forecasts and historical shock decomposition"
+      ],
+      "node_fns": [
+        "dsge_estimate",
+        "dsge_forecast",
+        "dsge_irf",
+        "dsge_shock_decomposition",
+        "dsge_solve"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c13_dsge_general_equilibrium/stock_flow_consistent": {
+      "module": "stock_flow_consistent",
+      "category": "13-dsge-general-equilibrium",
+      "package": "c13_dsge_general_equilibrium",
+      "cards": [
+        203
+      ],
+      "methods": [
+        "Stock-Flow-Consistent (Godley-Lavoie) macro simulation — a baseline steady-state solve, policy scenarios (shocks), balance-sheet/transactions-flow accounting validation"
+      ],
+      "node_fns": [
+        "sfcr_balance_check",
+        "sfcr_scenario_run",
+        "sfcr_simulate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c13_dsge_general_equilibrium/structural_simultaneous_equation": {
+      "module": "structural_simultaneous_equation",
+      "category": "13-dsge-general-equilibrium",
+      "package": "c13_dsge_general_equilibrium",
+      "cards": [
+        201
+      ],
+      "methods": [
+        "Structural simultaneous-equation macro-econometric model (FRB/US-style): MDL definition → estimate → deterministic/stochastic simulation → policy multipliers"
+      ],
+      "node_fns": [
+        "bimets_estimate",
+        "bimets_multipliers",
+        "bimets_simulate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c14_bayesian_toolkit/bayesian_regression": {
+      "module": "bayesian_regression",
+      "category": "14-bayesian-toolkit",
+      "package": "c14_bayesian_toolkit",
+      "cards": [
+        69
+      ],
+      "methods": [
+        "Bayesian regression models"
+      ],
+      "node_fns": [
+        "br_fit",
+        "br_make_formula",
+        "br_set_prior"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c14_bayesian_toolkit/bayesian_structural_time": {
+      "module": "bayesian_structural_time",
+      "category": "14-bayesian-toolkit",
+      "package": "c14_bayesian_toolkit",
+      "cards": [
+        204
+      ],
+      "methods": [
+        "Bayesian Structural Time Series (state.specification: local/semilocal trend + seasonal + AR + spike-and-slab regression) with MCMC"
+      ],
+      "node_fns": [
+        "bsts_components",
+        "bsts_fit",
+        "bsts_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c14_bayesian_toolkit/bayesian_visualization_extractors": {
+      "module": "bayesian_visualization_extractors",
+      "category": "14-bayesian-toolkit",
+      "package": "c14_bayesian_toolkit",
+      "cards": [
+        73
+      ],
+      "methods": [
+        "Bayesian visualization DATA extractors (data, not charts)"
+      ],
+      "node_fns": [
+        "bp_mcmc_areas_data",
+        "bp_mcmc_intervals_data",
+        "bp_mcmc_neff_data",
+        "bp_mcmc_rhat_data",
+        "bp_mcmc_trace_data",
+        "bp_ppc_intervals_data",
+        "bp_ppc_ribbon_data",
+        "bp_ppc_stat_data"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c14_bayesian_toolkit/general_bayesian_inference": {
+      "module": "general_bayesian_inference",
+      "category": "14-bayesian-toolkit",
+      "package": "c14_bayesian_toolkit",
+      "cards": [
+        68
+      ],
+      "methods": [
+        "General Bayesian inference via Stan (NUTS-only + convergence gate)"
+      ],
+      "node_fns": [
+        "rs_compile",
+        "rs_fit",
+        "rs_sample",
+        "rs_syntax_check"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c14_bayesian_toolkit/general_bugs_style": {
+      "module": "general_bugs_style",
+      "category": "14-bayesian-toolkit",
+      "package": "c14_bayesian_toolkit",
+      "cards": [
+        70
+      ],
+      "methods": [
+        "General BUGS-style Bayesian MCMC (injection-safe)"
+      ],
+      "node_fns": [
+        "nim_bayes_mcmc"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c14_bayesian_toolkit/mcmc_convergence_diagnostics": {
+      "module": "mcmc_convergence_diagnostics",
+      "category": "14-bayesian-toolkit",
+      "package": "c14_bayesian_toolkit",
+      "cards": [
+        72
+      ],
+      "methods": [
+        "MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF)"
+      ],
+      "node_fns": [
+        "coda_autocorr",
+        "coda_diagnostics",
+        "coda_effective_size",
+        "coda_gelman",
+        "coda_geweke",
+        "coda_heidel",
+        "coda_hpd_interval",
+        "coda_raftery"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c14_bayesian_toolkit/posterior_hat_ess": {
+      "module": "posterior_hat_ess",
+      "category": "14-bayesian-toolkit",
+      "package": "c14_bayesian_toolkit",
+      "cards": [
+        71
+      ],
+      "methods": [
+        "Posterior R-hat / ESS diagnostics + summaries"
+      ],
+      "node_fns": [
+        "post_summarise_draws"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c14_bayesian_toolkit/sequential_monte_carlo": {
+      "module": "sequential_monte_carlo",
+      "category": "14-bayesian-toolkit",
+      "package": "c14_bayesian_toolkit",
+      "cards": [
+        205
+      ],
+      "methods": [
+        "Sequential Monte Carlo / particle filters for non-linear/non-Gaussian state-space models (bootstrap / auxiliary / Liu-West / ensemble Kalman)"
+      ],
+      "node_fns": [
+        "smc_filter"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c15_model_evaluation/arch": {
+      "module": "arch",
+      "category": "15-model-evaluation",
+      "package": "c15_model_evaluation",
+      "cards": [
+        77
+      ],
+      "methods": [
+        "ARCH-LM test (Engle)"
+      ],
+      "node_fns": [
+        "run_arch_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c15_model_evaluation/breusch_godfrey_breusch": {
+      "module": "breusch_godfrey_breusch",
+      "category": "15-model-evaluation",
+      "package": "c15_model_evaluation",
+      "cards": [
+        76
+      ],
+      "methods": [
+        "Breusch-Godfrey / Breusch-Pagan / Ramsey RESET"
+      ],
+      "node_fns": [
+        "run_bg_test",
+        "run_bp_test",
+        "run_reset_test"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c15_model_evaluation/confidence_set": {
+      "module": "confidence_set",
+      "category": "15-model-evaluation",
+      "package": "c15_model_evaluation",
+      "cards": [
+        75
+      ],
+      "methods": [
+        "Model Confidence Set (Hansen-Lunde-Nason)"
+      ],
+      "node_fns": [
+        "compute_loss_level",
+        "compute_loss_vol",
+        "run_mcs_procedure"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c15_model_evaluation/density_forecast_evaluation": {
+      "module": "density_forecast_evaluation",
+      "category": "15-model-evaluation",
+      "package": "c15_model_evaluation",
+      "cards": [
+        94
+      ],
+      "methods": [
+        "Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted)"
+      ],
+      "node_fns": [
+        "sr_crps_parametric",
+        "sr_crps_sample",
+        "sr_crps_tailweighted",
+        "sr_logs_parametric",
+        "sr_logs_sample",
+        "sr_pit_sample"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c15_model_evaluation/diebold_mariano_tscv": {
+      "module": "diebold_mariano_tscv",
+      "category": "15-model-evaluation",
+      "package": "c15_model_evaluation",
+      "cards": [
+        74
+      ],
+      "methods": [
+        "Diebold-Mariano test + tsCV rolling backtest"
+      ],
+      "node_fns": [
+        "eval_dm_test",
+        "eval_tsCV"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c16_limited_dependent/binomial_glm_recession": {
+      "module": "binomial_glm_recession",
+      "category": "16-limited-dependent",
+      "package": "c16_limited_dependent",
+      "cards": [
+        83
+      ],
+      "methods": [
+        "Binomial GLM (probit/logit) — recession probability (Estrella-Mishkin)"
+      ],
+      "node_fns": [
+        "run_feglm_binom"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c16_limited_dependent/high_dimensional_way": {
+      "module": "high_dimensional_way",
+      "category": "16-limited-dependent",
+      "package": "c16_limited_dependent",
+      "cards": [
+        206
+      ],
+      "methods": [
+        "High-dimensional k-way fixed-effects GLM (binary logit/probit, Poisson count) with an analytic incidental-parameter bias correction (Fernández-Val/Weidner) + average partial effects"
+      ],
+      "node_fns": [
+        "alpaca_apes",
+        "alpaca_feglm"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c16_limited_dependent/roc_auc_binary": {
+      "module": "roc_auc_binary",
+      "category": "16-limited-dependent",
+      "package": "c16_limited_dependent",
+      "cards": [
+        84
+      ],
+      "methods": [
+        "ROC / AUC — binary forecast evaluation"
+      ],
+      "node_fns": [
+        "run_roc"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c17_forecast_combination/coherent_forecast_reconciliation": {
+      "module": "coherent_forecast_reconciliation",
+      "category": "17-forecast-combination",
+      "package": "c17_forecast_combination",
+      "cards": [
+        208
+      ],
+      "methods": [
+        "Coherent forecast reconciliation (cross-sectional / temporal / cross-temporal) via an optimal least-squares projection (MinT: ols/str/wls/shr/sam)"
+      ],
+      "node_fns": [
+        "foreco_reconcile"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c17_forecast_combination/ensemble_forecast_combination": {
+      "module": "ensemble_forecast_combination",
+      "category": "17-forecast-combination",
+      "package": "c17_forecast_combination",
+      "cards": [
+        85
+      ],
+      "methods": [
+        "Ensemble forecast combination (equal / in-sample / CV weights)"
+      ],
+      "node_fns": [
+        "run_hybrid"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c17_forecast_combination/online_probabilistic_forecast": {
+      "module": "online_probabilistic_forecast",
+      "category": "17-forecast-combination",
+      "package": "c17_forecast_combination",
+      "cards": [
+        207
+      ],
+      "methods": [
+        "Online probabilistic forecast combination via CRPS-Learning (BOA/BEWA/ML-Poly/EWA aggregation of quantile expert forecasts)"
+      ],
+      "node_fns": [
+        "profoc_online"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c17_forecast_combination/tidy_hierarchical_grouped": {
+      "module": "tidy_hierarchical_grouped",
+      "category": "17-forecast-combination",
+      "package": "c17_forecast_combination",
+      "cards": [
+        209
+      ],
+      "methods": [
+        "Tidy hierarchical/grouped forecast reconciliation (aggregate_key + MinT/bottom_up) in the fable framework"
+      ],
+      "node_fns": [
+        "fable_reconcile"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c18_yield_curve/arbitrage_free_affine": {
+      "module": "arbitrage_free_affine",
+      "category": "18-yield-curve",
+      "package": "c18_yield_curve",
+      "cards": [
+        211
+      ],
+      "methods": [
+        "Arbitrage-free affine (Gaussian) term-structure model — JSZ-style single-country JPS estimation with unspanned macro risks (risk-neutral Q + physical P parameters, model-implied yields, term-premia decomposition)"
+      ],
+      "node_fns": [
+        "atsm_estimate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c18_yield_curve/nelson_siegel_svensson": {
+      "module": "nelson_siegel_svensson",
+      "category": "18-yield-curve",
+      "package": "c18_yield_curve",
+      "cards": [
+        87
+      ],
+      "methods": [
+        "Nelson-Siegel / Svensson / Diebold-Li yield-curve factors"
+      ],
+      "node_fns": [
+        "fit_nelson_siegel",
+        "fit_svensson"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c18_yield_curve/nonparametric_time_varying": {
+      "module": "nonparametric_time_varying",
+      "category": "18-yield-curve",
+      "package": "c18_yield_curve",
+      "cards": [
+        212
+      ],
+      "methods": [
+        "Nonparametric time-varying yield curve / discount function estimation from coupon-bond cash-flow data (the Koo-La Vecchia-Linton kernel estimator)"
+      ],
+      "node_fns": [
+        "ycevo_estimate"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c18_yield_curve/parametric_yield_curve": {
+      "module": "parametric_yield_curve",
+      "category": "18-yield-curve",
+      "package": "c18_yield_curve",
+      "cards": [
+        210
+      ],
+      "methods": [
+        "Parametric yield-curve factor models (Nelson-Siegel / Svensson / cubic spline, Diebold-Li dynamics on a panel) + curve transforms (spot/forward/discount/PCA)"
+      ],
+      "node_fns": [
+        "yc_fit",
+        "yc_transform"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c19_business_cycle_dating/bayesian_change_point": {
+      "module": "bayesian_change_point",
+      "category": "19-business-cycle-dating",
+      "package": "c19_business_cycle_dating",
+      "cards": [
+        214
+      ],
+      "methods": [
+        "Bayesian change point (the Barry-Hartigan Product-Partition Model, MCMC)"
+      ],
+      "node_fns": [
+        "detect_change_points"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c19_business_cycle_dating/change_point_detection": {
+      "module": "change_point_detection",
+      "category": "19-business-cycle-dating",
+      "package": "c19_business_cycle_dating",
+      "cards": [
+        213
+      ],
+      "methods": [
+        "Change-point detection in mean / variance / mean+variance (PELT/BinSeg/SegNeigh/AMOC)"
+      ],
+      "node_fns": [
+        "changepoint_segments",
+        "detect_changepoints"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c19_business_cycle_dating/energy_statistics_nonparametric": {
+      "module": "energy_statistics_nonparametric",
+      "category": "19-business-cycle-dating",
+      "package": "c19_business_cycle_dating",
+      "cards": [
+        215
+      ],
+      "methods": [
+        "Energy-statistics nonparametric multivariate change-point detection (E-divisive / E-agglomerative)"
+      ],
+      "node_fns": [
+        "detect_changepoints_agglo",
+        "detect_changepoints_divisive"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c19_business_cycle_dating/harding_pagan_bbq": {
+      "module": "harding_pagan_bbq",
+      "category": "19-business-cycle-dating",
+      "package": "c19_business_cycle_dating",
+      "cards": [
+        88
+      ],
+      "methods": [
+        "Harding-Pagan BBQ (Quarterly Bry-Boschan turning points)"
+      ],
+      "node_fns": [
+        "average_over_phases",
+        "date_business_cycles"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c20_highdim_shrinkage_ml/bayesian_averaging": {
+      "module": "bayesian_averaging",
+      "category": "20-highdim-shrinkage-ml",
+      "package": "c20_highdim_shrinkage_ml",
+      "cards": [
+        219
+      ],
+      "methods": [
+        "Bayesian Model Averaging (BMA, g-priors: enumeration + MCMC)"
+      ],
+      "node_fns": [
+        "bma_average",
+        "bma_coefficients"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c20_highdim_shrinkage_ml/component_wise_gradient": {
+      "module": "component_wise_gradient",
+      "category": "20-highdim-shrinkage-ml",
+      "package": "c20_highdim_shrinkage_ml",
+      "cards": [
+        218
+      ],
+      "methods": [
+        "Component-wise gradient boosting (glmboost) — high-dimensional shrinkage + automatic variable selection with custom losses"
+      ],
+      "node_fns": [
+        "glmboost_cv_mstop",
+        "glmboost_fit"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c20_highdim_shrinkage_ml/grouped_level_penalized": {
+      "module": "grouped_level_penalized",
+      "category": "20-highdim-shrinkage-ml",
+      "package": "c20_highdim_shrinkage_ml",
+      "cards": [
+        220
+      ],
+      "methods": [
+        "Grouped / bi-level penalized regression (group lasso, group MCP/SCAD, gel/cMCP)"
+      ],
+      "node_fns": [
+        "cv_group_penalized_regression",
+        "group_penalized_regression"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c20_highdim_shrinkage_ml/random_forests_oob": {
+      "module": "random_forests_oob",
+      "category": "20-highdim-shrinkage-ml",
+      "package": "c20_highdim_shrinkage_ml",
+      "cards": [
+        217
+      ],
+      "methods": [
+        "Random forests (ranger): OOB error, variable importance, quantile regression forests"
+      ],
+      "node_fns": [
+        "rf_fit",
+        "rf_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c20_highdim_shrinkage_ml/regularized_regression_lasso": {
+      "module": "regularized_regression_lasso",
+      "category": "20-highdim-shrinkage-ml",
+      "package": "c20_highdim_shrinkage_ml",
+      "cards": [
+        216
+      ],
+      "methods": [
+        "Regularized regression: Lasso / Ridge / Elastic-Net (+ a k-fold CV path)"
+      ],
+      "node_fns": [
+        "cv_glmnet",
+        "fit_glmnet",
+        "glmnet_coefficients",
+        "glmnet_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c21_systemic_risk/bayesian_interbank_network": {
+      "module": "bayesian_interbank_network",
+      "category": "21-systemic-risk",
+      "package": "c21_systemic_risk",
+      "cards": [
+        223
+      ],
+      "methods": [
+        "Bayesian interbank-network reconstruction (the Gandy-Veraart Gibbs sampler, an Erdős-Rényi hierarchical model)"
+      ],
+      "node_fns": [
+        "build_er_model",
+        "sample_interbank_network"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c21_systemic_risk/financial_network_contagion": {
+      "module": "financial_network_contagion",
+      "category": "21-systemic-risk",
+      "package": "c21_systemic_risk",
+      "cards": [
+        222
+      ],
+      "methods": [
+        "Financial-network contagion: DebtRank + Furfine cascades + interbank exposure-matrix reconstruction (Maximum Entropy / Minimum Density)"
+      ],
+      "node_fns": [
+        "nrm_contagion",
+        "nrm_reconstruct_matrix"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c21_systemic_risk/market_systemic_risk": {
+      "module": "market_systemic_risk",
+      "category": "21-systemic-risk",
+      "package": "c21_systemic_risk",
+      "cards": [
+        221
+      ],
+      "methods": [
+        "Market-based systemic risk: CoVaR / Delta-CoVaR (Adrian-Brunnermeier) + correlation-network measures"
+      ],
+      "node_fns": [
+        "syr_correlation_network_measures",
+        "syr_covar_delta_covar",
+        "syr_covar_delta_covar_t",
+        "syr_scale"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c22_inequality/affluence_richness_indices": {
+      "module": "affluence_richness_indices",
+      "category": "22-inequality",
+      "package": "c22_inequality",
+      "cards": [
+        228
+      ],
+      "methods": [
+        "affluence/richness indices (the top-tail mirror of poverty indices): the richness headcount ratio (r.hc), the Chakravarty concave T1 index (r.cha), the FGT convex T2 index (r.fgt), the Medeiros average affluence gap (r.med), the top income share (r.is), the Medeiros affluence line (line.med) — weighted implementations"
+      ],
+      "node_fns": [
+        "affluence_line",
+        "income_share_top",
+        "richness_index"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c22_inequality/complex_survey_aware": {
+      "module": "complex_survey_aware",
+      "category": "22-inequality",
+      "package": "c22_inequality",
+      "cards": [
+        226
+      ],
+      "methods": [
+        "Complex-survey-aware inequality & poverty with design-based linearized SE (Gini/QSR/Zenga + FGT/ARPR)"
+      ],
+      "node_fns": [
+        "svy_inequality",
+        "svy_poverty"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c22_inequality/drivers_inequality_change": {
+      "module": "drivers_inequality_change",
+      "category": "22-inequality",
+      "package": "c22_inequality",
+      "cards": [
+        225
+      ],
+      "methods": [
+        "drivers of inequality change: RIF (recentered influence function) regressions + regression-based (Fields/Yun) inequality decomposition"
+      ],
+      "node_fns": [
+        "dineq_change_decomp",
+        "dineq_regression_decomp",
+        "gini_decomposition",
+        "mld_decomposition",
+        "rif_influence",
+        "rif_regression",
+        "rif_regression_se"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c22_inequality/gb2_parametric_income": {
+      "module": "gb2_parametric_income",
+      "category": "22-inequality",
+      "package": "c22_inequality",
+      "cards": [
+        227
+      ],
+      "methods": [
+        "GB2 (Generalized Beta of the 2nd kind, 4 parameters a,b,p,q) parametric income-distribution ML fit + analytic Gini/ARPR"
+      ],
+      "node_fns": [
+        "arpr_gb2",
+        "fit_gb2",
+        "gini_gb2"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c22_inequality/inequality_indices_lorenz": {
+      "module": "inequality_indices_lorenz",
+      "category": "22-inequality",
+      "package": "c22_inequality",
+      "cards": [
+        91
+      ],
+      "methods": [
+        "inequality indices + Lorenz curve (Gini/Theil/Atkinson/RS/Kolm/CV/entropy)"
+      ],
+      "node_fns": [
+        "compute_inequality",
+        "lorenz_curve"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c22_inequality/tax_progressivity_redistribution": {
+      "module": "tax_progressivity_redistribution",
+      "category": "22-inequality",
+      "package": "c22_inequality",
+      "cards": [
+        224
+      ],
+      "methods": [
+        "tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini · concentration · Atkinson · GEI · Lorenz)"
+      ],
+      "node_fns": [
+        "ic2_atkinson",
+        "ic2_decomp_atkinson",
+        "ic2_decomp_gei",
+        "ic2_decomp_sgini",
+        "ic2_gei",
+        "ic2_lorenz",
+        "ic2_sconc",
+        "ic2_sgini"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c23_real_time_revisions/real_time_revision": {
+      "module": "real_time_revision",
+      "category": "23-real-time-revisions",
+      "package": "c23_real_time_revisions",
+      "cards": [
+        229
+      ],
+      "methods": [
+        "Real-time data-revision analysis (vintages: a triangle, revision statistics, news-vs-noise/efficiency tests, a state-space nowcast)"
+      ],
+      "node_fns": [
+        "analyze_revisions",
+        "build_revision_triangle",
+        "compute_revisions",
+        "first_efficient_release",
+        "nowcast_revisions"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c24_panel_var/heterogeneous_panel_var": {
+      "module": "heterogeneous_panel_var",
+      "category": "24-panel-var",
+      "package": "c24_panel_var",
+      "cards": [
+        230
+      ],
+      "methods": [
+        "Heterogeneous-panel VAR/SVAR: (P)MG estimation, panel cointegration rank tests, structural identification (+MG-IRF/MG-FEVD), bootstrap IRF confidence bands"
+      ],
+      "node_fns": [
+        "pv_bootstrap",
+        "pv_cointegration",
+        "pv_estimate",
+        "pv_identify"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c25_expectations_surveys/categorical_association_contingency": {
+      "module": "categorical_association_contingency",
+      "category": "25-expectations-surveys",
+      "package": "c25_expectations_surveys",
+      "cards": [
+        257
+      ],
+      "methods": [
+        "Categorical association / contingency tables: a chi-squared test of independence, Fisher's exact test, nominal vs ordinal association measures with CIs"
+      ],
+      "node_fns": [
+        "ca_assocs",
+        "ca_chisq",
+        "ca_contingency",
+        "ca_fisher"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c25_expectations_surveys/design_complex_survey": {
+      "module": "design_complex_survey",
+      "category": "25-expectations-surveys",
+      "package": "c25_expectations_surveys",
+      "cards": [
+        232
+      ],
+      "methods": [
+        "Design-based complex-survey estimation (means/totals/quantiles/domains) with correct design variances (stratification, clustering, weights, fpc)"
+      ],
+      "node_fns": [
+        "sv_svyby",
+        "sv_svydesign",
+        "sv_svymean",
+        "sv_svyquantile",
+        "sv_svytotal"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c25_expectations_surveys/quantifying_qualitative_survey": {
+      "module": "quantifying_qualitative_survey",
+      "category": "25-expectations-surveys",
+      "package": "c25_expectations_surveys",
+      "cards": [
+        231
+      ],
+      "methods": [
+        "Quantifying QUALITATIVE survey expectations (up/same/down shares -> a numeric expectations series): the balance approach, Carlson-Parkin (+limen/distribution extensions), the regression approach, conditional expectations"
+      ],
+      "node_fns": [
+        "qn_balance",
+        "qn_carlson_parkin",
+        "qn_conditional_expectations",
+        "qn_regression"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c25_expectations_surveys/small_area_estimation": {
+      "module": "small_area_estimation",
+      "category": "25-expectations-surveys",
+      "package": "c25_expectations_surveys",
+      "cards": [
+        233
+      ],
+      "methods": [
+        "Small-area estimation (SAE): the Fay-Herriot area-level EBLUP (+ the analytic Prasad-Rao MSE) & the Battese-Harter-Fuller unit-level EBLUP"
+      ],
+      "node_fns": [
+        "sae_eblup_bhf",
+        "sae_eblup_fh",
+        "sae_mse_fh"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c26_text_as_data/textual_sentiment_pipeline": {
+      "module": "textual_sentiment_pipeline",
+      "category": "26-text-as-data",
+      "package": "c26_text_as_data",
+      "cards": [
+        234
+      ],
+      "methods": [
+        "Textual sentiment pipeline (corpus -> lexicon sentiment -> time aggregation -> elastic-net sparse-regression forecasting)"
+      ],
+      "node_fns": [
+        "snt_corpus",
+        "snt_measures",
+        "snt_model",
+        "snt_sentiment"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c27_frequency_domain/spectral_periodogram_quick": {
+      "module": "spectral_periodogram_quick",
+      "category": "27-frequency-domain",
+      "package": "c27_frequency_domain",
+      "cards": [
+        236
+      ],
+      "methods": [
+        "Spectral / periodogram quick look (a smoothed periodogram, the high-level spectrum pgram|AR, a numeric cumulative periodogram + KS white-noise bands)"
+      ],
+      "node_fns": [
+        "sp_cumulative_periodogram",
+        "sp_periodogram",
+        "sp_spectrum"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c27_frequency_domain/wavelet_time_frequency": {
+      "module": "wavelet_time_frequency",
+      "category": "27-frequency-domain",
+      "package": "c27_frequency_domain",
+      "cards": [
+        235
+      ],
+      "methods": [
+        "Wavelet time-frequency analysis (the Morlet CWT: power spectrum, cross-wavelet, wavelet coherence, phase difference — numeric grids)"
+      ],
+      "node_fns": [
+        "wv_coherency",
+        "wv_wavelet"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c28_trade_gravity/economic_complexity_rca": {
+      "module": "economic_complexity_rca",
+      "category": "28-trade-gravity",
+      "package": "c28_trade_gravity",
+      "cards": [
+        239
+      ],
+      "methods": [
+        "Economic complexity: RCA (the Balassa index), ECI/PCI (fitness/reflections/eigenvalues), product-space proximity"
+      ],
+      "node_fns": [
+        "ec_balassa",
+        "ec_complexity",
+        "ec_proximity"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c28_trade_gravity/gravity_bilateral_trade": {
+      "module": "gravity_bilateral_trade",
+      "category": "28-trade-gravity",
+      "package": "c28_trade_gravity",
+      "cards": [
+        237
+      ],
+      "methods": [
+        "Gravity models of bilateral trade (OLS / PPML / importer-exporter fixed effects / Bonus vetus OLS / Head-Mayer-Ries tetrads)"
+      ],
+      "node_fns": [
+        "gr_bvu",
+        "gr_fixed_effects",
+        "gr_ols",
+        "gr_ppml",
+        "gr_tetrads"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c28_trade_gravity/penalized_poisson_pml": {
+      "module": "penalized_poisson_pml",
+      "category": "28-trade-gravity",
+      "package": "c28_trade_gravity",
+      "cards": [
+        238
+      ],
+      "methods": [
+        "Penalized Poisson PML gravity with high-dimensional fixed effects (an HDFE PPML baseline; a single-lambda lasso/ridge/plugin; a lasso/ridge path + a BIC-selected lambda)"
+      ],
+      "node_fns": [
+        "pp_hdfeppml",
+        "pp_mlfitppml",
+        "pp_penhdfeppml"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c29_unsupervised_clustering/clustering_rule_choice": {
+      "module": "clustering_rule_choice",
+      "category": "29-unsupervised-clustering",
+      "package": "c29_unsupervised_clustering",
+      "cards": [
+        244
+      ],
+      "methods": [
+        "Model-based clustering (a finite gaussian mixture): a RULE-BASED choice of BOTH the number of groups G AND the geometric covariance shape through BIC/ICL + out-of-sample assignment"
+      ],
+      "node_fns": [
+        "mb_bic",
+        "mb_icl",
+        "mb_mclust",
+        "mb_predict"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c29_unsupervised_clustering/distance_dissimilarity_matrix": {
+      "module": "distance_dissimilarity_matrix",
+      "category": "29-unsupervised-clustering",
+      "package": "c29_unsupervised_clustering",
+      "cards": [
+        240
+      ],
+      "methods": [
+        "DISTANCE / dissimilarity matrix between objects: dist (the 6 documented metrics), correlation-based dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), dist (14 further shape/compositional/Mahalanobis metrics)"
+      ],
+      "node_fns": [
+        "dm_cor_dist",
+        "dm_dist",
+        "dm_proxy_dist"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c29_unsupervised_clustering/dynamic_time_warping": {
+      "module": "dynamic_time_warping",
+      "category": "29-unsupervised-clustering",
+      "package": "c29_unsupervised_clustering",
+      "cards": [
+        243
+      ],
+      "methods": [
+        "Dynamic Time Warping (DTW): a shape-based distance with NON-LINEAR alignment in time — a query/reference pair + a cross-distance matrix (`dist`) for downstream clustering"
+      ],
+      "node_fns": [
+        "dw_dist_matrix",
+        "dw_dtw"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c29_unsupervised_clustering/hierarchical_clustering_distance": {
+      "module": "hierarchical_clustering_distance",
+      "category": "29-unsupervised-clustering",
+      "package": "c29_unsupervised_clustering",
+      "cards": [
+        242
+      ],
+      "methods": [
+        "Hierarchical clustering on a distance matrix: agglomerative hclust (the 8 documented methods) + agnes (with an agglomerative coefficient), divisive diana (with a divisive coefficient), and tree cutting with cutree (k OR h) -> dendrogram chart-data (merge/height/order) + memberships"
+      ],
+      "node_fns": [
+        "hc_agnes",
+        "hc_cutree",
+        "hc_diana",
+        "hc_hclust"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c29_unsupervised_clustering/multidimensional_scaling_classical": {
+      "module": "multidimensional_scaling_classical",
+      "category": "29-unsupervised-clustering",
+      "package": "c29_unsupervised_clustering",
+      "cards": [
+        245
+      ],
+      "methods": [
+        "Multidimensional Scaling: CLASSICAL/metric (cmdscale = principal coordinates analysis, + the Cailliez constant) · NON-METRIC after Kruskal (isoMDS) · the NON-LINEAR Sammon mapping"
+      ],
+      "node_fns": [
+        "mds_cmdscale",
+        "mds_isomds",
+        "mds_sammon"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    },
+    "c29_unsupervised_clustering/partitional_clustering_rule": {
+      "module": "partitional_clustering_rule",
+      "category": "29-unsupervised-clustering",
+      "package": "c29_unsupervised_clustering",
+      "cards": [
+        241
+      ],
+      "methods": [
+        "Partitional (flat) clustering + RULE-BASED selection of k: k-means (Hartigan-Wong/Lloyd/Forgy/MacQueen), PAM/k-medoids (Kaufman-Rousseeuw), the silhouette diagnostic (Rousseeuw), the gap statistic (Tibshirani-Walther-Hastie) with the 5 maxSE rules"
+      ],
+      "node_fns": [
+        "km_gap",
+        "km_kmeans",
+        "km_pam",
+        "km_silhouette"
+      ],
+      "status": "planned",
+      "library": null,
+      "paper": null
+    }
+  }
+}

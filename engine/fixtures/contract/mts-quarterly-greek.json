@@ -1,0 +1,52 @@
+{
+  "name": "mts-quarterly-greek",
+  "why": "mts with three columns with Greek names (UTF-8) + NA in one column",
+  "producer": ".node_ptr_serialize",
+  "format": "parquet",
+  "engine": {
+    "arrow_version": "24.0.0"
+  },
+  "sidecar": {
+    "class": "mts",
+    "ts": true,
+    "matrix": true,
+    "start": 2021,
+    "end": 2021.5,
+    "frequency": 4,
+    "columns": [
+      "ΑΕΠ",
+      "πληθωρισμός",
+      "ανεργία"
+    ]
+  },
+  "expect": {
+    "kind": "mts",
+    "columns": {
+      "ΑΕΠ": [
+        "100.5",
+        "101.5",
+        "102.5"
+      ],
+      "πληθωρισμός": [
+        "1.1",
+        null,
+        "1.3"
+      ],
+      "ανεργία": [
+        "12.3",
+        "12.1",
+        "11.9"
+      ]
+    },
+    "start": [
+      2021,
+      1
+    ],
+    "frequency": 4,
+    "na": {
+      "πληθωρισμός": [
+        1
+      ]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "_comment": [
+    "THE SINGLE HOME FOR EVERY ASSERTED CONSTANT.",
+    "",
+    "ARCHITECTURE.md 11.1 requires that a gate which passed because it examined",
+    "zero files has not passed. Every gate therefore asserts a minimum quantity",
+    "of work done, and every one of those quantities lives HERE -- once.",
+    "",
+    "Consequence, which is the entire point: a legitimate change to the engine",
+    "is a visible one-line diff in this file, reviewed on its own merits. A gate",
+    "can never be weakened silently, because weakening it means editing a number",
+    "here where a reviewer will see it.",
+    "",
+    "Comparisons are EXACT EQUALITY, not >=. Adding a wrapper must be a",
+    "deliberate bump of this manifest, not something that slips through.",
+    "",
+    "THE FIVE CONTINUITY CONSTANTS -- n_nodes, n_categories, n_cards,",
+    "n_parity_cases, n_recommend_fixtures -- are language-neutral. They describe",
+    "the committed artifacts, which are frozen inputs rather than outputs of the",
+    "current implementation. They did not move when the engine was reimplemented",
+    "in Python, and that is exactly the point: they are the proof that the same",
+    "913 nodes and the same 4855 verdicts are still being served.",
+    "",
+    "THE VALUE \"unmeasured\" IS A HARD FAILURE, NOT A PLACEHOLDER. It marks a",
+    "constant whose measuring artifact does not exist in the tree yet. assert.sh",
+    "fails loudly and names it. A gate that cannot start must never look like a",
+    "gate that passed -- so this reads red until the artifact lands and the real",
+    "figure replaces the word, in a reviewed one-line diff.",
+    "",
+    "Every value below is reproduced by the command beside it in",
+    "'commands', run from the engine directory. Never edit a number without",
+    "running its command first."
+  ],
+  "engine": {
+    "wrappers": 251,
+    "categories": 30,
+    "methods": 913,
+    "generators": 3,
+    "infra_py_files": 23,
+    "test_files": 3,
+    "test_helpers": 1,
+    "py_packages": 36,
+    "python_version": "3.12",
+    "n_implemented": 0
+  },
+  "spdx": {
+    "_comment": "380 as of 2026-08-16, and every one of them carries a header. The set is src/ + scripts/ + tests/, and it breaks down as 282 under wrappers/ (251 modules plus 31 package __init__), 64 in the generated tier, 24 infrastructure modules, 3 generators and 7 test modules. The number moving is the point: this pair is the one figure a licence change touches everywhere at once, so a reviewer should see it move in a one-line diff rather than infer it. Note that wrappers is 251 while this counts 282 of the same directory -- these measure different sets, and so does test_files at 2 against the 7 counted here.",
+    "py_files_total": 380,
+    "py_files_with_header": 380
+  },
+  "artifacts": {
+    "_comment": "sbom_components is 41 and py_packages is 43, and the two-package gap is deliberate, not a rounding error: uv.lock counts every workspace member, and econflow-engine and econflow-backend are ours rather than third-party attribution, so the register and the SBOM exclude them. Both figures are now measurable because gen_third_party.py regenerated the document from uv.lock; before that they were held at 'unmeasured' rather than read off a file describing a dependency set this engine no longer loads. A measurable figure is not the same as a true one.",
+    "n_nodes": 913,
+    "n_categories": 30,
+    "n_cards": 252,
+    "n_parity_cases": 4855,
+    "n_recommend_fixtures": 114,
+    "sbom_components": 34,
+    "sidecars": 6
+  },
+  "suite": {
+    "_comment": "min_tests is a floor, deliberately. The suite total moves upward as tests are added; it must never move DOWN unnoticed, which is what this floor catches. failed and error are exact. The figure is low because the 913 handlers are typed stubs that raise, and their tests land with their implementations: the conformance and argument-contract harnesses are the only ones that exist yet. It rises as the per-wrapper suites land, and it may never be lowered.",
+    "min_tests": 30,
+    "failed": 0,
+    "error": 0
+  },
+  "residue": {
+    "_comment": "Floor for check-vocabulary.sh. A floor, not an exact count: files come and go constantly, and the only thing this must catch is a scan that stopped examining the tree.",
+    "min_files_scanned": 100
+  },
+  "commands": {
+    "wrappers": "find src/econflow_engine/wrappers -name '*.py' -type f -not -name '__init__.py' | wc -l",
+    "categories": "find src/econflow_engine/wrappers -mindepth 1 -maxdepth 1 -type d -not -name '__pycache__' | wc -l",
+    "generators": "find scripts -maxdepth 1 -name '*.py' -type f | wc -l",
+    "methods": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.v1.json'))['engine']['n_nodes'])\"",
+    "infra_py_files": "find src -name '*.py' -not -path '*__pycache__*' -not -path 'src/econflow_engine/wrappers/*' -not -path 'src/econflow_engine/generated/*' | wc -l",
+    "test_files": "find tests -name 'test_*.py' -not -path '*__pycache__*' | wc -l",
+    "test_helpers": "find tests -maxdepth 1 -name 'conftest.py' | wc -l",
+    "py_packages": "python3 -c \"import tomllib;print(len(tomllib.load(open('../uv.lock','rb'))['package']))\"",
+    "python_version": "cat .python-version",
+    "py_files_total": "find src scripts tests -name '*.py' -not -path '*__pycache__*' | wc -l",
+    "py_files_with_header": "find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 | xargs -0 grep -l 'SPDX-License-Identifier' | wc -l",
+    "n_nodes": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.v1.json'))['engine']['n_nodes'])\"",
+    "n_categories": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.v1.json'))['engine']['n_categories'])\"",
+    "n_cards": "python3 -c \"import json;print(json.load(open('artifacts/method-cards.v1.json'))['source']['n_cards'])\"",
+    "n_parity_cases": "python3 -c \"import json;print(json.load(open('artifacts/parity-fixtures.v1.json'))['n_cases'])\"",
+    "n_recommend_fixtures": "python3 -c \"import json;print(json.load(open('artifacts/recommend-fixtures.v1.json'))['source']['n_fixtures'])\"",
+    "sbom_components": "python3 -c \"import json;print(len(json.load(open('sbom.cdx.json'))['components']))\"",
+    "min_tests": "python3 -m pytest --collect-only -q | tail -1 | sed 's/ tests\\? collected.*//'",
+    "residue_files_scanned": "bash .github/scripts/check-vocabulary.sh . | sed 's/.*examined \\([0-9]*\\) files.*/\\1/'",
+    "n_implemented": "python3 -c \"\nimport ast, pathlib\ndef is_stub(fn):\n    body = [s for s in fn.body if not (isinstance(s, ast.Expr) and isinstance(s.value, ast.Constant) and isinstance(s.value.value, str))]\n    if len(body) != 1 or not isinstance(body[0], ast.Raise):\n        return False\n    exc = body[0].exc\n    name = getattr(exc, \\\"func\\\", exc)\n    return isinstance(name, ast.Name) and name.id == \\\"NotImplementedError\\\"\nn = 0\nfor f in pathlib.Path(\\\"src/econflow_engine/wrappers\\\").rglob(\\\"*.py\\\"):\n    if f.name == \\\"__init__.py\\\":\n        continue\n    for node in ast.walk(ast.parse(f.read_text())):\n        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not node.name.startswith(\\\"_\\\") and not is_stub(node):\n            n += 1\nprint(n)\n\"",
+    "sidecars": "ls artifacts/*.sha256 | wc -l"
+  },
+  "_note_on_grep": [
+    "py_files_with_header uses find -print0 | xargs -0 grep -l, NOT grep -rl --include.",
+    "Measured on a maintainer machine: `grep` resolves to ugrep 7.5.0, whose",
+    "--include under -r reported 315 of 379 files while GNU grep reported 379.",
+    "A gate written with --include therefore UNDERCOUNTS silently on that host",
+    "and passes in CI, which is the failure direction CONTRIBUTING.md forbids."
+  ]
+}

@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# Developer Certificate of Origin.
+#
+# The contribution instrument for this project is a sign-off, not a contributor
+# agreement. Under a uniform AGPL-3.0-only licence with no relicensing
+# intent, an agreement buys nothing the licence does not already provide, and it
+# is a documented barrier to exactly the academic contributors this project
+# exists for. A `Signed-off-by:` trailer is the whole ceremony.
+#
+# Written as ~40 lines of shell rather than a third-party action deliberately:
+# both mainstream CLA/DCO actions were archived in 2026, and pinning an archived
+# action with write access into a supply-chain-conscious pipeline would be a
+# contradiction. This needs no permissions beyond reading the diff.
+name: dco
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+concurrency:
+  group: dco-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  sign-off:
+    name: every commit carries Signed-off-by
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check the sign-off trailer on each commit
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          mapfile -t commits < <(git rev-list "${BASE}..${HEAD}")
+          echo "range ${BASE:0:8}..${HEAD:0:8} contains ${#commits[@]} commit(s)"
+
+          # ANTI-VACUITY. An empty range passes trivially: zero commits means
+          # zero unsigned commits. That is the failure mode where this gate
+          # reports success on a pull request it never examined.
+          if [ "${#commits[@]}" -eq 0 ]; then
+            echo "FAIL: the commit range is empty. The gate examined nothing,"
+            echo "so it has proven nothing. Check fetch-depth and the base ref."
+            exit 1
+          fi
+
+          missing=0
+          for c in "${commits[@]}"; do
+            author="$(git show -s --format='%an <%ae>' "$c")"
+            subject="$(git show -s --format='%s' "$c")"
+
+            # Bots do not sign off; they have no legal person to certify origin.
+            case "$author" in
+              *"[bot]"*|*"dependabot"*) echo "  skip  ${c:0:8}  $subject (bot)"; continue ;;
+            esac
+
+            if git show -s --format='%B' "$c" | grep -qi '^Signed-off-by: .\+ <.\+@.\+>'; then
+              echo "  ok    ${c:0:8}  $subject"
+            else
+              echo "  FAIL  ${c:0:8}  $subject"
+              missing=$((missing + 1))
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            echo
+            echo "$missing commit(s) are missing a Signed-off-by trailer."
+            cat <<'MSG'
+
+          By signing off you certify the Developer Certificate of Origin 1.1
+          (https://developercertificate.org/): that you wrote the change, or have
+          the right to submit it under this project's licence.
+
+          To fix the most recent commit:
+
+              git commit --amend --signoff
+
+          To fix a whole branch:
+
+              git rebase --signoff main
+
+          Then force-push the branch. Set it up once so it never recurs:
+
+              git config --global format.signOff true
+          MSG
+            exit 1
+          fi
+
+          echo
+          echo "All ${#commits[@]} commit(s) signed off."

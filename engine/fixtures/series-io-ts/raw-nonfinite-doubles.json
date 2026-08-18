@@ -1,0 +1,50 @@
+{
+  "name": "raw-nonfinite-doubles",
+  "why": "writer level: NaN / +Inf / -Inf / null in a DOUBLE — NA DISTINCT from NaN",
+  "producer": "hyparquet-writer",
+  "format": "parquet",
+  "source": null,
+  "sidecar": {
+    "class": "ts",
+    "ts": true,
+    "matrix": false,
+    "start": 2000,
+    "end": 2000.4166666666667,
+    "frequency": 12,
+    "columns": [
+      "value"
+    ]
+  },
+  "stats": null,
+  "expect": {
+    "kind": "ts",
+    "values": [
+      "NaN",
+      "Inf",
+      "-Inf",
+      null,
+      "-0",
+      "1.5"
+    ],
+    "start": [
+      2000,
+      1
+    ],
+    "frequency": 12,
+    "na": [
+      3
+    ],
+    "nan": [
+      0
+    ],
+    "posInf": [
+      1
+    ],
+    "negInf": [
+      2
+    ],
+    "negativeZero": [
+      4
+    ]
+  }
+}

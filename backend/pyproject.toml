@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# EconFlow Analytics — platform integration layer.
+#
+# This member is a workspace sibling of `engine/`, not a consumer of it: the two
+# are resolved together so they share one pydantic build, but nothing here
+# imports `econflow_engine`. The engine runs as a container that Galaxy invokes;
+# the boundary is a process boundary, not a function call.
+#
+# WHAT THIS LAYER MAY NOT DEPEND ON. There is no numpy, scipy, pandas,
+# statsmodels, scikit-learn or polars in this file, and there never may be. Every
+# statistic and every validation gate belongs to `engine/`. While the engine was
+# the file extension enforced that by itself. It no longer does, so the rule
+# is a checked contract: see [tool.importlinter] in the workspace root manifest,
+# run by step 3 of engine/run_verifications.sh. A second, independent gate reads
+# this file directly --.github/scripts/check-engine-boundary.sh, in the
+# engine-boundary job. Adding one of those names here does not make the check
+# noisy — it makes it RED, which is the point.
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "econflow-backend"
+version = "0.1.0"
+description = "Galaxy platform integration: tool generation, datatypes, job routing and provenance."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "AGPL-3.0-only"
+authors = [{ name = "Panagiotis Tsikos" }]
+classifiers = [
+ "Development Status :: 1 - Planning",
+ "Intended Audience :: Science/Research",
+ "Programming Language :: Python :: 3.12",
+ "Typing :: Typed",
+]
+
+# Deliberately minimal. `backend/` is specified, not built (docs/ROADMAP.md).
+# Dependencies arrive with the Galaxy work in Phases 9 and 10, and each one is a
+# reviewed decision rather than a convenience import.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
+Source = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/econflow_backend"]

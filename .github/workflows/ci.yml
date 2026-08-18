@@ -1,0 +1,608 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# The fast gate. Everything here runs on every pull request and every push to
+# main, and is expected to finish in a few minutes.
+#
+# The full engine suite is NOT here -- see engine-suite.yml and
+# ARCHITECTURE.md 11.4, which states plainly what that costs.
+#
+# Anti-vacuity (ARCHITECTURE.md 11.1): a gate that passes because it examined
+# zero files has not passed. Every job below asserts a minimum quantity of work
+# done, and every asserted constant lives in .github/inventory.json.
+#
+# CONCURRENCY BUDGET. GitHub Free allows 20 concurrent jobs ACCOUNT-WIDE, not
+# per repository. Measured on one pull request: 7 jobs start immediately (4 here,
+# plus dco, claude-review and the engine-suite scope job), and ci.yml peaks at 9
+# once `inventory` releases its dependants. That leaves real headroom, and it is
+# the reason any FUTURE matrix must be capped: planemo defaults to 20 chunks, and
+# a multi-architecture image build fans out per platform. Cap any new matrix at
+# 12 parallel jobs. Exceeding the account budget does not fail anything -- it
+# silently queues, and every pull request just gets slower, which is the kind of
+# degradation nobody attributes to its cause.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Default-deny. Each job grants itself only what it needs.
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Every engine command runs from here. Each consuming step sets
+  # `working-directory: ${{ env.ENGINE_DIR }}`, so this is the single line that
+  # would change if the engine ever moved again.
+  ENGINE_DIR: "engine"
+  # There is no dated-snapshot variable here, and its absence is deliberate.
+  # PyPI artifacts are IMMUTABLE -- a released filename and its hash can never be
+  # replaced -- so `uv.lock` pins exact bytes on its own. The dated Posit snapshot
+  # existed because that index rebuilds binaries under an unchanged version
+  # number; that failure mode does not exist here, and a second copy of a date
+  # was a second thing to rot. See docs/decisions/python-engine.md.
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Everything else depends on this. If the engine is not the size we think it
+  # is, no downstream gate's "0 problems" means anything.
+  # ---------------------------------------------------------------------------
+  inventory:
+    name: inventory (anti-vacuity backstop)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      # assert.sh is driven by python3. Without this the gate every other gate
+      # depends on would run against whatever interpreter the runner happens to
+      # ship -- the exact class of silent dependency this project refuses.
+      # Version comes from engine/.python-version; see
+      # docs/decisions/python-engine.md.
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      - name: Assert the engine inventory
+        uses: ./.github/actions/assert-inventory
+        with:
+          engine-dir: ${{ env.ENGINE_DIR }}
+
+  # ---------------------------------------------------------------------------
+  spdx:
+    name: spdx (every Python file declares its licence)
+    runs-on: ubuntu-latest
+    needs: inventory
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Every tracked .py file carries an SPDX identifier
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          missing=0
+          total=0
+          while IFS= read -r f; do
+            total=$((total + 1))
+            if ! grep -qm1 'SPDX-License-Identifier' "$f"; then
+              echo "missing SPDX header: $f"
+              missing=$((missing + 1))
+            fi
+          done < <(find src scripts tests -name '*.py' -type f -not -path '*__pycache__*')
+
+          echo "scanned $total Python files, $missing without a header"
+          # Anti-vacuity: the loop must actually have scanned the tree. The floor
+          # sits below the 380 measured in .github/inventory.json and above the
+          # 316 that remain if the 64-file generated tier is ever dropped from
+          # the glob by accident -- so losing a whole tier turns this red.
+          if [ "$total" -lt 350 ]; then
+            echo "FAIL: scanned only $total files; the glob is wrong, not the tree"
+            exit 1
+          fi
+          [ "$missing" -eq 0 ]
+
+      - name: The declared identifier is the one this repository uses
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          # ARCHITECTURE.md 13: uniform AGPL-3.0-only, no per-directory rule,
+          # no dual licence. Anything else is a licensing mistake, not a variant.
+          #
+          # find | xargs, NEVER `grep -r --include='*.py'`. Measured on a
+          # maintainer machine: `grep` resolves to ugrep 7.5.0, whose --include
+          # saw 315 of 379 files where GNU grep saw 379. CI runners ship GNU
+          # grep, so a check written that way passes here while silently
+          # examining less than it claims locally. CONTRIBUTING.md forbids it.
+          bad=$(find src scripts tests -name '*.py' -type f -not -path '*__pycache__*' -print0 \
+                | xargs -0 grep -h 'SPDX-License-Identifier' \
+                | grep -v 'AGPL-3.0-only' || true)
+          if [ -n "$bad" ]; then
+            echo "FAIL: non-uniform SPDX identifiers found:"
+            echo "$bad" | sort -u
+            exit 1
+          fi
+          echo "all identifiers are AGPL-3.0-only"
+
+  # ---------------------------------------------------------------------------
+  artifact-drift:
+    name: artifact-drift (every generator in --check mode)
+    runs-on: ubuntu-latest
+    needs: inventory
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      # No dependency install step, and that is the point. Both generators run on
+      # the STANDARD LIBRARY ALONE: their only input is a committed artifact, so
+      # proving the generated tier is current never requires resolving the
+      # engine's scientific stack. This job installs no scientific stack;
+      # digest and yaml from a dated snapshot before it could begin.
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      - name: Regenerating each artifact must reproduce the committed bytes
+        working-directory: ${{ env.ENGINE_DIR }}
+        env:
+          LANG: C.UTF-8
+          LC_ALL: C.UTF-8
+        run: |
+          set -euo pipefail
+          # THE DIRECTION OF GENERATION REVERSED WITH THE LANGUAGE, and the count
+          # moved with it. Were the artifacts produced by generators in this tree,
+          # spec sources. Those artifacts are now FROZEN INPUTS -- 913 nodes, 252
+          # cards and 4855 frozen verdicts, the oracle this engine is checked against
+          # and which Python cannot re-derive. What runs here instead are the
+          # generators that consume them and emit code: gen_schemas.py (the
+          # generated tier) and gen_wrappers.py (the 251 module stubs and 30
+          # category READMEs). gen_third_party.py joins them when the SBOM is
+          # regenerated from uv.lock, at which point engine.generators in
+          # .github/inventory.json becomes 3 and this loop expects three.
+          expected=$(python3 -c "import json;print(json.load(open('../.github/inventory.json'))['engine']['generators'])")
+          ran=0
+          for s in gen_schemas gen_wrappers gen_third_party; do
+            echo "::group::$s --check"
+            python3 "scripts/${s}.py" --check
+            echo "::endgroup::"
+            ran=$((ran + 1))
+          done
+          # Anti-vacuity: if the loop silently ran nothing, the gate proved nothing.
+          if [ "$ran" -ne "$expected" ]; then
+            echo "FAIL: $ran generators ran, expected exactly $expected"
+            echo "The loop above and engine.generators in .github/inventory.json"
+            echo "have drifted apart. Adding a generator means editing both."
+            exit 1
+          fi
+          echo "$ran drift generators reproduced their committed output exactly"
+
+  # ---------------------------------------------------------------------------
+  py-lint:
+    name: py-lint (ruff, with a files-examined assertion)
+    runs-on: ubuntu-latest
+    needs: inventory
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      # PINNED TO THE VERSION THE ZERO-FINDINGS EVIDENCE CAME FROM. `ruff check`
+      # over engine/ was measured clean at exactly this version; a linter version
+      # is part of what "0 findings" means, and a floating pin would let a new
+      # rule set turn a pull request red for a reason nobody chose. Bumping it is
+      # a deliberate change, proposed by the pip ecosystem in dependabot.yml.
+      #
+      # An installer rather than a marketplace action: one fewer third-party
+      # action to pin by SHA, and pip is already trustworthy here.
+      - name: Install ruff at the pinned version
+        env:
+          RUFF_VERSION: "0.7.1"
+        run: python3 -m pip install --disable-pip-version-check "ruff==${RUFF_VERSION}"
+
+      - name: Lint, and assert it actually looked at the engine
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          # Counting the files ruff WOULD examine is what makes this gate real: a
+          # mistaken `extend-exclude` in ruff.toml that silently scanned nothing
+          # would otherwise report zero problems and pass. `--show-files` is
+          # ruff's own answer to "what is in scope", so this counts ruff's view
+          # rather than a second glob that could disagree with it.
+          scanned=$(ruff check --show-files . | grep -c '\.py$')
+          echo "ruff examined a corpus of $scanned candidate files"
+          # 316 today: 380 total less the 64-file generated tier, which ruff.toml
+          # excludes because linting it would only lint the emitter's formatting.
+          # The floor is 300, unchanged from the gate this one replaces: below it,
+          # the configuration is wrong rather than the corpus being small.
+          if [ "$scanned" -lt 300 ]; then
+            echo "FAIL: ruff saw only $scanned files; the configuration is wrong, not the code"
+            exit 1
+          fi
+          ruff check --output-format=github .
+          echo "ruff: 0 findings"
+
+      # NOT `ruff format --check`, and never `ruff format`. See the boxed warning
+      # in .pre-commit-config.yaml: a formatting pass over the generated tier
+      # would move the emitted bytes and turn artifact-drift red for a reason
+      # unrelated to any code anyone wrote. Style is enforced by the rule set
+      # above, which was fitted to the existing corpus and reports zero findings.
+
+  # ---------------------------------------------------------------------------
+  workflow-lint:
+    name: workflow-lint (actionlint + shellcheck)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      # check-required-contexts.sh and check-engine-boundary.sh parse YAML and
+      # TOML with python3. Pinned for the same reason as the inventory job: a
+      # gate must not depend on whatever interpreter the runner happens to ship.
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      - name: actionlint
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+        run: |
+          set -euo pipefail
+          url="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}"
+          # THE DOWNLOAD KEEPS ITS PUBLISHED FILENAME, and that is not cosmetic.
+          # `sha256sum -c` resolves the name recorded in the checksum line, so
+          # saving the archive as al.tgz made it look for a file that does not
+          # exist: "No such file or directory", then FAILED, then a non-zero exit
+          # on every single run. It fails red rather than green, so nothing was
+          # ever wrongly verified -- but the step could never pass either, and
+          # nothing had run yet to reveal it.
+          tarball="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSL "${url}/${tarball}" -o "$tarball"
+          curl -fsSL "${url}/actionlint_${ACTIONLINT_VERSION}_checksums.txt" -o al.sums
+          grep "$tarball" al.sums | sha256sum -c -
+          tar -xzf "$tarball" actionlint
+          n=$(find .github/workflows -name '*.yml' | wc -l)
+          echo "linting $n workflow files"
+          # Anti-vacuity: actionlint over an empty set exits 0.
+          [ "$n" -ge 2 ] || { echo "FAIL: only $n workflows found"; exit 1; }
+          ./actionlint -color
+
+      - name: shellcheck
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          mapfile -t files < <(find . -name '*.sh' -not -path './.git/*' -not -path './**/.venv/*')
+          echo "shellchecking ${#files[@]} scripts"
+          [ "${#files[@]}" -ge 2 ] || { echo "FAIL: only ${#files[@]} shell scripts found"; exit 1; }
+          shellcheck --severity=warning "${files[@]}"
+
+      # The public root surface is permanent: this repository's history cannot
+      # be rewritten after publication. This asserts that what is tracked at
+      # the root is exactly what .github/root-manifest.txt declares, failing on
+      # a difference in EITHER direction -- an entry that appeared without
+      # review, and an entry that silently stopped being tracked.
+      - name: The public root surface matches its manifest
+        run: bash .github/scripts/check-root-visibility.sh .
+
+      # A required status check is matched by a job's NAME STRING, and nothing in
+      # git connects .github/rulesets/main.json to the workflows. Rename a job for
+      # readability and the ruleset silently stops protecting anything. This runs
+      # on the same pull request that changes the name, not on a schedule after
+      # the damage. It also refuses a paths filter on a required workflow, and
+      # asserts ci-gate still needs every leaf gate.
+      - name: Required contexts match the workflows
+        run: bash .github/scripts/check-required-contexts.sh .
+
+      # The vocabulary stays this project's own, and a rule enforced by memory is not
+      # enforced. The script carries its own positive control and asserts a
+      # files-examined floor from .github/inventory.json, so a scan that stopped
+      # examining the tree fails instead of reporting a clean tree.
+      - name: The vocabulary is this project's own
+        run: bash .github/scripts/check-vocabulary.sh .
+
+  # ---------------------------------------------------------------------------
+  engine-boundary:
+    name: engine-boundary (no statistic outside engine/)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      # THIS GATE EXISTS BECAUSE NO FILE EXTENSION ENFORCES THE RULE ANY MORE.
+      # "No statistic is ever computed outside engine/" was mechanically true for
+      # as long as the engine was the only the engine in the tree. backend/ and engine/ are
+      # now the same language, so one `import statsmodels` in a Galaxy tool
+      # wrapper would move a statistic with nothing to notice. The script carries
+      # its own positive control -- it plants a backend manifest declaring
+      # statsmodels and fails if that is not caught -- which is what keeps it
+      # honest while backend/ still holds no code.
+      - name: backend/ declares no statistical dependency
+        run: bash .github/scripts/check-engine-boundary.sh .
+
+  # ---------------------------------------------------------------------------
+  secrets:
+    name: secrets (gitleaks, with a positive control)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Install gitleaks, verified against its published checksums
+        env:
+          GITLEAKS_VERSION: "8.30.1"
+        run: |
+          set -euo pipefail
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          # Keep the published filename -- see the note in the actionlint step.
+          # `sha256sum -c` looks up the name written in the checksum line, so
+          # renaming the archive on download makes the verification fail to find
+          # its own file on every run.
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL "${url}/${tarball}" -o "$tarball"
+          curl -fsSL "${url}/gitleaks_${GITLEAKS_VERSION}_checksums.txt" -o gl.sums
+          grep "$tarball" gl.sums | sha256sum -c -
+          tar -xzf "$tarball" gitleaks
+          ./gitleaks version
+
+      # THE POSITIVE CONTROL, and the reason this job is trustworthy.
+      # A .gitleaks.toml without `[extend] useDefault = true` defines ZERO rules
+      # and therefore passes forever, green and useless. This step proves the
+      # ruleset is actually loaded by requiring a known-fake credential to be
+      # caught. If detection ever silently stops working, this fails first.
+      - name: Positive control -- detection MUST catch a planted credential
+        run: |
+          set -euo pipefail
+          # The canary is SYNTHESISED AT RUNTIME, outside the working tree, and
+          # never committed. Committing a credential-shaped string -- even a
+          # fake one -- would trip GitHub push protection and GitGuardian, and
+          # allow-listing it in .gitleaks.toml to keep the tree scan green would
+          # simultaneously blind this control. A temporary file avoids both.
+          canary="${RUNNER_TEMP}/canary"
+          mkdir -p "$canary"
+          # Assembled from fragments so that this workflow file itself contains
+          # no scannable credential.
+          printf 'aws_secret_access_key = "%s"\n' \
+            "$(printf 'wJalrXUtnFEMI'; printf 'K7MDENGbPxRfiCY'; printf 'EXAMPLEKEY')" \
+            > "$canary/leak.txt"
+
+          if ./gitleaks detect --source "$canary" --no-git --redact --exit-code 1 \
+               --config .gitleaks.toml >/dev/null 2>&1; then
+            echo "FAIL: gitleaks did NOT flag the planted canary."
+            echo
+            echo "Secret detection is not working. The usual cause is a"
+            echo ".gitleaks.toml missing '[extend] useDefault = true', which"
+            echo "defines ZERO rules and therefore passes forever."
+            echo "Every green run of this job since that happened proved nothing."
+            exit 1
+          fi
+          echo "positive control passed: the ruleset is loaded and biting"
+
+      - name: Scan the tree
+        run: |
+          set -euo pipefail
+          ./gitleaks detect --source . --redact --exit-code 1 --config .gitleaks.toml
+
+  # ---------------------------------------------------------------------------
+  container-lint:
+    name: container-lint (hadolint + COPY path proof)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Every COPY source in the Dockerfile exists in the build context
+        run: bash .github/scripts/check-dockerfile-paths.sh
+
+      - name: hadolint
+        env:
+          HADOLINT_VERSION: "2.15.1"
+        run: |
+          set -euo pipefail
+          curl -fsSL -o hadolint \
+            "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-Linux-x86_64"
+          chmod +x hadolint
+          mapfile -t dfs < <(find . -name 'Dockerfile' -not -path './.git/*')
+          echo "hadolint over ${#dfs[@]} Dockerfile(s)"
+          [ "${#dfs[@]}" -ge 1 ] || { echo "FAIL: no Dockerfile found"; exit 1; }
+          ./hadolint --failure-threshold error "${dfs[@]}"
+
+  # ---------------------------------------------------------------------------
+  pip-audit:
+    name: pip-audit (lockfile scanned, and proven non-empty)
+    runs-on: ubuntu-latest
+    needs: inventory
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      - name: The scanner must actually see the packages
+        id: count
+        run: |
+          set -euo pipefail
+          # A vulnerability scan that covered nothing reports zero findings and
+          # looks identical to a clean scan. Assert the package count FIRST, so
+          # that "0 vulnerabilities" is a statement about a known number of
+          # packages rather than about an empty set.
+          #
+          # THE COUNT IS READ FROM .github/inventory.json, not written here. An
+          # earlier form of this job hard-coded the figure beside the identical
+          # one in the manifest, and a second copy of a number is a number that
+          # rots -- the two drift, and the gate then asserts the stale one.
+          #
+          # There is ONE uv.lock and it sits at the repository ROOT: engine/ and
+          # backend/ are two members of one uv workspace, so one resolution
+          # covers both and they cannot drift onto different builds of a shared
+          # dependency. See docs/decisions/python-engine.md.
+          if [ ! -f uv.lock ]; then
+            echo "FAIL: no uv.lock at the repository root."
+            echo "This gate cannot start, and a gate that cannot start has NOT"
+            echo "passed. Land the workspace lockfile, then set engine.py_packages"
+            echo "in .github/inventory.json to the figure its command produces."
+            exit 1
+          fi
+          expected=$(python3 -c "import json;print(json.load(open('.github/inventory.json'))['engine']['py_packages'])")
+          if [ "$expected" = "unmeasured" ]; then
+            echo "FAIL: engine.py_packages in .github/inventory.json is still 'unmeasured'."
+            echo "The lockfile exists, so the constant is owed. Run its command from"
+            echo "the manifest and replace the word with the figure."
+            exit 1
+          fi
+          n=$(python3 -c "import tomllib;print(len(tomllib.load(open('uv.lock','rb'))['package']))")
+          echo "uv.lock declares $n packages"
+          [ "$n" -eq "$expected" ] || { echo "FAIL: expected $expected, found $n"; exit 1; }
+
+      - name: OSV scan of the Python lockfile
+        run: |
+          set -euo pipefail
+          curl -fsSL -o osv-scanner \
+            https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64
+          chmod +x osv-scanner
+          # Dependabot now covers pip as well (see .github/dependabot.yml), so this
+          # is no longer the ONLY vulnerability coverage the compute layer has --
+          # it used to be, when no update tool had an ecosystem for the engine's
+          # lockfile. It is still the one that runs per pull request and the one
+          # whose verdict is gated on a package count.
+          ./osv-scanner scan source --lockfile uv.lock || {
+            echo "::warning::OSV reported findings against uv.lock -- triage required"
+            exit 1
+          }
+
+  # ---------------------------------------------------------------------------
+  # Dependency review: the dependency DIFF of a pull request is checked against
+  # the licence admission rule (ARCHITECTURE.md 13: a GPL-2.0-only package can
+  # never be admitted to this tree) and against known vulnerabilities. GitHub
+  # computes that diff from the dependency graph, which only has a base to
+  # compare against on pull_request events. On a push to main there is nothing
+  # to diff -- the pull request that produced the push was already reviewed --
+  # so the job says so explicitly and passes, rather than being skipped: a
+  # skipped leaf fails ci-gate by design.
+  #
+  # ANTI-VACUITY NOTE: uv.lock is read by the dependency graph under the "pip"
+  # ecosystem (observed 2026-01, undocumented). The canary pull request (todo
+  # 1.6.4) must include a deliberate lockfile change so this job is SEEN
+  # examining a non-empty diff once before its verdicts are trusted.
+  # ---------------------------------------------------------------------------
+  dependency-review:
+    name: dependency-review (licence policy and vulnerabilities on the PR diff)
+    runs-on: ubuntu-latest
+    needs: inventory
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Review the dependency diff of this pull request
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          # SPDX identifiers. GPL-2.0-or-later stays admissible; only the
+          # -only form (and its deprecated bare alias) is refused.
+          deny-licenses: GPL-2.0-only, GPL-2.0
+          comment-summary-in-pr: never
+
+      - name: No pull request diff on this event
+        if: github.event_name != 'pull_request'
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          echo "dependency-review: event '${EVENT}' carries no dependency diff;"
+          echo "the pull request that produced this commit was reviewed. Nothing to examine."
+
+  # ---------------------------------------------------------------------------
+  # THE ONE REQUIRED CHECK.
+  #
+  # GitHub treats a required check it has never observed as permanently
+  # "Expected — waiting for status". Requiring the ten leaf jobs above meant
+  # ten independent ways to deadlock main forever: skip one, rename one, or
+  # add a paths filter to one, and no pull request can ever merge again.
+  #
+  # This job is the only context the ruleset names (with the DCO check). A new
+  # gate joins `needs:` here — never the ruleset. See CONTRIBUTING.md.
+  ci-gate:
+    name: ci-gate
+    # `always()` is load-bearing: without it this job is itself skipped when any
+    # need fails, and a skipped required check is the deadlock described above.
+    if: always()
+    needs:
+      - inventory
+      - spdx
+      - artifact-drift
+      - py-lint
+      - workflow-lint
+      - engine-boundary
+      - secrets
+      - container-lint
+      - pip-audit
+      - dependency-review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Every gate must have reported exactly 'success'
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          set -euo pipefail
+          echo "leaf results: $RESULTS"
+          bad=0
+          for r in $RESULTS; do
+            [ "$r" = "success" ] || { echo "::error::a gate reported '$r'"; bad=1; }
+          done
+          # ANTI-VACUITY: ten leaves must have reported. A truncated needs list
+          # would otherwise pass by examining almost nothing. It was nine when
+          # engine-boundary joined the set (a file extension used to enforce
+          # that rule for free and no longer can) and became ten with
+          # dependency-review.
+          n=$(echo "$RESULTS" | wc -w)
+          [ "$n" -eq 10 ] || { echo "::error::expected 10 leaf results, saw $n"; bad=1; }
+          [ "$bad" -eq 0 ] || {
+            echo "ci-gate FAILED. 'skipped' and 'cancelled' fail here exactly like"
+            echo "'failure' does -- a gate that did not run has not passed."
+            exit 1
+          }
+          echo "ci-gate: all 10 gates reported success."

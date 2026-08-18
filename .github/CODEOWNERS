@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# CODEOWNERS is NOTIFICATION, not enforcement. Enforcement comes from the
+# ruleset on main and the required status checks. Listing an owner here does not
+# make a review mandatory; a ruleset does.
+
+*                       @Panagiotis-Tsikos
+
+# The engine is the substance of the project: 251 wrappers, the gates, the
+# suite. Changes here are what the correctness claim rests on.
+/engine/src/                   @Panagiotis-Tsikos
+/engine/tests/                 @Panagiotis-Tsikos
+
+# Generated and byte-pinned. A change here that is not accompanied by a change
+# to the generator is, by definition, a hand edit.
+/engine/artifacts/             @Panagiotis-Tsikos
+/engine/scripts/               @Panagiotis-Tsikos
+/engine/METHOD-SELECTION.md    @Panagiotis-Tsikos
+/engine/METHOD-SELECTION.yaml  @Panagiotis-Tsikos
+/engine/METHOD-SELECTION-TREES.yaml @Panagiotis-Tsikos
+
+# The gates themselves, and the licence.
+/.github/               @Panagiotis-Tsikos
+/engine/ruff.toml              @Panagiotis-Tsikos
+/Dockerfile             @Panagiotis-Tsikos
+/LICENSE                @Panagiotis-Tsikos
+/NOTICE                 @Panagiotis-Tsikos
+
+# The workspace manifest and its single lockfile. NOT /engine/uv.lock: engine/
+# and backend/ are two members of ONE uv workspace, so there is exactly one
+# resolution and it lives at the root. assert-inventory fails if a lockfile ever
+# appears inside a member, because that would mean the workspace has been split
+# and the two members can drift onto different builds of a shared dependency.
+/pyproject.toml         @Panagiotis-Tsikos
+/uv.lock                @Panagiotis-Tsikos

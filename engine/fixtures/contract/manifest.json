@@ -1,0 +1,14 @@
+{
+  "fixtures": [
+    "ts-annual-freq1-na",
+    "ts-quarterly-freq4-q3start",
+    "ts-monthly-freq12-gaps",
+    "mts-quarterly-greek",
+    "ts-monthly-extremes",
+    "ts-monthly-nonfinite",
+    "df-irregular-date-nofreq",
+    "df-label-greek",
+    "vector-plain-numeric",
+    "matrix-plain-2col"
+  ]
+}

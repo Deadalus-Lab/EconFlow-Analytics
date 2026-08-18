@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# EconFlow Analytics — uv workspace root.
+#
+# This file is not a package. It exists to do three things that only a single
+# root manifest can do:
+#
+#   1. Resolve `engine/` and `backend/` TOGETHER into one `uv.lock`. Two
+#      independent resolutions could put the two members on different pydantic
+#      or pyarrow builds, and the wire contract in `econflow_engine.kinds` is
+#      validated on one side and consumed on the other.
+#   2. Pin the dependency snapshot in ONE place (`exclude-newer`). PyPI
+#      artefacts are immutable and `uv.lock` carries per-wheel hashes, so this
+#      is byte-pinning rather than version-pinning, and it does not depend on
+#      anyone continuing to serve a dated snapshot.
+#   3. Enforce the architectural boundary. Both layers are Python, so nothing
+#      answers "is this the engine?" for free — see the import-linter
+#      contracts below.
+
+[tool.uv.workspace]
+members = ["engine", "backend"]
+
+[tool.uv]
+# The dependency snapshot, authored HERE and nowhere else. It is deliberately
+# not mirrored into a workflow environment variable: two copies of one date is a
+# copy that rots. uv.lock carries the witnessing copy, and
+# .github/scripts/check-toolchain-pin.sh asserts the date is well-formed and
+# authored exactly once.
+exclude-newer = "2026-08-16T00:00:00Z"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+    "pandas-stubs",
+    "import-linter",
+]
+
+# ----------------------------------------------------------------------------
+# The boundary, now that a file extension cannot enforce it.
+#
+# `docs/decisions/languages.md` enforced "no statistic is ever computed outside
+# engine/" with a question anyone could answer by looking at a file extension. With
+# both members in Python that question no longer separates anything, so the rule
+# has to be CHECKED rather than implied. `lint-imports` runs in step 3 of
+# engine/run_verifications.sh -- so it gates the engine suite and the image
+# build, but not yet a per-pull-request job.
+# ----------------------------------------------------------------------------
+[tool.importlinter]
+root_packages = ["econflow_engine", "econflow_backend"]
+# Required because two of the three contracts forbid modules OUTSIDE the root
+# packages (numpy, socket, ...). Without it import-linter only builds a graph of
+# first-party modules and those contracts cannot be evaluated at all — it refuses
+# to run rather than reporting a hollow pass, which is the correct behaviour.
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "The engine never imports the platform"
+type = "forbidden"
+source_modules = ["econflow_engine"]
+forbidden_modules = ["econflow_backend"]
+
+[[tool.importlinter.contracts]]
+name = "No statistic is ever computed outside engine/"
+type = "forbidden"
+source_modules = ["econflow_backend"]
+forbidden_modules = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "statsmodels",
+    "sklearn",
+    "polars",
+]
+
+[[tool.importlinter.contracts]]
+name = "No wrapper reaches the network"
+type = "forbidden"
+source_modules = ["econflow_engine.wrappers"]
+forbidden_modules = [
+    "socket",
+    "ssl",
+    "http",
+    "urllib",
+    "urllib3",
+    "requests",
+    "httpx",
+    "aiohttp",
+    "ftplib",
+]

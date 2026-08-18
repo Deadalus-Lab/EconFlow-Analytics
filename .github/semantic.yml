@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# semantic-pull-requests.
+#
+# titleOnly is deliberate. The repository merges by squash with the commit
+# subject taken from the PULL REQUEST TITLE, so validating the title IS
+# validating the commit subject that lands on main. Validating individual
+# commits on the branch would police text that squashing throws away.
+titleOnly: true
+
+types:
+  - feat      # a new method, node or capability
+  - fix       # a defect corrected
+  - refactor  # behaviour-preserving restructuring
+  - perf      # a measured performance change
+  - test      # tests only
+  - build     # container, lockfile, packaging
+  - ci        # workflows and gates
+  - docs      # documentation only
+  - chore     # housekeeping with no production effect
+  - revert
+
+scopes:
+  - engine    # the Python compute engine
+  - backend   # platform integration: tools, datatypes, config
+  - frontend  # the canvas and the shared TypeScript libraries
+  - deploy    # containers and compose
+  - docs
+  - ci
+  - meta      # licence, governance, repository settings

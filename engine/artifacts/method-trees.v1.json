@@ -1,0 +1,828 @@
+{
+  "artifact_version": 1,
+  "generated_by": "frozen input: committed to this repository, not produced by any generator in it",
+  "source": {
+    "trees_yaml_sha256": "92f3abaed1556b7f8d75f06ab3b303acb37bc2bc9aa5d8e65790eaa038eb9d9f",
+    "n_trees": 10,
+    "n_leaves": 48,
+    "n_node_leaves": 1,
+    "n_branch_leaves": 47
+  },
+  "meta": {
+    "version": 1,
+    "source": "METHOD-SELECTION.md §2 (master trees) + §1.1 (unit-root/stationarity polarity)",
+    "polarity": {
+      "adf": {
+        "family": "unit_root",
+        "h0": "unit_root",
+        "reject": "I0"
+      },
+      "pp": {
+        "family": "unit_root",
+        "h0": "unit_root",
+        "reject": "I0"
+      },
+      "ers": {
+        "family": "unit_root",
+        "h0": "unit_root",
+        "reject": "I0"
+      },
+      "kpss": {
+        "family": "stationarity",
+        "h0": "stationarity",
+        "reject": "non_stationary"
+      }
+    },
+    "data_properties_contract": {
+      "goal": "univariate|multivariate|structural|cointegration|volatility|causality|distribution_risk|trend_cycle|panel|forecast_workflow (required)",
+      "n_series": "integer (= K in the trees' symbols)",
+      "integration_orders": "array of I0|I1|I2 (one per series)",
+      "cointegration_rank": "integer r (Johansen)",
+      "seasonal": "boolean",
+      "arch_effects": "boolean",
+      "has_break": "boolean",
+      "many_predictors": "boolean (dozens or more indicators -> FAVAR)",
+      "panel_structure": "boolean",
+      "choice": "string discriminator for modeling-choice trees (see each node's question)"
+    }
+  },
+  "trees": [
+    {
+      "id": "A",
+      "name": "univariate-forecast",
+      "entry": {
+        "goal": "univariate"
+      },
+      "root": "A_seasonal",
+      "nodes": {
+        "A_seasonal": {
+          "question": "Is there seasonality? (seasonal unit-root test)",
+          "reads": "seasonal",
+          "precondition": [
+            "c01_preparation_prechecks/seasonal_unit_roots.run_hegy_test",
+            "c01_preparation_prechecks/seasonal_unit_roots.run_ch_test"
+          ],
+          "branches": [
+            {
+              "when": {
+                "truthy": false
+              },
+              "leaf": {
+                "tool_fns": "run_auto_arima",
+                "card_id": 7,
+                "rationale": "Non-seasonal: auto.arima baseline (endogenous d). Alternatives: run_ets (ETS state-space), run_theta (cheap robust benchmark).",
+                "source": "Box-Jenkins· Hyndman-Khandakar 2008 (forecast vignette)"
+              }
+            },
+            {
+              "when": {
+                "truthy": true
+              },
+              "leaf": {
+                "tool_fns": [
+                  "run_auto_arima",
+                  "run_tbats",
+                  "run_prophet"
+                ],
+                "card_id": 7,
+                "rationale": "Seasonal: run_auto_arima(seasonal=TRUE) or run_ets. MULTIPLE/high-freq/non-integer seasonalities -> run_tbats; seasonalities+holidays+changepoints -> run_prophet.",
+                "source": "De Livera-Hyndman-Snyder 2011· Taylor-Letham 2018"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "FAVAR",
+      "name": "favar-recipe",
+      "entry": {
+        "goal": "multivariate",
+        "many_predictors": true
+      },
+      "root": "FAVAR_leaf",
+      "nodes": {
+        "FAVAR_leaf": {
+          "leaf": {
+            "tool_fns": [
+              "df_dfm",
+              "vr_var",
+              "vr_irf",
+              "vr_fevd"
+            ],
+            "card_id": 15,
+            "rationale": "Dozens to hundreds of indicators: extract K factors (df_dfm) -> augmented VAR [factors, observables] (vr_var) -> structural IRF/FEVD (vr_irf/vr_fevd). Solves the degrees-of-freedom problem without Bayesian shrinkage.",
+            "warn": "Generated regressors (Pagan 1984): the factors are ESTIMATED -> IRF standard errors are understated; for fewer than 20 variables prefer BVAR (#12).",
+            "source": "Bernanke-Boivin-Eliasz 2005 QJE· Stock-Watson 2016"
+          }
+        }
+      }
+    },
+    {
+      "id": "B",
+      "name": "multivariate-VAR-VECM",
+      "entry": {
+        "goal": [
+          "multivariate",
+          "cointegration"
+        ],
+        "min_series": 2
+      },
+      "root": "B_step1",
+      "nodes": {
+        "B_step1": {
+          "question": "Order of integration per series (confirmatory ADF + KPSS)",
+          "reads": "integration_orders",
+          "precondition": [
+            "c01_preparation_prechecks/unit_root_normality.run_adf_test",
+            "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
+          ],
+          "branches": [
+            {
+              "when": {
+                "all": "I0"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "vr_varselect",
+                  "vr_var"
+                ],
+                "card_id": 11,
+                "rationale": "ALL I(0) -> VAR IN LEVELS: vr_varselect (lag AIC/HQ/SC/FPE) -> vr_var -> stability GATE (vr_var$stable). Structural -> goal=structural (Tree B2).",
+                "source": "Lütkepohl 2005"
+              }
+            },
+            {
+              "when": {
+                "all": "I1"
+              },
+              "goto": "B_johansen"
+            },
+            {
+              "when": {
+                "mixed": [
+                  "I0",
+                  "I1"
+                ],
+                "exclude": "I2"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "ardl_fit",
+                  "ardl_bounds_f"
+                ],
+                "card_id": 25,
+                "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+                "source": "Pesaran-Shin-Smith 2001"
+              }
+            },
+            {
+              "when": {
+                "contains": "I2"
+              },
+              "leaf": {
+                "tool_fns": [],
+                "card_id": 1,
+                "guard": true,
+                "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+                "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+              }
+            }
+          ]
+        },
+        "B_johansen": {
+          "question": "Johansen cointegration rank r (sequentially from r=0)",
+          "reads": "cointegration_rank",
+          "precondition": "c05_cointegration/johansen_restricted_vecm.wrap_ca_jo",
+          "branches": [
+            {
+              "when": {
+                "eq": 0
+              },
+              "leaf": {
+                "tool_fns": "vr_var",
+                "card_id": 11,
+                "rationale": "r=0 (no cointegration) -> VAR IN FIRST DIFFERENCES (difference each series, then vr_var).",
+                "warn": "NEVER a VAR in levels here — spurious regression (Granger-Newbold 1974).",
+                "source": "Enders 2015· Hamilton 1994"
+              }
+            },
+            {
+              "when": {
+                "between": [
+                  1,
+                  "K-1"
+                ]
+              },
+              "leaf": {
+                "tool_fns": [
+                  "wrap_cajorls",
+                  "vr_vec2var"
+                ],
+                "card_id": 23,
+                "rationale": "0<r<K (cointegration) -> VECM: wrap_cajorls (restricted VECM at rank r). IRF/FEVD: bridge to a level-VAR with vr_vec2var(z, r) -> vr_irf/vr_fevd.",
+                "source": "Johansen 1995· Lütkepohl 2005 §6.3"
+              }
+            },
+            {
+              "when": {
+                "eq": "K"
+              },
+              "leaf": {
+                "tool_fns": "run_adf_test",
+                "card_id": 1,
+                "recheck": true,
+                "rationale": "r=K (full rank) -> the series were effectively I(0); re-test stationarity (Step 1) and go to a VAR in levels.",
+                "source": "Johansen 1995 (full rank ⇒ stationary VAR)"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "B2",
+      "name": "svar-identification",
+      "entry": {
+        "goal": "structural"
+      },
+      "root": "B2_id",
+      "nodes": {
+        "B2_id": {
+          "question": "Which identification strategy? choice ∈ recursive|long_run|sign|changes_in_volatility|independence|non_gaussian|local_projection (a theoretical choice, not a data test)",
+          "reads": "choice",
+          "branches": [
+            {
+              "when": {
+                "is": "recursive"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "vr_svar",
+                  "svar_id_chol"
+                ],
+                "card_id": 20,
+                "rationale": "A clear contemporaneous ordering -> Cholesky/recursive. ⚠ the ordering IS an assumption (test its robustness).",
+                "source": "Sims 1980· CEE 1999"
+              }
+            },
+            {
+              "when": {
+                "is": "long_run"
+              },
+              "leaf": {
+                "tool_fns": "vr_bq",
+                "card_id": 19,
+                "rationale": "Long-run restriction (e.g. a demand shock neutral on output) -> Blanchard-Quah (LRIM).",
+                "source": "Blanchard-Quah 1989"
+              }
+            },
+            {
+              "when": {
+                "is": "sign"
+              },
+              "leaf": {
+                "tool_fns": "vsr_uhlig_reject",
+                "card_id": 21,
+                "rationale": "A-priori signs of the responses (not zero restrictions) -> sign restrictions (Uhlig reject/penalty, RWZ).",
+                "source": "Uhlig 2005· Rubio-Ramírez-Waggoner-Zha 2010"
+              }
+            },
+            {
+              "when": {
+                "is": "changes_in_volatility"
+              },
+              "leaf": {
+                "tool_fns": "svar_id_cv",
+                "card_id": 20,
+                "rationale": "A known regime or break in volatility -> changes-in-volatility statistical ID.",
+                "source": "Rigobon 2003· Lanne-Lütkepohl-Maciejowska 2010"
+              }
+            },
+            {
+              "when": {
+                "is": "independence"
+              },
+              "leaf": {
+                "tool_fns": "svar_id_dc",
+                "card_id": 20,
+                "rationale": "Statistical independence of the shocks -> distance covariance ID (seed).",
+                "source": "Matteson-Tsay 2017"
+              }
+            },
+            {
+              "when": {
+                "is": "non_gaussian"
+              },
+              "leaf": {
+                "tool_fns": "svar_id_ngml",
+                "card_id": 20,
+                "rationale": "Non-Gaussian shocks -> non-Gaussian ML ID (seed).",
+                "source": "Lanne-Meitz-Saikkonen 2017"
+              }
+            },
+            {
+              "when": {
+                "is": "local_projection"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "lp_linear",
+                  "lp_linear_iv"
+                ],
+                "card_id": 22,
+                "rationale": "VAR misspecification concern / external instrument -> Local Projections (lp_linear, lp_linear_iv with an external IV).",
+                "source": "Jordà 2005· Stock-Watson 2018"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "C",
+      "name": "volatility-regimes",
+      "entry": {
+        "goal": "volatility"
+      },
+      "root": "C_model",
+      "nodes": {
+        "C_model": {
+          "question": "What are you modelling? choice ∈ univariate_garch|dcc|ms_mean|ms_garch|threshold. (The GARCH family REQUIRES run_arch_test first.)",
+          "reads": "choice",
+          "precondition": "c15_model_evaluation/arch.run_arch_test",
+          "branches": [
+            {
+              "when": {
+                "is": "univariate_garch"
+              },
+              "leaf": {
+                "tool_fns": "ga_fit",
+                "card_id": 28,
+                "rationale": "Conditional variance of a single series (volatility clustering) -> univariate GARCH (ga_spec->ga_fit->ga_forecast). REQUIRES ARCH effects.",
+                "source": "Bollerslev 1986· Engle 1982 (ARCH-LM precondition)"
+              }
+            },
+            {
+              "when": {
+                "is": "dcc"
+              },
+              "leaf": {
+                "tool_fns": "dcc_fit",
+                "card_id": 29,
+                "rationale": "Several series with time-varying correlations (contagion) -> DCC-GARCH.",
+                "source": "Engle 2002"
+              }
+            },
+            {
+              "when": {
+                "is": "ms_mean"
+              },
+              "leaf": {
+                "tool_fns": "msw_fit",
+                "card_id": 30,
+                "rationale": "Abrupt changes in the mean or dynamics (business-cycle regimes) -> Markov-switching mean/AR. Does NOT require ARCH.",
+                "source": "Hamilton 1989"
+              }
+            },
+            {
+              "when": {
+                "is": "ms_garch"
+              },
+              "leaf": {
+                "tool_fns": "msg_fit_ml",
+                "card_id": 31,
+                "rationale": "Regime-switching in the variance as well -> MS-GARCH (msg_fit_ml/msg_fit_mcmc, MCMC->seed).",
+                "source": "Haas-Mittnik-Paolella 2004"
+              }
+            },
+            {
+              "when": {
+                "is": "threshold"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "setar_test",
+                  "setar_fit",
+                  "lstar_fit"
+                ],
+                "card_id": 32,
+                "rationale": "Nonlinear threshold dynamics -> setar_test (linearity) COMES FIRST; then setar_fit (abrupt) or lstar_fit (smooth). Does NOT require ARCH.",
+                "source": "Tong 1990· Teräsvirta 1994"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "D",
+      "name": "causal-identification",
+      "entry": {
+        "goal": "causality"
+      },
+      "root": "D_design",
+      "nodes": {
+        "D_design": {
+          "question": "Where does the exogeneity come from? choice ∈ rdd|staggered_did|synthetic_control|iv|dml|causal_forest|ts_intervention|granger. ⚠ Granger = predictive, NOT causal.",
+          "reads": "choice",
+          "branches": [
+            {
+              "when": {
+                "is": "rdd"
+              },
+              "leaf": {
+                "tool_fns": "wrap_rdrobust",
+                "card_id": 38,
+                "rationale": "Sharp or fuzzy cutoff in a running variable -> RDD (wrap_rdrobust/wrap_rdbwselect).",
+                "source": "Calonico-Cattaneo-Titiunik 2014"
+              }
+            },
+            {
+              "when": {
+                "is": "staggered_did"
+              },
+              "leaf": {
+                "tool_fns": "wrap_att_gt",
+                "card_id": 36,
+                "rationale": "Treatment at different times (staggered) -> Callaway-Sant'Anna group-time ATT (wrap_att_gt->wrap_aggte); corrects TWFE bias.",
+                "source": "Callaway-Sant'Anna 2021· Goodman-Bacon 2021"
+              }
+            },
+            {
+              "when": {
+                "is": "synthetic_control"
+              },
+              "leaf": {
+                "tool_fns": "wrap_synth",
+                "card_id": 40,
+                "rationale": "One treated unit plus a donor pool -> Synthetic Control (wrap_dataprep->wrap_synth; inference wrap_scpi).",
+                "source": "Abadie-Diamond-Hainmueller 2010"
+              }
+            },
+            {
+              "when": {
+                "is": "iv"
+              },
+              "leaf": {
+                "tool_fns": "wrap_ivreg",
+                "card_id": 34,
+                "rationale": "A valid instrument (relevant + exclusion) -> IV/2SLS (wrap_ivreg or fx_feols(...|iv)).",
+                "source": "Wooldridge"
+              }
+            },
+            {
+              "when": {
+                "is": "dml"
+              },
+              "leaf": {
+                "tool_fns": "wrap_doubleml_plr",
+                "card_id": 45,
+                "rationale": "High-dim controls, √n-consistent effect -> Double/Debiased ML (wrap_doubleml_plr/_irm).",
+                "source": "Chernozhukov et al. 2018"
+              }
+            },
+            {
+              "when": {
+                "is": "causal_forest"
+              },
+              "leaf": {
+                "tool_fns": "wrap_causal_forest",
+                "card_id": 44,
+                "rationale": "Heterogeneous treatment (CATE) -> causal forest (wrap_causal_forest->wrap_average_treatment_effect).",
+                "source": "Wager-Athey 2018"
+              }
+            },
+            {
+              "when": {
+                "is": "ts_intervention"
+              },
+              "leaf": {
+                "tool_fns": "run_causal_impact",
+                "card_id": 90,
+                "rationale": "Time-series intervention at a known date (single-series counterfactual) -> CausalImpact (BSTS).",
+                "source": "Brodersen et al. 2015"
+              }
+            },
+            {
+              "when": {
+                "is": "granger"
+              },
+              "leaf": {
+                "tool_fns": "vr_causality",
+                "card_id": 11,
+                "rationale": "Predictive precedence (NOT structural) -> Granger causality (vr_causality).",
+                "source": "Granger 1969"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "E",
+      "name": "distribution-risk",
+      "entry": {
+        "goal": "distribution_risk"
+      },
+      "root": "E_target",
+      "nodes": {
+        "E_target": {
+          "question": "Which risk? choice ∈ growth_at_risk (conditional macro downside) | var_es (portfolio/returns tail)",
+          "reads": "choice",
+          "branches": [
+            {
+              "when": {
+                "is": "growth_at_risk"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "qr_growth_at_risk",
+                  "st_fit_quantiles",
+                  "st_density",
+                  "st_shortfall"
+                ],
+                "card_id": 64,
+                "rationale": "Growth-at-Risk: STEP 1 qr_growth_at_risk (conditional quantiles); STEP 2 (the full ABG) st_fit_quantiles->st_density/st_shortfall (skew-t density + ES).",
+                "source": "Adrian-Boyarchenko-Giannone 2019· Koenker-Bassett 1978· Azzalini-Capitanio 2003"
+              }
+            },
+            {
+              "when": {
+                "is": "var_es"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "pa_var",
+                  "pa_expected_shortfall"
+                ],
+                "card_id": 65,
+                "rationale": "Portfolio/returns tail risk -> pa_var/pa_expected_shortfall (historical/gaussian/modified Cornish-Fisher).",
+                "source": "PerformanceAnalytics· Boudt-Peterson-Croux 2008"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "F",
+      "name": "trend-cycle",
+      "entry": {
+        "goal": "trend_cycle"
+      },
+      "root": "F_filter",
+      "nodes": {
+        "F_filter": {
+          "question": "Which decomposition? choice ∈ hp (two-sided in-sample) | one_sided_hp (real-time/policy) | hamilton (regression, no HP artefacts) | band_pass | uc_kalman (model-based, with CI) | dfa (multivariate common trend)",
+          "reads": "choice",
+          "branches": [
+            {
+              "when": {
+                "is": "hp"
+              },
+              "leaf": {
+                "tool_fns": "mfl_hp_filter",
+                "card_id": 56,
+                "rationale": "Two-sided smoothing, ex post -> HP filter (lambda=1600 for quarterly data). ⚠ end-point bias + spurious cycles.",
+                "source": "Hodrick-Prescott 1997· Ravn-Uhlig 2002"
+              }
+            },
+            {
+              "when": {
+                "is": "one_sided_hp"
+              },
+              "leaf": {
+                "tool_fns": "hp_one_sided",
+                "card_id": 92,
+                "rationale": "Real-time/one-sided (policy; Basel credit gap lambda=400000) -> one-sided HP.",
+                "source": "Drehmann-Borio-Tsatsaronis 2011"
+              }
+            },
+            {
+              "when": {
+                "is": "hamilton"
+              },
+              "leaf": {
+                "tool_fns": "hf_filter",
+                "card_id": 57,
+                "rationale": "Avoiding HP spurious-cycle artefacts -> Hamilton regression filter.",
+                "source": "Hamilton 2018"
+              }
+            },
+            {
+              "when": {
+                "is": "band_pass"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "mfl_bk_filter",
+                  "mfl_cf_filter"
+                ],
+                "card_id": 56,
+                "rationale": "Band-pass cycle -> mfl_bk_filter (Baxter-King) / mfl_cf_filter (Christiano-Fitzgerald).",
+                "source": "Baxter-King 1999· Christiano-Fitzgerald 2003"
+              }
+            },
+            {
+              "when": {
+                "is": "uc_kalman"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "kf_trend_cycle",
+                  "dl_trend_cycle"
+                ],
+                "card_id": 58,
+                "rationale": "Model-based unobserved components (trend/cycle as state, with CI) -> kf_trend_cycle (KFAS) / dl_trend_cycle (dlm).",
+                "source": "Harvey 1989"
+              }
+            },
+            {
+              "when": {
+                "is": "dfa"
+              },
+              "leaf": {
+                "tool_fns": "marss_dfa",
+                "card_id": 61,
+                "rationale": "Multivariate common trend (NAIRU-style, many indicators -> one trend) -> dynamic factor analysis (marss_dfa).",
+                "source": "Holmes-Ward-Wills 2012"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "G",
+      "name": "panel-estimation",
+      "entry": {
+        "goal": "panel"
+      },
+      "root": "G_step",
+      "nodes": {
+        "G_step": {
+          "question": "Which panel step? choice ∈ poolability | fe_re | dynamic | panel_unit_root | csd",
+          "reads": "choice",
+          "branches": [
+            {
+              "when": {
+                "is": "poolability"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "pd_poolability_test",
+                  "pd_effects_ftest"
+                ],
+                "card_id": 46,
+                "rationale": "Are there individual effects? -> pd_poolability_test (Breusch-Pagan LM) + pd_effects_ftest (F, within vs pooling).",
+                "source": "Breusch-Pagan 1980· Baltagi"
+              }
+            },
+            {
+              "when": {
+                "is": "fe_re"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "pd_hausman_test",
+                  "pd_fit"
+                ],
+                "card_id": 46,
+                "rationale": "FE vs RE (are the effects correlated with the regressors?) -> pd_hausman_test (reject ⇒ FE); estimate with pd_fit(model='within'|'random').",
+                "source": "Hausman 1978"
+              }
+            },
+            {
+              "when": {
+                "is": "dynamic"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "pd_gmm_fit",
+                  "pd_gmm_autocorr_test",
+                  "pd_gmm_sargan_test"
+                ],
+                "card_id": 47,
+                "rationale": "Dynamic panel (lagged y), small T and large N (Nickell bias) -> GMM (pd_gmm_fit, NOT FE). POST-GATES: pd_gmm_autocorr_test (AR(2)) + pd_gmm_sargan_test.",
+                "source": "Arellano-Bond 1991· Nickell 1981"
+              }
+            },
+            {
+              "when": {
+                "is": "panel_unit_root"
+              },
+              "leaf": {
+                "tool_fns": "run_purtest",
+                "card_id": 6,
+                "rationale": "Panel unit roots — ONLY for macro panels (large T) -> run_purtest (LLC/IPS/Fisher/Hadri). ⚠ hadri has the opposite polarity.",
+                "source": "Levin-Lin-Chu· Im-Pesaran-Shin"
+              }
+            },
+            {
+              "when": {
+                "is": "csd"
+              },
+              "leaf": {
+                "tool_fns": "run_cipstest",
+                "card_id": 6,
+                "rationale": "Cross-sectional dependence (common shocks) -> run_cipstest (Pesaran CIPS/CMG, second generation). First-generation purtest is size-distorted under CSD.",
+                "source": "Pesaran 2006, 2007"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "H",
+      "name": "forecast-workflow",
+      "entry": {
+        "goal": "forecast_workflow"
+      },
+      "root": "H_step",
+      "nodes": {
+        "H_step": {
+          "question": "Which evaluation? choice ∈ diagnostics | backtest | compare_two | compare_many | combine | density",
+          "reads": "choice",
+          "branches": [
+            {
+              "when": {
+                "is": "diagnostics"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "run_bg_test",
+                  "run_bp_test",
+                  "run_reset_test"
+                ],
+                "card_id": 76,
+                "rationale": "In-sample diagnostics (model adequacy) -> run_bg_test (serial correlation) / run_bp_test (heteroskedasticity) / run_reset_test (functional form); plus run_arch_test (ARCH -> volatility model).",
+                "source": "Breusch-Godfrey· Breusch-Pagan· Ramsey RESET"
+              }
+            },
+            {
+              "when": {
+                "is": "backtest"
+              },
+              "leaf": {
+                "tool_fns": "eval_tsCV",
+                "card_id": 74,
+                "rationale": "Out-of-sample backtest (rolling origin) -> eval_tsCV (per-horizon RMSE/MAE).",
+                "source": "Hyndman-Athanasopoulos"
+              }
+            },
+            {
+              "when": {
+                "is": "compare_two"
+              },
+              "leaf": {
+                "tool_fns": "eval_dm_test",
+                "card_id": 74,
+                "rationale": "Point-forecast comparison of two models -> Diebold-Mariano (eval_dm_test). NOT for distributions.",
+                "source": "Diebold-Mariano 1995"
+              }
+            },
+            {
+              "when": {
+                "is": "compare_many"
+              },
+              "leaf": {
+                "tool_fns": "run_mcs_procedure",
+                "card_id": 75,
+                "rationale": "MANY models -> Model Confidence Set (run_mcs_procedure): the set that is not eliminated. Avoid multiple pairwise DM tests.",
+                "source": "Hansen-Lunde-Nason 2011"
+              }
+            },
+            {
+              "when": {
+                "is": "combine"
+              },
+              "leaf": {
+                "tool_fns": "run_hybrid",
+                "card_id": 85,
+                "rationale": "Combination rather than selection -> forecastHybrid (run_hybrid; equal/insample/CV weights).",
+                "source": "Bates-Granger 1969· Timmermann 2006"
+              }
+            },
+            {
+              "when": {
+                "is": "density"
+              },
+              "leaf": {
+                "tool_fns": [
+                  "sr_crps_sample",
+                  "sr_logs_sample",
+                  "sr_pit_sample"
+                ],
+                "card_id": 94,
+                "rationale": "Density forecast (draws) -> proper scoring: sr_crps_sample/sr_logs_sample (NEGATIVELY ORIENTED, LOWER IS BETTER) + sr_pit_sample (calibration). NOT DM.",
+                "source": "Gneiting-Raftery 2007"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

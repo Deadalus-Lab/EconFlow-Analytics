@@ -1,0 +1,133 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# Runs locally on commit and, on pull requests, via the pre-commit.ci app.
+# The goal is zero divergence between what you run locally and what CI runs.
+#
+# ┌──────────────────────────────────────────────────────────────────────────┐
+# │ NEVER ADD ruff format, black, autopep8 OR ANY OTHER PYTHON                │
+# │ AUTO-FORMATTER TO THIS FILE.                                             │
+# │                                                                          │
+# │ The hazard did not change with the language; only the tool's name did.   │
+# │ It would rewrite all 380 Python files. Among them is the 64-module       │
+# │ generated tier under src/econflow_engine/generated/, emitted by          │
+# │ scripts/gen_schemas.py, and ARCHITECTURE.md §4.4 records that even a     │
+# │ COMMENT change on the generating side shifts the emitted bytes. A        │
+# │ formatting pass would therefore put every generated module out of step   │
+# │ with its generator in one commit, turn the artifact-drift gate red, and  │
+# │ force a regeneration whose diff nobody can review.                       │
+# │                                                                          │
+# │ The engine's formatting is enforced by ruff.toml's LINT rules, which were│
+# │ fitted to the existing corpus and currently report zero findings. That   │
+# │ is the control. `ruff check` is welcome here; `ruff format` is not.      │
+# └──────────────────────────────────────────────────────────────────────────┘
+minimum_pre_commit_version: "4.0.0"
+
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+
+# Generated and byte-pinned content is excluded globally. A whitespace hook
+# "fixing" one of these would break the drift gate that exists to prove they
+# have not changed.
+exclude: |
+  (?x)^(
+      engine/src/econflow_engine/generated/.*
+    | engine/artifacts/.*\.json
+    | engine/artifacts/.*\.sha256
+    | engine/fixtures/.*
+    | engine/sbom\.cdx\.json
+    | uv\.lock
+    | engine/METHOD-SELECTION\.(md|yaml)
+    | engine/METHOD-SELECTION-TREES\.yaml
+    | engine/THIRD-PARTY-LICENSES\.md
+  )$
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: detect-private-key
+      - id: check-added-large-files
+        # The committed artifacts are legitimately large -- node-specs is 2.7 MB
+        # and METHOD-SELECTION.yaml is 964 KB. The ceiling sits above those and
+        # below "somebody committed a container image or a dataset".
+        args: [--maxkb=3000]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.1
+    hooks:
+      # LINT ONLY. There is deliberately no `ruff-format` hook here; see the box
+      # at the top of this file. The version matches the pin in ci.yml's py-lint
+      # job, because "zero findings" is a statement about a specific rule set.
+      - id: ruff
+        args: [--fix]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        # Prevention, not detection: this blocks the commit before the secret
+        # ever reaches GitHub. The CI job and push protection are the net that
+        # catches what bypasses the hook.
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        args: [--severity=warning]
+
+  - repo: https://github.com/AleksaC/hadolint-py
+    rev: v2.15.1
+    hooks:
+      - id: hadolint
+        args: [--failure-threshold, error]
+        # Match only a real Dockerfile. A bare `types: [dockerfile]` also matches
+        # files such as Dockerfile.dockerignore, which is not a Dockerfile and
+        # fails to parse -- an error unrelated to anything the author changed.
+        files: (^|/)Dockerfile$
+
+  - repo: local
+    hooks:
+      # THIS HOOK USED TO FAIL GREEN, AND THE FIX IS THE POINT OF THE PATTERN.
+      # Its selector matched a file type this tree does not contain. On a tree with no such files in it that matches
+      # NOTHING, and a hook that matches nothing is reported as Passed -- the one
+      # gate in this repository that could go green having examined zero files,
+      # which is exactly what ARCHITECTURE.md §11.1 forbids. It now selects .py,
+      # and it asserts the IDENTIFIER as well as its presence: a file carrying
+      # some other licence header would otherwise pass a presence-only check
+      # while quietly contradicting LICENSE.
+      - id: spdx-header
+        name: every Python file declares SPDX-License-Identifier AGPL-3.0-only
+        entry: >-
+          bash -c 'miss=0;
+          for f in "$@"; do
+            line=$(grep -m1 "SPDX-License-Identifier" "$f" || true);
+            if [ -z "$line" ]; then echo "missing SPDX: $f"; miss=1;
+            elif ! printf "%s" "$line" | grep -q "AGPL-3.0-only"; then
+              echo "wrong SPDX identifier in $f: $line"; miss=1;
+            fi;
+          done; exit $miss' --
+        language: system
+        files: \.py$
+
+ci:
+  autofix_prs: true
+  autoupdate_schedule: monthly
+  # Everything here now runs on pre-commit.ci's own runner: the engine's lint is
+  # ruff, which is a single binary and needs neither the interpreter's scientific
+  # stack nor a restored environment. Under the engine these hooks had to stay local-only.
+  skip: []

@@ -1,0 +1,222 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``bayesian_structural_var_identified_through`` -- METHOD-SELECTION card #148.
+
+#148 Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
+    Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
+    Savage-Dickey (SDDR) identification check — bsvars
+
+Category 04-structural-shocks; module ``bayesian_structural_var_identified_through``.
+
+Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+
+See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
+traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c04_structural_shocks import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import numpy as np
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "bsv_estimate",
+    "bsv_fevd",
+    "bsv_hd",
+    "bsv_irf",
+    "bsv_shocks",
+    "bsv_verify",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def bsv_estimate(
+    *,
+    data: np.ndarray,
+    model: Literal["sv", "msh", "t"] | None = None,
+    p: int | None = None,
+    S: int | None = None,
+    burnin: int | None = None,
+    thin: int | None = None,
+    M: int | None = None,
+    stationary: bool | None = None,
+    seed: int,
+    allow_nonconvergence: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``bsv_estimate`` -- METHOD-SELECTION card #148.
+
+    Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
+    Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
+    Savage-Dickey (SDDR) identification check — bsvars.
+
+    Category 04-structural-shocks; memory class ``mcmc``.
+
+    Registers its result under ``model``, so a later node can consume it as a handle.
+
+    Args:
+        data: [matrix_handle, required] Handle to a multivariate system (matrix/mts, K>=2, >=3 rows,
+            no NA/Inf).
+        model: [enum, optional] Identification through statistical structure: sv=stochastic
+            volatility, msh=Markov-switching heteroskedasticity, t=Student-t (default sv).
+        p: [integer, optional] VAR order (positive integer, default 1). Default ``1``.
+        S: [integer, optional] Retained posterior draws (TINY default 100· production raises it).
+            Default ``100``.
+        burnin: [integer, optional] Burn-in draws (non-negative, default 50). Default ``50``.
+        thin: [integer, optional] Thinning factor (positive integer, default 1). Default ``1``.
+        M: [integer, optional] Number of variance regimes (model='msh' only, >=2, default 2).
+            Default ``2``.
+        stationary: [boolean, optional] Impose the stationarity prior on the AR coefficients
+            (default False). Default ``False``.
+        seed: [integer, required] MANDATORY seed (the MCMC is stochastic· cache key).
+        allow_nonconvergence: [boolean, optional] True = return the posterior with converged=False
+            instead of stop on degenerate draws (mirror rstan/MARSS). Default ``False``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "bsv_estimate: not implemented. The method card is in ./README.md."
+    )
+
+
+def bsv_irf(
+    *,
+    model: Any,
+    horizon: int | None = None,
+    standardise: bool | None = None,
+    probs: Sequence[float] | None = None,
+) -> dict[str, Any]:
+    """Node ``bsv_irf`` -- METHOD-SELECTION card #148.
+
+    Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
+    Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
+    Savage-Dickey (SDDR) identification check — bsvars.
+
+    Category 04-structural-shocks; memory class ``light``.
+
+    Args:
+        model: [raw_handle, required] Handle to a 'PosteriorBSVAR*' model (bsv_estimate$model).
+        horizon: [integer, optional] Impulse-response horizon 0..horizon (positive integer, default
+            12). Default ``12``.
+        standardise: [boolean, optional] Standardise the IRF in standard-deviation units (default
+            False). Default ``False``.
+        probs: [num_array, optional] Quantile bands of the posterior IRF ∈ (0,1) (default
+            0.16/0.84).
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "bsv_irf: not implemented. The method card is in ./README.md."
+    )
+
+
+def bsv_fevd(
+    *,
+    model: Any,
+    horizon: int | None = None,
+    probs: Sequence[float] | None = None,
+) -> dict[str, Any]:
+    """Node ``bsv_fevd`` -- METHOD-SELECTION card #148.
+
+    Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
+    Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
+    Savage-Dickey (SDDR) identification check — bsvars.
+
+    Category 04-structural-shocks; memory class ``light``.
+
+    Args:
+        model: [raw_handle, required] Handle to a 'PosteriorBSVAR*' model.
+        horizon: [integer, optional] FEVD horizon (positive integer, default 12). Default ``12``.
+        probs: [num_array, optional] Quantile bands ∈ (0,1) (default 0.16/0.84).
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "bsv_fevd: not implemented. The method card is in ./README.md."
+    )
+
+
+def bsv_hd(
+    *,
+    model: Any,
+    probs: Sequence[float] | None = None,
+) -> dict[str, Any]:
+    """Node ``bsv_hd`` -- METHOD-SELECTION card #148.
+
+    Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
+    Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
+    Savage-Dickey (SDDR) identification check — bsvars.
+
+    Category 04-structural-shocks; memory class ``light``.
+
+    Args:
+        model: [raw_handle, required] Handle to a 'PosteriorBSVAR*' model.
+        probs: [num_array, optional] Quantile bands ∈ (0,1) (default 0.16/0.84).
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "bsv_hd: not implemented. The method card is in ./README.md."
+    )
+
+
+def bsv_shocks(
+    *,
+    model: Any,
+    probs: Sequence[float] | None = None,
+) -> dict[str, Any]:
+    """Node ``bsv_shocks`` -- METHOD-SELECTION card #148.
+
+    Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
+    Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
+    Savage-Dickey (SDDR) identification check — bsvars.
+
+    Category 04-structural-shocks; memory class ``light``.
+
+    Args:
+        model: [raw_handle, required] Handle to a 'PosteriorBSVAR*' model.
+        probs: [num_array, optional] Quantile bands ∈ (0,1) (default 0.16/0.84).
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "bsv_shocks: not implemented. The method card is in ./README.md."
+    )
+
+
+def bsv_verify(
+    *,
+    model: Any,
+    allow_nonconvergence: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``bsv_verify`` -- METHOD-SELECTION card #148.
+
+    Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
+    Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
+    Savage-Dickey (SDDR) identification check — bsvars.
+
+    Category 04-structural-shocks; memory class ``light``.
+
+    Args:
+        model: [raw_handle, required] Handle to a 'PosteriorBSVAR*' model (SDDR identification
+            check).
+        allow_nonconvergence: [boolean, optional] True = return a degenerate SDDR instead of stop
+            (default False). Default ``False``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "bsv_verify: not implemented. The method card is in ./README.md."
+    )

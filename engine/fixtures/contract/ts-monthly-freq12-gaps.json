@@ -1,0 +1,40 @@
+{
+  "name": "ts-monthly-freq12-gaps",
+  "why": "ts frequency 12 with two empty months inside the grid -> two NA",
+  "producer": ".node_ptr_serialize",
+  "format": "parquet",
+  "engine": {
+    "arrow_version": "24.0.0"
+  },
+  "sidecar": {
+    "class": "ts",
+    "ts": true,
+    "matrix": false,
+    "start": 2020,
+    "end": 2020.4166666666667,
+    "frequency": 12,
+    "columns": [
+      "value"
+    ]
+  },
+  "expect": {
+    "kind": "ts",
+    "values": [
+      "1",
+      "2",
+      null,
+      null,
+      "5",
+      "6"
+    ],
+    "start": [
+      2020,
+      1
+    ],
+    "frequency": 12,
+    "na": [
+      2,
+      3
+    ]
+  }
+}

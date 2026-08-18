@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# EXEMPTIONS FROM check-vocabulary.sh. One path prefix per line.
+#
+# It contains no content entries, and that is the point: every file in this tree
+# documents itself in this project's own terms. If you find yourself adding one,
+# the question to answer first is whether the wording is genuinely borrowed
+# vocabulary (rewrite it) or MATHEMATICS or a person's name (the gate already
+# permits both -- see the ALLOWED list in the script).
+#
+# The two entries below are the gate's own files, which necessarily contain the
+# patterns they search for.
+
+.github/vocabulary-allowlist.txt
+.github/scripts/check-vocabulary.sh

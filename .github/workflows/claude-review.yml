@@ -1,0 +1,104 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# Automatic review on every pull request from a branch in this repository.
+#
+# ADVISORY ONLY -- never a required check. See claude.yml for the three reasons.
+#
+# ---------------------------------------------------------------------------
+# THE FORK GUARD, AND WHY IT IS NOT `pull_request_target`
+# ---------------------------------------------------------------------------
+# `pull_request` on a fork gives an empty secret, so this job would fail with no
+# API key. The usual "fix" is to switch the trigger to `pull_request_target`,
+# which DOES expose secrets. That is a serious mistake here: it runs with write
+# permissions in the context of the BASE repository while checking out code an
+# untrusted contributor wrote. It is the standard route to exfiltrating a
+# repository's secrets, and this repository is public.
+#
+# So the job is skipped on fork pull requests, deliberately and permanently.
+# Outside contributors still get CodeRabbit -- which works on forks through its
+# own app rather than through our secrets -- and every deterministic gate in
+# ci.yml. They do not get this one. That trade is documented in CONTRIBUTING.md
+# so it is not mistaken for a bug.
+name: claude-review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions: {}
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Review
+        uses: anthropics/claude-code-action@9d7150bc8a3dae8149739a88019d192b579ad90c # v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # allowed_tools deliberately EXCLUDES anything that could run
+          # run_verifications.sh or a generator in --check mode.
+          #
+          # Claude reviews; CI proves. If a model could run the suite and report
+          # the result, the report would become the evidence -- and the evidence
+          # would be non-deterministic. The suite's verdict must come from the
+          # gate, not from a summary of the gate.
+          claude_args: >-
+            --allowed-tools "Read,Grep,Glob"
+            --system-prompt
+            "Review this pull request for an econometric compute engine.
+             Write in English, in a professional academic register.
+
+             Check, in order of importance:
+
+             1. GATES. Every documented requirement of a method must be an
+                explicit refusal to compute, never a warning and never silent.
+                Flag any gate that was softened, deleted, or made conditional.
+             2. TESTS. Flag any test weakened rather than fixed: a skip or xfail
+                added to make a failure go away, a loosened assertion, a deleted
+                pytest.raises, or a mutation-proof check replaced by a shape
+                check. A test that no longer distinguishes right from wrong is
+                worse than no test, because it reports success.
+             3. WRAPPER ANATOMY. Each src/econflow_engine/wrappers/**/*.py
+                module: arguments only from the upstream documentation with
+                their documented defaults; a structured result out, never
+                printing and never plotting; examples in the docstring rather
+                than at module scope; an implementation-note footer recording
+                functions used, what was omitted and the gates added.
+             4. GENERATED CODE. Nothing under artifacts/ may be hand-edited, and
+                nothing under src/econflow_engine/generated/ either -- that tier
+                is re-emitted by scripts/gen_schemas.py on every build. If a
+                generator or its input changed and the generated tier did not,
+                say so.
+             5. SECURITY. No network call in any wrapper (the engine makes none,
+                0 of 251). No eval, exec or pickle on user input. No getattr
+                resolving a user-supplied name to a callable. No stochastic
+                method without a mandatory seed. No chart rendered in the
+                engine: it emits chart DATA, the browser draws.
+             6. THE ENGINE BOUNDARY. No statistical dependency may appear in
+                backend/. numpy, scipy, statsmodels, pandas and pyarrow belong
+                to engine/ alone. This used to be guaranteed by the file
+                extension and is now only a CI check, so it is worth a human
+                eye as well.
+             7. DETERMINISM. Nothing that would make the same input produce a
+                different number -- in particular, no change to the locked
+                dependency set and no change to the linear-algebra thread
+                settings that pin every BLAS pool to one.
+
+             Report only what you can point at with a file and line. If you are
+             uncertain whether something is a defect, say that you are uncertain
+             and explain what would settle it. Do not pad the review with
+             observations that carry no consequence."

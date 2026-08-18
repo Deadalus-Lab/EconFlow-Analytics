@@ -1,0 +1,143 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``regularisation_decomposition_space`` -- METHOD-SELECTION card #129.
+
+#129 Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a
+    full descriptive table including normality; diff/LOESS trend-seasonal decomposition)
+
+Category 01-preparation-prechecks; module ``regularisation_decomposition_space``.
+
+Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+
+See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
+traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c01_preparation_prechecks import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "ps_decompose",
+    "ps_stat_desc",
+    "ps_turnpoints",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def ps_turnpoints(
+    *,
+    x: pd.Series,
+    calc_proba: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``ps_turnpoints`` -- METHOD-SELECTION card #129.
+
+    Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a
+    full descriptive table including normality; diff/LOESS trend-seasonal decomposition).
+
+    Category 01-preparation-prechecks; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to a univariate numeric series/ts (no NA, >=3 obs & >=3
+            unique values).
+        calc_proba: [boolean, optional] Compute the Kendall probability/information per turning
+            point (default True). Default ``True``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ps_turnpoints: not implemented. The method card is in ./README.md."
+    )
+
+
+def ps_stat_desc(
+    *,
+    x: pd.Series,
+    basic: bool | None = None,
+    desc: bool | None = None,
+    norm: bool | None = None,
+    p: float | None = None,
+) -> dict[str, Any]:
+    """Node ``ps_stat_desc`` -- METHOD-SELECTION card #129.
+
+    Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a
+    full descriptive table including normality; diff/LOESS trend-seasonal decomposition).
+
+    Category 01-preparation-prechecks; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to a numeric series/ts (or a numeric multi-series df).
+        basic: [boolean, optional] Basic statistics: nbr.val/null/na/min/max/range/sum (default
+            True). Default ``True``.
+        desc: [boolean, optional] Descriptive statistics:
+            median/mean/SE.mean/CI.mean/var/std.dev/coef.var (default True). Default ``True``.
+        norm: [boolean, optional] Normality: skewness/kurtosis/Shapiro-Wilk (default False). Default
+            ``False``.
+        p: [number, optional] Confidence level of CI.mean, in (0,1) (default 0.95). Default
+            ``0.95``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ps_stat_desc: not implemented. The method card is in ./README.md."
+    )
+
+
+def ps_decompose(
+    *,
+    x: pd.Series,
+    method: Literal["loess", "diff"] | None = None,
+    type: Literal["additive", "multiplicative"] | None = None,
+    lag: int | None = None,
+    order: int | None = None,
+    ends: Literal["fill", "NAs", "drop"] | None = None,
+    s_window: Any | None = None,
+    s_degree: int | None = None,
+    t_window: int | None = None,
+    t_degree: int | None = None,
+    robust: bool | None = None,
+    trend: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``ps_decompose`` -- METHOD-SELECTION card #129.
+
+    Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a
+    full descriptive table including normality; diff/LOESS trend-seasonal decomposition).
+
+    Category 01-preparation-prechecks; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Handle to a regular univariate ts (no NA· loess: frequency>1 &
+            >=2 full periods).
+        method: [enum, optional] loess=STL trend-seasonal· diff=differencing filter that removes the
+            trend (default loess).
+        type: [enum, optional] Model· loess supports additive ONLY (default additive).
+        lag: [integer, optional] [diff] differencing lag, positive integer (default 1). Default
+            ``1``.
+        order: [integer, optional] [diff] differencing order, positive integer (default 1). Default
+            ``1``.
+        ends: [enum, optional] [diff] handling of the non-computable initial values (default fill).
+        s_window: [raw, optional] [loess] "periodic" or an odd number (default "periodic").
+        s_degree: [integer, optional] [loess] seasonal polynomial degree, 0 or 1 (default 0).
+            Default ``0``.
+        t_window: [integer, optional] [loess] trend window width (odd· default data-driven).
+        t_degree: [integer, optional] [loess] trend polynomial degree 0/1/2 (default 2). Default
+            ``2``.
+        robust: [boolean, optional] [loess] robust regression (default False). Default ``False``.
+        trend: [boolean, optional] [loess] compute a separate trend component (default False).
+            Default ``False``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "ps_decompose: not implemented. The method card is in ./README.md."
+    )

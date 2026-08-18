@@ -1,0 +1,77 @@
+{
+  "note": "Ten published-scenario datasets, stored as parquet. value_sum is the checksum that makes an accidental edit visible: a test recomputes every field here from the files themselves, and six distinct payloads across ten files is deliberate, not an accident.",
+  "source": "published replication scenarios; verified against this manifest, 10 of 10",
+  "n_files": 10,
+  "files": {
+    "repl-growth-at-risk-figb": {
+      "rows": 821,
+      "cols": 17,
+      "value_sum": 4639.46,
+      "value_n_na": 0,
+      "sha256": "5e0d42b3e667ddb23249a706c9833061cd2b8ffaebd30a9d53ddd58ce2a66aef"
+    },
+    "repl-growth-at-risk-fitb": {
+      "rows": 860,
+      "cols": 17,
+      "value_sum": 3530.2,
+      "value_n_na": 0,
+      "sha256": "dbf25535184ca40abf8451c8b2bfb436bb4e48987f7a319b7130fe14a8836ff5"
+    },
+    "repl-growth-at-risk-ip": {
+      "rows": 840,
+      "cols": 18,
+      "value_sum": 59925.6369354524,
+      "value_n_na": 0,
+      "sha256": "698ad53e600f63c8a51e9d08451bc183c8f825cdd59e2fee7c591b575fba577d"
+    },
+    "repl-johansen-vecm-long": {
+      "rows": 821,
+      "cols": 17,
+      "value_sum": 4639.46,
+      "value_n_na": 0,
+      "sha256": "5e0d42b3e667ddb23249a706c9833061cd2b8ffaebd30a9d53ddd58ce2a66aef"
+    },
+    "repl-johansen-vecm-short": {
+      "rows": 860,
+      "cols": 17,
+      "value_sum": 3530.2,
+      "value_n_na": 0,
+      "sha256": "dbf25535184ca40abf8451c8b2bfb436bb4e48987f7a319b7130fe14a8836ff5"
+    },
+    "repl-money-income-income": {
+      "rows": 840,
+      "cols": 18,
+      "value_sum": 59925.6369354524,
+      "value_n_na": 0,
+      "sha256": "698ad53e600f63c8a51e9d08451bc183c8f825cdd59e2fee7c591b575fba577d"
+    },
+    "repl-money-income-money": {
+      "rows": 702,
+      "cols": 17,
+      "value_sum": 478045631.0,
+      "value_n_na": 0,
+      "sha256": "f6607bef3a514c6ab610d23a016b4780971e97019e26fb381295558a1df15b99"
+    },
+    "repl-taylor-rule-cpi": {
+      "rows": 847,
+      "cols": 18,
+      "value_sum": 52086.6462895914,
+      "value_n_na": 0,
+      "sha256": "2649ebe57b8c72179169b1c6fae8bcc0e7dc43e918e44b6aeb02cec81c661843"
+    },
+    "repl-taylor-rule-ip": {
+      "rows": 840,
+      "cols": 18,
+      "value_sum": 59925.6369354524,
+      "value_n_na": 0,
+      "sha256": "698ad53e600f63c8a51e9d08451bc183c8f825cdd59e2fee7c591b575fba577d"
+    },
+    "repl-taylor-rule-polrate": {
+      "rows": 515,
+      "cols": 17,
+      "value_sum": 1947.7458,
+      "value_n_na": 0,
+      "sha256": "ab158ccdc37415cc72015fa99c92b5807425f32b131964e1bc11bbad7e329f2b"
+    }
+  }
+}

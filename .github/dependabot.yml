@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+version: 2
+
+updates:
+  # ---------------------------------------------------------------------------
+  # GitHub Actions. Every action is pinned to a full commit SHA, so this is what
+  # moves those pins deliberately rather than leaving them to rot.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci(deps)"
+    groups:
+      actions:
+        patterns: ["*"]
+    # A compromised release usually lives for hours, not weeks. Waiting before
+    # adopting a new version is cheap here and has caught real supply-chain
+    # incidents in the wider ecosystem.
+    cooldown:
+      default-days: 14
+
+  # ---------------------------------------------------------------------------
+  # THE COMPUTE LAYER IS NOW COVERED, AND THAT IS AN INVERSION.
+  #
+  # This file used to end with a block explaining that the engine's lockfile was
+  # NOT covered here and that this was deliberate, because no update tool had an
+  # ecosystem for it. That explanation is gone because its premise is gone: `pip`
+  # IS a Dependabot ecosystem, it reads a uv-generated lockfile, and declining
+  # coverage that exists would be a choice rather than a constraint.
+  #
+  # The lockfile is at the repository root, because engine/ and backend/ are two
+  # members of one uv workspace with one resolution. The `/engine` entry below
+  # covers the engine member's manifest.
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+    cooldown:
+      default-days: 14
+    groups:
+      # The scientific stack moves together or not at all. numpy, scipy,
+      # statsmodels and pandas have tight mutual version constraints, and a
+      # single-package bump inside that set is the most likely way to get a
+      # resolution that installs but computes differently.
+      scientific:
+        patterns: ["numpy", "scipy", "statsmodels", "pandas", "pyarrow"]
+      tooling:
+        patterns: ["ruff", "mypy", "pytest*", "pandas-stubs"]
+
+  # ---------------------------------------------------------------------------
+  # The base image of the engine container.
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "build(deps)"
+    cooldown:
+      default-days: 14
+    ignore:
+      # The interpreter is PINNED at 3.12 by .python-version, by requires-python
+      # in both workspace members, and by the determinism guarantee in
+      # ARCHITECTURE.md 4.6. Moving the base image's minor version independently
+      # of those would break reproducibility silently: the resolution changes,
+      # the same input stops producing the same number, and every version string
+      # still looks correct. An interpreter upgrade is a deliberate, measured
+      # project, never a dependency bump.
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+# ==============================================================================
+# WHAT A GREEN DEPENDABOT RUN DOES NOT MEAN.
+#
+# Dependabot proposes; it does not verify. A bump to numpy or scipy can install
+# cleanly, pass type checking, and still move a fitted coefficient in the last
+# bits -- which is precisely the failure this project's determinism guarantee
+# exists to catch and which no dependency bot can see.
+#
+# So a scientific-stack pull request from this file is NOT mergeable on green
+# CI alone. It needs the full suite (`full-suite` label) and a reading of what
+# moved. The `tooling` group carries no such risk and is ordinary review.
+# ==============================================================================

@@ -1,0 +1,43 @@
+{
+  "name": "matrix-plain-2col",
+  "why": "plain numeric matrix (no class) -> sidecar$matrix, column names",
+  "producer": ".node_ptr_serialize",
+  "format": "parquet",
+  "engine": {
+    "arrow_version": "24.0.0"
+  },
+  "sidecar": {
+    "class": "matrix",
+    "ts": false,
+    "matrix": true,
+    "columns": [
+      "a",
+      "β"
+    ]
+  },
+  "expect": {
+    "kind": "matrix",
+    "columns": {
+      "a": [
+        "1",
+        null,
+        "3"
+      ],
+      "β": [
+        "4",
+        "5",
+        "-0"
+      ]
+    },
+    "na": {
+      "a": [
+        1
+      ]
+    },
+    "negativeZero": {
+      "β": [
+        2
+      ]
+    }
+  }
+}

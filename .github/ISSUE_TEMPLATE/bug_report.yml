@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+name: Bug report
+description: Something computes the wrong answer, crashes, or blocks when it should not
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: a node that refuses to run and states a rule is a **gate**,
+        not a bug. That is the system working. If the rule looks wrong, file it
+        anyway and say which rule and why — that is a useful report.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproducible example
+      description: The smallest series and call that shows it. This is the single most useful thing you can provide.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Paste the output of the three commands below, run from `engine/`. The
+        interpreter must be 3.12 and the environment must match the committed
+        lockfile — a difference in either is itself the likely cause, and the
+        third command is what shows it.
+
+        ```
+        python3 --version
+        uv --version
+        uv sync --locked --dry-run
+        ```
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: suite
+    attributes:
+      label: Does ./run_verifications.sh pass on your checkout?
+      placeholder: "yes / no / not run"
+    validations:
+      required: true

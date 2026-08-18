@@ -1,0 +1,473 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# ============================================================
+# GENERATED FILE -- DO NOT EDIT.
+# Source: artifacts/node-specs.v1.json (committed) via scripts/gen_schemas.py.
+# Rebuild with: python scripts/gen_schemas.py
+# ============================================================
+
+"""Tier 3 for category 01-preparation-prechecks: descriptions and input examples.
+
+A worker executing a graph must NOT import from here -- this tier is
+roughly 80% of the artifact and none of it is needed to run a node.
+"""
+
+from typing import Any
+
+NODE_DOCS: dict[str, dict[str, Any]] = {
+    'bf_bfast': {
+        'fn': 'bf_bfast',
+        'description': 'bf_bfast -- category 01-preparation-prechecks, METHOD-SELECTION card #128.',
+        'args': {'Yt': "Handle to a univariate regular 'ts', frequency > 1, n >= 2*frequency (NA only with decomp='stlplus').", 'h': 'Minimum segment as a fraction of the sample, strictly (0,1) (default 0.15).', 'season': 'Seasonal model: dummy (RSE-1) / harmonic (RSE-2) / none (default dummy).', 'max_iter': 'Maximum breakpoint estimation iterations (positive integer, default 10).', 'breaks': 'None=auto· positive integer, 1-2 values (trend, seasonal)· or a string statistic (BIC/LWZ/RSS...).', 'level': 'Threshold sctest.efp· 1 or 2 values (trend, seasonal), each in (0,1) (default 0.05).', 'decomp': 'Decomposition: stl (default) or stlplus (handles NA· mandatory if NA are present).'},
+        'input_example': {'Yt': '<series_handle>', 'h': 0.15, 'max_iter': 10, 'level': [0.5, 0.5]},
+    },
+    'bf_monitor': {
+        'fn': 'bf_monitor',
+        'description': 'bf_monitor -- category 01-preparation-prechecks, METHOD-SELECTION card #128.',
+        'args': {'data': "Handle to a univariate 'ts', frequency > 1 (for the harmon component).", 'start': 'Start of the monitoring period: float (e.g. 2013.0) or a length-2 vector [year, period].', 'history': 'Stable history selection: ROC (rev-CUSUM, default) / BP (Bai-Perron) / all.', 'order': 'Order of the harmonic term (positive integer, default 3).', 'h': 'Bandwidth of the MOSUM monitoring process, strictly (0,1) (default 0.25).', 'level': 'Significance levels (monitoring, ROC)· 1 or 2 values in (0,1) (default 0.05,0.05).'},
+        'input_example': {'data': '<series_handle>', 'start': [0.5, 0.5], 'order': 3, 'h': 0.25, 'level': [0.5, 0.5]},
+    },
+    'bur_boot_adf': {
+        'fn': 'bur_boot_adf',
+        'description': 'bur_boot_adf -- category 01-preparation-prechecks, METHOD-SELECTION card #122.',
+        'args': {'data': 'Handle to a univariate ts/series (no NA, >=20 obs).', 'seed': 'Bootstrap seed (MANDATORY — determinism/caching).', 'bootstrap': 'Bootstrap method (default AWB).', 'B': 'Bootstrap replications (>=99, default 1999).', 'deterministics': 'ADF deterministic terms (default intercept).', 'detrend': 'Detrending: OLS (ADF) or QD/GLS (DF-GLS) (default OLS).', 'min_lag': 'Minimum ADF lag (default 0).', 'max_lag': 'Maximum ADF lag (default data-driven 12(T/100)^0.25).', 'criterion': 'Lag selection criterion (default MAIC).', 'criterion_scale': 'Rescaled IC (Cavaliere et al. 2015) (default True).', 'alpha': 'Decision level· H0=unit root, p<alpha ⇒ STATIONARY (default 0.05).'},
+        'input_example': {'data': '<series_handle>', 'seed': 1, 'B': 1999, 'min_lag': 0, 'criterion_scale': True, 'alpha': 0.05},
+    },
+    'bur_boot_panel': {
+        'fn': 'bur_boot_panel',
+        'description': 'bur_boot_panel -- category 01-preparation-prechecks, METHOD-SELECTION card #122.',
+        'args': {'data': 'Handle to a (T x N) matrix/mts of >=2 series (no NA, >=20 obs).', 'seed': 'Bootstrap seed (MANDATORY — determinism/caching).', 'bootstrap': 'Bootstrap method (default AWB).', 'B': 'Bootstrap replications (>=99, default 1999).', 'union': 'Use the union test per series (default True).', 'union_quantile': 'Quantile scaling union (default 0.05).', 'deterministics': 'Deterministic terms· ONLY if union=False (default intercept).', 'detrend': 'Detrending· ONLY if union=False (default OLS).', 'min_lag': 'Minimum ADF lag (default 0).', 'max_lag': 'Maximum ADF lag (default data-driven).', 'criterion': 'Lag selection criterion (default MAIC).', 'criterion_scale': 'Rescaled IC (default True).', 'alpha': 'Decision level· H0=ALL series have a unit root, p<alpha ⇒ SOME are stationary (default 0.05).'},
+        'input_example': {'data': '<multiseries_handle>', 'seed': 1, 'B': 1999, 'union': True, 'union_quantile': 0.05, 'min_lag': 0, 'criterion_scale': True, 'alpha': 0.05},
+    },
+    'bur_boot_union': {
+        'fn': 'bur_boot_union',
+        'description': 'bur_boot_union -- category 01-preparation-prechecks, METHOD-SELECTION card #122.',
+        'args': {'data': 'Handle to a univariate ts/series (no NA, >=20 obs).', 'seed': 'Bootstrap seed (MANDATORY — determinism/caching).', 'bootstrap': 'Bootstrap method (default AWB).', 'B': 'Bootstrap replications (>=99, default 1999).', 'min_lag': 'Minimum ADF lag (default 0).', 'max_lag': 'Maximum ADF lag (default data-driven).', 'criterion': 'Lag selection criterion (default MAIC).', 'criterion_scale': 'Rescaled IC (default True).', 'union_quantile': 'Quantile scaling of the individual statistics (= the level, default 0.05).', 'alpha': 'Decision level· p<alpha ⇒ STATIONARY (default 0.05).'},
+        'input_example': {'data': '<series_handle>', 'seed': 1, 'B': 1999, 'min_lag': 0, 'criterion_scale': True, 'union_quantile': 0.05, 'alpha': 0.05},
+    },
+    'bur_order_integration': {
+        'fn': 'bur_order_integration',
+        'description': 'bur_order_integration -- category 01-preparation-prechecks, METHOD-SELECTION card #122.',
+        'args': {'data': 'Handle to a (T x N) matrix/mts of >=2 series (no NA, >=20 obs).', 'seed': 'Bootstrap seed (MANDATORY — determinism/caching).', 'method': 'Multivariate test per step (default boot_ur).', 'max_order': 'Maximum order of integration (default 2).', 'level': 'Significance level of the unit-root tests (default 0.05).', 'bootstrap': 'Bootstrap method (default AWB).', 'B': 'Bootstrap replications (>=99, default 1999).', 'min_lag': 'Minimum ADF lag (default 0).', 'max_lag': 'Maximum ADF lag (default data-driven).', 'criterion': 'Lag selection criterion (default MAIC).'},
+        'input_example': {'data': '<multiseries_handle>', 'seed': 1, 'max_order': 2, 'level': 0.05, 'B': 1999, 'min_lag': 0},
+    },
+    'check_x13': {
+        'fn': 'check_x13',
+        'description': 'check_x13 -- category 01-preparation-prechecks, METHOD-SELECTION card #4.',
+        'args': {'fail': 'If True an error aborts· otherwise a message is returned (default False).', 'fullcheck': 'Full check (runs Testairline.spc, default True).', 'htmlcheck': 'Check for the HTML version of X-13 (default True).'},
+        'input_example': {'fail': False, 'fullcheck': True, 'htmlcheck': True},
+    },
+    'des_deseats': {
+        'fn': 'des_deseats',
+        'description': 'des_deseats -- category 01-preparation-prechecks, METHOD-SELECTION card #127.',
+        'args': {'y': 'Handle to an equally spaced seasonal univariate ts (frequency > 1, no NA, >= 2 full cycles).', 'order_poly': 'Order of the local trend polynomial: 1=local linear, 3=local cubic (default 3).', 'kernel_fun': 'Second-order weighting kernel (default epanechnikov).', 'inflation_rate': 'Inflation rate in the IPI bandwidth selection (default optimal).', 'autocor': 'Short-memory autocorrelated errors (True, default) or i.i.d. (False).'},
+        'input_example': {'y': '<series_handle>', 'order_poly': '1', 'kernel_fun': 'epanechnikov', 'inflation_rate': 'optimal', 'autocor': True},
+    },
+    'dp_column_profile': {
+        'fn': 'dp_column_profile',
+        'description': 'dp_column_profile -- category 01-preparation-prechecks, METHOD-SELECTION card #248.',
+        'args': {'data': 'Handle to a DataFrame (rows = observations, columns = variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column names, NO list-column / POSIXlt / complex / unknown S3 class (e.g. difftime). Non-numeric columns are NEVER silently coerced.', 'column': 'ONE non-empty column name that EXISTS in the dataset (otherwise the node blocks and returns the list of available ones).', 'quantile_type': 'Quantile estimator, integer 1..9 (Hyndman & Fan 1996; default 7). Returned in the output: two profiles are comparable ONLY under the SAME estimator.', 'moment_type': 'Skewness/kurtosis estimator per Joanes & Gill (1998), same typology as e1071: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS G1/G2 (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2. KURTOSIS IS ALWAYS EXCESS (normal => 0).', 'bins': "Number of EQUAL-WIDTH histogram bins for the NUMERIC column (default 10; positive integer). the default histogram binning is NOT used (its 'pretty' breaks are not reproducible); for a constant column, ONE degenerate bin is returned.", 'top_n': 'Number of top values of the frequency table for a NON-numeric column (default 10). Ordering: descending count, tie-break lexicographically (C-locale, radix => locale-independent).'},
+        'input_example': {'data': '<df_handle>', 'column': '...', 'quantile_type': 7, 'bins': 10, 'top_n': 10},
+    },
+    'dp_profile': {
+        'fn': 'dp_profile',
+        'description': 'dp_profile -- category 01-preparation-prechecks, METHOD-SELECTION card #248.',
+        'args': {'data': 'Handle to a DataFrame (rows = observations, columns = variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column names, NO list-column / POSIXlt / complex / unknown S3 class (e.g. difftime). Non-numeric columns are NEVER silently coerced.', 'quantile_type': 'Quantile estimator, integer 1..9 (Hyndman & Fan 1996; default 7). Returned in the output: two profiles are comparable ONLY under the SAME estimator.', 'moment_type': 'Skewness/kurtosis estimator per Joanes & Gill (1998), same typology as e1071: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS G1/G2 (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2. KURTOSIS IS ALWAYS EXCESS (normal => 0).'},
+        'input_example': {'data': '<df_handle>', 'quantile_type': 7},
+    },
+    'dp_quality_flags': {
+        'fn': 'dp_quality_flags',
+        'description': 'dp_quality_flags -- category 01-preparation-prechecks, METHOD-SELECTION card #248.',
+        'args': {'data': 'Handle to a DataFrame (rows = observations, columns = variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column names, NO list-column / POSIXlt / complex / unknown S3 class (e.g. difftime). Non-numeric columns are NEVER silently coerced.', 'max_missing_pct': "Missing-value threshold per column as a PERCENTAGE [0,100] (default 10) above which a 'high_missing' flag is issued (warning); a column missing IN ITS ENTIRETY is always blocker.", 'max_unique_ratio': 'Threshold for the ratio of unique/valid values in the (0,1] (default 0.95) for a CATEGORICAL column: above this the column looks like an identifier (id), not a variable.', 'min_rows': "Minimum row count (default 8) below which a 'few_rows' flag is issued: the normality tests have a per-test min-n (ad/cvm n>7· lillie n>4· sf/shapiro n>=5/3).", 'quantile_type': 'Quantile estimator, integer 1..9 (Hyndman & Fan 1996; default 7). Returned in the output: two profiles are comparable ONLY under the SAME estimator.', 'moment_type': 'Skewness/kurtosis estimator per Joanes & Gill (1998), same typology as e1071: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS G1/G2 (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2. KURTOSIS IS ALWAYS EXCESS (normal => 0).'},
+        'input_example': {'data': '<df_handle>', 'max_missing_pct': 10, 'max_unique_ratio': 0.95, 'min_rows': 8, 'quantile_type': 7},
+    },
+    'fried_test': {
+        'fn': 'fried_test',
+        'description': 'fried_test -- category 01-preparation-prechecks, METHOD-SELECTION card #125.',
+        'args': {'x': 'Handle to a univariate ts (frequency>1, no NA, >=3 seasonal cycles).', 'freq': 'Optional frequency override (integer >1).', 'diff': 'Test the differenced series (default True).', 'residuals': 'Test the residuals of an ARIMA (default False).', 'autoarima': 'Auto ARIMA instead of (0,1,1) when residuals=True (default True).', 'alpha': 'Decision significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'diff': True, 'residuals': False, 'autoarima': True, 'alpha': 0.05},
+    },
+    'fst_classical': {
+        'fn': 'fst_classical',
+        'description': 'fst_classical -- category 01-preparation-prechecks, METHOD-SELECTION card #126.',
+        'args': {'series': 'Handle to a univariate regular ts, frequency > 1, no NA.', 'type': 'Decomposition type (default additive· multiplicative => strictly positive values).'},
+        'input_example': {'series': '<series_handle>'},
+    },
+    'fst_features': {
+        'fn': 'fst_features',
+        'description': 'fst_features -- category 01-preparation-prechecks, METHOD-SELECTION card #126.',
+        'args': {'series': 'Handle to a univariate regular ts (frequency >= 1), no NA, n >= max(10, 2*freq).'},
+        'input_example': {'series': '<series_handle>'},
+    },
+    'fst_stl': {
+        'fn': 'fst_stl',
+        'description': 'fst_stl -- category 01-preparation-prechecks, METHOD-SELECTION card #126.',
+        'args': {'series': 'Handle to a univariate regular ts, frequency > 1, no NA.', 's_window': "Season loess window: 'periodic' (default, fixed pattern) or an ODD integer >= 7.", 't_window': 'Trend loess window: None (default feasts) or an ODD integer >= 3.'},
+        'input_example': {'series': '<series_handle>'},
+    },
+    'get_series': {
+        'fn': 'get_series',
+        'description': 'get_series -- category 01-preparation-prechecks, METHOD-SELECTION card #4.',
+        'args': {'seas_object': "Handle to a 'seas' object (from run_seas).", 'series': "Name of the X-13 table to extract (e.g. 'fct', 'seats.seasonal').", 'reeval': 'Re-estimate if the table had not been requested (default True).', 'verbose': 'Message when a spec is added during re-estimation (default True).'},
+        'input_example': {'seas_object': '<raw_handle>', 'series': '...', 'reeval': True, 'verbose': True},
+    },
+    'gts_arx': {
+        'fn': 'gts_arx',
+        'description': 'gts_arx -- category 01-preparation-prechecks, METHOD-SELECTION card #124.',
+        'args': {'y': 'Handle to a univariate ts/vector (AR-X regressand· leading/trailing NA allowed, interior NA gated).', 'mc': 'Intercept in the mean specification (default True).', 'ar': 'AR lags as positive integers, e.g. [1,2] (default none).', 'exog_matrix': 'Conditioning regressors aligned with y (same length· silent-wrong gate).', 'vcov_type': 'vcov type for inference (default ordinary).'},
+        'input_example': {'y': '<series_handle>', 'mc': True},
+    },
+    'gts_getsm': {
+        'fn': 'gts_getsm',
+        'description': 'gts_getsm -- category 01-preparation-prechecks, METHOD-SELECTION card #124.',
+        'args': {'object': "Handle to an 'arx' object (from gts_arx$model) = the GUM.", 't_pval': 'Significance of the t-tests, strictly (0,1) (default 0.05).', 'wald_pval': 'Significance of the PET tests (default = t.pval).', 'vcov_type': 'Override vcov (not given = inherits the arx one· doc-surface ordinary/white).', 'info_method': 'Information criterion for selecting terminals (default sc).'},
+        'input_example': {'object': '<raw_handle>', 't_pval': 0.05},
+    },
+    'gts_isat': {
+        'fn': 'gts_isat',
+        'description': 'gts_isat -- category 01-preparation-prechecks, METHOD-SELECTION card #124.',
+        'args': {'y': 'Handle to a univariate ts/vector (compute-heavy· keep n small).', 'mc': 'Intercept in the mean specification (default True).', 'ar': 'AR lags as positive integers (default none).', 'exog_matrix': 'Conditioning regressors aligned with y (silent-wrong gate).', 'iis': 'Impulse indicator saturation — outliers (default False).', 'sis': 'Step indicator saturation — mean-shifts (default True).', 'tis': 'Trend indicator saturation — trend-shifts (default False).', 't_pval': 'Significance of the t-tests, strictly (0,1) (default 0.001).', 'vcov_type': 'vcov type (default ordinary).'},
+        'input_example': {'y': '<series_handle>', 'mc': True, 'iis': False, 'sis': True, 'tis': False, 't_pval': 0.001},
+    },
+    'hm_describe': {
+        'fn': 'hm_describe',
+        'description': 'hm_describe -- category 01-preparation-prechecks, METHOD-SELECTION card #130.',
+        'args': {'data': 'Handle to a numeric DataFrame/matrix (all columns numeric, non-empty).', 'digits': 'Significant digits in the statistics (positive integer, doc default 4).'},
+        'input_example': {'data': '<df_handle>', 'digits': 4},
+    },
+    'hm_rcorr': {
+        'fn': 'hm_rcorr',
+        'description': 'hm_rcorr -- category 01-preparation-prechecks, METHOD-SELECTION card #130.',
+        'args': {'data': 'Handle to a numeric matrix/df (>=5 rows, >=2 columns).', 'type': 'Correlation type (default pearson· spearman = rank-based).'},
+        'input_example': {'data': '<df_handle>'},
+    },
+    'hm_wtd': {
+        'fn': 'hm_wtd',
+        'description': 'hm_wtd -- category 01-preparation-prechecks, METHOD-SELECTION card #130.',
+        'args': {'x': 'Handle to a univariate numeric series/vector.', 'weights': 'Weights of the same length as x· non-negative, no NA/Inf, sum>0.', 'probs': 'Quantiles within [0,1] (default [0,.25,.5,.75,1]).', 'var_method': 'Variance estimator of wtd.var (default unbiased/Bessel).', 'normwt': 'Normalise the weights to length(x) (default False).'},
+        'input_example': {'x': '<series_handle>', 'weights': [0.5, 0.5], 'normwt': False},
+    },
+    'kw_test': {
+        'fn': 'kw_test',
+        'description': 'kw_test -- category 01-preparation-prechecks, METHOD-SELECTION card #125.',
+        'args': {'x': 'Handle to a univariate ts (frequency>1, no NA, >=3 seasonal cycles).', 'freq': 'Optional frequency override (integer >1).', 'diff': 'Test the differenced series (default True).', 'residuals': 'Test the residuals of an ARIMA (default False).', 'autoarima': 'Auto ARIMA instead of (0,1,1) when residuals=True (default True).', 'alpha': 'Decision significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'diff': True, 'residuals': False, 'autoarima': True, 'alpha': 0.05},
+    },
+    'make_pdata_frame': {
+        'fn': 'make_pdata_frame',
+        'description': 'make_pdata_frame -- category 01-preparation-prechecks, METHOD-SELECTION card #6.',
+        'args': {'x': 'Handle to a long-format panel DataFrame.', 'index': "Index column names, e.g. ['firm','year'] (default None).", 'drop_index': 'Exclude the index columns from the result (default False).'},
+        'input_example': {'x': '<df_handle>', 'drop_index': False},
+    },
+    'mp_pairs': {
+        'fn': 'mp_pairs',
+        'description': 'mp_pairs -- category 01-preparation-prechecks, METHOD-SELECTION card #249.',
+        'args': {'data': 'Handle to a DataFrame (rows = observations/TIME, columns = variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column names, NO list-column / matrix-column / DataFrame-column / POSIXlt / complex. Missing = is.na: NaN COUNTS as missing, ±Inf does NOT. NO imputation and no dropping — the node only DIAGNOSES.', 'time': 'OPTIONAL name of the time-axis column (Date/POSIXct/numeric/character). If given: it is EXCLUDED from the variables (it is the axis, not a variable) and is used as the span LABEL. GATES: it exists, NO NA, STRICTLY INCREASING (otherwise "row order = time" is False and the NA runs are MEANINGLESS), and >= 1 variable remains after removing it.'},
+        'input_example': {'data': '<df_handle>'},
+    },
+    'mp_pattern': {
+        'fn': 'mp_pattern',
+        'description': 'mp_pattern -- category 01-preparation-prechecks, METHOD-SELECTION card #249.',
+        'args': {'data': 'Handle to a DataFrame (rows = observations/TIME, columns = variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column names, NO list-column / matrix-column / DataFrame-column / POSIXlt / complex. Missing = is.na: NaN COUNTS as missing, ±Inf does NOT. NO imputation and no dropping — the node only DIAGNOSES.', 'time': 'OPTIONAL name of the time-axis column (Date/POSIXct/numeric/character). If given: it is EXCLUDED from the variables (it is the axis, not a variable) and is used as the span LABEL. GATES: it exists, NO NA, STRICTLY INCREASING (otherwise "row order = time" is False and the NA runs are MEANINGLESS), and >= 1 variable remains after removing it.', 'sort_by': 'EXPLICIT ordering of the ROWS of the pattern matrix (the COLUMNS ALWAYS remain in input order): \'count\' (default) = DESCENDING row count -> ASCENDING count of missing variables -> ASCENDING pattern key; \'missingness\' = the meaning of the mice («increasing amounts of missing information") BUT with a full tie-break: ASCENDING missing -> DESCENDING count -> ASCENDING key. Both are TOTAL orderings (radix, locale-independent) => DETERMINISTIC.'},
+        'input_example': {'data': '<df_handle>'},
+    },
+    'mp_runs': {
+        'fn': 'mp_runs',
+        'description': 'mp_runs -- category 01-preparation-prechecks, METHOD-SELECTION card #249.',
+        'args': {'data': 'Handle to a DataFrame (rows = observations/TIME, columns = variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column names, NO list-column / matrix-column / DataFrame-column / POSIXlt / complex. Missing = is.na: NaN COUNTS as missing, ±Inf does NOT. NO imputation and no dropping — the node only DIAGNOSES.', 'time': 'OPTIONAL name of the time-axis column (Date/POSIXct/numeric/character). If given: it is EXCLUDED from the variables (it is the axis, not a variable) and is used as the span LABEL. GATES: it exists, NO NA, STRICTLY INCREASING (otherwise "row order = time" is False and the NA runs are MEANINGLESS), and >= 1 variable remains after removing it.'},
+        'input_example': {'data': '<df_handle>'},
+    },
+    'mv_covmcd': {
+        'fn': 'mv_covmcd',
+        'description': 'mv_covmcd -- category 01-preparation-prechecks, METHOD-SELECTION card #246.',
+        'args': {'x': 'Handle to a NUMERIC observations×variables matrix (rows = observations/countries/periods, columns = variables). p >= 2 columns are required (MULTIVARIATE test), NO zero-variance column, NO collinearity, NOT NA/NaN/Inf (covMcd SILENTLY drops the incomplete rows). CROSS-SECTION/PANEL: on LEVELS of non-stationary time series the Mahalanobis distance is uninterpretable — give DIFFERENCES (Hamilton-Ma-Xi).', 'alpha': 'Size of the "clean" subset of the MCD: h = h.alpha.n(alpha, n, p) ~ alpha*n (default 0.5 = maximum robustness). Permitted [0.5, 1) — covMcd does NOT error below 0.5 (only a warning; breakdown > 50%) and alpha = 1 DEGENERATES the MCD into the classical estimator. Values 0.75 give greater efficiency with less robustness.', 'quantile': 'Chi-square quantile of the threshold: cutoff = qchisq(quantile, df = p) (default 0.975). STRICTLY within (0,1). Larger quantile => stricter threshold => fewer flags.', 'use_correction': 'Finite-sample correction factors (Pison et al. 2002· default True). False = only the consistency factor.', 'robust_cor': 'Whether to also return the ROBUST correlation matrix (covMcd cor=; default False).', 'seed': "Seed (default 1234). nsamp='deterministic' is PINNED, so the result is IDENTICAL regardless of seed; the seed is a safety net for n > nmini*kmini (=1500) where covMcd subsamples in the initial search."},
+        'input_example': {'x': '<matrix_handle>', 'alpha': 0.5, 'quantile': 0.975, 'use_correction': True, 'robust_cor': False, 'seed': 1234},
+    },
+    'mv_mahalanobis': {
+        'fn': 'mv_mahalanobis',
+        'description': 'mv_mahalanobis -- category 01-preparation-prechecks, METHOD-SELECTION card #246.',
+        'args': {'x': 'Handle to a NUMERIC observations×variables matrix (rows = observations/countries/periods, columns = variables). p >= 2 columns are required (MULTIVARIATE test), NO zero-variance column, NO collinearity, NOT NA/NaN/Inf (covMcd SILENTLY drops the incomplete rows). CROSS-SECTION/PANEL: on LEVELS of non-stationary time series the Mahalanobis distance is uninterpretable — give DIFFERENCES (Hamilton-Ma-Xi).', 'quantile': 'Chi-square quantile of the threshold: cutoff = qchisq(quantile, df = p) (default 0.975). STRICTLY within (0,1). Larger quantile => stricter threshold => fewer flags.', 'center': "OPTIONAL center of length p (fit/apply externalization): pass the 'center' of a previous mv_covmcd node for OUT-OF-SAMPLE scoring of new observations. Omitting it the sample mean is used.", 'cov': "OPTIONAL handle to a p×p covariance matrix (fit/apply externalization): typically the ROBUST 'cov' of a mv_covmcd node => robust distances on NEW data. It must be symmetric, positive definite and invertible. When BOTH 'center' AND 'cov' are given, ONE observation suffices."},
+        'input_example': {'x': '<matrix_handle>', 'quantile': 0.975},
+    },
+    'mv_outliers': {
+        'fn': 'mv_outliers',
+        'description': 'mv_outliers -- category 01-preparation-prechecks, METHOD-SELECTION card #246.',
+        'args': {'x': 'Handle to a NUMERIC observations×variables matrix (rows = observations/countries/periods, columns = variables). p >= 2 columns are required (MULTIVARIATE test), NO zero-variance column, NO collinearity, NOT NA/NaN/Inf (covMcd SILENTLY drops the incomplete rows). CROSS-SECTION/PANEL: on LEVELS of non-stationary time series the Mahalanobis distance is uninterpretable — give DIFFERENCES (Hamilton-Ma-Xi).', 'alpha': 'Size of the "clean" subset of the MCD: h = h.alpha.n(alpha, n, p) ~ alpha*n (default 0.5 = maximum robustness). Permitted [0.5, 1) — covMcd does NOT error below 0.5 (only a warning; breakdown > 50%) and alpha = 1 DEGENERATES the MCD into the classical estimator. Values 0.75 give greater efficiency with less robustness.', 'quantile': 'Chi-square quantile of the threshold: cutoff = qchisq(quantile, df = p) (default 0.975). STRICTLY within (0,1). Larger quantile => stricter threshold => fewer flags.', 'use_correction': 'Finite-sample correction factors (Pison et al. 2002· default True). False = only the consistency factor.', 'seed': "Seed (default 1234). nsamp='deterministic' is PINNED, so the result is IDENTICAL regardless of seed; the seed is a safety net for n > nmini*kmini (=1500) where covMcd subsamples in the initial search."},
+        'input_example': {'x': '<matrix_handle>', 'alpha': 0.5, 'quantile': 0.975, 'use_correction': True, 'seed': 1234},
+    },
+    'nlt_nonlinearity': {
+        'fn': 'nlt_nonlinearity',
+        'description': 'nlt_nonlinearity -- category 01-preparation-prechecks, METHOD-SELECTION card #132.',
+        'args': {'x': 'Handle to a univariate numeric series/ts (no NA/Inf, >= 50 obs, var > 0).', 'seed': 'Integer seed — the White/Teraesvirta ANN component uses RANDOM weights· set.seed for reproducibility.', 'alpha': 'Decision significance level per test, in (0,1) (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'seed': 1, 'alpha': 0.05},
+    },
+    'nlt_surrogate': {
+        'fn': 'nlt_surrogate',
+        'description': 'nlt_surrogate -- category 01-preparation-prechecks, METHOD-SELECTION card #132.',
+        'args': {'x': 'Handle to a univariate numeric series/ts (no NA/Inf, >= 50 obs, var > 0).', 'seed': 'Integer seed — FFTsurrogate phase randomisation (stochastic· MANDATORY).', 'statistic': 'Discriminating statistic: timeAsymmetry (default) or timeAsymmetry2 (requires tau).', 'significance': 'Significance level· controls the number of surrogates, in (0,1) (default 0.05).', 'one_sided': 'False=two-sided (default)· True=one-sided (uses alternative).', 'alternative': 'One-sided direction (ONLY when one.sided=True): smaller (default) or larger.', 'K': 'Positive integer· controls surrogates (2K/sig-1 two-sided, K/sig-1 one-sided) (default 1).', 'tau': 'Time-delay for timeAsymmetry2, positive integer (default 1· ignored otherwise).'},
+        'input_example': {'x': '<series_handle>', 'seed': 1, 'statistic': 'timeAsymmetry', 'significance': 0.05, 'one_sided': False, 'alternative': 'smaller', 'K': 1, 'tau': 1},
+    },
+    'nt_ad_test': {
+        'fn': 'nt_ad_test',
+        'description': 'nt_ad_test -- category 01-preparation-prechecks, METHOD-SELECTION card #247.',
+        'args': {'x': 'Handle to a UNIVARIATE numeric series (numeric vector or ts) — typically model RESIDUALS, returns, or a macro series. FORBIDDEN: matrix/DataFrame (run the node per column); NA/NaN (PROJECT POLICY: hard stop — nortest SILENTLY drops them while the Jarque-Bera node errors; do imputation first, cat. 00); Inf; zero variance.', 'alpha': "Significance level in the open interval (0, 1) for the 'decision' column (default 0.05). Does NOT change the p-value — only the reject_normality / fail_to_reject decision.", 'series_name': "LABEL of the series in the output (default 'x'; <= 100 characters). NOT data — fills the data.name of the htest so that the entire vector is NOT serialized into JSON."},
+        'input_example': {'x': '<raw_handle>', 'alpha': 0.05, 'series_name': 'x'},
+    },
+    'nt_cvm_test': {
+        'fn': 'nt_cvm_test',
+        'description': 'nt_cvm_test -- category 01-preparation-prechecks, METHOD-SELECTION card #247.',
+        'args': {'x': 'Handle to a UNIVARIATE numeric series (numeric vector or ts) — typically model RESIDUALS, returns, or a macro series. FORBIDDEN: matrix/DataFrame (run the node per column); NA/NaN (PROJECT POLICY: hard stop — nortest SILENTLY drops them while the Jarque-Bera node errors; do imputation first, cat. 00); Inf; zero variance.', 'alpha': "Significance level in the open interval (0, 1) for the 'decision' column (default 0.05). Does NOT change the p-value — only the reject_normality / fail_to_reject decision.", 'series_name': "LABEL of the series in the output (default 'x'; <= 100 characters). NOT data — fills the data.name of the htest so that the entire vector is NOT serialized into JSON."},
+        'input_example': {'x': '<raw_handle>', 'alpha': 0.05, 'series_name': 'x'},
+    },
+    'nt_lillie_test': {
+        'fn': 'nt_lillie_test',
+        'description': 'nt_lillie_test -- category 01-preparation-prechecks, METHOD-SELECTION card #247.',
+        'args': {'x': 'Handle to a UNIVARIATE numeric series (numeric vector or ts) — typically model RESIDUALS, returns, or a macro series. FORBIDDEN: matrix/DataFrame (run the node per column); NA/NaN (PROJECT POLICY: hard stop — nortest SILENTLY drops them while the Jarque-Bera node errors; do imputation first, cat. 00); Inf; zero variance.', 'alpha': "Significance level in the open interval (0, 1) for the 'decision' column (default 0.05). Does NOT change the p-value — only the reject_normality / fail_to_reject decision.", 'series_name': "LABEL of the series in the output (default 'x'; <= 100 characters). NOT data — fills the data.name of the htest so that the entire vector is NOT serialized into JSON."},
+        'input_example': {'x': '<raw_handle>', 'alpha': 0.05, 'series_name': 'x'},
+    },
+    'nt_normality_battery': {
+        'fn': 'nt_normality_battery',
+        'description': 'nt_normality_battery -- category 01-preparation-prechecks, METHOD-SELECTION card #247.',
+        'args': {'x': 'Handle to a UNIVARIATE numeric series (numeric vector or ts) — typically model RESIDUALS, returns, or a macro series. FORBIDDEN: matrix/DataFrame (run the node per column); NA/NaN (PROJECT POLICY: hard stop — nortest SILENTLY drops them while the Jarque-Bera node errors; do imputation first, cat. 00); Inf; zero variance.', 'tests': "Which tests will run; a subset of ['ad','cvm','lillie','pearson','sf'] (default: ALL), without duplicates. The ORDER of the OUTPUT is CANONICAL (ad,cvm,lillie,pearson,sf) independent of the order you give (determinism). NO silent skip: if a requested test does not meet its min-n (ad/cvm n>7; lillie n>4; sf 5<=n<=5000) the call STOPS — remove it EXPLICITLY.", 'alpha': "Significance level in the open interval (0, 1) for the 'decision' column (default 0.05). Does NOT change the p-value — only the reject_normality / fail_to_reject decision.", 'n_classes': "Number of EQUIPROBABLE classes of the chi-square. Default (if omitted) = ceiling(2*n^(2/5)) per Moore (1986). MUST be a positive INTEGER (the package silently accepts 4.7 and tabulate silently truncates it), AND df = n_classes-1-2*adjust >= 1 (df=0 => p = 0 FOR ANY data), AND n/n_classes >= min_expected (Cochran's rule).", 'adjust': 'True (default) => df = n_classes-3 (correction for the 2 estimated parameters); False => df = n_classes-1. NEITHER of the two IS the correct p-value: it lies BETWEEN them (Moore 1986) => run the node BOTH times.', 'min_expected': 'Minimum EXPECTED frequency per class (>= 1; default 5 = Cochran 1954 / Moore 1986 rule). Below this the chi-square approximation does not hold, and the usual implementations do not warn => a hard gate with the permitted n_classes range in the message.', 'series_name': "LABEL of the series in the output (default 'x'; <= 100 characters). NOT data — fills the data.name of the htest so that the entire vector is NOT serialized into JSON."},
+        'input_example': {'x': '<raw_handle>', 'alpha': 0.05, 'adjust': True, 'min_expected': 5, 'series_name': 'x'},
+    },
+    'nt_pearson_test': {
+        'fn': 'nt_pearson_test',
+        'description': 'nt_pearson_test -- category 01-preparation-prechecks, METHOD-SELECTION card #247.',
+        'args': {'x': 'Handle to a UNIVARIATE numeric series (numeric vector or ts) — typically model RESIDUALS, returns, or a macro series. FORBIDDEN: matrix/DataFrame (run the node per column); NA/NaN (PROJECT POLICY: hard stop — nortest SILENTLY drops them while the Jarque-Bera node errors; do imputation first, cat. 00); Inf; zero variance.', 'alpha': "Significance level in the open interval (0, 1) for the 'decision' column (default 0.05). Does NOT change the p-value — only the reject_normality / fail_to_reject decision.", 'n_classes': "Number of EQUIPROBABLE classes of the chi-square. Default (if omitted) = ceiling(2*n^(2/5)) per Moore (1986). MUST be a positive INTEGER (the package silently accepts 4.7 and tabulate silently truncates it), AND df = n_classes-1-2*adjust >= 1 (df=0 => p = 0 FOR ANY data), AND n/n_classes >= min_expected (Cochran's rule).", 'adjust': 'True (default) => df = n_classes-3 (correction for the 2 estimated parameters); False => df = n_classes-1. NEITHER of the two IS the correct p-value: it lies BETWEEN them (Moore 1986) => run the node BOTH times.', 'min_expected': 'Minimum EXPECTED frequency per class (>= 1; default 5 = Cochran 1954 / Moore 1986 rule). Below this the chi-square approximation does not hold, and the usual implementations do not warn => a hard gate with the permitted n_classes range in the message.', 'series_name': "LABEL of the series in the output (default 'x'; <= 100 characters). NOT data — fills the data.name of the htest so that the entire vector is NOT serialized into JSON."},
+        'input_example': {'x': '<raw_handle>', 'alpha': 0.05, 'adjust': True, 'min_expected': 5, 'series_name': 'x'},
+    },
+    'nt_sf_test': {
+        'fn': 'nt_sf_test',
+        'description': 'nt_sf_test -- category 01-preparation-prechecks, METHOD-SELECTION card #247.',
+        'args': {'x': 'Handle to a UNIVARIATE numeric series (numeric vector or ts) — typically model RESIDUALS, returns, or a macro series. FORBIDDEN: matrix/DataFrame (run the node per column); NA/NaN (PROJECT POLICY: hard stop — nortest SILENTLY drops them while the Jarque-Bera node errors; do imputation first, cat. 00); Inf; zero variance.', 'alpha': "Significance level in the open interval (0, 1) for the 'decision' column (default 0.05). Does NOT change the p-value — only the reject_normality / fail_to_reject decision.", 'series_name': "LABEL of the series in the output (default 'x'; <= 100 characters). NOT data — fills the data.name of the htest so that the entire vector is NOT serialized into JSON."},
+        'input_example': {'x': '<raw_handle>', 'alpha': 0.05, 'series_name': 'x'},
+    },
+    'ocsb_test': {
+        'fn': 'ocsb_test',
+        'description': 'ocsb_test -- category 01-preparation-prechecks, METHOD-SELECTION card #125.',
+        'args': {'x': 'Handle to a univariate ts (frequency>1, no NA, >=3 seasonal cycles).', 'seed': 'MANDATORY Monte-Carlo seed (determinism· same seed => same p-value).', 'method': 'OLS (default) or ML seasonal AR test regression.', 'augmentations': '[regular, seasonal] non-negative augmentation orders (default [3,0]).', 'freq': 'Optional frequency override (integer >1).', 'nrun': 'Number of runs in the Monte-Carlo simulation (default 1000).', 'alpha': 'p-value threshold (H0 = seasonal unit root· fail-to-reject => seasonal).'},
+        'input_example': {'x': '<series_handle>', 'seed': 1, 'augmentations': [1, 1], 'nrun': 1000, 'alpha': 0.05},
+    },
+    'ps_decompose': {
+        'fn': 'ps_decompose',
+        'description': 'ps_decompose -- category 01-preparation-prechecks, METHOD-SELECTION card #129.',
+        'args': {'x': 'Handle to a regular univariate ts (no NA· loess: frequency>1 & >=2 full periods).', 'method': 'loess=STL trend-seasonal· diff=differencing filter that removes the trend (default loess).', 'type': 'Model· loess supports additive ONLY (default additive).', 'lag': '[diff] differencing lag, positive integer (default 1).', 'order': '[diff] differencing order, positive integer (default 1).', 'ends': '[diff] handling of the non-computable initial values (default fill).', 's_window': '[loess] "periodic" or an odd number (default "periodic").', 's_degree': '[loess] seasonal polynomial degree, 0 or 1 (default 0).', 't_window': '[loess] trend window width (odd· default data-driven).', 't_degree': '[loess] trend polynomial degree 0/1/2 (default 2).', 'robust': '[loess] robust regression (default False).', 'trend': '[loess] compute a separate trend component (default False).'},
+        'input_example': {'x': '<series_handle>', 'lag': 1, 'order': 1, 's_degree': 0, 't_degree': 2, 'robust': False, 'trend': False},
+    },
+    'ps_stat_desc': {
+        'fn': 'ps_stat_desc',
+        'description': 'ps_stat_desc -- category 01-preparation-prechecks, METHOD-SELECTION card #129.',
+        'args': {'x': 'Handle to a numeric series/ts (or a numeric multi-series df).', 'basic': 'Basic statistics: nbr.val/null/na/min/max/range/sum (default True).', 'desc': 'Descriptive statistics: median/mean/SE.mean/CI.mean/var/std.dev/coef.var (default True).', 'norm': 'Normality: skewness/kurtosis/Shapiro-Wilk (default False).', 'p': 'Confidence level of CI.mean, in (0,1) (default 0.95).'},
+        'input_example': {'x': '<series_handle>', 'basic': True, 'desc': True, 'norm': False, 'p': 0.95},
+    },
+    'ps_turnpoints': {
+        'fn': 'ps_turnpoints',
+        'description': 'ps_turnpoints -- category 01-preparation-prechecks, METHOD-SELECTION card #129.',
+        'args': {'x': 'Handle to a univariate numeric series/ts (no NA, >=3 obs & >=3 unique values).', 'calc_proba': 'Compute the Kendall probability/information per turning point (default True).'},
+        'input_example': {'x': '<series_handle>', 'calc_proba': True},
+    },
+    'qs_test': {
+        'fn': 'qs_test',
+        'description': 'qs_test -- category 01-preparation-prechecks, METHOD-SELECTION card #125.',
+        'args': {'x': 'Handle to a univariate ts (frequency>1, no NA, >=3 seasonal cycles).', 'freq': 'Optional frequency override (integer >1).', 'diff': 'Test the differenced series (default True).', 'residuals': 'Test the residuals of an ARIMA (default False).', 'autoarima': 'Auto ARIMA instead of (0,1,1) when residuals=True (default True).', 'alpha': 'Decision significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'diff': True, 'residuals': False, 'autoarima': True, 'alpha': 0.05},
+    },
+    'run_Fstats': {
+        'fn': 'run_Fstats',
+        'description': 'run_Fstats -- category 01-preparation-prechecks, METHOD-SELECTION card #3.',
+        'args': {'formula': "Model, e.g. 'y ~ 1' (Chow F per candidate break).", 'data': 'Handle to a DataFrame holding the formula variables.', 'from': 'Window start (fraction <1 or index, default 0.15).'},
+        'input_example': {'formula': 'y ~ x', 'from': 0.15},
+    },
+    'run_adf_test': {
+        'fn': 'run_adf_test',
+        'description': 'run_adf_test -- category 01-preparation-prechecks, METHOD-SELECTION card #1.',
+        'args': {'x': 'Handle to a univariate ts/series to test (no NA).', 'alternative': 'Alternative hypothesis (default stationary).', 'k': 'Lag order· default trunc((n-1)^(1/3)).', 'alpha': 'Decision significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'alpha': 0.05},
+    },
+    'run_breakpoints': {
+        'fn': 'run_breakpoints',
+        'description': 'run_breakpoints -- category 01-preparation-prechecks, METHOD-SELECTION card #3.',
+        'args': {'formula': "Model of the segment under test, e.g. 'y ~ 1' (mean shift).", 'data': 'Handle to a DataFrame holding the formula variables.', 'h': 'Minimum segment size (fraction, default 0.15).', 'breaks': 'Maximum number of breaks (default None -> from BIC).', 'ci_level': 'Confidence level of the breakpoint CIs (default 0.95).', 'n_breaks_extract': 'Extract the solution with exactly k breaks instead of min-BIC.'},
+        'input_example': {'formula': 'y ~ x', 'h': 0.15, 'ci_level': 0.95},
+    },
+    'run_cadf': {
+        'fn': 'run_cadf',
+        'description': 'run_cadf -- category 01-preparation-prechecks, METHOD-SELECTION card #123.',
+        'args': {'y': 'Handle to a univariate ts to test for a unit root (ADF/CADF, no NA).', 'X': 'Optional STATIONARY covariates (mts/matrix, same length as y)· None => plain ADF.', 'type': 'Deterministic kernel (default trend).', 'max_lag_y': 'Maximum lags of the differences of y (>=0, default 1).', 'min_lag_X': 'Minimum covariate lag· negative = maximum lead (default 0).', 'max_lag_X': 'Maximum covariate lag (>=0, default 0).', 'criterion': 'Automatic lag selection within [min,max] (default none).', 'alpha': 'Decision significance level (default 0.05).'},
+        'input_example': {'y': '<series_handle>', 'max_lag_y': 1, 'min_lag_X': 0, 'max_lag_X': 0, 'alpha': 0.05},
+    },
+    'run_ch_test': {
+        'fn': 'run_ch_test',
+        'description': 'run_ch_test -- category 01-preparation-prechecks, METHOD-SELECTION card #89.',
+        'args': {'x': 'Handle to a seasonal univariate ts (frequency>1, no NA).', 'type': 'Seasonal representation: dummy or trigonometric (default dummy).', 'lag1': 'Include a first-order lag (default False).', 'pvalue': 'P-values: response-surface (RS) or raw (default RS).'},
+        'input_example': {'x': '<series_handle>', 'lag1': False},
+    },
+    'run_cipstest': {
+        'fn': 'run_cipstest',
+        'description': 'run_cipstest -- category 01-preparation-prechecks, METHOD-SELECTION card #6.',
+        'args': {'x': 'Handle to a panel column · second-generation CIPS.', 'lags': 'Lag order of the Dickey-Fuller augmentation (default 2).', 'type': 'Deterministic terms (default trend).', 'model': 'CIPS variant: cmg/mg/dmg (default cmg).', 'truncated': 'Truncated version of the test (default False).'},
+        'input_example': {'x': '<raw_handle>', 'lags': 2, 'truncated': False},
+    },
+    'run_efp': {
+        'fn': 'run_efp',
+        'description': 'run_efp -- category 01-preparation-prechecks, METHOD-SELECTION card #3.',
+        'args': {'formula': "Model, e.g. 'y ~ 1' for the fluctuation process.", 'data': 'Handle to a DataFrame holding the formula variables.', 'type': 'Type of empirical fluctuation process (default Rec-CUSUM).', 'h': 'Bandwidth (MOSUM/ME only, default 0.15).', 'dynamic': 'Include the lagged response as a regressor (default False).'},
+        'input_example': {'formula': 'y ~ x', 'h': 0.15, 'dynamic': False},
+    },
+    'run_hegy_test': {
+        'fn': 'run_hegy_test',
+        'description': 'run_hegy_test -- category 01-preparation-prechecks, METHOD-SELECTION card #89.',
+        'args': {'x': 'Handle to a seasonal univariate ts (frequency>1, no NA).', 'lag_method': 'Lag augmentation selection (default fixed).', 'maxlag': 'Maximum lag order (default 0).', 'pvalue': 'P-values: response-surface (RS) or raw (default RS).', 'bootstrap': 'Deterministic bootstrap p-values (CPU, default False).', 'boot_nb': 'Number of bootstrap replicates (default 1000).', 'seed': 'Seed for a reproducible bootstrap (default 123).'},
+        'input_example': {'x': '<series_handle>', 'maxlag': 0, 'bootstrap': False, 'boot_nb': 1000, 'seed': 123},
+    },
+    'run_isseasonal': {
+        'fn': 'run_isseasonal',
+        'description': 'run_isseasonal -- category 01-preparation-prechecks, METHOD-SELECTION card #125.',
+        'args': {'x': 'Handle to a univariate ts (frequency>1, no NA, >=3 seasonal cycles).', 'test': "Seasonality test (default combined). 'ocsb' has INVERTED polarity (seasonal unit root).", 'freq': 'Optional frequency override (integer >1)· default = frequency(x).', 'alpha': "p-value threshold (default 0.01, as in isSeasonal). Ignored for test='combined'.", 'seed': "Monte-Carlo seed· used ONLY for test='ocsb'."},
+        'input_example': {'x': '<series_handle>', 'alpha': 0.01, 'seed': 123},
+    },
+    'run_jarque_bera_test': {
+        'fn': 'run_jarque_bera_test',
+        'description': 'run_jarque_bera_test -- category 01-preparation-prechecks, METHOD-SELECTION card #1.',
+        'args': {'x': 'Handle to a univariate ts/series for a normality test.', 'alpha': 'Significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'alpha': 0.05},
+    },
+    'run_kpss_test': {
+        'fn': 'run_kpss_test',
+        'description': 'run_kpss_test -- category 01-preparation-prechecks, METHOD-SELECTION card #1.',
+        'args': {'x': 'Handle to a univariate ts/series (no NA).', 'null': 'H0 stationarity around Level or Trend (default Level).', 'lshort': 'Short truncation lag (True) or long (False).', 'alpha': 'Significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'lshort': True, 'alpha': 0.05},
+    },
+    'run_pp_test': {
+        'fn': 'run_pp_test',
+        'description': 'run_pp_test -- category 01-preparation-prechecks, METHOD-SELECTION card #1.',
+        'args': {'x': 'Handle to a univariate ts/series (no NA).', 'alternative': 'Alternative hypothesis (default stationary).', 'type': 'PP statistic (default Z(alpha)).', 'lshort': 'Short truncation lag (True) or long (False).', 'alpha': 'Significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'lshort': True, 'alpha': 0.05},
+    },
+    'run_purtest': {
+        'fn': 'run_purtest',
+        'description': 'run_purtest -- category 01-preparation-prechecks, METHOD-SELECTION card #6.',
+        'args': {'object': 'Handle to a DataFrame/matrix with the individuals IN COLUMNS.', 'test': 'Panel unit-root test (default levinlin = Levin-Lin-Chu).', 'exo': 'Deterministic terms (default none).', 'lags': 'Lag selection criterion of the ADF regressions (default SIC).', 'pmax': 'Maximum number of lags (default 10· irrelevant for hadri).'},
+        'input_example': {'object': '<df_handle>', 'pmax': 10},
+    },
+    'run_sctest': {
+        'fn': 'run_sctest',
+        'description': 'run_sctest -- category 01-preparation-prechecks, METHOD-SELECTION card #3.',
+        'args': {'x': "Handle to an 'Fstats' (from run_Fstats) or an 'efp' (from run_efp).", 'type': 'Aggregation of the Fstats test (default supF· ignored for efp).', 'asymptotic': 'Asymptotic distribution (single-F supF/aveF, default False).'},
+        'input_example': {'x': '<raw_handle>', 'asymptotic': False},
+    },
+    'run_seas': {
+        'fn': 'run_seas',
+        'description': 'run_seas -- category 01-preparation-prechecks, METHOD-SELECTION card #4.',
+        'args': {'x': 'Handle to a seasonal ts to be seasonally adjusted (X-13/SEATS).', 'exog': 'Optional exogenous regressors (regARIMA).', 'out': 'Store the full X-13 output (default False).'},
+        'input_example': {'x': '<series_handle>', 'out': False},
+    },
+    'run_tso': {
+        'fn': 'run_tso',
+        'description': 'run_tso -- category 01-preparation-prechecks, METHOD-SELECTION card #5.',
+        'args': {'y': 'Handle to the ts in which outliers are detected.', 'exog': 'Optional regressors (matrix with the same tsp & colnames).', 'cval': 'Outlier significance critical value (default from n).', 'delta': 'Temporary change parameter (default 0.7).', 'maxit': 'Maximum number of iterations (default 1).', 'tsmethod': 'Modelling framework (default auto.arima).'},
+        'input_example': {'y': '<series_handle>', 'delta': 0.7, 'maxit': 1},
+    },
+    'seasdum_test': {
+        'fn': 'seasdum_test',
+        'description': 'seasdum_test -- category 01-preparation-prechecks, METHOD-SELECTION card #125.',
+        'args': {'x': 'Handle to a univariate ts (frequency>1, no NA, >=3 seasonal cycles).', 'freq': 'Optional frequency override (integer >1).', 'autoarima': 'Auto ARIMA (p,d,q)+seasonal dummies instead of (0,1,1) (default False).', 'alpha': 'Decision significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'autoarima': False, 'alpha': 0.05},
+    },
+    'tn_friedman': {
+        'fn': 'tn_friedman',
+        'description': 'tn_friedman -- category 01-preparation-prechecks, METHOD-SELECTION card #251.',
+        'args': {'y': 'Handle to the data. WIDE form (preferred): numeric matrix/DataFrame blocks (rows, >= 2) × groups (columns, >= 2). LONG form: a numeric VECTOR together with \'groups\' AND \'blocks\' of the same length. A bare vector WITHOUT groups/blocks fails in stats with a «argument "groups" is missing». CROSS-SECTION ONLY.', 'groups': "LONG form: GROUP labels (e.g. forecasting method) per observation of 'y'. Requires 'blocks' too. Every (block, group) combination EXACTLY once — an unreplicated COMPLETE block design; otherwise a hard gate.", 'blocks': "LONG form: BLOCK labels (e.g. country/unit in which ALL groups were measured) per observation of 'y'. Also requires 'groups'.", 'na_action': 'NA policy (default \'fail\'). the Friedman test routine SILENTLY removes ENTIRE blocks that have even one NA (documentation: «if y contains NAs, corresponding blocks are removed") — \'drop_blocks\' does the same EXPLICITLY and returns n_blocks_dropped.', 'lb_lag': 'Lag of the Ljung-Box whiteness precheck of the cross-section gate. Omitted => the documented rule min(10, n/5) (Hyndman & Athanasopoulos, FPP3 §5.4).', 'gate_alpha': "Level OF THE CROSS-SECTION GATE (default 0.05) — the rejection threshold ONLY of the Ljung-Box whiteness precheck. It does NOT concern the non-parametric test itself (hence it is called 'gate_alpha' and NOT 'alpha'). ⚠️ It IS a TEST OF SIZE gate_alpha: it blocks, by construction, ~gate_alpha of the proportion of VALID i.i.d. input (live: n=200 -> 1.6%/5.7%/10.1% at 0.01/0.05/0.10).", 'ordered': "EXPLICIT declaration: do the ROWS carry ORDER meaning? True (default, conservative) => the Ljung-Box precheck RUNS. False => genuine cross-section (EXCHANGEABLE rows) and the precheck is EXPLICITLY skipped (decision = 'pass-unordered'). ⚠️ Ljung-Box depends on ORDER — wilcox/kruskal/friedman do NOT. The rejection of series handles/series ALWAYS applies, regardless."},
+        'input_example': {'y': '<raw_handle>', 'gate_alpha': 0.05, 'ordered': True},
+    },
+    'tn_kruskal': {
+        'fn': 'tn_kruskal',
+        'description': 'tn_kruskal -- category 01-preparation-prechecks, METHOD-SELECTION card #251.',
+        'args': {'x': 'Handle to the k >= 2 INDEPENDENT groups: a NAMED list of numeric vectors, a numeric matrix (columns = groups) or a DataFrame with numeric columns. Group names NON-EMPTY and UNIQUE. CROSS-SECTION ONLY (rejection of series handles + a Ljung-Box precheck per group). NOT Inf/-Inf.', 'na_action': "NA policy (default 'fail'). the rank-test routines SILENTLY remove NA (silent loss of data) — hence the node blocks by default; 'omit' = explicit removal with n_omitted reported.", 'lb_lag': 'Lag of the Ljung-Box whiteness precheck of the cross-section gate. Omitted => the documented rule min(10, n/5) (Hyndman & Athanasopoulos, FPP3 §5.4).', 'gate_alpha': "Level OF THE CROSS-SECTION GATE (default 0.05) — the rejection threshold ONLY of the Ljung-Box whiteness precheck. It does NOT concern the non-parametric test itself (hence it is called 'gate_alpha' and NOT 'alpha'). ⚠️ It IS a TEST OF SIZE gate_alpha: it blocks, by construction, ~gate_alpha of the proportion of VALID i.i.d. input (live: n=200 -> 1.6%/5.7%/10.1% at 0.01/0.05/0.10).", 'ordered': "EXPLICIT declaration: do the ROWS carry ORDER meaning? True (default, conservative) => the Ljung-Box precheck RUNS. False => genuine cross-section (EXCHANGEABLE rows) and the precheck is EXPLICITLY skipped (decision = 'pass-unordered'). ⚠️ Ljung-Box depends on ORDER — wilcox/kruskal/friedman do NOT. The rejection of series handles/series ALWAYS applies, regardless."},
+        'input_example': {'x': '<raw_handle>', 'gate_alpha': 0.05, 'ordered': True},
+    },
+    'tn_wilcox': {
+        'fn': 'tn_wilcox',
+        'description': 'tn_wilcox -- category 01-preparation-prechecks, METHOD-SELECTION card #251.',
+        'args': {'x': 'Handle to the FIRST numeric sample (a CROSS-SECTION vector, without dimensions). Every series handles/series IS REJECTED AND every sample that fails the Ljung-Box whiteness precheck. NOT Inf/-Inf.', 'y': 'Handle to the SECOND sample. Omitted => a one-sample Wilcoxon signed rank test around mu. With paired=False => Wilcoxon rank sum (Mann-Whitney) of two INDEPENDENT samples; with paired=True => signed rank of the differences (requires EQUAL lengths).', 'paired': "True = paired (before/after on the SAME units); requires 'y' and equal lengths.", 'mu': 'The H0 value: location of x (one sample / paired) or location shift x - y (two samples). Default 0.', 'alternative': 'Alternative hypothesis (default two.sided).', 'exact': 'Exact p-value. Omitted => automatic (exact if each sample has < 50 values). The exact branch ALSO APPLIES WITH TIES (shift algorithm, Streitberg-Röhmel) — see the exact_used/ties_present/zeroes_present fields.', 'correct': 'Continuity correction in the NORMAL approximation (default True); ignored when exact runs.', 'conf_int': 'True => a non-parametric confidence interval + Hodges-Lehmann estimator ((pseudo)median or difference in location). CAUTION: with small n the ACHIEVED level differs from the requested (returned as conf_level_achieved) and the interval can turn out infinite (conf_int_finite).', 'conf_level': 'Requested confidence level in (0, 1); default 0.95.', 'digits_rank': 'If given, ranks are computed on signif(x, digits_rank) — stabilizes the detection of ties when differences on the order of 1e-16 hide them. Omitted => Inf (no rounding).', 'na_action': "NA policy (default 'fail'). the rank-test routines SILENTLY remove NA (silent loss of data) — hence the node blocks by default; 'omit' = explicit removal with n_omitted reported.", 'lb_lag': 'Lag of the Ljung-Box whiteness precheck of the cross-section gate. Omitted => the documented rule min(10, n/5) (Hyndman & Athanasopoulos, FPP3 §5.4).', 'gate_alpha': "Level OF THE CROSS-SECTION GATE (default 0.05) — the rejection threshold ONLY of the Ljung-Box whiteness precheck. It does NOT concern the non-parametric test itself (hence it is called 'gate_alpha' and NOT 'alpha'). ⚠️ It IS a TEST OF SIZE gate_alpha: it blocks, by construction, ~gate_alpha of the proportion of VALID i.i.d. input (live: n=200 -> 1.6%/5.7%/10.1% at 0.01/0.05/0.10).", 'ordered': "EXPLICIT declaration: do the ROWS carry ORDER meaning? True (default, conservative) => the Ljung-Box precheck RUNS. False => genuine cross-section (EXCHANGEABLE rows) and the precheck is EXPLICITLY skipped (decision = 'pass-unordered'). ⚠️ Ljung-Box depends on ORDER — wilcox/kruskal/friedman do NOT. The rejection of series handles/series ALWAYS applies, regardless."},
+        'input_example': {'x': '<raw_handle>', 'paired': False, 'mu': 0, 'correct': True, 'conf_int': False, 'conf_level': 0.95, 'gate_alpha': 0.05, 'ordered': True},
+    },
+    'tp_anova': {
+        'fn': 'tp_anova',
+        'description': 'tp_anova -- category 01-preparation-prechecks, METHOD-SELECTION card #250.',
+        'args': {'data': 'Handle to a CROSS-SECTION DataFrame (rows = units: countries/firms/households) with ONE numeric response column and ONE grouping column (categorical/string). ⚠️ CROSS-SECTION ONLY: each group passes a Ljung-Box whiteness precheck; time series ARE REJECTED (see the HAC path, package sandwich, category 07-causality-policy).', 'response': "NAME of the NUMERIC response-variable column in 'data' (NOT data). Must exist in the DataFrame; used ONLY as an index — NEVER in formula/parse.", 'group': "NAME of the GROUPING column in 'data' (NOT data). The column MUST be factor or character: with a NUMERIC/LOGICAL column, the analysis-of-variance routine does NOT do ANOVA — it does LINEAR REGRESSION (Df = 1 instead of k-1) WITHOUT an error (silent-wrong) => hard gate. >= 2 levels AND >= 2 observations per level are required.", 'alpha': "Significance level OF THE TEST in the OPEN interval (0, 1) — default 0.05. Determines ONLY the 'reject'/'decision' fields of the output; it does NOT change the p-value and does NOT affect the cross-section gate (that has its OWN 'gate_alpha').", 'na_action': "EXPLICIT NA policy (default 'fail' = hard stop). the t-test routine/aov remove NA SILENTLY, so the reported n is not the input's n. With 'omit' the removal happens EXPLICITLY and the count is returned (n_na); in paired, PAIRS are removed, in anova/welch, ROWS.", 'lb_lag': 'Lag of the Ljung-Box whiteness precheck (cross-section gate). If omitted: the documented rule min(10, n/5) (Hyndman & Athanasopoulos, FPP 3rd ed. §5.4). MUST be a positive integer < n.', 'gate_alpha': "Level OF THE CROSS-SECTION GATE in the OPEN interval (0, 1) — default 0.05. Rejection threshold ONLY of the Ljung-Box whiteness precheck. ⚠️ It IS a TEST OF SIZE gate_alpha: it blocks, by construction, ~gate_alpha of the proportion of VALID i.i.d. input (live: n=200 -> 1.6%/5.7%/10.1% at 0.01/0.05/0.10). Hence it is DECOUPLED from the test's 'alpha'.", 'ordered': "EXPLICIT declaration: do the ROWS carry ORDER meaning? True (default, conservative) => the Ljung-Box precheck RUNS. False => the user declares a genuine cross-section (the rows are EXCHANGEABLE) and the precheck is SKIPPED EXPLICITLY (decision = 'pass-unordered'). ⚠️ Ljung-Box depends on ORDER: the same numbers pass unsorted and get BLOCKED sorted — while the t.test/aov/oneway.test are permutation-invariant. The rejection of series handles/series ALWAYS applies, regardless."},
+        'input_example': {'data': '<df_handle>', 'response': '...', 'group': '...', 'alpha': 0.05, 'gate_alpha': 0.05, 'ordered': True},
+    },
+    'tp_t_test': {
+        'fn': 'tp_t_test',
+        'description': 'tp_t_test -- category 01-preparation-prechecks, METHOD-SELECTION card #250.',
+        'args': {'x': 'Handle to the 1st sample: a PLAIN numeric VECTOR of cross-section observations. FORBIDDEN: matrix/DataFrame (use the tp_anova/tp_welch)· series handles (CROSS-SECTION ONLY gate); Inf/NaN (the t-test routine does NOT error — it returns NaN); a constant sample («data are essentially constant»)· n < 3.', 'y': "Handle to the 2nd sample (optional). Omitted => a ONE-SAMPLE test vs 'mu'. Given => two-sample (or paired if paired=True, in which case EQUAL length is required).", 'mu': 'The H0 value of the mean (one-sample) or of the DIFFERENCE of means (two-sample/paired); default 0. A SINGLE finite number.', 'paired': "True => a paired t-test on the DIFFERENCES x - y (requires 'y' of EQUAL length). ⚠️ The Ljung-Box precheck runs ON THE DIFFERENCES — these are the true input of the paired test.", 'var_equal': 'False (default) => Welch/Satterthwaite (SEPARATE variances — the safe default). True => Student pooled variance. ONLY for two-sample unpaired: with one-sample/paired, stats ignores it SILENTLY => hard gate.', 'alternative': "Alternative hypothesis (default 'two.sided'). 'greater' = the mean of x is GREATER (one-sample: the mean > mu). One-sided tests give a HALF-INFINITE confidence interval.", 'conf_level': 'Confidence level of the interval in the OPEN interval (0, 1); default 0.95.', 'alpha': "Significance level OF THE TEST in the OPEN interval (0, 1) — default 0.05. Determines ONLY the 'reject'/'decision' fields of the output; it does NOT change the p-value and does NOT affect the cross-section gate (that has its OWN 'gate_alpha').", 'na_action': "EXPLICIT NA policy (default 'fail' = hard stop). the t-test routine/aov remove NA SILENTLY, so the reported n is not the input's n. With 'omit' the removal happens EXPLICITLY and the count is returned (n_na); in paired, PAIRS are removed, in anova/welch, ROWS.", 'x_name': "LABEL of the 1st sample in the output (default 'x'; <= 100 characters). NOT data.", 'y_name': "LABEL of the 2nd sample (default 'y'). Must differ from x_name.", 'lb_lag': 'Lag of the Ljung-Box whiteness precheck (cross-section gate). If omitted: the documented rule min(10, n/5) (Hyndman & Athanasopoulos, FPP 3rd ed. §5.4). MUST be a positive integer < n.', 'gate_alpha': "Level OF THE CROSS-SECTION GATE in the OPEN interval (0, 1) — default 0.05. Rejection threshold ONLY of the Ljung-Box whiteness precheck. ⚠️ It IS a TEST OF SIZE gate_alpha: it blocks, by construction, ~gate_alpha of the proportion of VALID i.i.d. input (live: n=200 -> 1.6%/5.7%/10.1% at 0.01/0.05/0.10). Hence it is DECOUPLED from the test's 'alpha'.", 'ordered': "EXPLICIT declaration: do the ROWS carry ORDER meaning? True (default, conservative) => the Ljung-Box precheck RUNS. False => the user declares a genuine cross-section (the rows are EXCHANGEABLE) and the precheck is SKIPPED EXPLICITLY (decision = 'pass-unordered'). ⚠️ Ljung-Box depends on ORDER: the same numbers pass unsorted and get BLOCKED sorted — while the t.test/aov/oneway.test are permutation-invariant. The rejection of series handles/series ALWAYS applies, regardless."},
+        'input_example': {'x': '<raw_handle>', 'mu': 0, 'paired': False, 'var_equal': False, 'conf_level': 0.95, 'alpha': 0.05, 'x_name': 'x', 'y_name': 'y', 'gate_alpha': 0.05, 'ordered': True},
+    },
+    'tp_welch': {
+        'fn': 'tp_welch',
+        'description': 'tp_welch -- category 01-preparation-prechecks, METHOD-SELECTION card #250.',
+        'args': {'data': 'Handle to a CROSS-SECTION DataFrame (rows = units: countries/firms/households) with ONE numeric response column and ONE grouping column (categorical/string). ⚠️ CROSS-SECTION ONLY: each group passes a Ljung-Box whiteness precheck; time series ARE REJECTED (see the HAC path, package sandwich, category 07-causality-policy).', 'response': "NAME of the NUMERIC response-variable column in 'data' (NOT data). Must exist in the DataFrame; used ONLY as an index — NEVER in formula/parse.", 'group': "NAME of the GROUPING column in 'data' (NOT data). The column MUST be factor or character: with a NUMERIC/LOGICAL column, the analysis-of-variance routine does NOT do ANOVA — it does LINEAR REGRESSION (Df = 1 instead of k-1) WITHOUT an error (silent-wrong) => hard gate. >= 2 levels AND >= 2 observations per level are required.", 'var_equal': 'False (default) => the Welch (1951) test: does NOT assume equal variances (the safe default with unequal n_i). True => the classical F AS THE TEST (statistic identical to tp_anova, but WITHOUT an ANOVA table).', 'alpha': "Significance level OF THE TEST in the OPEN interval (0, 1) — default 0.05. Determines ONLY the 'reject'/'decision' fields of the output; it does NOT change the p-value and does NOT affect the cross-section gate (that has its OWN 'gate_alpha').", 'na_action': "EXPLICIT NA policy (default 'fail' = hard stop). the t-test routine/aov remove NA SILENTLY, so the reported n is not the input's n. With 'omit' the removal happens EXPLICITLY and the count is returned (n_na); in paired, PAIRS are removed, in anova/welch, ROWS.", 'lb_lag': 'Lag of the Ljung-Box whiteness precheck (cross-section gate). If omitted: the documented rule min(10, n/5) (Hyndman & Athanasopoulos, FPP 3rd ed. §5.4). MUST be a positive integer < n.', 'gate_alpha': "Level OF THE CROSS-SECTION GATE in the OPEN interval (0, 1) — default 0.05. Rejection threshold ONLY of the Ljung-Box whiteness precheck. ⚠️ It IS a TEST OF SIZE gate_alpha: it blocks, by construction, ~gate_alpha of the proportion of VALID i.i.d. input (live: n=200 -> 1.6%/5.7%/10.1% at 0.01/0.05/0.10). Hence it is DECOUPLED from the test's 'alpha'.", 'ordered': "EXPLICIT declaration: do the ROWS carry ORDER meaning? True (default, conservative) => the Ljung-Box precheck RUNS. False => the user declares a genuine cross-section (the rows are EXCHANGEABLE) and the precheck is SKIPPED EXPLICITLY (decision = 'pass-unordered'). ⚠️ Ljung-Box depends on ORDER: the same numbers pass unsorted and get BLOCKED sorted — while the t.test/aov/oneway.test are permutation-invariant. The rejection of series handles/series ALWAYS applies, regardless."},
+        'input_example': {'data': '<df_handle>', 'response': '...', 'group': '...', 'var_equal': False, 'alpha': 0.05, 'gate_alpha': 0.05, 'ordered': True},
+    },
+    'tr_mk': {
+        'fn': 'tr_mk',
+        'description': 'tr_mk -- category 01-preparation-prechecks, METHOD-SELECTION card #131.',
+        'args': {'x': 'Handle to a univariate ts/numeric series (no NA, >=3 obs, non-constant).', 'alternative': 'Alternative hypothesis (default two.sided).', 'continuity': 'Continuity correction of the normal approximation (default True).', 'alpha': 'Decision level· H0=no trend, p<alpha ⇒ monotonic trend (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'continuity': True, 'alpha': 0.05},
+    },
+    'tr_pettitt': {
+        'fn': 'tr_pettitt',
+        'description': 'tr_pettitt -- category 01-preparation-prechecks, METHOD-SELECTION card #131.',
+        'args': {'x': 'Handle to a univariate ts/numeric series (no NA, >=3 obs, non-constant).', 'alpha': 'Decision level· H0=no change in central tendency (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'alpha': 0.05},
+    },
+    'tr_sens': {
+        'fn': 'tr_sens',
+        'description': 'tr_sens -- category 01-preparation-prechecks, METHOD-SELECTION card #131.',
+        'args': {'x': 'Handle to a univariate ts/numeric series (no NA, >=3 obs, non-constant).', 'conf_level': 'Confidence level of the slope CI, ∈(0,1) (default 0.95).', 'alpha': 'Decision level on the Mann-Kendall p-value (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'conf_level': 0.95, 'alpha': 0.05},
+    },
+    'tr_smk': {
+        'fn': 'tr_smk',
+        'description': 'tr_smk -- category 01-preparation-prechecks, METHOD-SELECTION card #131.',
+        'args': {'x': 'Handle to a seasonal ts with frequency>1 (or numeric + frequency)· no NA, non-constant.', 'frequency': 'Seasonal period >1· MANDATORY if x is not a ts (e.g. 12=monthly, 4=quarterly).', 'alternative': 'Alternative hypothesis (default two.sided).', 'continuity': 'Continuity correction (default True).', 'alpha': 'Decision level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'continuity': True, 'alpha': 0.05},
+    },
+    'welch_test': {
+        'fn': 'welch_test',
+        'description': 'welch_test -- category 01-preparation-prechecks, METHOD-SELECTION card #125.',
+        'args': {'x': 'Handle to a univariate ts (frequency>1, no NA, >=3 seasonal cycles).', 'freq': 'Optional frequency override (integer >1).', 'diff': 'Test the differenced series (default True).', 'residuals': 'Test the residuals of an ARIMA (default False).', 'autoarima': 'Auto ARIMA instead of (0,1,1) when residuals=True (default True).', 'rank': 'Use the rank-based variant (default False).', 'alpha': 'Decision significance level (default 0.05).'},
+        'input_example': {'x': '<series_handle>', 'diff': True, 'residuals': False, 'autoarima': True, 'rank': False, 'alpha': 0.05},
+    },
+    'wrap_ur_df': {
+        'fn': 'wrap_ur_df',
+        'description': 'wrap_ur_df -- category 01-preparation-prechecks, METHOD-SELECTION card #2.',
+        'args': {'y': 'Handle to a univariate series (no NA).', 'type': 'Deterministic terms of the ADF regression (default none).', 'lags': 'Number of lags of the differences (default 1).', 'selectlags': 'Lag selection: Fixed/AIC/BIC (default Fixed).'},
+        'input_example': {'y': '<series_handle>', 'lags': 1},
+    },
+    'wrap_ur_ers': {
+        'fn': 'wrap_ur_ers',
+        'description': 'wrap_ur_ers -- category 01-preparation-prechecks, METHOD-SELECTION card #2.',
+        'args': {'y': 'Handle to a univariate series (no NA).', 'type': 'Elliott-Rothenberg-Stock variant (default DF-GLS).', 'model': 'Deterministic part (default constant).', 'lag_max': 'Maximum lag order (default 4).'},
+        'input_example': {'y': '<series_handle>', 'lag_max': 4},
+    },
+    'wrap_ur_kpss': {
+        'fn': 'wrap_ur_kpss',
+        'description': 'wrap_ur_kpss -- category 01-preparation-prechecks, METHOD-SELECTION card #2.',
+        'args': {'y': 'Handle to a univariate series (no NA).', 'type': 'mu=stationarity around a constant, tau=around a trend.', 'lags': 'Truncation lag for the long-run variance (default short).'},
+        'input_example': {'y': '<series_handle>'},
+    },
+    'wrap_ur_pp': {
+        'fn': 'wrap_ur_pp',
+        'description': 'wrap_ur_pp -- category 01-preparation-prechecks, METHOD-SELECTION card #2.',
+        'args': {'x': 'Handle to a univariate series (no NA).', 'type': 'Phillips-Perron statistic (default Z-alpha).', 'model': 'Deterministic part: constant or trend (default constant).', 'lags': 'Truncation lag (default short).'},
+        'input_example': {'x': '<series_handle>'},
+    },
+    'wrap_ur_za': {
+        'fn': 'wrap_ur_za',
+        'description': 'wrap_ur_za -- category 01-preparation-prechecks, METHOD-SELECTION card #2.',
+        'args': {'y': 'Handle to a univariate series (no NA).', 'model': 'Zivot-Andrews break in intercept/trend/both (default intercept).', 'lag': 'Lag order (default None -> selected internally).'},
+        'input_example': {'y': '<series_handle>'},
+    },
+}

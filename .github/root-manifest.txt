@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# THE COMPLETE PUBLIC ROOT SURFACE. One entry per line, sorted (LC_ALL=C).
+#
+# .gitignore denies everything at the root and re-admits by name; this file
+# is the assertion that the two agree. check-root-visibility.sh fails on a
+# difference in EITHER direction -- an entry that appeared, and an entry
+# that vanished -- so the public surface cannot drift silently in either.
+#
+# frontend/ and deploy/ each hold exactly one README.md stating that the
+# layer is specified and NOT built. That is the honest form of an empty
+# directory: the folder shows the shape of the system, and the only file in
+# it says plainly that no code is there yet. backend/ now also carries a
+# pyproject.toml and an empty econflow_backend package -- see below.
+#
+# pyproject.toml, uv.lock and .python-version are at the ROOT and not inside
+# engine/, because engine/ and backend/ are two members of ONE uv workspace
+# and a workspace has exactly one lockfile. That single lock is what keeps
+# both members on the same pydantic build, and it is the one place the
+# dependency snapshot is pinned. The root pyproject.toml is not a package: it
+# also carries the import-linter contracts that enforce "no statistic is ever
+# computed outside engine/" -- the rule a file extension used to enforce
+# for free.
+#
+# Comments and blank lines are ignored by the checker.
+
+.coderabbit.yaml
+.dockerignore
+.gitattributes
+.github
+.gitignore
+.gitleaks.toml
+.pre-commit-config.yaml
+.python-version
+ARCHITECTURE.md
+CHANGELOG.md
+CITATION.cff
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Dockerfile
+LICENSE
+NOTICE
+README.md
+SECURITY.md
+backend
+deploy
+docs
+engine
+frontend
+pyproject.toml
+uv.lock

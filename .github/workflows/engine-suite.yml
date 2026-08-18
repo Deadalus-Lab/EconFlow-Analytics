@@ -1,0 +1,212 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# The full engine suite.
+#
+# ---------------------------------------------------------------------------
+# U55 -- WHERE THE FULL SUITE RUNS, AND WHAT THAT DOES NOT BUY
+# ---------------------------------------------------------------------------
+# Actions minutes are unlimited on public repositories, so cost is not the
+# constraint. Latency is: a long required check on every pull request makes
+# every pull request a long pull request.
+#
+# The compromise, stated plainly rather than presented as complete coverage:
+#
+#   pull request        a path-selected subset -- only the tests belonging to
+#                       the wrappers the branch actually touched
+#   push to main        the FULL suite, required
+#   label `full-suite`  the full suite, opt-in, for a risky branch
+#   nightly             the full suite plus full artifact regeneration
+#
+# WHAT THIS DOES NOT CLOSE, and ARCHITECTURE.md 11.4 says so too: a pull request
+# touching a wrapper whose tests are not matched by the path selector can still
+# merge green. The post-merge run turns that from "silently broken main" into
+# "loudly broken main" -- which is a real improvement over nothing, and is NOT
+# the same as per-pull-request protection.
+name: engine-suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, labeled]
+  schedule:
+    # 03:17 UTC. Off the hour deliberately: the top of the hour is when every
+    # scheduled workflow on the platform contends for runners.
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: engine-suite-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ENGINE_DIR: "engine"
+  UV_VERSION: "0.10.10"
+  # SINGLE-THREADED LINEAR ALGEBRA, for the same reason the image pins the
+  # reference BLAS. NumPy's wheels ship a threaded OpenBLAS whose reduction
+  # order depends on how work was split across threads, so a sensitive fit can
+  # land on a different last bit from one run to the next on the SAME machine.
+  # Pinning the thread count to one removes that source of variation. See
+  # ARCHITECTURE.md 4.6.
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  scope:
+    name: decide what to run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      mode: ${{ steps.decide.outputs.mode }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: decide
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            mode=full
+          elif ${{ contains(github.event.pull_request.labels.*.name, 'full-suite') }}; then
+            mode=full
+          else
+            mode=subset
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "running the $mode suite"
+
+  # ---------------------------------------------------------------------------
+  suite:
+    name: suite (${{ needs.scope.outputs.mode }})
+    needs: scope
+    runs-on: ubuntu-latest
+    # Generous on purpose -- a timeout that trips on a slow runner teaches people
+    # to ignore red.
+    timeout-minutes: 150
+    permissions:
+      contents: read
+      # The broken-main announcer calls `gh issue create`. Without this the
+      # alarm fails on EVERY invocation with a permissions error -- and for a
+      # long time that failure was hidden by a trailing `|| true`.
+      issues: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      # ---------------------------------------------------------------------
+      # A KNOWN AND DELIBERATE COMPROMISE, recorded rather than glossed over.
+      #
+      # ARCHITECTURE.md 4.6 pins the numerical backend because an optimised,
+      # multithreaded one perturbs results enough to change output. Here that is
+      # done with thread-count environment variables, which removes the
+      # thread-order variation but NOT the difference between one BLAS build and
+      # another: a runner's NumPy wheel carries whatever OpenBLAS it was built
+      # against. So this job checks whether the suite passes, but NOT that it
+      # produces the pinned numbers.
+      #
+      # The authoritative run is the one inside the engine image, where the
+      # backend is fixed and the suite is a build gate. Once that image is
+      # published, this workflow should run IN it (container:) and this
+      # compromise disappears. Until then, do not read a green run here as proof
+      # of numerical reproducibility.
+      # ---------------------------------------------------------------------
+      - name: Install uv at the pinned version
+        run: python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+
+      # ONE LOCKFILE, AT THE WORKSPACE ROOT. engine/ and backend/ are two members
+      # of one uv workspace, so a single resolution covers both and they cannot
+      # land on different builds of a shared dependency. `--locked` refuses to
+      # re-resolve: if the lockfile does not already satisfy the manifests, this
+      # fails instead of quietly installing something else.
+      - name: Restore the locked environment
+        run: uv sync --locked --all-extras
+
+      - name: Full suite
+        if: needs.scope.outputs.mode == 'full'
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: ./run_verifications.sh
+
+      - name: Path-selected subset
+        if: needs.scope.outputs.mode == 'subset'
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+
+          # THE PATHSPECS BELOW ARE CWD-RELATIVE, AND THAT IS LOAD-BEARING.
+          # This step sets `working-directory: engine`, and git pathspecs resolve
+          # against the current directory, not the repository root. So the
+          # correct form is 'src/**/*.py'. The seemingly more explicit
+          # 'engine/src/**/*.py' matches NOTHING from here -- the subset would be
+          # empty, the job would exit 0, and a green run would mean the selector
+          # found no changes rather than that the changes passed. Measured, and
+          # recorded in docs/decisions/repository-layout.md.
+          mapfile -t changed < <(git diff --name-only "$base" "$head" -- 'src/**/*.py' || true)
+          echo "changed Python sources: ${#changed[@]}"
+
+          if [ "${#changed[@]}" -eq 0 ]; then
+            echo "No engine sources changed. The full suite runs post-merge regardless."
+            exit 0
+          fi
+
+          # Map each changed module to the test file that covers it, by basename.
+          sel=()
+          for f in "${changed[@]}"; do
+            b="$(basename "$f" .py)"
+            if [ "$b" = "__init__" ]; then
+              continue
+            fi
+            while IFS= read -r t; do
+              sel+=("$t")
+            done < <(find tests -name "test_*${b}*.py" -not -path '*__pycache__*')
+          done
+
+          if [ "${#sel[@]}" -eq 0 ]; then
+            # HONEST FAILURE MODE. Changed sources with no matching test file is
+            # exactly the gap 11.4 describes. Say so loudly rather than exiting
+            # green and letting the silence read as coverage.
+            echo "::warning::${#changed[@]} engine source(s) changed but no test file matched by basename."
+            echo "::warning::This pull request is NOT covered by the subset run. The full suite runs post-merge."
+            exit 0
+          fi
+
+          printf 'selected %d test file(s)\n' "${#sel[@]}"
+          printf '  %s\n' "${sel[@]}"
+          uv run --locked pytest -q "${sel[@]}"
+
+      - name: Announce a broken main loudly
+        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "broken main: engine suite failed on $(git rev-parse --short HEAD)" \
+            --label broken-main \
+            --body "The full engine suite failed on a push to main.
+
+          Commit: ${{ github.sha }}
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          This is the failure mode ARCHITECTURE.md 11.4 predicts: a pull request
+          whose tests were not matched by the path selector merged green and
+          broke the engine. Fix forward or revert." || {
+            echo "::error::FAILED TO ANNOUNCE A BROKEN MAIN."
+            echo "The engine suite failed AND the alarm could not be raised."
+            echo "Check that the 'broken-main' label exists and that this job has"
+            echo "issues: write. An announcer that fails silently is worse than no"
+            echo "announcer, because it looks like one."
+            exit 1
+          }

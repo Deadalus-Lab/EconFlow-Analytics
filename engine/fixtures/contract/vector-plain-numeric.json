@@ -1,0 +1,32 @@
+{
+  "name": "vector-plain-numeric",
+  "why": "plain numeric vector -> sidecar$vector, one column \"value\"",
+  "producer": ".node_ptr_serialize",
+  "format": "parquet",
+  "engine": {
+    "arrow_version": "24.0.0"
+  },
+  "sidecar": {
+    "class": "numeric",
+    "ts": false,
+    "vector": true,
+    "columns": [
+      "value"
+    ]
+  },
+  "expect": {
+    "kind": "vector",
+    "values": [
+      "1.5",
+      null,
+      "-0",
+      "2.5"
+    ],
+    "na": [
+      1
+    ],
+    "negativeZero": [
+      2
+    ]
+  }
+}

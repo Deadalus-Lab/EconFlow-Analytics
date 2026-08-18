@@ -1,0 +1,38 @@
+{
+  "name": "ts-annual-freq1-na",
+  "why": "ts frequency 1 (annual) with a missing observation -> NA, never 0",
+  "producer": ".node_ptr_serialize",
+  "format": "parquet",
+  "engine": {
+    "arrow_version": "24.0.0"
+  },
+  "sidecar": {
+    "class": "ts",
+    "ts": true,
+    "matrix": false,
+    "start": 1990,
+    "end": 1994,
+    "frequency": 1,
+    "columns": [
+      "value"
+    ]
+  },
+  "expect": {
+    "kind": "ts",
+    "values": [
+      "1",
+      "2",
+      null,
+      "4",
+      "5"
+    ],
+    "start": [
+      1990,
+      1
+    ],
+    "frequency": 1,
+    "na": [
+      2
+    ]
+  }
+}

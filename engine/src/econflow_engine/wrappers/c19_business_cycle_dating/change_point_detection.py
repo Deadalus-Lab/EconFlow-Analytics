@@ -1,0 +1,118 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``change_point_detection`` -- METHOD-SELECTION card #213.
+
+#213 Change-point detection in mean / variance / mean+variance (PELT/BinSeg/SegNeigh/AMOC)
+
+Category 19-business-cycle-dating; module ``change_point_detection``.
+
+Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+
+See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
+traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c19_business_cycle_dating import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "changepoint_segments",
+    "detect_changepoints",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def detect_changepoints(
+    *,
+    x: pd.Series,
+    statistic: Literal["mean", "variance", "meanvar"] | None = None,
+    penalty: (
+        Literal[
+            "MBIC",
+            "SIC",
+            "BIC",
+            "AIC",
+            "Hannan-Quinn",
+            "Asymptotic",
+            "Manual",
+            "None",
+        ]
+        | None
+    ) = None,
+    pen_value: float | None = None,
+    method: Literal["PELT", "AMOC", "SegNeigh", "BinSeg"] | None = None,
+    Q: int | None = None,
+    test_stat: str | None = None,
+    minseglen: int | None = None,
+    know_mean: bool | None = None,
+    mu: float | None = None,
+    shape: float | None = None,
+) -> dict[str, Any]:
+    """Node ``detect_changepoints`` -- METHOD-SELECTION card #213.
+
+    Change-point detection in mean / variance / mean+variance (PELT/BinSeg/SegNeigh/AMOC).
+
+    Category 19-business-cycle-dating; memory class ``light``.
+
+    Registers its result under ``fit``, so a later node can consume it as a handle.
+
+    Args:
+        x: [series_handle, required] Handle to a univariate numeric/ts series (without NA/Inf; not a
+            matrix).
+        statistic: [enum, optional] Which structure changes: mean (cpt.mean) / variance (cpt.var) /
+            meanvar (cpt.meanvar). Default mean.
+        penalty: [enum, optional] Penalty for selecting the number of change-points. Default MBIC.
+            Manual/Asymptotic require pen_value.
+        pen_value: [number, optional] Penalty value: Manual => >0; Asymptotic => type-I error in
+            (0,1]. A number only (not a formula). Default ``0``.
+        method: [enum, optional] Search algorithm. Default PELT (exact, fast). AMOC=at most 1 cp.
+            CSS/CUSUM do NOT work with PELT.
+        Q: [integer, optional] Maximum number of change-points (BinSeg) / segments (SegNeigh). Q <
+            n/minseglen is required. Default ``5``.
+        test_stat: [string, optional] Distribution/statistic: mean∈{Normal,CUSUM};
+            variance∈{Normal,CSS}; meanvar∈{Normal,Gamma,Exponential,Poisson}. Default Normal.
+        minseglen: [integer, optional] Minimum segment length. Default: 1 (mean) / 2
+            (variance,meanvar).
+        know_mean: [boolean, optional] ONLY statistic='variance': if True, the mean is considered
+            known (mu). Default ``False``.
+        mu: [number, optional] ONLY statistic='variance' with know_mean=True: the known value of the
+            mean.
+        shape: [number, optional] ONLY statistic='meanvar' with test_stat='Gamma': the known shape
+            parameter. Default ``1``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "detect_changepoints: not implemented. The method card is in ./README.md."
+    )
+
+
+def changepoint_segments(
+    *,
+    fit: Any,
+) -> dict[str, Any]:
+    """Node ``changepoint_segments`` -- METHOD-SELECTION card #213.
+
+    Change-point detection in mean / variance / mean+variance (PELT/BinSeg/SegNeigh/AMOC).
+
+    Category 19-business-cycle-dating; memory class ``light``.
+
+    Args:
+        fit: [raw_handle, required] Handle to an S4 'cpt' object (from detect_changepoints register
+            field 'fit').
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "changepoint_segments: not implemented. The method card is in ./README.md."
+    )

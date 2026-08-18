@@ -1,0 +1,158 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``fixed_effects_individual`` -- METHOD-SELECTION card #173.
+
+#173 Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
+    bootstrapped)
+
+Category 08-panel-data; module ``fixed_effects_individual``.
+
+Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+
+See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
+traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c08_panel_data import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "feis_bstest",
+    "feis_fit",
+    "feis_slopes",
+    "feis_test",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def feis_fit(
+    *,
+    formula: str,
+    data: pd.DataFrame,
+    id: str,
+    robust: bool | None = None,
+    intercept: bool | None = None,
+    dropgroups: bool | None = None,
+) -> dict[str, Any]:
+    """Node ``feis_fit`` -- METHOD-SELECTION card #173.
+
+    Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
+    bootstrapped).
+
+    Category 08-panel-data; memory class ``light``.
+
+    Registers its result under ``object``, so a later node can consume it as a handle.
+
+    Args:
+        formula: [formula, required] Two-part FEIS formula 'y ~ x1 + x2 | slope1 + slope2' (the '|'
+            is required· for conventional FE: 'y ~ x | 1').
+        data: [df_handle, required] Handle to a panel DataFrame (long format) with the id column +
+            the variables.
+        id: [string, required] Column name (string) of the unique group/person identifier.
+        robust: [boolean, optional] True -> panel/cluster-robust SE (default False). Default
+            ``False``.
+        intercept: [boolean, optional] True -> estimation with intercept (default False). Default
+            ``False``.
+        dropgroups: [boolean, optional] True -> drop groups without within-variance in the slope var
+            (default False: omit per group). Default ``False``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "feis_fit: not implemented. The method card is in ./README.md."
+    )
+
+
+def feis_test(
+    *,
+    object: Any,
+    type: Literal["all", "art1", "art2", "art3"] | None = None,
+    robust: bool | None = None,
+    terms: Any | None = None,
+) -> dict[str, Any]:
+    """Node ``feis_test`` -- METHOD-SELECTION card #173.
+
+    Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
+    bootstrapped).
+
+    Category 08-panel-data; memory class ``light``.
+
+    Args:
+        object: [raw_handle, required] Handle to a 'feis' model (from feis_fit).
+        type: [enum, optional] art1=FEIS vs FE, art2=FE vs RE, art3=FEIS vs RE (default all).
+        robust: [boolean, optional] True -> cluster-robust SE in the artificial regression (default
+            False). Default ``False``.
+        terms: [raw, optional] Optional character vector of coefficients for a joint Wald test
+            (default: all).
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "feis_test: not implemented. The method card is in ./README.md."
+    )
+
+
+def feis_bstest(
+    *,
+    object: Any,
+    type: Literal["all", "bs1", "bs2", "bs3"] | None = None,
+    rep: int | None = None,
+    seed: int | None = None,
+    terms: Any | None = None,
+) -> dict[str, Any]:
+    """Node ``feis_bstest`` -- METHOD-SELECTION card #173.
+
+    Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
+    bootstrapped).
+
+    Category 08-panel-data; memory class ``light``.
+
+    Args:
+        object: [raw_handle, required] Handle to a 'feis' model (from feis_fit).
+        type: [enum, optional] bs1=FEIS vs FE, bs2=FE vs RE, bs3=FEIS vs RE (default all).
+        rep: [integer, optional] Pairs-cluster bootstrap replications (default 500). Default
+            ``500``.
+        seed: [integer, optional] Reproducibility seed of the bootstrap (default 2025). Default
+            ``2025``.
+        terms: [raw, optional] Optional character vector of coefficients for a joint Wald test
+            (default: all).
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "feis_bstest: not implemented. The method card is in ./README.md."
+    )
+
+
+def feis_slopes(
+    *,
+    object: Any,
+) -> dict[str, Any]:
+    """Node ``feis_slopes`` -- METHOD-SELECTION card #173.
+
+    Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
+    bootstrapped).
+
+    Category 08-panel-data; memory class ``light``.
+
+    Args:
+        object: [raw_handle, required] Handle to a 'feis' model (from feis_fit)· returns the N x J
+            matrix of alpha_i.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "feis_slopes: not implemented. The method card is in ./README.md."
+    )

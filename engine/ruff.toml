@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# The engine's lint configuration. Kept beside the code it lints rather than in
+# the workspace manifest, because the wrapper exemptions below are the engine's
+# alone and must not silently apply to the backend.
+
+line-length = 100
+target-version = "py312"
+
+# Machine-written from artifacts/node-specs.v1.json on every build; linting it
+# would only lint the emitter's formatting choices.
+extend-exclude = ["src/econflow_engine/generated"]
+
+[lint]
+select = ["A", "B", "E", "F", "I", "SIM", "UP"]
+
+[lint.per-file-ignores]
+# A wrapper parameter name is not ours to choose: it is the argument name of the
+# node contract. A liabilities
+# matrix) trips E741, and renaming it would put the Python signature out of step
+# with the wire contract the same file documents.
+# THE BUILTIN SHADOWING IS THE CONTRACT, NOT AN OVERSIGHT. 187 wrapper
+# parameters shadow a Python builtin -- `object` 92 times, `type` 74, then
+# `vars`, `iter`, `range`, `len`, `format`, `min`, `max`, `id`. Every one is the
+# argument name of the node's wire contract, mechanically transliterated, and the
+# same name appears in the JSON Schema, the generated argument model and the
+# saved graphs. Renaming the Python parameter would put the signature out of step
+# with the contract the same file documents, and would break every stored call.
+#
+# Only A002 (arguments) is exempted. A001 and A003 stay live here, because a
+# shadowed local or attribute is ours to choose and is a real defect.
+#
+# Measured 2026-08-18 with ruff 0.7.1 (the CI pin) and 0.16.3 (the workspace):
+# both report the same 187, so this exemption does not depend on the version.
+"src/econflow_engine/wrappers/**/*.py" = ["A002", "E741"]
+
+[lint.isort]
+known-first-party = ["econflow_engine"]

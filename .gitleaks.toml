@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+
+# THE MOST IMPORTANT LINE IN THIS FILE.
+#
+# A gitleaks config REPLACES the default ruleset; it does not merge with it.
+# Without `useDefault = true` this file defines ZERO rules, finds nothing ever,
+# and the secrets gate is green and worthless -- indistinguishable from a clean
+# scan. The `secrets` job in ci.yml plants a known-fake credential and FAILS if
+# it is not detected, precisely so that deleting this line cannot go unnoticed.
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Generated, vendored and fixture content only. No credential is ever allow-listed
+here: if a real secret is found, the answer is to rotate it and rewrite history,
+never to add a path to this list.
+"""
+
+paths = [
+  # Generated code and artifacts. Byte-pinned content produced by the scripts in
+  # engine/scripts/ -- high-entropy by nature (hashes, seeds, encoded fixtures)
+  # and a steady source of false positives.
+  '''^engine/artifacts/.*\.json$''',
+  '''^engine/artifacts/.*\.sha256$''',
+  '''^engine/src/econflow_engine/generated/''',
+  '''^engine/sbom\.cdx\.json$''',
+
+  # Test fixtures for the serialisation boundary, including the deliberate
+  # non-ASCII ones. Binary Parquet trips entropy heuristics.
+  '''^engine/fixtures/''',
+
+  # The lockfile: one entry per package, each carrying a repository URL and a
+  # base64 artifact hash.
+  '''^uv\.lock$''',
+
+  # Migration evidence: logs and a rollback tarball. Gitignored, so this is
+  # belt-and-braces.
+]
+
+# Regex allowlist, deliberately narrow.
+#
+# The engine pins stochastic methods to fixed seeds for determinism
+# (ARCHITECTURE.md 4.6). A seed is a reproducibility guarantee, not a
+# credential, but a long integer literal beside a keyword reads like a numeric
+# token to entropy rules. These three forms are the only ways a seed is spelled
+# in this codebase; anything else that looks like a secret IS treated as one.
+regexes = [
+  '''default_rng\([0-9]+\)''',
+  '''random_state\s*=\s*[0-9]+''',
+  '''\bseed\s*=\s*[0-9]+''',
+]

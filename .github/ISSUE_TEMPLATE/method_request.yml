@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+name: Method request
+description: Propose an econometric method to add as a node
+labels: [method-request]
+body:
+  - type: input
+    id: method
+    attributes:
+      label: Method
+      placeholder: "e.g. Hamilton regression filter"
+    validations:
+      required: true
+  - type: input
+    id: package
+    attributes:
+      label: PyPI package that implements it
+      description: >-
+        Must be published on PyPI and resolvable by uv. A method available only
+        from a version-control URL is possible but needs a documented reason,
+        because the lockfile pins an immutable artifact hash and a repository
+        reference is not one.
+      placeholder: "e.g. statsmodels, arch, linearmodels"
+    validations:
+      required: true
+  - type: input
+    id: licence
+    attributes:
+      label: The package's licence
+      description: >-
+        This repository is AGPL-3.0-only, which is NOT compatible with
+        GPL-2.0-only. A GPL-2.0-only package cannot be admitted, whatever its
+        merits. Permissive licences — BSD, Apache-2.0, MIT — combine without
+        difficulty, as does GPL-3.0-or-later.
+      placeholder: "e.g. BSD-3-Clause"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: What macroeconomic question does it answer
+      description: Which existing node is inadequate for it, and why.
+    validations:
+      required: true
+  - type: textarea
+    id: gates
+    attributes:
+      label: Documented requirements
+      description: |
+        What does the method's documentation say must be true of the data —
+        stationarity, minimum observations, balanced panel, frequency? Each of
+        these becomes an explicit gate, so listing them is most of the work.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: A tutorial, API reference, textbook or paper. Every method card is sourced.
+    validations:
+      required: true

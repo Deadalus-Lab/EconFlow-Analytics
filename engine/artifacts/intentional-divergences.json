@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "note": "ENUMERATED DELIBERATE STRICTNESS. Every entry is a case where the typed schema at the integration layer REJECTS an input that the engine's own argument surface would accept. That direction is safe by construction: soundness forbids the opposite, where the engine accepts something the schema refuses. The parity suite requires SET EQUALITY against this file, so a new divergence and a dead entry both fail it. The diff of this file IS the audit trail of the decision to allow one.",
+  "key_scheme": "`members` are classes, not fixture ids: `<kind>/<mutation>` for the kind-matrix and mutation families (the same pair appears in hundreds of cases), the id itself for the pointer/formula families, and `<family>/<fn>` for spec-accept/optional-omitted.",
+  "oracle": "engine/artifacts/parity-fixtures.v1.json (the frozen argument-contract corpus)",
+  "divergences": [
+    {
+      "id": "*/explicit-null",
+      "kind": "*",
+      "reason": "an explicit JSON null on an OPTIONAL argument",
+      "rationale": "adapt_args (adapters line 180) reads an explicit null as ABSENT (`!is.null(raw[[nm]])`), so it accepts it silently. The Zod schema is `.optional()` — NEVER `.nullable()` — and rejects it. Deliberate: 'null means absent' is a trap for model output (and on a required argument it becomes a 422 later); the worker omits the key instead. ⚠️ THE `members` LIST IS A SAMPLE, NOT A DEFINITION: a `<kind>/null` appears here only when the corpus HAPPENS to draw the (kind, null) pair on an OPTIONAL argument — in the kind-matrix that depends on whether the kind's representative has that argument optional, and in the `mutation` family on the `sample.int` draw inside the corpus exporter. REVISION 2026-08-05: `arw_write_parquet` lost an argument (3->2, `sink` became `export=`) and sits at index 4/914, so the `mutation` family's RNG stream shifted and roughly 909 pairs were re-drawn. Measured result: `df_handle/null`, `matrix_handle/null` and `raw/null` LEFT (no node now draws `null` on an optional argument of those kinds; their kind-matrix representatives — arw_write_parquet/x, bn_apply/x, tidyr_replace_na/replace — are REQUIRED, so the validation schema rejects and the case is P2, not P3), and `int_array/null` ARRIVED (mutate/gts_arx/ar/null). The MECHANISM and the DIRECTION of the class did not change — which is why this stays ONE entry with its original `since` rather than splitting into a second. NOTE on the `path` kind: `path/null` does NOT belong here — its representative (arw_open_dataset/sources) is REQUIRED, the validation schema rejects with `missing-required`, and Zod agrees (P2). No `path/*` is a divergence: all 11 invalid mutations in the matrix are rejected by BOTH sides. REVISION 2026-08-07: the node `mfl_ts_from_rdb` was deleted (914->913) and two others renamed, so the `mutation` family's RNG stream SHIFTED AGAIN (252 ids left, 247 arrived). Measured result, exactly the inverse of the previous revision: `raw_handle/null` LEFT, and `df_handle/null` and `matrix_handle/null` ARRIVED. The MECHANISM and the DIRECTION did not change — no new semantics, so the entry stays as ONE with its original `since`.",
+      "since": "2026-07-27",
+      "members": [
+        "boolean/null",
+        "df_handle/null",
+        "enum/null",
+        "int_array/null",
+        "integer/null",
+        "matrix_handle/null",
+        "num_array/null",
+        "number/null",
+        "series_codes/null",
+        "string/null",
+        "exog_handle/null"
+      ]
+    },
+    {
+      "id": "integer/coerced-scalar",
+      "kind": "integer",
+      "reason": "as.integer() accepts anything (often a silent NA)",
+      "rationale": "`as.integer(\"42\")`->42, `as.integer(\"abc\")`->NA+warning, `as.integer(1e18)`->NA, `as.integer(list(a=1))`->1. Zod requires a genuine JSON integer. Typed edges plus typed forms: the worker always sends a number, and an NA that reaches a wrapper gate is an expensive, late 422.",
+      "since": "2026-07-27",
+      "members": [
+        "integer/array-for-scalar",
+        "integer/boolean-string",
+        "integer/empty-array",
+        "integer/huge-int",
+        "integer/nested-object",
+        "integer/non-numeric-string",
+        "integer/numeric-string",
+        "integer/out-of-enum",
+        "integer/wrong-json-type"
+      ]
+    },
+    {
+      "id": "number/coerced-scalar",
+      "kind": "number",
+      "reason": "as.numeric() accepts anything",
+      "rationale": "`as.numeric(\"0.5\")`->0.5, `as.numeric(\"abc\")`->NA+warning, `as.numeric(list(...))`. Same reasoning as integer.",
+      "since": "2026-07-27",
+      "members": [
+        "number/array-for-scalar",
+        "number/boolean-string",
+        "number/empty-array",
+        "number/nested-object",
+        "number/non-numeric-string",
+        "number/numeric-string",
+        "number/out-of-enum",
+        "number/wrong-json-type"
+      ]
+    },
+    {
+      "id": "boolean/coerced-scalar",
+      "kind": "boolean",
+      "reason": "as.logical() accepts anything",
+      "rationale": "`as.logical(\"TRUE\")`->TRUE, `as.logical(\"yes\")`->NA, `as.logical(1)`->TRUE, `as.logical(list(...))`. A silent NA in a boolean flag changes THE MEANING of the method — Zod requires an explicit JSON boolean.",
+      "since": "2026-07-27",
+      "members": [
+        "boolean/array-for-scalar",
+        "boolean/boolean-string",
+        "boolean/empty-array",
+        "boolean/huge-int",
+        "boolean/nested-object",
+        "boolean/non-numeric-string",
+        "boolean/numeric-string",
+        "boolean/out-of-enum",
+        "boolean/scalar-for-array",
+        "boolean/wrong-json-type"
+      ]
+    },
+    {
+      "id": "string/coerced-scalar",
+      "kind": "string",
+      "reason": "as.character() accepts anything",
+      "rationale": "`as.character(1e18)`, `as.character(list(a=1))` and so on all yield a string. Zod requires a JSON string.",
+      "since": "2026-07-27",
+      "members": [
+        "string/array-for-scalar",
+        "string/empty-array",
+        "string/huge-int",
+        "string/nested-object",
+        "string/scalar-for-array",
+        "string/wrong-json-type"
+      ]
+    },
+    {
+      "id": "enum/non-member",
+      "kind": "enum",
+      "reason": "membership is NOT checked by adapt_args",
+      "rationale": "`.mcp_coerce_one` CONVERTS ONLY THE TYPE for kind='enum' and NEVER checks membership; the match.arg gate lives INSIDE the wrapper, OUTSIDE the modelled class (which is why the reason code 'enum-invalid' is NEVER produced by the engine). Zod checks the enum up front. UPDATE: the type conversion is now type-aware (`as.numeric` when the spec's `values` are numeric, otherwise `as.character`) — no longer a bare `as.character`. For the engine's ONLY numeric enum (des_deseats$order_poly, values c(1,3)) the engine now accepts BOTH \"3\" AND 3, whereas Zod — which serialises enum members to strings — accepts only \"3\". Zod remains STRICTER, so the class stays P1-safe and its direction is unchanged.",
+      "since": "2026-07-27",
+      "members": [
+        "enum/array-for-scalar",
+        "enum/boolean-string",
+        "enum/empty-array",
+        "enum/huge-int",
+        "enum/nested-object",
+        "enum/non-numeric-string",
+        "enum/numeric-string",
+        "enum/out-of-enum",
+        "enum/scalar-for-array",
+        "enum/wrong-json-type"
+      ]
+    },
+    {
+      "id": "*_array/scalar-or-empty",
+      "kind": "int_array|num_array|series_codes",
+      "reason": "unlist() flattens; character(0) is accepted",
+      "rationale": "`as.numeric(unlist(3))`->c(3) and `unlist(list())`->an empty vector. Zod is `z.array(...).min(1)`: an array socket means an array socket, and an empty vector almost always breaks later at a wrapper gate.",
+      "since": "2026-07-27",
+      "members": [
+        "int_array/boolean-string",
+        "int_array/empty-array",
+        "int_array/huge-int",
+        "int_array/nested-object",
+        "int_array/non-numeric-string",
+        "int_array/numeric-string",
+        "int_array/out-of-enum",
+        "int_array/scalar-for-array",
+        "int_array/wrong-json-type",
+        "num_array/boolean-string",
+        "num_array/empty-array",
+        "num_array/huge-int",
+        "num_array/nested-object",
+        "num_array/non-numeric-string",
+        "num_array/numeric-string",
+        "num_array/out-of-enum",
+        "num_array/scalar-for-array",
+        "num_array/wrong-json-type",
+        "series_codes/array-for-scalar",
+        "series_codes/boolean-string",
+        "series_codes/empty-array",
+        "series_codes/huge-int",
+        "series_codes/nested-object",
+        "series_codes/non-numeric-string",
+        "series_codes/numeric-string",
+        "series_codes/out-of-enum",
+        "series_codes/scalar-for-array",
+        "series_codes/wrong-json-type"
+      ]
+    },
+    {
+      "id": "handle/non-conforming-string",
+      "kind": "series_handle|multiseries_handle|matrix_handle|exog_handle|df_handle|raw_handle|irregular_series_handle",
+      "reason": "the oracle accepts ANY non-empty string as a handle",
+      "rationale": "The exporter stubs resolve_handle at the 'non-empty string' gate ONLY (registry liveness is not modelled), so 'abc' passes. Zod requires an explicit store pointer, a bare store:// uri, or a handle of the shape registry_put ACTUALLY produces (`h_<counter>_<8>`). HERE ZOD IS CLOSER TO THE LIVE ENGINE than the oracle is: the real resolve_handle calls registry_get, which fails on an unknown handle.",
+      "since": "2026-07-27",
+      "members": [
+        "df_handle/boolean-string",
+        "df_handle/non-numeric-string",
+        "df_handle/numeric-string",
+        "df_handle/out-of-enum",
+        "matrix_handle/boolean-string",
+        "matrix_handle/non-numeric-string",
+        "matrix_handle/numeric-string",
+        "matrix_handle/out-of-enum",
+        "multiseries_handle/boolean-string",
+        "multiseries_handle/non-numeric-string",
+        "multiseries_handle/numeric-string",
+        "multiseries_handle/out-of-enum",
+        "pointer/plain-string",
+        "raw_handle/boolean-string",
+        "raw_handle/non-numeric-string",
+        "raw_handle/numeric-string",
+        "raw_handle/out-of-enum",
+        "series_handle/boolean-string",
+        "series_handle/non-numeric-string",
+        "series_handle/numeric-string",
+        "series_handle/out-of-enum",
+        "exog_handle/boolean-string",
+        "exog_handle/non-numeric-string",
+        "exog_handle/numeric-string",
+        "exog_handle/out-of-enum",
+        "irregular_series_handle/boolean-string",
+        "irregular_series_handle/non-numeric-string",
+        "irregular_series_handle/numeric-string",
+        "irregular_series_handle/out-of-enum"
+      ]
+    },
+    {
+      "id": "pointer/extra-keys",
+      "kind": "series_handle",
+      "reason": ".node_as_pointer ignores unknown keys",
+      "rationale": "the engine reads only pointer_uri/format/sidecar and ignores the rest. StorePointer is a `strictObject`, so that a typo ('sidcar') becomes an error instead of a silently lost sidecar.",
+      "since": "2026-07-27",
+      "members": [
+        "pointer/extra-keys"
+      ]
+    },
+    {
+      "id": "pointer/missing-pointer-uri",
+      "kind": "series_handle",
+      "reason": "an object WITHOUT pointer_uri",
+      "rationale": "`{format, sidecar}` without `pointer_uri` is not a pointer as far as `.node_is_pointer` is concerned, and the oracle lets it through. Zod requires `pointer_uri` — without it there is nothing to read from the store.",
+      "since": "2026-07-27",
+      "members": [
+        "pointer/missing-pointer-uri"
+      ]
+    },
+    {
+      "id": "spec-accept/profoc_online",
+      "kind": "*",
+      "reason": "the input_example ITSELF contains explicit nulls",
+      "rationale": "`mcp_synth_example()` for profoc_online puts `soft_threshold: null` / `hard_threshold: null` and similar on OPTIONAL arguments. The same class as */explicit-null, but inside the example's own base — which is why it is enumerated separately (the example is GENERATED; the worker does not construct it).",
+      "since": "2026-07-27",
+      "members": [
+        "spec-accept/profoc_online"
+      ]
+    },
+    {
+      "id": "raw_handle_array/bare-string-or-empty",
+      "kind": "raw_handle_array",
+      "reason": "a bare string or an empty array satisfies an ARRAY-of-handles socket",
+      "rationale": "TWO known mechanisms COMPOSE here, which is why this class is separate rather than split between `*_array/scalar-or-empty` and `handle/non-conforming-string`. (1) `.mcp_coerce_one`'s `unlist(val)` FLATTENS \"abc\" into a length-1 vector — the array nature of the socket is lost BEFORE anything is checked. (2) Then the oracle's stubbed `resolve_handle` keeps ONLY the 'non-empty string' gate, so \"abc\" passes as a handle. `empty-array` is the same first mechanism at the other extreme: `unlist(list())`->NULL and `lapply(NULL, ...)`->`list()`. Zod is `z.array(handleInput()).min(2)`: an array socket means an array socket, and the `.min(2)` mirrors the REAL gate `.dcc_check_speclist` (rmgarch line 87, `length(specs) >= 2`) — a single-asset DCC does not exist. The strictness HERE is what matters: a divergence on this socket does not cost one 422, it costs one store read PER asset before it fails.",
+      "since": "2026-07-28",
+      "members": [
+        "raw_handle_array/boolean-string",
+        "raw_handle_array/empty-array",
+        "raw_handle_array/non-numeric-string",
+        "raw_handle_array/numeric-string",
+        "raw_handle_array/out-of-enum"
+      ]
+    }
+  ]
+}

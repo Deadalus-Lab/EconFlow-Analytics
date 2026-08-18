@@ -1,0 +1,77 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# EconFlow Analytics — Python engine.
+#
+# WORKSPACE NOTE: `engine/` and `backend/` are the TWO MEMBERS of ONE uv
+# workspace whose root manifest lives at the repository root. The root declares
+#
+#     [tool.uv.workspace]
+#     members = ["engine", "backend"]
+#
+# so that a single `uv.lock` at the root resolves both members together. That is
+# what keeps the engine and the backend on the SAME pydantic/pyarrow build: the
+# wire contract in `econflow_engine.kinds` is validated on one side and consumed
+# on the other, and two independent resolutions could silently drift apart.
+# A member never declares `[tool.uv.workspace]` itself — only the root does.
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "econflow-engine"
+version = "0.1.0"
+description = "Econometric computation engine: typed node contracts, MCP surface, and method wrappers."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "AGPL-3.0-only"
+authors = [{ name = "Panagiotis Tsikos" }]
+keywords = ["econometrics", "time-series", "mcp", "reproducible-research"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "pydantic>=2",
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "pyarrow",
+    "orjson",
+]
+
+[project.urls]
+Homepage = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
+Source = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/econflow_engine"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "conformance: oracle harness against a golden corpus of independently established values",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src/econflow_engine", "scripts", "tests"]
+# The generated tier is machine-written from a verified artifact and is not
+# type-checked: it is re-emitted on every build and never hand-edited.
+exclude = "^src/econflow_engine/generated/"
+
+# scipy, statsmodels and pyarrow ship no type information and have no stub
+# package worth pinning. Silencing the import keeps `strict` meaningful for OUR
+# code instead of drowning it in 150 identical notices about theirs. pandas is
+# NOT in this list: pandas-stubs exists and is a dev dependency, so pandas calls
+# stay type-checked.
+[[tool.mypy.overrides]]
+module = ["scipy.*", "statsmodels.*", "pyarrow.*"]
+ignore_missing_imports = true

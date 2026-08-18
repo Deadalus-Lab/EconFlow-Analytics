@@ -1,0 +1,47 @@
+# Build context is the REPOSITORY ROOT (the Dockerfile COPYs engine/..., the
+# workspace pyproject.toml and uv.lock, and LICENSE -- which lives at the root
+# for AGPL compliance, see Dockerfile step 2a). Everything the image does not
+# need is excluded here so the context stays small.
+
+# Never ship a locally built environment or a tool cache. The image restores its
+# own from uv.lock, and a host virtualenv carries absolute paths that are wrong
+# inside a container.
+.venv/
+**/.venv/
+**/__pycache__/
+**/*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+engine/sandbox/
+engine/data-raw/
+
+# VCS / editor noise
+.git/
+.gitignore
+.gitattributes
+
+# Untracked working files -- never part of an image.
+CLAUDE.md
+.private/
+.token-optimizer/
+.fastembed_cache/
+
+# Layers that are not the engine. backend/pyproject.toml is the ONE exception
+# and is re-admitted below: uv must be able to load every workspace member to
+# honour the single root uv.lock, even though no backend code ships here.
+backend/
+!backend/pyproject.toml
+!backend/README.md
+!backend/src/**
+frontend/
+deploy/
+docs/
+# .github/ is excluded, with ONE exception re-admitted below: the manifest that
+# run_verifications.sh reads its anti-vacuity floor from. Without it the floor
+# silently degrades and the image's hard build gate stops asserting a minimum.
+.github/
+!.github/inventory.json
+
+# docs that never enter the container
+*.md.bak
