@@ -46,7 +46,10 @@ ROOT="${1:-.}"
 cd "$ROOT"
 
 MANIFEST=".github/inventory.json"
-[ -f "$MANIFEST" ] || { echo "FAIL: no manifest at $MANIFEST" >&2; exit 2; }
+[ -f "$MANIFEST" ] || {
+  echo "FAIL: no manifest at $MANIFEST" >&2
+  exit 2
+}
 
 python3 - "$MANIFEST" <<'PY'
 import ast

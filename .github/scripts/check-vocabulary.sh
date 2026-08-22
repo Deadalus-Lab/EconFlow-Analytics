@@ -96,8 +96,14 @@ cd "$ROOT"
 
 ALLOWLIST=".github/vocabulary-allowlist.txt"
 MANIFEST=".github/inventory.json"
-[ -f "$ALLOWLIST" ] || { echo "FAIL: no allowlist at $ALLOWLIST" >&2; exit 2; }
-[ -f "$MANIFEST" ] || { echo "FAIL: no manifest at $MANIFEST" >&2; exit 2; }
+[ -f "$ALLOWLIST" ] || {
+  echo "FAIL: no allowlist at $ALLOWLIST" >&2
+  exit 2
+}
+[ -f "$MANIFEST" ] || {
+  echo "FAIL: no manifest at $MANIFEST" >&2
+  exit 2
+}
 
 python3 - "$ALLOWLIST" "$MANIFEST" <<'PY'
 import json
