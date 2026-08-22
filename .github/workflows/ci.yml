@@ -1248,6 +1248,16 @@ jobs:
         with:
           python-version-file: engine/.python-version
 
+      # THE guarddog STEP BELOW CALLS `uv export` AND `uvx`, so uv has to be on
+      # PATH before it runs. It arrives the way every other job in this file gets
+      # it -- one pinned install from PyPI, no setup action -- because a second
+      # mechanism for the same tool is a second thing to pin, review and keep in
+      # step with the version the other jobs resolve.
+      - name: Install uv at the pinned version
+        env:
+          UV_VERSION: "0.10.10"
+        run: python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+
       - name: The scanner must actually see the packages
         id: count
         run: |
