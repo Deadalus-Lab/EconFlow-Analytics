@@ -49,7 +49,9 @@ expect "actions.can_approve_pull_request_reviews" "$(printf '%s' "$wf" | python3
 # Every third-party action the workflows use must be on the allowlist, or the
 # first run after this check fails with "is not allowed". Transitive actions
 # (one action calling another) are NOT visible here -- add them when a run
-# names them; that is why oven-sh/setup-bun sits beside claude-code-action.
+# names them. The allowlist is checked in one direction only: an entry no
+# workflow uses any more is surface, not a failure, and removing it is a
+# repository setting rather than a change to this tree.
 sel=$(gh api "repos/${REPO}/actions/permissions/selected-actions")
 expect "actions.github_owned_allowed" "$(printf '%s' "$sel" | python3 -c 'import json,sys;print(json.load(sys.stdin)["github_owned_allowed"])')" "True"
 # `^[^#]*uses:` SKIPS COMMENTS, and that is not tidiness. The previous pattern

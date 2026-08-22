@@ -28,11 +28,12 @@
 #                  most important comment in the file.
 #
 # THE LINE LIMIT IS 140, AND IT IS A CEILING RATHER THAN A STYLE. Measured over
-# the tracked YAML, the longest line is 138 characters (claude.yml:51, a prompt
-# string that cannot be wrapped without changing what is sent). The prose in
-# these files wraps at roughly 80 by hand and needs no machine to enforce it;
-# what this rule catches is the genuinely runaway line -- a pasted URL, an
-# unwrapped `run:` command -- that no reviewer reads to the end of. Measure with:
+# the tracked YAML, the longest line is 139 characters (ci.yml:881, a printf
+# that writes a canary file and cannot be wrapped without changing the bytes it
+# writes). The prose in these files wraps at roughly 80 by hand and needs no
+# machine to enforce it; what this rule catches is the genuinely runaway line --
+# a pasted URL, an unwrapped `run:` command -- that no reviewer reads to the end
+# of. Measure with:
 #   awk '{ if (length($0) > m) m = length($0) } END { print m }' <file>
 #
 # WHAT IS NOT RELAXED: key-duplicates, trailing-spaces, new-line-at-end-of-file,

@@ -11,9 +11,9 @@
 # done, and every asserted constant lives in .github/inventory.json.
 #
 # CONCURRENCY BUDGET. GitHub Free allows 20 concurrent jobs ACCOUNT-WIDE, not
-# per repository. Measured on one pull request: 7 jobs start immediately (4 here,
-# plus dco, claude-review and the engine-suite scope job), and ci.yml peaks at 9
-# once `inventory` releases its dependants. That leaves real headroom, and it is
+# per repository. Measured on one pull request: 8 jobs start immediately (5 here,
+# plus dco, sonar and the engine-suite scope job), and ci.yml peaks at 11 once
+# `inventory` releases its seven dependants. That leaves real headroom, and it is
 # the reason any FUTURE matrix must be capped: planemo defaults to 20 chunks, and
 # a multi-architecture image build fans out per platform. Cap any new matrix at
 # 12 parallel jobs. Exceeding the account budget does not fail anything -- it
