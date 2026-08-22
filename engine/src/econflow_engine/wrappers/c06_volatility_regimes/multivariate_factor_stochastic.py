@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``multivariate_factor_stochastic`` -- METHOD-SELECTION card #163.
+"""Method wrapper ``multivariate_factor_stochastic`` -- method card #163.
 
 #163 Multivariate factor stochastic volatility (Bayesian MCMC) + model-implied & predictive
     covariance/correlation
@@ -8,8 +8,8 @@ Category 06-volatility-regimes; module ``multivariate_factor_stochastic``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def fsv_sample(
     restrict: Literal["none", "upper"] | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fsv_sample`` -- METHOD-SELECTION card #163.
+    """Node ``fsv_sample`` -- method card #163.
 
     Multivariate factor stochastic volatility (Bayesian MCMC) + model-implied & predictive
     covariance/correlation.
@@ -65,7 +65,7 @@ def fsv_sample(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fsv_sample: not implemented. The method card is in ./README.md."
+        "fsv_sample: not implemented."
     )
 
 
@@ -73,7 +73,7 @@ def fsv_cov(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``fsv_cov`` -- METHOD-SELECTION card #163.
+    """Node ``fsv_cov`` -- method card #163.
 
     Multivariate factor stochastic volatility (Bayesian MCMC) + model-implied & predictive
     covariance/correlation.
@@ -87,7 +87,7 @@ def fsv_cov(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fsv_cov: not implemented. The method card is in ./README.md."
+        "fsv_cov: not implemented."
     )
 
 
@@ -97,7 +97,7 @@ def fsv_predict(
     ahead: Sequence[int] | None = None,
     each: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fsv_predict`` -- METHOD-SELECTION card #163.
+    """Node ``fsv_predict`` -- method card #163.
 
     Multivariate factor stochastic volatility (Bayesian MCMC) + model-implied & predictive
     covariance/correlation.
@@ -114,5 +114,5 @@ def fsv_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fsv_predict: not implemented. The method card is in ./README.md."
+        "fsv_predict: not implemented."
     )

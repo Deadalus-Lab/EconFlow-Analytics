@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_interbank_network`` -- METHOD-SELECTION card #223.
+"""Method wrapper ``bayesian_interbank_network`` -- method card #223.
 
 #223 Bayesian interbank-network reconstruction (the Gandy-Veraart Gibbs sampler, an Erdős-Rényi
     hierarchical model)
@@ -8,8 +8,8 @@ Category 21-systemic-risk; module ``bayesian_interbank_network``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def build_er_model(
     thin_calib: int | None = None,
     tol: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``build_er_model`` -- METHOD-SELECTION card #223.
+    """Node ``build_er_model`` -- method card #223.
 
     Bayesian interbank-network reconstruction (the Gandy-Veraart Gibbs sampler, an Erdős-Rényi
     hierarchical model).
@@ -70,7 +70,7 @@ def build_er_model(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "build_er_model: not implemented. The method card is in ./README.md."
+        "build_er_model: not implemented."
     )
 
 
@@ -87,7 +87,7 @@ def sample_interbank_network(
     probs: Sequence[float] | None = None,
     tol: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sample_interbank_network`` -- METHOD-SELECTION card #223.
+    """Node ``sample_interbank_network`` -- method card #223.
 
     Bayesian interbank-network reconstruction (the Gandy-Veraart Gibbs sampler, an Erdős-Rényi
     hierarchical model).
@@ -99,7 +99,7 @@ def sample_interbank_network(
     Args:
         l: [matrix_handle, required] Handle to row sums (liabilities); same as build_er_model.
         a: [matrix_handle, required] Handle to col sums (assets); same length as l, sum(l)==sum(a).
-        model: [raw_handle, required] Handle to a systemicrisk model (build_er_model$model).
+        model: [raw_handle, required] Handle to a systemicrisk model (build_er_model.model).
         nsamples: [integer, optional] Number of posterior samples of matrix L (positive integer;
             default 100).
         thin: [integer, optional] Thinning: theta updates per sample (positive integer; default
@@ -118,5 +118,5 @@ def sample_interbank_network(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sample_interbank_network: not implemented. The method card is in ./README.md."
+        "sample_interbank_network: not implemented."
     )

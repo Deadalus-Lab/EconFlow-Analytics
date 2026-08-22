@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``hp_baxter_king`` -- METHOD-SELECTION card #56.
+"""Method wrapper ``hp_baxter_king`` -- method card #56.
 
 #56 HP / Baxter-King / Christiano-Fitzgerald filters
 
@@ -7,8 +7,8 @@ Category 10-trend-cycle-statespace; module ``hp_baxter_king``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,24 +23,24 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "mfl_bk_filter",
-    "mfl_bw_filter",
-    "mfl_cf_filter",
-    "mfl_hp_filter",
-    "mfl_tr_filter",
+    "filt_baxter_king",
+    "filt_butterworth",
+    "filt_christiano_fitzgerald",
+    "filt_hp",
+    "filt_trigonometric",
     "NODE_META",
     "wire_model",
 ]
 
 
-def mfl_hp_filter(
+def filt_hp(
     *,
     y: pd.Series,
     freq: float | None = None,
     type: Literal["lambda", "frequency"] | None = None,
     drift: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``mfl_hp_filter`` -- METHOD-SELECTION card #56.
+    """Node ``filt_hp`` -- method card #56.
 
     HP / Baxter-King / Christiano-Fitzgerald filters.
 
@@ -58,11 +58,11 @@ def mfl_hp_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mfl_hp_filter: not implemented. The method card is in ./README.md."
+        "filt_hp: not implemented."
     )
 
 
-def mfl_bk_filter(
+def filt_baxter_king(
     *,
     y: pd.Series,
     pl: float | None = None,
@@ -71,7 +71,7 @@ def mfl_bk_filter(
     type: Literal["fixed", "variable"] | None = None,
     drift: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``mfl_bk_filter`` -- METHOD-SELECTION card #56.
+    """Node ``filt_baxter_king`` -- method card #56.
 
     HP / Baxter-King / Christiano-Fitzgerald filters.
 
@@ -90,11 +90,11 @@ def mfl_bk_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mfl_bk_filter: not implemented. The method card is in ./README.md."
+        "filt_baxter_king: not implemented."
     )
 
 
-def mfl_cf_filter(
+def filt_christiano_fitzgerald(
     *,
     y: pd.Series,
     pl: float | None = None,
@@ -104,7 +104,7 @@ def mfl_cf_filter(
     type: Literal["asymmetric", "symmetric", "fixed", "baxter-king", "trigonometric"] | None = None,
     nfix: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``mfl_cf_filter`` -- METHOD-SELECTION card #56.
+    """Node ``filt_christiano_fitzgerald`` -- method card #56.
 
     HP / Baxter-King / Christiano-Fitzgerald filters.
 
@@ -123,18 +123,18 @@ def mfl_cf_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mfl_cf_filter: not implemented. The method card is in ./README.md."
+        "filt_christiano_fitzgerald: not implemented."
     )
 
 
-def mfl_bw_filter(
+def filt_butterworth(
     *,
     y: pd.Series,
     freq: int | None = None,
     nfix: int | None = None,
     drift: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``mfl_bw_filter`` -- METHOD-SELECTION card #56.
+    """Node ``filt_butterworth`` -- method card #56.
 
     HP / Baxter-King / Christiano-Fitzgerald filters.
 
@@ -150,18 +150,18 @@ def mfl_bw_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mfl_bw_filter: not implemented. The method card is in ./README.md."
+        "filt_butterworth: not implemented."
     )
 
 
-def mfl_tr_filter(
+def filt_trigonometric(
     *,
     y: pd.Series,
     pl: float | None = None,
     pu: float | None = None,
     drift: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``mfl_tr_filter`` -- METHOD-SELECTION card #56.
+    """Node ``filt_trigonometric`` -- method card #56.
 
     HP / Baxter-King / Christiano-Fitzgerald filters.
 
@@ -177,5 +177,5 @@ def mfl_tr_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mfl_tr_filter: not implemented. The method card is in ./README.md."
+        "filt_trigonometric: not implemented."
     )

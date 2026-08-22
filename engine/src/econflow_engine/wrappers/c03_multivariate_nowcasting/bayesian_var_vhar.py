@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_var_vhar`` -- METHOD-SELECTION card #147.
+"""Method wrapper ``bayesian_var_vhar`` -- method card #147.
 
 #147 Bayesian VAR & VHAR (Vector Heterogeneous AR; day/week/month long memory) with a Minnesota
     conjugate (analytic) / SSVS / Horseshoe prior + a posterior forecast fan
@@ -8,8 +8,8 @@ Category 03-multivariate-nowcasting; module ``bayesian_var_vhar``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ def bvh_var(
     ess_min: float | None = None,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvh_var`` -- METHOD-SELECTION card #147.
+    """Node ``bvh_var`` -- method card #147.
 
     Bayesian VAR & VHAR (Vector Heterogeneous AR; day/week/month long memory) with a Minnesota
     conjugate (analytic) / SSVS / Horseshoe prior + a posterior forecast fan.
@@ -82,7 +82,7 @@ def bvh_var(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvh_var: not implemented. The method card is in ./README.md."
+        "bvh_var: not implemented."
     )
 
 
@@ -102,7 +102,7 @@ def bvh_vhar(
     ess_min: float | None = None,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvh_vhar`` -- METHOD-SELECTION card #147.
+    """Node ``bvh_vhar`` -- method card #147.
 
     Bayesian VAR & VHAR (Vector Heterogeneous AR; day/week/month long memory) with a Minnesota
     conjugate (analytic) / SSVS / Horseshoe prior + a posterior forecast fan.
@@ -134,7 +134,7 @@ def bvh_vhar(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvh_vhar: not implemented. The method card is in ./README.md."
+        "bvh_vhar: not implemented."
     )
 
 
@@ -145,7 +145,7 @@ def bvh_predict(
     level: float | None = None,
     sparse: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvh_predict`` -- METHOD-SELECTION card #147.
+    """Node ``bvh_predict`` -- method card #147.
 
     Bayesian VAR & VHAR (Vector Heterogeneous AR; day/week/month long memory) with a Minnesota
     conjugate (analytic) / SSVS / Horseshoe prior + a posterior forecast fan.
@@ -164,5 +164,5 @@ def bvh_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvh_predict: not implemented. The method card is in ./README.md."
+        "bvh_predict: not implemented."
     )

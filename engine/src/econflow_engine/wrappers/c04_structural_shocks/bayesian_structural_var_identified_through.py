@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_structural_var_identified_through`` -- METHOD-SELECTION card #148.
+"""Method wrapper ``bayesian_structural_var_identified_through`` -- method card #148.
 
 #148 Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
     Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
-    Savage-Dickey (SDDR) identification check — bsvars
+    Savage-Dickey (SDDR) identification check
 
 Category 04-structural-shocks; module ``bayesian_structural_var_identified_through``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -50,19 +50,19 @@ def bsv_estimate(
     seed: int,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bsv_estimate`` -- METHOD-SELECTION card #148.
+    """Node ``bsv_estimate`` -- method card #148.
 
     Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
     Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
-    Savage-Dickey (SDDR) identification check — bsvars.
+    Savage-Dickey (SDDR) identification check.
 
     Category 04-structural-shocks; memory class ``mcmc``.
 
     Registers its result under ``model``, so a later node can consume it as a handle.
 
     Args:
-        data: [matrix_handle, required] Handle to a multivariate system (matrix/mts, K>=2, >=3 rows,
-            no NA/Inf).
+        data: [matrix_handle, required] Handle to a multivariate system (matrix/panel, K>=2, >=3
+            rows, no NA/Inf).
         model: [enum, optional] Identification through statistical structure: sv=stochastic
             volatility, msh=Markov-switching heteroskedasticity, t=Student-t (default sv).
         p: [integer, optional] VAR order (positive integer, default 1). Default ``1``.
@@ -76,13 +76,13 @@ def bsv_estimate(
             (default False). Default ``False``.
         seed: [integer, required] MANDATORY seed (the MCMC is stochastic· cache key).
         allow_nonconvergence: [boolean, optional] True = return the posterior with converged=False
-            instead of stop on degenerate draws (mirror rstan/MARSS). Default ``False``.
+            instead of stop on degenerate draws . Default ``False``.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsv_estimate: not implemented. The method card is in ./README.md."
+        "bsv_estimate: not implemented."
     )
 
 
@@ -93,16 +93,16 @@ def bsv_irf(
     standardise: bool | None = None,
     probs: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bsv_irf`` -- METHOD-SELECTION card #148.
+    """Node ``bsv_irf`` -- method card #148.
 
     Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
     Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
-    Savage-Dickey (SDDR) identification check — bsvars.
+    Savage-Dickey (SDDR) identification check.
 
     Category 04-structural-shocks; memory class ``light``.
 
     Args:
-        model: [raw_handle, required] Handle to a 'PosteriorBSVAR*' model (bsv_estimate$model).
+        model: [raw_handle, required] Handle to a 'PosteriorBSVAR*' model (bsv_estimate.model).
         horizon: [integer, optional] Impulse-response horizon 0..horizon (positive integer, default
             12). Default ``12``.
         standardise: [boolean, optional] Standardise the IRF in standard-deviation units (default
@@ -114,7 +114,7 @@ def bsv_irf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsv_irf: not implemented. The method card is in ./README.md."
+        "bsv_irf: not implemented."
     )
 
 
@@ -124,11 +124,11 @@ def bsv_fevd(
     horizon: int | None = None,
     probs: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bsv_fevd`` -- METHOD-SELECTION card #148.
+    """Node ``bsv_fevd`` -- method card #148.
 
     Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
     Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
-    Savage-Dickey (SDDR) identification check — bsvars.
+    Savage-Dickey (SDDR) identification check.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -141,7 +141,7 @@ def bsv_fevd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsv_fevd: not implemented. The method card is in ./README.md."
+        "bsv_fevd: not implemented."
     )
 
 
@@ -150,11 +150,11 @@ def bsv_hd(
     model: Any,
     probs: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bsv_hd`` -- METHOD-SELECTION card #148.
+    """Node ``bsv_hd`` -- method card #148.
 
     Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
     Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
-    Savage-Dickey (SDDR) identification check — bsvars.
+    Savage-Dickey (SDDR) identification check.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -166,7 +166,7 @@ def bsv_hd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsv_hd: not implemented. The method card is in ./README.md."
+        "bsv_hd: not implemented."
     )
 
 
@@ -175,11 +175,11 @@ def bsv_shocks(
     model: Any,
     probs: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bsv_shocks`` -- METHOD-SELECTION card #148.
+    """Node ``bsv_shocks`` -- method card #148.
 
     Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
     Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
-    Savage-Dickey (SDDR) identification check — bsvars.
+    Savage-Dickey (SDDR) identification check.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -191,7 +191,7 @@ def bsv_shocks(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsv_shocks: not implemented. The method card is in ./README.md."
+        "bsv_shocks: not implemented."
     )
 
 
@@ -200,11 +200,11 @@ def bsv_verify(
     model: Any,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bsv_verify`` -- METHOD-SELECTION card #148.
+    """Node ``bsv_verify`` -- method card #148.
 
     Bayesian Structural VAR identified through heteroskedasticity/non-normality (SV /
     Markov-switching heteroskedasticity / Student-t) + IRF/FEVD/HD/structural shocks + a
-    Savage-Dickey (SDDR) identification check — bsvars.
+    Savage-Dickey (SDDR) identification check.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -218,5 +218,5 @@ def bsv_verify(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsv_verify: not implemented. The method card is in ./README.md."
+        "bsv_verify: not implemented."
     )

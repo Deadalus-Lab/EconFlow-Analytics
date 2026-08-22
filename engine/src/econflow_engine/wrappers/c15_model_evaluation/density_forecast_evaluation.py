@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``density_forecast_evaluation`` -- METHOD-SELECTION card #94.
+"""Method wrapper ``density_forecast_evaluation`` -- method card #94.
 
 #94 Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted)
 
@@ -7,8 +7,8 @@ Category 15-model-evaluation; module ``density_forecast_evaluation``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def sr_crps_sample(
     method: Literal["edf", "kde"] | None = None,
     bw: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sr_crps_sample`` -- METHOD-SELECTION card #94.
+    """Node ``sr_crps_sample`` -- method card #94.
 
     Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted).
 
@@ -60,7 +60,7 @@ def sr_crps_sample(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sr_crps_sample: not implemented. The method card is in ./README.md."
+        "sr_crps_sample: not implemented."
     )
 
 
@@ -70,7 +70,7 @@ def sr_logs_sample(
     dat: np.ndarray,
     bw: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sr_logs_sample`` -- METHOD-SELECTION card #94.
+    """Node ``sr_logs_sample`` -- method card #94.
 
     Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted).
 
@@ -86,7 +86,7 @@ def sr_logs_sample(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sr_logs_sample: not implemented. The method card is in ./README.md."
+        "sr_logs_sample: not implemented."
     )
 
 
@@ -100,7 +100,7 @@ def sr_crps_parametric(
     location: float | None = None,
     scale: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sr_crps_parametric`` -- METHOD-SELECTION card #94.
+    """Node ``sr_crps_parametric`` -- method card #94.
 
     Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted).
 
@@ -120,7 +120,7 @@ def sr_crps_parametric(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sr_crps_parametric: not implemented. The method card is in ./README.md."
+        "sr_crps_parametric: not implemented."
     )
 
 
@@ -134,7 +134,7 @@ def sr_logs_parametric(
     location: float | None = None,
     scale: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sr_logs_parametric`` -- METHOD-SELECTION card #94.
+    """Node ``sr_logs_parametric`` -- method card #94.
 
     Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted).
 
@@ -154,7 +154,7 @@ def sr_logs_parametric(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sr_logs_parametric: not implemented. The method card is in ./README.md."
+        "sr_logs_parametric: not implemented."
     )
 
 
@@ -167,7 +167,7 @@ def sr_crps_tailweighted(
     b: float | None = None,
     kind: Literal["threshold", "outcome"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``sr_crps_tailweighted`` -- METHOD-SELECTION card #94.
+    """Node ``sr_crps_tailweighted`` -- method card #94.
 
     Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted).
 
@@ -188,7 +188,7 @@ def sr_crps_tailweighted(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sr_crps_tailweighted: not implemented. The method card is in ./README.md."
+        "sr_crps_tailweighted: not implemented."
     )
 
 
@@ -197,7 +197,7 @@ def sr_pit_sample(
     y: Any,
     dat: np.ndarray,
 ) -> dict[str, Any]:
-    """Node ``sr_pit_sample`` -- METHOD-SELECTION card #94.
+    """Node ``sr_pit_sample`` -- method card #94.
 
     Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted).
 
@@ -212,5 +212,5 @@ def sr_pit_sample(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sr_pit_sample: not implemented. The method card is in ./README.md."
+        "sr_pit_sample: not implemented."
     )

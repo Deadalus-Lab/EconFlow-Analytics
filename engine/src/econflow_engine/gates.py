@@ -49,7 +49,7 @@ __all__ = [
 ]
 
 _HAC_POINTER = (
-    'For time-dependent data use the existing HAC path: package "sandwich" '
+    'For time-dependent data use the existing HAC path '
     "(category 07-causality-policy -- wrap_vcov_hac / wrap_vcov_cl / wrap_vcov_panel)."
 )
 _WHY_CROSS_SECTION = (
@@ -94,9 +94,9 @@ def _one_string(value: object, name: str) -> str:
 def _has_time_index(obj: object) -> str | None:
     """Return the offending index type when a pandas object carries TIME order.
 
-    the engine had thirteen mutually incompatible time-series classes to check for
-    (``ts``, ``xts``, ``zoo``, ``tsibble`` ...). pandas has ONE mechanism -- a
-    temporal index -- so the check collapses to it, and it remains a CLASS
+    A dated object can announce itself in many ways, and a check that enumerates
+    them is a check that goes stale. pandas has ONE mechanism -- a temporal
+    index -- so the check collapses to it, and it remains a CLASS
     check: an object explicitly stamped with time is never a cross-section,
     regardless of ``ordered``.
     """

@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Generate the third-party attribution register and the CycloneDX SBOM.
+"""Generate the CycloneDX SBOM: the third-party attribution register.
 
-The licence register generator. The shape of the job is unchanged and so is
-the reason for it: the container ships third-party code, the AGPL obliges us to
-say whose and under what terms, and a hand-maintained register rots.
+The reason for the job is unchanged: the container ships third-party code, the
+AGPL obliges us to say whose and under what terms, and a hand-maintained register
+rots.
+
+THERE IS ONE REGISTER AND IT IS `engine/sbom.cdx.json`. README.md, LICENSE and
+NOTICE name that file and no other, so an auditor never has to decide which of
+two documents answers. A Markdown register was emitted beside it until
+2026-08-22; two renderings of one fact drift, and the second one was the copy
+nothing shipped. What that register alone used to enforce -- the refusal of a
+licence that cannot combine with AGPL-3.0-only -- is now a hard check in this
+module rather than a warning paragraph inside a generated document.
 
 WHY THE PINNING IS TRUSTWORTHY
     It reads installed distribution metadata after ``uv sync``. PyPI artefacts
@@ -31,6 +39,7 @@ from __future__ import annotations
 import argparse
 import importlib.metadata as md
 import json
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -39,15 +48,14 @@ from typing import Any
 ENGINE = Path(__file__).resolve().parent.parent
 ROOT = ENGINE.parent
 LOCK = ROOT / "uv.lock"
-REGISTER = ENGINE / "THIRD-PARTY-LICENSES.md"
 SBOM = ENGINE / "sbom.cdx.json"
 
 # The two workspace members are ours, not third-party attribution.
 OURS = {"econflow-engine", "econflow-backend"}
 
 # Classifier -> SPDX. Deliberately explicit and short: an unrecognised licence
-# must land in n_unmapped and be visible, never be guessed into a plausible
-# identifier.
+# must land in `unmapped`, the count `collect` returns and `--check` prints, and
+# be visible there, never be guessed into a plausible identifier.
 _CLASSIFIER_SPDX = {
     "License :: OSI Approved :: MIT License": "MIT",
     "License :: OSI Approved :: BSD License": "BSD-3-Clause",
@@ -63,7 +71,30 @@ _CLASSIFIER_SPDX = {
 
 # A licence that would make the combined work undistributable under AGPL-3.0-only.
 # AGPL-3.0 is one-way compatible with the GPL-3 family and NOT with GPL-2.0-only.
-INCOMPATIBLE = {"GPL-2.0-only"}
+# `GPL-2.0` is the deprecated SPDX spelling of that same licence -- it names the
+# same terms, so it belongs here too.
+#
+# WHAT IS DELIBERATELY ABSENT, AND WHY EACH ONE IS A DIFFERENT CASE:
+#   GPL-2.0-or-later, GPL-2.0+  the "or later" permission lets a recipient take
+#                               the work under GPL-3.0, which AGPL-3.0 section 13
+#                               admits. Compatible, and NOT the same licence as
+#                               GPL-2.0-only however similar the string looks.
+#   GPL-3.0-only, AGPL-3.0-only the GPL-3 family, which AGPL-3.0 combines with.
+#   LGPL-2.0-only               a different licence whose compatibility is its own
+#                               legal question. This gate does not answer it, and
+#                               it must never be swept in because five of its
+#                               characters match.
+#
+# THIS SET IS A LIST OF NAMES AND IT IS NOT A PATTERN. Every entry is a licence
+# whose incompatibility is established; adding one is a judgement a person makes
+# and writes here. Identifiers are held case-folded because SPDX comparison is
+# case-insensitive.
+INCOMPATIBLE = frozenset({"gpl-2.0-only", "gpl-2.0"})
+
+# An SPDX identifier holds letters, digits, `.`, `-` and `+`; a parenthesis is a
+# token of its own. The `+` is load-bearing: leaving it out of the class turns
+# `GPL-2.0+` into `GPL-2.0` and refuses a licence that is compatible.
+_SPDX_TOKEN = re.compile(r"[A-Za-z0-9.+-]+|[()]")
 
 
 def _normalise(name: str) -> str:
@@ -125,8 +156,8 @@ def collect() -> tuple[list[dict[str, Any]], int, int]:
         )
 
     # Anti-vacuity. If the venv is stale or absent, nearly everything looks
-    # "platform-conditional" and the register would render as a page of unknowns
-    # that still passes --check. Refuse instead.
+    # "platform-conditional" and the SBOM would name a set of packages whose
+    # licences were never read, while still passing --check. Refuse instead.
     if conditional > max(4, len(rows) // 10):
         sys.exit(
             f"gen_third_party: {conditional} of {len(rows)} packages are not installed.\n"
@@ -138,80 +169,128 @@ def collect() -> tuple[list[dict[str, Any]], int, int]:
     return rows, unmapped, conditional
 
 
-def render_register(rows: list[dict[str, Any]], unmapped: int, conditional: int) -> str:
-    buckets: dict[str, int] = {}
-    for r in rows:
-        buckets[r["licence"]] = buckets.get(r["licence"], 0) + 1
+def _evaluate(tokens: list[str]) -> bool:
+    """Evaluate a tokenised SPDX expression; raise ValueError if it is not one.
 
-    conflicts = [r for r in rows if r["licence"] in INCOMPATIBLE]
+    Recursive descent over the SPDX grammar, `AND` binding tighter than `OR`:
 
-    out = [
-        "<!-- SPDX-License-Identifier: AGPL-3.0-only -->",
-        "",
-        "# Third-party licences — Python compute engine",
-        "",
-        "**Generated file. Do not edit by hand.** Regenerate with:",
-        "",
-        "```sh",
-        "uv sync --all-extras && uv run python engine/scripts/gen_third_party.py",
-        "```",
-        "",
-        f"This distribution bundles **{len(rows)} Python packages**, plus CPython itself.",
-        "Every package remains under its own licence, held by its own authors. This project",
-        "wraps and gates them; it does not reimplement them.",
-        "",
-        "## Corresponding source",
-        "",
-        "Every package is pinned in `uv.lock` by exact name, version and artefact hash.",
-        "PyPI artefacts are immutable, so a version identifier is a byte identifier — there",
-        "is no dated-snapshot caveat here. Sources are",
-        "reachable per package at `https://pypi.org/project/<NAME>/`, and `uv sync --locked`",
-        "against the committed lockfile retrieves the identical artefacts on any machine.",
-        "",
-        "## Licence distribution",
-        "",
-        "| Licence | Packages |",
-        "|---|---:|",
-    ]
-    for lic, n in sorted(buckets.items(), key=lambda kv: (-kv[1], kv[0])):
-        out.append(f"| {lic.replace('|', chr(92) + '|')} | {n} |")
+        disjunction := conjunction ('OR' conjunction)*
+        conjunction := operand ('AND' operand)*
+        operand     := '(' disjunction ')' | idstring ('WITH' idstring)?
 
-    out += [
-        "",
-        f"Unmapped to an SPDX identifier: **{unmapped}**. An unmapped entry is reported",
-        "rather than guessed — a plausible-looking identifier nobody verified is worse than",
-        "an honest gap.",
-        "",
-        "Present in `uv.lock` but not installed on this platform, and therefore not in the",
-        f"Linux image: **{conditional}** (marked \u2020 below). The lockfile is cross-platform;",
-        "the image is not.",
-        "",
-        "## Compatibility",
-        "",
-        "This project is **AGPL-3.0-only**. AGPL-3.0 is one-way compatible with the GPL-3",
-        "family and is **not** compatible with GPL-2.0-only. A dependency published under",
-        "GPL-2.0-only cannot be admitted to this tree.",
-        "",
-    ]
+    A leaf is true when the licence it names is one this project may combine
+    with, so the value of the whole expression is true when at least one lawful
+    reading of it exists.
+
+    `X WITH Y` evaluates as `X`. An exception grants additional permission, but
+    whether a particular one repairs a GPL-2.0-only combination is a question for
+    a lawyer; the gate refuses and asks for one rather than deciding.
+    """
+    pos = 0
+
+    def peek() -> str:
+        return tokens[pos] if pos < len(tokens) else ""
+
+    def take() -> str:
+        nonlocal pos
+        word = tokens[pos]
+        pos += 1
+        return word
+
+    def disjunction() -> bool:
+        value = conjunction()
+        while peek().casefold() == "or":
+            take()
+            value = conjunction() or value
+        return value
+
+    def conjunction() -> bool:
+        value = operand()
+        while peek().casefold() == "and":
+            take()
+            value = operand() and value
+        return value
+
+    def operand() -> bool:
+        word = take()
+        if word == "(":
+            value = disjunction()
+            # The closing parenthesis, consumed unconditionally. A group that is
+            # not closed runs the list out and a group closed by something else
+            # leaves that token stranded; both land in the strict fallback below,
+            # which is the reading that refuses rather than the one that admits.
+            take()
+            return value
+        if peek().casefold() == "with":
+            take()
+            take()
+        return word.casefold() not in INCOMPATIBLE
+
+    try:
+        verdict = disjunction()
+    except IndexError as exc:
+        raise ValueError("the expression ends mid-term") from exc
+    if pos != len(tokens):
+        raise ValueError(f"{len(tokens) - pos} token(s) belong to no term")
+    return verdict
+
+
+def admits_a_compatible_licence(expr: str) -> bool:
+    """Does this SPDX expression offer terms AGPL-3.0-only may lawfully combine with?
+
+    An SPDX expression is a boolean formula over licence identifiers, so it is
+    evaluated as one rather than compared as a string. `OR` is a genuine choice:
+    a package published under `GPL-2.0-only OR MIT` may be taken under MIT, and
+    refusing it would refuse a dependency this project is entitled to use, so a
+    disjunction passes when any branch passes. `AND` binds every term at once, so
+    `MPL-2.0 AND (GPL-2.0-only OR MIT)` passes while `GPL-2.0-only AND
+    (Apache-2.0 OR MIT)` does not.
+
+    MATCHING IS PER TOKEN AND CASE-FOLDED, NEVER BY SUBSTRING. `LGPL-2.0-only`,
+    `AGPL-3.0-only` and `GPL-2.0-or-later` are three different licences that a
+    substring test for "GPL-2.0" refuses along with the one that deserves it.
+
+    A value that is not an expression -- a free-text `License` field, or the
+    "not resolved on this platform" placeholder -- does not parse, and the
+    fallback is the strictest reading: any incompatible token refuses.
+    """
+    tokens: list[str] = _SPDX_TOKEN.findall(expr)
+    if not tokens:
+        return True
+    try:
+        return _evaluate(tokens)
+    except ValueError:
+        return not any(word.casefold() in INCOMPATIBLE for word in tokens)
+
+
+def assert_no_incompatible_licence(rows: list[dict[str, Any]]) -> None:
+    """Refuse a dependency whose licence cannot combine with AGPL-3.0-only.
+
+    AGPL-3.0 is one-way compatible with the GPL-3 family and is NOT compatible
+    with GPL-2.0-only, so such a dependency makes the combined work
+    undistributable. This used to be a warning paragraph inside the generated
+    Markdown register, which said of itself that the situation "must be resolved,
+    not documented" -- and then documented it. The register is gone; the
+    requirement is not, so it refuses here instead.
+
+    THE LICENCE FIELD IS AN EXPRESSION AND NOT A NAME. `_spdx_of` returns the
+    `License-Expression` metadata field verbatim, and compound expressions are
+    already in this dependency set -- `MPL-2.0 AND (Apache-2.0 OR MIT)` and
+    `Apache-2.0 OR BSD-2-Clause` both occur, measured 2026-08-22. Testing that
+    field for exact membership in a set of names therefore read
+    `GPL-2.0-only AND MIT` as acceptable and let it through. Every term is
+    evaluated instead, by `admits_a_compatible_licence`.
+    """
+    conflicts = [r for r in rows if not admits_a_compatible_licence(r["licence"])]
     if conflicts:
-        out += [
-            "> **INCOMPATIBLE DEPENDENCY PRESENT.** The following are GPL-2.0-only and cannot",
-            "> lawfully combine with AGPL-3.0-only. This must be resolved, not documented:",
-            "",
-        ]
-        out += [f"> - `{r['name']}` {r['version']}" for r in conflicts]
-        out.append("")
-    else:
-        out += ["No dependency in the current lockfile conflicts.", ""]
-
-    out += ["## Packages", "", "| Package | Version | Licence |", "|---|---|---|"]
-    out += [
-        f"| `{r['name']}`{' \u2020' if r['platform_conditional'] else ''} "
-        f"| {r['version']} | {r['licence']} |"
-        for r in rows
-    ]
-    out.append("")
-    return "\n".join(out)
+        named = ", ".join(f"{r['name']} {r['version']} ({r['licence']})" for r in conflicts)
+        sys.exit(
+            f"gen_third_party: {len(conflicts)} dependency(ies) carry a licence that "
+            f"cannot lawfully combine with AGPL-3.0-only: {named}.\n"
+            "This project requires every dependency to offer at least one set of "
+            "terms compatible with AGPL-3.0-only. Remove the dependency or replace "
+            "it with a compatible one; it cannot be admitted to this tree."
+        )
 
 
 def render_sbom(rows: list[dict[str, Any]]) -> str:
@@ -252,7 +331,8 @@ def main() -> int:
     if not rows:
         sys.exit("gen_third_party: 0 packages collected; the lockfile or the venv is wrong")
 
-    want = {REGISTER: render_register(rows, unmapped, conditional), SBOM: render_sbom(rows)}
+    assert_no_incompatible_licence(rows)
+    want = {SBOM: render_sbom(rows)}
 
     if args.check:
         for path, text in want.items():
@@ -272,7 +352,6 @@ def main() -> int:
         f"gen_third_party: wrote {len(rows)} packages "
         f"({unmapped} unmapped, {conditional} platform-conditional)"
     )
-    print(f"  {REGISTER.relative_to(ROOT)}")
     print(f"  {SBOM.relative_to(ROOT)}")
     return 0
 

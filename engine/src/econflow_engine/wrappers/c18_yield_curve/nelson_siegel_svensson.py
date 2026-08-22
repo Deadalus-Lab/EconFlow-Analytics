@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``nelson_siegel_svensson`` -- METHOD-SELECTION card #87.
+"""Method wrapper ``nelson_siegel_svensson`` -- method card #87.
 
 #87 Nelson-Siegel / Svensson / Diebold-Li yield-curve factors
 
@@ -7,8 +7,8 @@ Category 18-yield-curve; module ``nelson_siegel_svensson``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ def fit_nelson_siegel(
     rates: np.ndarray,
     maturities: np.ndarray,
 ) -> dict[str, Any]:
-    """Node ``fit_nelson_siegel`` -- METHOD-SELECTION card #87.
+    """Node ``fit_nelson_siegel`` -- method card #87.
 
     Nelson-Siegel / Svensson / Diebold-Li yield-curve factors.
 
@@ -51,7 +51,7 @@ def fit_nelson_siegel(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fit_nelson_siegel: not implemented. The method card is in ./README.md."
+        "fit_nelson_siegel: not implemented."
     )
 
 
@@ -61,7 +61,7 @@ def fit_svensson(
     maturities: np.ndarray,
     which_rate: Literal["Spot", "Forward"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``fit_svensson`` -- METHOD-SELECTION card #87.
+    """Node ``fit_svensson`` -- method card #87.
 
     Nelson-Siegel / Svensson / Diebold-Li yield-curve factors.
 
@@ -79,5 +79,5 @@ def fit_svensson(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fit_svensson: not implemented. The method card is in ./README.md."
+        "fit_svensson: not implemented."
     )

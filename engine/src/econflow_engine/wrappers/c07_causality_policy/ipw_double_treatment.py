@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``ipw_double_treatment`` -- METHOD-SELECTION card #171.
+"""Method wrapper ``ipw_double_treatment`` -- method card #171.
 
 #171 IPW / double-ML treatment effects (ATE/ATET, IV-LATE/LATT, causal mediation)
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``ipw_double_treatment``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,16 +23,16 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "cw_lateweight",
-    "cw_medDML",
-    "cw_treatDML",
-    "cw_treatweight",
+    "cw_late_ipw",
+    "cw_mediation_dml",
+    "cw_treatment_dml",
+    "cw_treatment_ipw",
     "NODE_META",
     "wire_model",
 ]
 
 
-def cw_treatDML(
+def cw_treatment_dml(
     *,
     y: Any,
     d: Any,
@@ -55,7 +55,7 @@ def cw_treatDML(
     normalized: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``cw_treatDML`` -- METHOD-SELECTION card #171.
+    """Node ``cw_treatment_dml`` -- method card #171.
 
     IPW / double-ML treatment effects (ATE/ATET, IV-LATE/LATT, causal mediation).
 
@@ -83,11 +83,11 @@ def cw_treatDML(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cw_treatDML: not implemented. The method card is in ./README.md."
+        "cw_treatment_dml: not implemented."
     )
 
 
-def cw_treatweight(
+def cw_treatment_ipw(
     *,
     y: Any,
     d: Any,
@@ -98,7 +98,7 @@ def cw_treatweight(
     boot: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``cw_treatweight`` -- METHOD-SELECTION card #171.
+    """Node ``cw_treatment_ipw`` -- method card #171.
 
     IPW / double-ML treatment effects (ATE/ATET, IV-LATE/LATT, causal mediation).
 
@@ -122,11 +122,11 @@ def cw_treatweight(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cw_treatweight: not implemented. The method card is in ./README.md."
+        "cw_treatment_ipw: not implemented."
     )
 
 
-def cw_lateweight(
+def cw_late_ipw(
     *,
     y: Any,
     d: Any,
@@ -138,7 +138,7 @@ def cw_lateweight(
     boot: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``cw_lateweight`` -- METHOD-SELECTION card #171.
+    """Node ``cw_late_ipw`` -- method card #171.
 
     IPW / double-ML treatment effects (ATE/ATET, IV-LATE/LATT, causal mediation).
 
@@ -162,11 +162,11 @@ def cw_lateweight(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cw_lateweight: not implemented. The method card is in ./README.md."
+        "cw_late_ipw: not implemented."
     )
 
 
-def cw_medDML(
+def cw_mediation_dml(
     *,
     y: Any,
     d: Any,
@@ -189,7 +189,7 @@ def cw_medDML(
     ) = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``cw_medDML`` -- METHOD-SELECTION card #171.
+    """Node ``cw_mediation_dml`` -- method card #171.
 
     IPW / double-ML treatment effects (ATE/ATET, IV-LATE/LATT, causal mediation).
 
@@ -216,5 +216,5 @@ def cw_medDML(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cw_medDML: not implemented. The method card is in ./README.md."
+        "cw_mediation_dml: not implemented."
     )

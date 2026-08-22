@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``deterministic_rolling_window`` -- METHOD-SELECTION card #105.
+"""Method wrapper ``deterministic_rolling_window`` -- method card #105.
 
-#105 Deterministic rolling-window aggregations
-    (slide_dbl/slide_index_dbl/slide_period_dbl/hop_index_vec)
+#105 Deterministic rolling-window aggregations (positional / index / calendar-period /
+    arbitrary-pair windows)
 
 Category 00-data-utilities; module ``deterministic_rolling_window``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,16 +25,16 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "sld_hop_index",
-    "sld_slide",
-    "sld_slide_index",
-    "sld_slide_period",
+    "win_hop_index",
+    "win_slide",
+    "win_slide_index",
+    "win_slide_period",
     "NODE_META",
     "wire_model",
 ]
 
 
-def sld_slide(
+def win_slide(
     *,
     x: pd.Series,
     reducer: Literal["mean", "sum", "sd", "min", "max", "median"] | None = None,
@@ -44,10 +44,10 @@ def sld_slide(
     complete: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sld_slide`` -- METHOD-SELECTION card #105.
+    """Node ``win_slide`` -- method card #105.
 
-    Deterministic rolling-window aggregations
-    (slide_dbl/slide_index_dbl/slide_period_dbl/hop_index_vec).
+    Deterministic rolling-window aggregations (positional / index / calendar-period / arbitrary-pair
+    windows).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -66,11 +66,11 @@ def sld_slide(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sld_slide: not implemented. The method card is in ./README.md."
+        "win_slide: not implemented."
     )
 
 
-def sld_slide_index(
+def win_slide_index(
     *,
     x: pd.Series,
     i: Sequence[float],
@@ -80,10 +80,10 @@ def sld_slide_index(
     complete: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sld_slide_index`` -- METHOD-SELECTION card #105.
+    """Node ``win_slide_index`` -- method card #105.
 
-    Deterministic rolling-window aggregations
-    (slide_dbl/slide_index_dbl/slide_period_dbl/hop_index_vec).
+    Deterministic rolling-window aggregations (positional / index / calendar-period / arbitrary-pair
+    windows).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -101,11 +101,11 @@ def sld_slide_index(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sld_slide_index: not implemented. The method card is in ./README.md."
+        "win_slide_index: not implemented."
     )
 
 
-def sld_slide_period(
+def win_slide_period(
     *,
     x: pd.Series,
     i: Sequence[float],
@@ -129,10 +129,10 @@ def sld_slide_period(
     complete: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sld_slide_period`` -- METHOD-SELECTION card #105.
+    """Node ``win_slide_period`` -- method card #105.
 
-    Deterministic rolling-window aggregations
-    (slide_dbl/slide_index_dbl/slide_period_dbl/hop_index_vec).
+    Deterministic rolling-window aggregations (positional / index / calendar-period / arbitrary-pair
+    windows).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -151,11 +151,11 @@ def sld_slide_period(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sld_slide_period: not implemented. The method card is in ./README.md."
+        "win_slide_period: not implemented."
     )
 
 
-def sld_hop_index(
+def win_hop_index(
     *,
     x: pd.Series,
     i: Sequence[float],
@@ -164,10 +164,10 @@ def sld_hop_index(
     reducer: Literal["mean", "sum", "sd", "min", "max", "median"] | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sld_hop_index`` -- METHOD-SELECTION card #105.
+    """Node ``win_hop_index`` -- method card #105.
 
-    Deterministic rolling-window aggregations
-    (slide_dbl/slide_index_dbl/slide_period_dbl/hop_index_vec).
+    Deterministic rolling-window aggregations (positional / index / calendar-period / arbitrary-pair
+    windows).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -183,5 +183,5 @@ def sld_hop_index(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sld_hop_index: not implemented. The method card is in ./README.md."
+        "win_hop_index: not implemented."
     )

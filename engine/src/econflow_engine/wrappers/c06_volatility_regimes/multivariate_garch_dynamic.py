@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``multivariate_garch_dynamic`` -- METHOD-SELECTION card #155.
+"""Method wrapper ``multivariate_garch_dynamic`` -- method card #155.
 
 #155 Multivariate GARCH — Dynamic Conditional Correlation (DCC/aDCC/CCC)
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``multivariate_garch_dynamic``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -70,7 +70,7 @@ def tm_dcc_estimate(
     solver: Literal["solnp", "nloptr"] | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``tm_dcc_estimate`` -- METHOD-SELECTION card #155.
+    """Node ``tm_dcc_estimate`` -- method card #155.
 
     Multivariate GARCH — Dynamic Conditional Correlation (DCC/aDCC/CCC).
 
@@ -101,7 +101,7 @@ def tm_dcc_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tm_dcc_estimate: not implemented. The method card is in ./README.md."
+        "tm_dcc_estimate: not implemented."
     )
 
 
@@ -113,7 +113,7 @@ def tm_predict(
     sim_method: Literal["parametric", "bootstrap"] | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``tm_predict`` -- METHOD-SELECTION card #155.
+    """Node ``tm_predict`` -- method card #155.
 
     Multivariate GARCH — Dynamic Conditional Correlation (DCC/aDCC/CCC).
 
@@ -134,7 +134,7 @@ def tm_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tm_predict: not implemented. The method card is in ./README.md."
+        "tm_predict: not implemented."
     )
 
 
@@ -143,7 +143,7 @@ def tm_cov(
     object: Any,
     correlation: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tm_cov`` -- METHOD-SELECTION card #155.
+    """Node ``tm_cov`` -- method card #155.
 
     Multivariate GARCH — Dynamic Conditional Correlation (DCC/aDCC/CCC).
 
@@ -158,5 +158,5 @@ def tm_cov(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tm_cov: not implemented. The method card is in ./README.md."
+        "tm_cov: not implemented."
     )

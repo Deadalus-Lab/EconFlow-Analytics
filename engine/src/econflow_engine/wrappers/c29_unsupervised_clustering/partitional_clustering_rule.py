@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``partitional_clustering_rule`` -- METHOD-SELECTION card #241.
+"""Method wrapper ``partitional_clustering_rule`` -- method card #241.
 
 #241 Partitional (flat) clustering + RULE-BASED selection of k: k-means
     (Hartigan-Wong/Lloyd/Forgy/MacQueen), PAM/k-medoids (Kaufman-Rousseeuw), the silhouette
@@ -9,8 +9,8 @@ Category 29-unsupervised-clustering; module ``partitional_clustering_rule``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
+    "km_fit",
     "km_gap",
-    "km_kmeans",
     "km_pam",
     "km_silhouette",
     "NODE_META",
@@ -35,7 +35,7 @@ __all__ = [
 ]
 
 
-def km_kmeans(
+def km_fit(
     *,
     x: np.ndarray,
     k: int,
@@ -45,7 +45,7 @@ def km_kmeans(
     iter_max: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``km_kmeans`` -- METHOD-SELECTION card #241.
+    """Node ``km_fit`` -- method card #241.
 
     Partitional (flat) clustering + RULE-BASED selection of k: k-means
     (Hartigan-Wong/Lloyd/Forgy/MacQueen), PAM/k-medoids (Kaufman-Rousseeuw), the silhouette
@@ -76,7 +76,7 @@ def km_kmeans(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "km_kmeans: not implemented. The method card is in ./README.md."
+        "km_fit: not implemented."
     )
 
 
@@ -88,7 +88,7 @@ def km_pam(
     stand: bool | None = None,
     transform: Literal["none", "center", "scale", "log"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``km_pam`` -- METHOD-SELECTION card #241.
+    """Node ``km_pam`` -- method card #241.
 
     Partitional (flat) clustering + RULE-BASED selection of k: k-means
     (Hartigan-Wong/Lloyd/Forgy/MacQueen), PAM/k-medoids (Kaufman-Rousseeuw), the silhouette
@@ -115,7 +115,7 @@ def km_pam(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "km_pam: not implemented. The method card is in ./README.md."
+        "km_pam: not implemented."
     )
 
 
@@ -126,7 +126,7 @@ def km_silhouette(
     metric: Literal["euclidean", "manhattan"] | None = None,
     transform: Literal["none", "center", "scale", "log"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``km_silhouette`` -- METHOD-SELECTION card #241.
+    """Node ``km_silhouette`` -- method card #241.
 
     Partitional (flat) clustering + RULE-BASED selection of k: k-means
     (Hartigan-Wong/Lloyd/Forgy/MacQueen), PAM/k-medoids (Kaufman-Rousseeuw), the silhouette
@@ -139,8 +139,8 @@ def km_silhouette(
             observations/countries, columns = variables). NO NA/NaN/Inf. sliding-window subsequence
             IS REJECTED matrix (Keogh gate).
         cluster: [int_array, required] Integer assignment vector of length n with CONTIGUOUS ids
-            1..k (e.g. the 'cluster' field of a km_kmeans/km_pam node). Required: 2 <= k <= n-1:
-            with k=1 silhouette returns NA WITHOUT an error.
+            1..k (e.g. the 'cluster' field of a km_fit/km_pam node). Required: 2 <= k <= n-1: with
+            k=1 silhouette returns NA WITHOUT an error.
         metric: [enum, optional] Dissimilarity metric (default euclidean· manhattan = more robust).
         transform: [enum, optional] EXPLICIT transformation BEFORE the clustering (default 'none' —
             NO silent standardization/detrending): center (mean removal per column)· scale (z-score·
@@ -151,7 +151,7 @@ def km_silhouette(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "km_silhouette: not implemented. The method card is in ./README.md."
+        "km_silhouette: not implemented."
     )
 
 
@@ -180,7 +180,7 @@ def km_gap(
     transform: Literal["none", "center", "scale", "log"] | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``km_gap`` -- METHOD-SELECTION card #241.
+    """Node ``km_gap`` -- method card #241.
 
     Partitional (flat) clustering + RULE-BASED selection of k: k-means
     (Hartigan-Wong/Lloyd/Forgy/MacQueen), PAM/k-medoids (Kaufman-Rousseeuw), the silhouette
@@ -219,5 +219,5 @@ def km_gap(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "km_gap: not implemented. The method card is in ./README.md."
+        "km_gap: not implemented."
     )

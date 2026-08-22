@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``mixed_frequency_bayesian`` -- METHOD-SELECTION card #17.
+"""Method wrapper ``mixed_frequency_bayesian`` -- method card #17.
 
 #17 Mixed-Frequency Bayesian VAR
 
@@ -7,8 +7,8 @@ Category 03-multivariate-nowcasting; module ``mixed_frequency_bayesian``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def mf_estimate(
     aggregation: Literal["average", "triangular"] | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``mf_estimate`` -- METHOD-SELECTION card #17.
+    """Node ``mf_estimate`` -- method card #17.
 
     Mixed-Frequency Bayesian VAR.
 
@@ -65,7 +65,7 @@ def mf_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mf_estimate: not implemented. The method card is in ./README.md."
+        "mf_estimate: not implemented."
     )
 
 
@@ -75,7 +75,7 @@ def mf_predict(
     pred_bands: float | None = None,
     aggregate_fcst: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``mf_predict`` -- METHOD-SELECTION card #17.
+    """Node ``mf_predict`` -- method card #17.
 
     Mixed-Frequency Bayesian VAR.
 
@@ -91,7 +91,7 @@ def mf_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mf_predict: not implemented. The method card is in ./README.md."
+        "mf_predict: not implemented."
     )
 
 
@@ -101,7 +101,7 @@ def mf_mdd(
     p_trunc: float | None = None,
     method: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``mf_mdd`` -- METHOD-SELECTION card #17.
+    """Node ``mf_mdd`` -- method card #17.
 
     Mixed-Frequency Bayesian VAR.
 
@@ -119,5 +119,5 @@ def mf_mdd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mf_mdd: not implemented. The method card is in ./README.md."
+        "mf_mdd: not implemented."
     )

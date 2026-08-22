@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``grouped_level_penalized`` -- METHOD-SELECTION card #220.
+"""Method wrapper ``grouped_level_penalized`` -- method card #220.
 
 #220 Grouped / bi-level penalized regression (group lasso, group MCP/SCAD, gel/cMCP)
 
@@ -7,8 +7,8 @@ Category 20-highdim-shrinkage-ml; module ``grouped_level_penalized``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def group_penalized_regression(
     gamma: float | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``group_penalized_regression`` -- METHOD-SELECTION card #220.
+    """Node ``group_penalized_regression`` -- method card #220.
 
     Grouped / bi-level penalized regression (group lasso, group MCP/SCAD, gel/cMCP).
 
@@ -70,7 +70,7 @@ def group_penalized_regression(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "group_penalized_regression: not implemented. The method card is in ./README.md."
+        "group_penalized_regression: not implemented."
     )
 
 
@@ -87,7 +87,7 @@ def cv_group_penalized_regression(
     gamma: float | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``cv_group_penalized_regression`` -- METHOD-SELECTION card #220.
+    """Node ``cv_group_penalized_regression`` -- method card #220.
 
     Grouped / bi-level penalized regression (group lasso, group MCP/SCAD, gel/cMCP).
 
@@ -108,7 +108,7 @@ def cv_group_penalized_regression(
         nfolds: [integer, optional] Number of folds in the cross-validation (>=3, <= n; default 10).
             Default ``10``.
         seed: [integer, optional] Seed for the RANDOM assignment of folds (reproducibility; default
-            20240720). Same seed -> identical lambda.min. Default ``20240720``.
+            20240720). Same seed -> identical lambda_min. Default ``20240720``.
         nlambda: [integer, optional] Number of lambda values in the regularization path (>=2,
             default 100). Default ``100``.
         gamma: [number, optional] Concavity parameter for MCP/SCAD (>1; default 3, or 4 for grSCAD).
@@ -119,5 +119,5 @@ def cv_group_penalized_regression(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cv_group_penalized_regression: not implemented. The method card is in ./README.md."
+        "cv_group_penalized_regression: not implemented."
     )

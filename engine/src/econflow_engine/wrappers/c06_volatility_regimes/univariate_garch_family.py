@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``univariate_garch_family`` -- METHOD-SELECTION card #28.
+"""Method wrapper ``univariate_garch_family`` -- method card #28.
 
 #28 Univariate GARCH family
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``univariate_garch_family``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -73,7 +73,7 @@ def ga_spec(
     archpow: int | None = None,
     variance_targeting: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ga_spec`` -- METHOD-SELECTION card #28.
+    """Node ``ga_spec`` -- method card #28.
 
     Univariate GARCH family.
 
@@ -99,7 +99,7 @@ def ga_spec(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ga_spec: not implemented. The method card is in ./README.md."
+        "ga_spec: not implemented."
     )
 
 
@@ -110,7 +110,7 @@ def ga_fit(
     out_sample: int | None = None,
     solver: Literal["hybrid", "solnp", "nlminb", "lbfgs", "gosolnp"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``ga_fit`` -- METHOD-SELECTION card #28.
+    """Node ``ga_fit`` -- method card #28.
 
     Univariate GARCH family.
 
@@ -129,7 +129,7 @@ def ga_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ga_fit: not implemented. The method card is in ./README.md."
+        "ga_fit: not implemented."
     )
 
 
@@ -139,7 +139,7 @@ def ga_forecast(
     n_ahead: int | None = None,
     n_roll: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ga_forecast`` -- METHOD-SELECTION card #28.
+    """Node ``ga_forecast`` -- method card #28.
 
     Univariate GARCH family.
 
@@ -154,7 +154,7 @@ def ga_forecast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ga_forecast: not implemented. The method card is in ./README.md."
+        "ga_forecast: not implemented."
     )
 
 
@@ -165,7 +165,7 @@ def ga_sim(
     n_start: int | None = None,
     m_sim: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ga_sim`` -- METHOD-SELECTION card #28.
+    """Node ``ga_sim`` -- method card #28.
 
     Univariate GARCH family.
 
@@ -181,7 +181,7 @@ def ga_sim(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ga_sim: not implemented. The method card is in ./README.md."
+        "ga_sim: not implemented."
     )
 
 
@@ -195,7 +195,7 @@ def ga_roll(
     solver: Literal["hybrid", "solnp", "nlminb", "lbfgs", "gosolnp"] | None = None,
     calculate_VaR: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ga_roll`` -- METHOD-SELECTION card #28.
+    """Node ``ga_roll`` -- method card #28.
 
     Univariate GARCH family.
 
@@ -216,7 +216,7 @@ def ga_roll(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ga_roll: not implemented. The method card is in ./README.md."
+        "ga_roll: not implemented."
     )
 
 
@@ -225,7 +225,7 @@ def ga_diagnostics(
     fit: Any,
     gof_groups: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ga_diagnostics`` -- METHOD-SELECTION card #28.
+    """Node ``ga_diagnostics`` -- method card #28.
 
     Univariate GARCH family.
 
@@ -240,5 +240,5 @@ def ga_diagnostics(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ga_diagnostics: not implemented. The method card is in ./README.md."
+        "ga_diagnostics: not implemented."
     )

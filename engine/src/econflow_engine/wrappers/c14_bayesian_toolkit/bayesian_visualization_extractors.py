@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_visualization_extractors`` -- METHOD-SELECTION card #73.
+"""Method wrapper ``bayesian_visualization_extractors`` -- method card #73.
 
 #73 Bayesian visualization DATA extractors (data, not charts)
 
@@ -7,8 +7,8 @@ Category 14-bayesian-toolkit; module ``bayesian_visualization_extractors``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,20 +24,20 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "bp_mcmc_areas_data",
-    "bp_mcmc_intervals_data",
-    "bp_mcmc_neff_data",
-    "bp_mcmc_rhat_data",
-    "bp_mcmc_trace_data",
-    "bp_ppc_intervals_data",
-    "bp_ppc_ribbon_data",
-    "bp_ppc_stat_data",
+    "bviz_mcmc_areas_data",
+    "bviz_mcmc_intervals_data",
+    "bviz_mcmc_neff_data",
+    "bviz_mcmc_rhat_data",
+    "bviz_mcmc_trace_data",
+    "bviz_ppc_intervals_data",
+    "bviz_ppc_ribbon_data",
+    "bviz_ppc_stat_data",
     "NODE_META",
     "wire_model",
 ]
 
 
-def bp_mcmc_intervals_data(
+def bviz_mcmc_intervals_data(
     *,
     x: Any,
     pars: Sequence[str] | None = None,
@@ -45,7 +45,7 @@ def bp_mcmc_intervals_data(
     prob_outer: float | None = None,
     point_est: Literal["median", "mean", "none"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bp_mcmc_intervals_data`` -- METHOD-SELECTION card #73.
+    """Node ``bviz_mcmc_intervals_data`` -- method card #73.
 
     Bayesian visualization DATA extractors (data, not charts).
 
@@ -65,11 +65,11 @@ def bp_mcmc_intervals_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bp_mcmc_intervals_data: not implemented. The method card is in ./README.md."
+        "bviz_mcmc_intervals_data: not implemented."
     )
 
 
-def bp_mcmc_areas_data(
+def bviz_mcmc_areas_data(
     *,
     x: Any,
     pars: Sequence[str] | None = None,
@@ -77,7 +77,7 @@ def bp_mcmc_areas_data(
     prob_outer: float | None = None,
     point_est: Literal["median", "mean", "none"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bp_mcmc_areas_data`` -- METHOD-SELECTION card #73.
+    """Node ``bviz_mcmc_areas_data`` -- method card #73.
 
     Bayesian visualization DATA extractors (data, not charts).
 
@@ -96,16 +96,16 @@ def bp_mcmc_areas_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bp_mcmc_areas_data: not implemented. The method card is in ./README.md."
+        "bviz_mcmc_areas_data: not implemented."
     )
 
 
-def bp_mcmc_trace_data(
+def bviz_mcmc_trace_data(
     *,
     x: Any,
     pars: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bp_mcmc_trace_data`` -- METHOD-SELECTION card #73.
+    """Node ``bviz_mcmc_trace_data`` -- method card #73.
 
     Bayesian visualization DATA extractors (data, not charts).
 
@@ -119,15 +119,15 @@ def bp_mcmc_trace_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bp_mcmc_trace_data: not implemented. The method card is in ./README.md."
+        "bviz_mcmc_trace_data: not implemented."
     )
 
 
-def bp_mcmc_rhat_data(
+def bviz_mcmc_rhat_data(
     *,
     rhat: Any,
 ) -> dict[str, Any]:
-    """Node ``bp_mcmc_rhat_data`` -- METHOD-SELECTION card #73.
+    """Node ``bviz_mcmc_rhat_data`` -- method card #73.
 
     Bayesian visualization DATA extractors (data, not charts).
 
@@ -141,15 +141,15 @@ def bp_mcmc_rhat_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bp_mcmc_rhat_data: not implemented. The method card is in ./README.md."
+        "bviz_mcmc_rhat_data: not implemented."
     )
 
 
-def bp_mcmc_neff_data(
+def bviz_mcmc_neff_data(
     *,
     ratio: Any,
 ) -> dict[str, Any]:
-    """Node ``bp_mcmc_neff_data`` -- METHOD-SELECTION card #73.
+    """Node ``bviz_mcmc_neff_data`` -- method card #73.
 
     Bayesian visualization DATA extractors (data, not charts).
 
@@ -163,11 +163,11 @@ def bp_mcmc_neff_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bp_mcmc_neff_data: not implemented. The method card is in ./README.md."
+        "bviz_mcmc_neff_data: not implemented."
     )
 
 
-def bp_ppc_intervals_data(
+def bviz_ppc_intervals_data(
     *,
     y: Any,
     yrep: np.ndarray,
@@ -176,7 +176,7 @@ def bp_ppc_intervals_data(
     prob: float | None = None,
     prob_outer: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bp_ppc_intervals_data`` -- METHOD-SELECTION card #73.
+    """Node ``bviz_ppc_intervals_data`` -- method card #73.
 
     Bayesian visualization DATA extractors (data, not charts).
 
@@ -196,11 +196,11 @@ def bp_ppc_intervals_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bp_ppc_intervals_data: not implemented. The method card is in ./README.md."
+        "bviz_ppc_intervals_data: not implemented."
     )
 
 
-def bp_ppc_ribbon_data(
+def bviz_ppc_ribbon_data(
     *,
     y: Any,
     yrep: np.ndarray,
@@ -209,7 +209,7 @@ def bp_ppc_ribbon_data(
     prob: float | None = None,
     prob_outer: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bp_ppc_ribbon_data`` -- METHOD-SELECTION card #73.
+    """Node ``bviz_ppc_ribbon_data`` -- method card #73.
 
     Bayesian visualization DATA extractors (data, not charts).
 
@@ -228,18 +228,18 @@ def bp_ppc_ribbon_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bp_ppc_ribbon_data: not implemented. The method card is in ./README.md."
+        "bviz_ppc_ribbon_data: not implemented."
     )
 
 
-def bp_ppc_stat_data(
+def bviz_ppc_stat_data(
     *,
     y: Any,
     yrep: np.ndarray,
     stat: str,
     group: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``bp_ppc_stat_data`` -- METHOD-SELECTION card #73.
+    """Node ``bviz_ppc_stat_data`` -- method card #73.
 
     Bayesian visualization DATA extractors (data, not charts).
 
@@ -258,5 +258,5 @@ def bp_ppc_stat_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bp_ppc_stat_data: not implemented. The method card is in ./README.md."
+        "bviz_ppc_stat_data: not implemented."
     )

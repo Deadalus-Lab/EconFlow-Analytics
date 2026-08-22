@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``reduced_form_var`` -- METHOD-SELECTION card #11.
+"""Method wrapper ``reduced_form_var`` -- method card #11.
 
 #11 Reduced-form VAR (lag select + Granger + diagnostics + vec2var)
 
@@ -7,8 +7,8 @@ Category 03-multivariate-nowcasting; module ``reduced_form_var``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,31 +25,31 @@ if TYPE_CHECKING:
 __all__ = [
     "vr_arch_test",
     "vr_causality",
+    "vr_fit",
+    "vr_lag_select",
     "vr_normality_test",
     "vr_predict",
     "vr_serial_test",
-    "vr_var",
-    "vr_varselect",
-    "vr_vec2var",
+    "vr_vecm_to_var",
     "NODE_META",
     "wire_model",
 ]
 
 
-def vr_varselect(
+def vr_lag_select(
     *,
     y: pd.DataFrame,
     lag_max: int | None = None,
     type: Literal["const", "trend", "both", "none"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_varselect`` -- METHOD-SELECTION card #11.
+    """Node ``vr_lag_select`` -- method card #11.
 
     Reduced-form VAR (lag select + Granger + diagnostics + vec2var).
 
     Category 03-multivariate-nowcasting; memory class ``light``.
 
     Args:
-        y: [multiseries_handle, required] Handle to a multivariate series (mts, K>=2 columns).
+        y: [multiseries_handle, required] Handle to a multivariate series (panel, K>=2 columns).
         lag_max: [integer, optional] Maximum lag order to evaluate (default 10). Default ``10``.
         type: [enum, optional] Deterministic part (default const).
 
@@ -57,17 +57,17 @@ def vr_varselect(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_varselect: not implemented. The method card is in ./README.md."
+        "vr_lag_select: not implemented."
     )
 
 
-def vr_var(
+def vr_fit(
     *,
     y: pd.DataFrame,
     p: int | None = None,
     type: Literal["const", "trend", "both", "none"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_var`` -- METHOD-SELECTION card #11.
+    """Node ``vr_fit`` -- method card #11.
 
     Reduced-form VAR (lag select + Granger + diagnostics + vec2var).
 
@@ -76,7 +76,7 @@ def vr_var(
     Registers its result under ``model``, so a later node can consume it as a handle.
 
     Args:
-        y: [multiseries_handle, required] Handle to a multivariate series (mts, K>=2 columns, no
+        y: [multiseries_handle, required] Handle to a multivariate series (panel, K>=2 columns, no
             NA).
         p: [integer, optional] VAR(p) lag order (default 1). Default ``1``.
         type: [enum, optional] Deterministic part (default const).
@@ -85,7 +85,7 @@ def vr_var(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_var: not implemented. The method card is in ./README.md."
+        "vr_fit: not implemented."
     )
 
 
@@ -95,14 +95,14 @@ def vr_predict(
     n_ahead: int | None = None,
     ci: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_predict`` -- METHOD-SELECTION card #11.
+    """Node ``vr_predict`` -- method card #11.
 
     Reduced-form VAR (lag select + Granger + diagnostics + vec2var).
 
     Category 03-multivariate-nowcasting; memory class ``light``.
 
     Args:
-        model: [raw_handle, required] Handle to a varest/vec2var model (from vr_var/vr_vec2var).
+        model: [raw_handle, required] Handle to a varest/vec2var model (from vr_fit/vr_vecm_to_var).
         n_ahead: [integer, optional] Forecast horizon (default 10). Default ``10``.
         ci: [number, optional] Fan chart confidence level in (0,1) (default 0.95). Default ``0.95``.
 
@@ -110,7 +110,7 @@ def vr_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_predict: not implemented. The method card is in ./README.md."
+        "vr_predict: not implemented."
     )
 
 
@@ -121,14 +121,14 @@ def vr_causality(
     boot: bool | None = None,
     boot_runs: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_causality`` -- METHOD-SELECTION card #11.
+    """Node ``vr_causality`` -- method card #11.
 
     Reduced-form VAR (lag select + Granger + diagnostics + vec2var).
 
     Category 03-multivariate-nowcasting; memory class ``heavy``.
 
     Args:
-        model: [raw_handle, required] Handle to a varest model (from vr_var).
+        model: [raw_handle, required] Handle to a varest model (from vr_fit).
         cause: [string, required] Name of the causing variable (a subset of the VAR variables).
         boot: [boolean, optional] Bootstrap p-values (default False). Default ``False``.
         boot_runs: [integer, optional] Number of bootstrap replications (default 100). Default
@@ -138,7 +138,7 @@ def vr_causality(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_causality: not implemented. The method card is in ./README.md."
+        "vr_causality: not implemented."
     )
 
 
@@ -149,7 +149,7 @@ def vr_serial_test(
     lags_bg: int | None = None,
     type: Literal["PT.asymptotic", "PT.adjusted", "BG", "ES"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_serial_test`` -- METHOD-SELECTION card #11.
+    """Node ``vr_serial_test`` -- method card #11.
 
     Reduced-form VAR (lag select + Granger + diagnostics + vec2var).
 
@@ -165,7 +165,7 @@ def vr_serial_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_serial_test: not implemented. The method card is in ./README.md."
+        "vr_serial_test: not implemented."
     )
 
 
@@ -176,7 +176,7 @@ def vr_arch_test(
     lags_multi: int | None = None,
     multivariate_only: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_arch_test`` -- METHOD-SELECTION card #11.
+    """Node ``vr_arch_test`` -- method card #11.
 
     Reduced-form VAR (lag select + Granger + diagnostics + vec2var).
 
@@ -193,7 +193,7 @@ def vr_arch_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_arch_test: not implemented. The method card is in ./README.md."
+        "vr_arch_test: not implemented."
     )
 
 
@@ -202,7 +202,7 @@ def vr_normality_test(
     model: Any,
     multivariate_only: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_normality_test`` -- METHOD-SELECTION card #11.
+    """Node ``vr_normality_test`` -- method card #11.
 
     Reduced-form VAR (lag select + Granger + diagnostics + vec2var).
 
@@ -217,16 +217,16 @@ def vr_normality_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_normality_test: not implemented. The method card is in ./README.md."
+        "vr_normality_test: not implemented."
     )
 
 
-def vr_vec2var(
+def vr_vecm_to_var(
     *,
     z: Any,
     r: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_vec2var`` -- METHOD-SELECTION card #11.
+    """Node ``vr_vecm_to_var`` -- method card #11.
 
     Reduced-form VAR (lag select + Granger + diagnostics + vec2var).
 
@@ -235,12 +235,12 @@ def vr_vec2var(
     Registers its result under ``model``, so a later node can consume it as a handle.
 
     Args:
-        z: [raw_handle, required] Handle to a ca.jo Johansen object (from urca).
+        z: [raw_handle, required] Handle to a Johansen Johansen object .
         r: [integer, optional] Cointegration rank r (1..K) (default 1). Default ``1``.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_vec2var: not implemented. The method card is in ./README.md."
+        "vr_vecm_to_var: not implemented."
     )

@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``robust_descriptives_correlation`` -- METHOD-SELECTION card #130.
+"""Method wrapper ``robust_descriptives_correlation`` -- method card #130.
 
-#130 Robust descriptives + correlation prechecks (describe / rcorr Pearson-Spearman + p-values /
-    weighted mean-var-quantile)
+#130 Robust descriptives + correlation prechecks (robust per-variable summary / correlation matrix
+    with p-values / weighted mean-var-quantile)
 
 Category 01-preparation-prechecks; module ``robust_descriptives_correlation``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,23 +25,23 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "hm_describe",
-    "hm_rcorr",
-    "hm_wtd",
+    "rdesc_correlation",
+    "rdesc_describe",
+    "rdesc_weighted_stats",
     "NODE_META",
     "wire_model",
 ]
 
 
-def hm_describe(
+def rdesc_describe(
     *,
     data: pd.DataFrame,
     digits: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``hm_describe`` -- METHOD-SELECTION card #130.
+    """Node ``rdesc_describe`` -- method card #130.
 
-    Robust descriptives + correlation prechecks (describe / rcorr Pearson-Spearman + p-values /
-    weighted mean-var-quantile).
+    Robust descriptives + correlation prechecks (robust per-variable summary / correlation matrix
+    with p-values / weighted mean-var-quantile).
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -55,19 +55,19 @@ def hm_describe(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hm_describe: not implemented. The method card is in ./README.md."
+        "rdesc_describe: not implemented."
     )
 
 
-def hm_rcorr(
+def rdesc_correlation(
     *,
     data: pd.DataFrame,
     type: Literal["pearson", "spearman"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``hm_rcorr`` -- METHOD-SELECTION card #130.
+    """Node ``rdesc_correlation`` -- method card #130.
 
-    Robust descriptives + correlation prechecks (describe / rcorr Pearson-Spearman + p-values /
-    weighted mean-var-quantile).
+    Robust descriptives + correlation prechecks (robust per-variable summary / correlation matrix
+    with p-values / weighted mean-var-quantile).
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -79,11 +79,11 @@ def hm_rcorr(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hm_rcorr: not implemented. The method card is in ./README.md."
+        "rdesc_correlation: not implemented."
     )
 
 
-def hm_wtd(
+def rdesc_weighted_stats(
     *,
     x: pd.Series,
     weights: Sequence[float],
@@ -91,10 +91,10 @@ def hm_wtd(
     var_method: Literal["unbiased", "ML"] | None = None,
     normwt: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``hm_wtd`` -- METHOD-SELECTION card #130.
+    """Node ``rdesc_weighted_stats`` -- method card #130.
 
-    Robust descriptives + correlation prechecks (describe / rcorr Pearson-Spearman + p-values /
-    weighted mean-var-quantile).
+    Robust descriptives + correlation prechecks (robust per-variable summary / correlation matrix
+    with p-values / weighted mean-var-quantile).
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -111,5 +111,5 @@ def hm_wtd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hm_wtd: not implemented. The method card is in ./README.md."
+        "rdesc_weighted_stats: not implemented."
     )

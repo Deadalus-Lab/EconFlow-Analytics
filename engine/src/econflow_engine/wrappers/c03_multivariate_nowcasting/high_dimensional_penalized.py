@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``high_dimensional_penalized`` -- METHOD-SELECTION card #142.
+"""Method wrapper ``high_dimensional_penalized`` -- method card #142.
 
 #142 High-dimensional penalized VAR (structured penalties + rolling-CV lambda)
 
@@ -7,8 +7,8 @@ Category 03-multivariate-nowcasting; module ``high_dimensional_penalized``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -60,7 +60,7 @@ def bvr_fit(
     IC: bool | None = None,
     ONESE: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvr_fit`` -- METHOD-SELECTION card #142.
+    """Node ``bvr_fit`` -- method card #142.
 
     High-dimensional penalized VAR (structured penalties + rolling-CV lambda).
 
@@ -69,7 +69,8 @@ def bvr_fit(
     Registers its result under ``model``, so a later node can consume it as a handle.
 
     Args:
-        Y: [multiseries_handle, required] Handle to a multivariate series (mts, T x k, k>=2, no NA).
+        Y: [multiseries_handle, required] Handle to a multivariate series (panel, T x k, k>=2, no
+            NA).
         p: [integer, optional] Maximum VAR lag order (positive integer, default 1). Default ``1``.
         struct: [enum, optional] Penalty structure (default Basic· HLAG*/Tapered VAR-only· EFX
             VARX-only).
@@ -88,7 +89,7 @@ def bvr_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvr_fit: not implemented. The method card is in ./README.md."
+        "bvr_fit: not implemented."
     )
 
 
@@ -98,7 +99,7 @@ def bvr_predict(
     n_ahead: int | None = None,
     confint: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvr_predict`` -- METHOD-SELECTION card #142.
+    """Node ``bvr_predict`` -- method card #142.
 
     High-dimensional penalized VAR (structured penalties + rolling-CV lambda).
 
@@ -115,7 +116,7 @@ def bvr_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvr_predict: not implemented. The method card is in ./README.md."
+        "bvr_predict: not implemented."
     )
 
 
@@ -123,7 +124,7 @@ def bvr_coef(
     *,
     model: Any,
 ) -> dict[str, Any]:
-    """Node ``bvr_coef`` -- METHOD-SELECTION card #142.
+    """Node ``bvr_coef`` -- method card #142.
 
     High-dimensional penalized VAR (structured penalties + rolling-CV lambda).
 
@@ -137,5 +138,5 @@ def bvr_coef(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvr_coef: not implemented. The method card is in ./README.md."
+        "bvr_coef: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``hidden_markov_viterbi`` -- METHOD-SELECTION card #161.
+"""Method wrapper ``hidden_markov_viterbi`` -- method card #161.
 
 #161 (Hierarchical) Hidden Markov Models + Viterbi global decoding + forecasting
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``hidden_markov_viterbi``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def hmm_fit(
     iterlim: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``hmm_fit`` -- METHOD-SELECTION card #161.
+    """Node ``hmm_fit`` -- method card #161.
 
     (Hierarchical) Hidden Markov Models + Viterbi global decoding + forecasting.
 
@@ -63,7 +63,7 @@ def hmm_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hmm_fit: not implemented. The method card is in ./README.md."
+        "hmm_fit: not implemented."
     )
 
 
@@ -71,7 +71,7 @@ def hmm_decode(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``hmm_decode`` -- METHOD-SELECTION card #161.
+    """Node ``hmm_decode`` -- method card #161.
 
     (Hierarchical) Hidden Markov Models + Viterbi global decoding + forecasting.
 
@@ -84,7 +84,7 @@ def hmm_decode(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hmm_decode: not implemented. The method card is in ./README.md."
+        "hmm_decode: not implemented."
     )
 
 
@@ -94,7 +94,7 @@ def hmm_predict(
     ahead: int | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``hmm_predict`` -- METHOD-SELECTION card #161.
+    """Node ``hmm_predict`` -- method card #161.
 
     (Hierarchical) Hidden Markov Models + Viterbi global decoding + forecasting.
 
@@ -110,5 +110,5 @@ def hmm_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hmm_predict: not implemented. The method card is in ./README.md."
+        "hmm_predict: not implemented."
     )

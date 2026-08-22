@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_averaging`` -- METHOD-SELECTION card #219.
+"""Method wrapper ``bayesian_averaging`` -- method card #219.
 
 #219 Bayesian Model Averaging (BMA, g-priors: enumeration + MCMC)
 
@@ -7,8 +7,8 @@ Category 20-highdim-shrinkage-ml; module ``bayesian_averaging``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def bma_average(
     mprior_size: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``bma_average`` -- METHOD-SELECTION card #219.
+    """Node ``bma_average`` -- method card #219.
 
     Bayesian Model Averaging (BMA, g-priors: enumeration + MCMC).
 
@@ -77,7 +77,7 @@ def bma_average(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bma_average: not implemented. The method card is in ./README.md."
+        "bma_average: not implemented."
     )
 
 
@@ -87,7 +87,7 @@ def bma_coefficients(
     exact: bool | None = None,
     order_by_pip: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bma_coefficients`` -- METHOD-SELECTION card #219.
+    """Node ``bma_coefficients`` -- method card #219.
 
     Bayesian Model Averaging (BMA, g-priors: enumeration + MCMC).
 
@@ -104,5 +104,5 @@ def bma_coefficients(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bma_coefficients: not implemented. The method card is in ./README.md."
+        "bma_coefficients: not implemented."
     )

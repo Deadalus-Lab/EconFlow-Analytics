@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``goodman_bacon_decomposition`` -- METHOD-SELECTION card #167.
+"""Method wrapper ``goodman_bacon_decomposition`` -- method card #167.
 
 #167 Goodman-Bacon decomposition of the TWFE DiD coefficient (staggered adoption)
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``goodman_bacon_decomposition``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def bacon_decompose(
     time_var: str,
     quietly: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bacon_decompose`` -- METHOD-SELECTION card #167.
+    """Node ``bacon_decompose`` -- method card #167.
 
     Goodman-Bacon decomposition of the TWFE DiD coefficient (staggered adoption).
 
@@ -57,5 +57,5 @@ def bacon_decompose(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bacon_decompose: not implemented. The method card is in ./README.md."
+        "bacon_decompose: not implemented."
     )

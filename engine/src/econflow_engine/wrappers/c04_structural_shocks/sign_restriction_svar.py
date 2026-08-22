@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``sign_restriction_svar`` -- METHOD-SELECTION card #21.
+"""Method wrapper ``sign_restriction_svar`` -- method card #21.
 
 #21 Sign-restriction SVAR (Uhlig rejection & penalty, Rubio-Ramirez/Waggoner/Zha)
 
@@ -7,8 +7,8 @@ Category 04-structural-shocks; module ``sign_restriction_svar``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,15 +24,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "vsr_rwz_reject",
-    "vsr_uhlig_penalty",
-    "vsr_uhlig_reject",
+    "sgn_rwz_reject",
+    "sgn_uhlig_penalty",
+    "sgn_uhlig_reject",
     "NODE_META",
     "wire_model",
 ]
 
 
-def vsr_uhlig_reject(
+def sgn_uhlig_reject(
     *,
     Y: pd.DataFrame,
     constrained: Sequence[int],
@@ -45,7 +45,7 @@ def vsr_uhlig_reject(
     steps: int | None = None,
     type: Literal["median", "mean"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vsr_uhlig_reject`` -- METHOD-SELECTION card #21.
+    """Node ``sgn_uhlig_reject`` -- method card #21.
 
     Sign-restriction SVAR (Uhlig rejection & penalty, Rubio-Ramirez/Waggoner/Zha).
 
@@ -69,11 +69,11 @@ def vsr_uhlig_reject(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vsr_uhlig_reject: not implemented. The method card is in ./README.md."
+        "sgn_uhlig_reject: not implemented."
     )
 
 
-def vsr_uhlig_penalty(
+def sgn_uhlig_penalty(
     *,
     Y: pd.DataFrame,
     constrained: Sequence[int],
@@ -87,7 +87,7 @@ def vsr_uhlig_penalty(
     penalty: float | None = None,
     type: Literal["median", "mean"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vsr_uhlig_penalty`` -- METHOD-SELECTION card #21.
+    """Node ``sgn_uhlig_penalty`` -- method card #21.
 
     Sign-restriction SVAR (Uhlig rejection & penalty, Rubio-Ramirez/Waggoner/Zha).
 
@@ -112,11 +112,11 @@ def vsr_uhlig_penalty(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vsr_uhlig_penalty: not implemented. The method card is in ./README.md."
+        "sgn_uhlig_penalty: not implemented."
     )
 
 
-def vsr_rwz_reject(
+def sgn_rwz_reject(
     *,
     Y: pd.DataFrame,
     constrained: Sequence[int],
@@ -129,7 +129,7 @@ def vsr_rwz_reject(
     steps: int | None = None,
     type: Literal["median", "mean"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vsr_rwz_reject`` -- METHOD-SELECTION card #21.
+    """Node ``sgn_rwz_reject`` -- method card #21.
 
     Sign-restriction SVAR (Uhlig rejection & penalty, Rubio-Ramirez/Waggoner/Zha).
 
@@ -153,5 +153,5 @@ def vsr_rwz_reject(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vsr_rwz_reject: not implemented. The method card is in ./README.md."
+        "sgn_rwz_reject: not implemented."
     )

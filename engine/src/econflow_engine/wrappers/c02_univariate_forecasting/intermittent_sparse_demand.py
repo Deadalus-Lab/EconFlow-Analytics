@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``intermittent_sparse_demand`` -- METHOD-SELECTION card #135.
+"""Method wrapper ``intermittent_sparse_demand`` -- method card #135.
 
 #135 Intermittent / sparse-demand forecasting (Croston + SBA/SBJ variants, TSB, iMAPA
     auto-selection, Croston decomposition)
@@ -8,8 +8,8 @@ Category 02-univariate-forecasting; module ``intermittent_sparse_demand``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def tsi_croston(
     init_opt: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tsi_croston`` -- METHOD-SELECTION card #135.
+    """Node ``tsi_croston`` -- method card #135.
 
     Intermittent / sparse-demand forecasting (Croston + SBA/SBJ variants, TSB, iMAPA auto-selection,
     Croston decomposition).
@@ -69,7 +69,7 @@ def tsi_croston(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tsi_croston: not implemented. The method card is in ./README.md."
+        "tsi_croston: not implemented."
     )
 
 
@@ -83,7 +83,7 @@ def tsi_tsb(
     init_opt: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tsi_tsb`` -- METHOD-SELECTION card #135.
+    """Node ``tsi_tsb`` -- method card #135.
 
     Intermittent / sparse-demand forecasting (Croston + SBA/SBJ variants, TSB, iMAPA auto-selection,
     Croston decomposition).
@@ -103,7 +103,7 @@ def tsi_tsb(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tsi_tsb: not implemented. The method card is in ./README.md."
+        "tsi_tsb: not implemented."
     )
 
 
@@ -118,7 +118,7 @@ def tsi_imapa(
     init_opt: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tsi_imapa`` -- METHOD-SELECTION card #135.
+    """Node ``tsi_imapa`` -- method card #135.
 
     Intermittent / sparse-demand forecasting (Croston + SBA/SBJ variants, TSB, iMAPA auto-selection,
     Croston decomposition).
@@ -139,7 +139,7 @@ def tsi_imapa(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tsi_imapa: not implemented. The method card is in ./README.md."
+        "tsi_imapa: not implemented."
     )
 
 
@@ -148,7 +148,7 @@ def tsi_decomp(
     data: pd.Series,
     init: Literal["naive", "mean"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``tsi_decomp`` -- METHOD-SELECTION card #135.
+    """Node ``tsi_decomp`` -- method card #135.
 
     Intermittent / sparse-demand forecasting (Croston + SBA/SBJ variants, TSB, iMAPA auto-selection,
     Croston decomposition).
@@ -164,5 +164,5 @@ def tsi_decomp(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tsi_decomp: not implemented. The method card is in ./README.md."
+        "tsi_decomp: not implemented."
     )

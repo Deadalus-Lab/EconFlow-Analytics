@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # ============================================================
 # GENERATED FILE -- DO NOT EDIT.
-# Source: artifacts/node-specs.v1.json (committed) via scripts/gen_schemas.py.
+# Source: artifacts/node-specs.json (committed) via scripts/gen_schemas.py.
 # Rebuild with: python scripts/gen_schemas.py
 # ============================================================
 
-"""Tier 2 for category 19-business-cycle-dating -- 7 nodes. No descriptions."""
+"""Tier 2 for category 19-business-cycle-dating -- 14 nodes. No descriptions."""
 
 from functools import cache
 
@@ -24,7 +24,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='average_over_phases',
         category='19-business-cycle-dating',
         card_id=88,
-        contract_hash='c-e23bdf5dd95770aa594b5aeb44a3ca4d5507b4e75f1cf00af31ec1817ad1c3ac',
+        contract_hash='c2-e5900f77c9ef4be0f6b0e3e4726e12e639ff941bded152bceceb846c64985062',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -38,7 +38,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='changepoint_segments',
         category='19-business-cycle-dating',
         card_id=213,
-        contract_hash='c-cfe9cb7c15722cef7ffbd498080e8f10f6e460a93974769520f919422e9c3ea1',
+        contract_hash='c2-8e24461d5b53ae2598a2cd8710d578683ba3cc10b84642b368268a9ab29f2d3c',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -51,7 +51,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='date_business_cycles',
         category='19-business-cycle-dating',
         card_id=88,
-        contract_hash='c-d6c4494c0574b606e9774d956549c1de0137430f7f66dfd5a1590e1febff19ed',
+        contract_hash='c2-3418d3cdedb29f1f341522106ec42b498b0cd9b259c331a3ce73a4cfa20eb998',
         register_field='bcdating',
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -67,7 +67,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='detect_change_points',
         category='19-business-cycle-dating',
         card_id=214,
-        contract_hash='c-9c8f64b4e349eebb38bce5f475a439f99b03ddc7d752260dc10804f8ab6c0f2a',
+        contract_hash='c2-7a0bafbae9a243893410348d5285a7e9f15ca925ad7fae25313d6027412fc16e',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='mcmc',
@@ -86,7 +86,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='detect_changepoints',
         category='19-business-cycle-dating',
         card_id=213,
-        contract_hash='c-7523c8b51e09d3b63dfe2f335983fb7c77c2c5aa19f30d067665cebde1fde6ac',
+        contract_hash='c2-1de04d394ef39a7e017eeab841a7147910f98fe17a3990879364a9a853989550',
         register_field='fit',
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -109,7 +109,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='detect_changepoints_agglo',
         category='19-business-cycle-dating',
         card_id=215,
-        contract_hash='c-9431a5e5a56833753b6caaedb567e97acbdf89e08dd6146f4b1ca8a7fec0b3e5',
+        contract_hash='c2-2602e8711f40213873a3e67a04346248e151b7569c99ac58cf01106c57084f73',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -125,7 +125,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='detect_changepoints_divisive',
         category='19-business-cycle-dating',
         card_id=215,
-        contract_hash='c-17877f5fd9840018472c3665afffd3b467a2b5eba84759ccb4ee7611c5a97419',
+        contract_hash='c2-3392bb0fa0c6f80ae98bafb0338924139eb474504edf806d1532132e1b1cf69e',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -140,6 +140,125 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'sig_lvl': 0.05, 'n_permutations': 199, 'min_size': 30, 'alpha': 1, 'seed': 20240101},
     ),
+    'bc_ms_recession': NodeMeta(
+        fn='bc_ms_recession',
+        category='19-business-cycle-dating',
+        card_id=540,
+        contract_hash='c2-09dee59bed1ac719a0d4d9fdd7d963c63bc91773695795620d88d812cec10caf',
+        register_field='fit',
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='y', kind='series_handle', required=True),
+        NodeArgMeta(name='k_regimes', kind='integer', required=False),
+        NodeArgMeta(name='order', kind='integer', required=False),
+        NodeArgMeta(name='switching_variance', kind='boolean', required=False),
+        NodeArgMeta(name='threshold', kind='number', required=False),
+        NodeArgMeta(name='n_starts', kind='integer', required=False),
+        NodeArgMeta(name='seed', kind='integer', required=False),
+        ),
+        defaults={'k_regimes': 2, 'order': 4, 'switching_variance': True, 'threshold': 0.5, 'n_starts': 10},
+    ),
+    'bc_ms_factor': NodeMeta(
+        fn='bc_ms_factor',
+        category='19-business-cycle-dating',
+        card_id=540,
+        contract_hash='c2-0a1bb9d0dc6d21e219456d05d377db10489531bb923f8bad0101638b47bf27a3',
+        register_field='fit',
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='y', kind='multiseries_handle', required=True),
+        NodeArgMeta(name='k_regimes', kind='integer', required=False),
+        NodeArgMeta(name='factor_order', kind='integer', required=False),
+        NodeArgMeta(name='seed', kind='integer', required=False),
+        ),
+        defaults={'k_regimes': 2, 'factor_order': 2},
+    ),
+    'bc_bry_boschan': NodeMeta(
+        fn='bc_bry_boschan',
+        category='19-business-cycle-dating',
+        card_id=541,
+        contract_hash='c2-efb947ea0fe76bff2c062d1098671ef4ad5310a4959c6de8bc1fb4203127151e',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='y', kind='series_handle', required=True),
+        NodeArgMeta(name='min_phase', kind='integer', required=False),
+        NodeArgMeta(name='min_cycle', kind='integer', required=False),
+        NodeArgMeta(name='smoothing', kind='enum', required=False, enum=('none', 'mcd', 'spencer', 'henderson', )),
+        NodeArgMeta(name='end_censor', kind='integer', required=False),
+        ),
+        defaults={'min_phase': 5, 'min_cycle': 15, 'smoothing': 'spencer', 'end_censor': 6},
+    ),
+    'bc_cycle_statistics': NodeMeta(
+        fn='bc_cycle_statistics',
+        category='19-business-cycle-dating',
+        card_id=541,
+        contract_hash='c2-59a4d54d30898809e158685380f98d1b35cbcf964a80b44c878b28925b646d0c',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='y', kind='series_handle', required=True),
+        NodeArgMeta(name='peaks', kind='int_array', required=True),
+        NodeArgMeta(name='troughs', kind='int_array', required=True),
+        ),
+        defaults={},
+    ),
+    'bc_online_change_detection': NodeMeta(
+        fn='bc_online_change_detection',
+        category='19-business-cycle-dating',
+        card_id=542,
+        contract_hash='c2-9a48d6ed7bc8a94bfdb6909b480c5575560690ff0261db1d3eeea86ee9469604',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='y', kind='series_handle', required=True),
+        NodeArgMeta(name='method', kind='enum', required=False, enum=('cusum', 'page_hinkley', 'bocpd', 'ewma', )),
+        NodeArgMeta(name='threshold', kind='number', required=False),
+        NodeArgMeta(name='hazard', kind='number', required=False),
+        NodeArgMeta(name='burn_in', kind='integer', required=False),
+        ),
+        defaults={'method': 'bocpd', 'hazard': 0.01, 'burn_in': 50},
+    ),
+    'bc_multivariate_changepoints': NodeMeta(
+        fn='bc_multivariate_changepoints',
+        category='19-business-cycle-dating',
+        card_id=543,
+        contract_hash='c2-cf81f4bda0d2d5b69453002b4ef54b5736d4f8f4a9ef5260bb65fc9705136bd3',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='y', kind='multiseries_handle', required=True),
+        NodeArgMeta(name='model', kind='enum', required=False, enum=('l1', 'l2', 'rbf', 'linear', 'normal', 'ar', )),
+        NodeArgMeta(name='method', kind='enum', required=False, enum=('pelt', 'binseg', 'dynp', 'window', 'bottomup', )),
+        NodeArgMeta(name='penalty', kind='number', required=False),
+        NodeArgMeta(name='n_changepoints', kind='integer', required=False),
+        NodeArgMeta(name='min_size', kind='integer', required=False),
+        ),
+        defaults={'model': 'rbf', 'method': 'pelt', 'min_size': 5},
+    ),
+    'bc_matrix_profile': NodeMeta(
+        fn='bc_matrix_profile',
+        category='19-business-cycle-dating',
+        card_id=544,
+        contract_hash='c2-e14ba064c5c41e6e44219a585a961a36f2a096290069bfbbb84863263151c794',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='y', kind='series_handle', required=True),
+        NodeArgMeta(name='window', kind='integer', required=True),
+        NodeArgMeta(name='n_motifs', kind='integer', required=False),
+        NodeArgMeta(name='n_discords', kind='integer', required=False),
+        NodeArgMeta(name='normalise', kind='boolean', required=False),
+        ),
+        defaults={'n_motifs': 3, 'n_discords': 3, 'normalise': True},
+    ),
 }
 
 #: Argument defaults, for FORM PREFILL ONLY. A default must never be sent
@@ -152,6 +271,13 @@ DEFAULTS: dict[str, dict[str, object]] = {
     'detect_changepoints': {'pen_value': 0, 'Q': 5, 'know_mean': False, 'shape': 1},
     'detect_changepoints_agglo': {'alpha': 1},
     'detect_changepoints_divisive': {'sig_lvl': 0.05, 'n_permutations': 199, 'min_size': 30, 'alpha': 1, 'seed': 20240101},
+    'bc_ms_recession': {'k_regimes': 2, 'order': 4, 'switching_variance': True, 'threshold': 0.5, 'n_starts': 10},
+    'bc_ms_factor': {'k_regimes': 2, 'factor_order': 2},
+    'bc_bry_boschan': {'min_phase': 5, 'min_cycle': 15, 'smoothing': 'spencer', 'end_censor': 6},
+    'bc_cycle_statistics': {},
+    'bc_online_change_detection': {'method': 'bocpd', 'hazard': 0.01, 'burn_in': 50},
+    'bc_multivariate_changepoints': {'model': 'rbf', 'method': 'pelt', 'min_size': 5},
+    'bc_matrix_profile': {'n_motifs': 3, 'n_discords': 3, 'normalise': True},
 }
 
 

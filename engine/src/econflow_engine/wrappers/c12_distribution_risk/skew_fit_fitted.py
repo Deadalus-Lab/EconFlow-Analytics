@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``skew_fit_fitted`` -- METHOD-SELECTION card #95.
+"""Method wrapper ``skew_fit_fitted`` -- method card #95.
 
 #95 Skew-t fit to fitted quantiles (ABG Growth-at-Risk «step 2») + density/ES
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``skew_fit_fitted``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def st_fit_quantiles(
     method: Literal["Nelder-Mead", "BFGS"] | None = None,
     maxit: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``st_fit_quantiles`` -- METHOD-SELECTION card #95.
+    """Node ``st_fit_quantiles`` -- method card #95.
 
     Skew-t fit to fitted quantiles (ABG Growth-at-Risk «step 2») + density/ES.
 
@@ -59,7 +59,7 @@ def st_fit_quantiles(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "st_fit_quantiles: not implemented. The method card is in ./README.md."
+        "st_fit_quantiles: not implemented."
     )
 
 
@@ -68,7 +68,7 @@ def st_density(
     fit: Any,
     n: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``st_density`` -- METHOD-SELECTION card #95.
+    """Node ``st_density`` -- method card #95.
 
     Skew-t fit to fitted quantiles (ABG Growth-at-Risk «step 2») + density/ES.
 
@@ -82,7 +82,7 @@ def st_density(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "st_density: not implemented. The method card is in ./README.md."
+        "st_density: not implemented."
     )
 
 
@@ -92,7 +92,7 @@ def st_shortfall(
     prob: float | None = None,
     side: Literal["left", "right"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``st_shortfall`` -- METHOD-SELECTION card #95.
+    """Node ``st_shortfall`` -- method card #95.
 
     Skew-t fit to fitted quantiles (ABG Growth-at-Risk «step 2») + density/ES.
 
@@ -107,5 +107,5 @@ def st_shortfall(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "st_shortfall: not implemented. The method card is in ./README.md."
+        "st_shortfall: not implemented."
     )

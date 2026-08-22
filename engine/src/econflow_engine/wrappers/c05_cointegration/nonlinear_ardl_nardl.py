@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``nonlinear_ardl_nardl`` -- METHOD-SELECTION card #140.
+"""Method wrapper ``nonlinear_ardl_nardl`` -- method card #140.
 
 #140 Nonlinear (asymmetric) ARDL — NARDL (Shin-Yu-Greenwood-Nimmo) + PSS bounds + CUSUM/CUSUMQ
     stability
@@ -8,8 +8,8 @@ Category 05-cointegration; module ``nonlinear_ardl_nardl``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def nar_fit(
     maxlag: int | None = None,
     case: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``nar_fit`` -- METHOD-SELECTION card #140.
+    """Node ``nar_fit`` -- method card #140.
 
     Nonlinear (asymmetric) ARDL — NARDL (Shin-Yu-Greenwood-Nimmo) + PSS bounds + CUSUM/CUSUMQ
     stability.
@@ -65,7 +65,7 @@ def nar_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nar_fit: not implemented. The method card is in ./README.md."
+        "nar_fit: not implemented."
     )
 
 
@@ -73,7 +73,7 @@ def nar_bounds(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``nar_bounds`` -- METHOD-SELECTION card #140.
+    """Node ``nar_bounds`` -- method card #140.
 
     Nonlinear (asymmetric) ARDL — NARDL (Shin-Yu-Greenwood-Nimmo) + PSS bounds + CUSUM/CUSUMQ
     stability.
@@ -87,7 +87,7 @@ def nar_bounds(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nar_bounds: not implemented. The method card is in ./README.md."
+        "nar_bounds: not implemented."
     )
 
 
@@ -95,7 +95,7 @@ def nar_stability(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``nar_stability`` -- METHOD-SELECTION card #140.
+    """Node ``nar_stability`` -- method card #140.
 
     Nonlinear (asymmetric) ARDL — NARDL (Shin-Yu-Greenwood-Nimmo) + PSS bounds + CUSUM/CUSUMQ
     stability.
@@ -109,5 +109,5 @@ def nar_stability(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nar_stability: not implemented. The method card is in ./README.md."
+        "nar_stability: not implemented."
     )

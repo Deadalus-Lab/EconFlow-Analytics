@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``productivity`` -- METHOD-SELECTION card #62.
+"""Method wrapper ``productivity`` -- method card #62.
 
 #62 productivity (TFP / Malmquist / DEA)
 
@@ -7,8 +7,8 @@ Category 11-decomposition-accounting; module ``productivity``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "prod_fareprim",
+    "prod_fare_primont",
     "prod_malmquist",
     "NODE_META",
     "wire_model",
@@ -43,7 +43,7 @@ def prod_malmquist(
     tech_reg: bool | None = None,
     scaled: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``prod_malmquist`` -- METHOD-SELECTION card #62.
+    """Node ``prod_malmquist`` -- method card #62.
 
     productivity (TFP / Malmquist / DEA).
 
@@ -67,11 +67,11 @@ def prod_malmquist(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "prod_malmquist: not implemented. The method card is in ./README.md."
+        "prod_malmquist: not implemented."
     )
 
 
-def prod_fareprim(
+def prod_fare_primont(
     *,
     data: pd.DataFrame,
     id_var: str,
@@ -87,7 +87,7 @@ def prod_fareprim(
     scaled: bool | None = None,
     shadow: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``prod_fareprim`` -- METHOD-SELECTION card #62.
+    """Node ``prod_fare_primont`` -- method card #62.
 
     productivity (TFP / Malmquist / DEA).
 
@@ -116,5 +116,5 @@ def prod_fareprim(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "prod_fareprim: not implemented. The method card is in ./README.md."
+        "prod_fare_primont: not implemented."
     )

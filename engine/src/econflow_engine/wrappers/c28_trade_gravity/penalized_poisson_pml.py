@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``penalized_poisson_pml`` -- METHOD-SELECTION card #238.
+"""Method wrapper ``penalized_poisson_pml`` -- method card #238.
 
 #238 Penalized Poisson PML gravity with high-dimensional fixed effects (an HDFE PPML baseline; a
     single-lambda lasso/ridge/plugin; a lasso/ridge path + a BIC-selected lambda)
@@ -8,8 +8,8 @@ Category 28-trade-gravity; module ``penalized_poisson_pml``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,15 +25,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "pp_hdfeppml",
-    "pp_mlfitppml",
-    "pp_penhdfeppml",
+    "pp_hdfe",
+    "pp_ml_fit",
+    "pp_penalized_hdfe",
     "NODE_META",
     "wire_model",
 ]
 
 
-def pp_hdfeppml(
+def pp_hdfe(
     *,
     data: pd.DataFrame,
     dep: str,
@@ -43,7 +43,7 @@ def pp_hdfeppml(
     tol: float | None = None,
     hdfetol: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``pp_hdfeppml`` -- METHOD-SELECTION card #238.
+    """Node ``pp_hdfe`` -- method card #238.
 
     Penalized Poisson PML gravity with high-dimensional fixed effects (an HDFE PPML baseline; a
     single-lambda lasso/ridge/plugin; a lasso/ridge path + a BIC-selected lambda).
@@ -72,11 +72,11 @@ def pp_hdfeppml(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pp_hdfeppml: not implemented. The method card is in ./README.md."
+        "pp_hdfe: not implemented."
     )
 
 
-def pp_penhdfeppml(
+def pp_penalized_hdfe(
     *,
     data: pd.DataFrame,
     dep: str,
@@ -88,7 +88,7 @@ def pp_penhdfeppml(
     cluster: Sequence[str] | None = None,
     hdfetol: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``pp_penhdfeppml`` -- METHOD-SELECTION card #238.
+    """Node ``pp_penalized_hdfe`` -- method card #238.
 
     Penalized Poisson PML gravity with high-dimensional fixed effects (an HDFE PPML baseline; a
     single-lambda lasso/ridge/plugin; a lasso/ridge path + a BIC-selected lambda).
@@ -121,11 +121,11 @@ def pp_penhdfeppml(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pp_penhdfeppml: not implemented. The method card is in ./README.md."
+        "pp_penalized_hdfe: not implemented."
     )
 
 
-def pp_mlfitppml(
+def pp_ml_fit(
     *,
     data: pd.DataFrame,
     dep: str,
@@ -139,7 +139,7 @@ def pp_mlfitppml(
     seed: int | None = None,
     hdfetol: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``pp_mlfitppml`` -- METHOD-SELECTION card #238.
+    """Node ``pp_ml_fit`` -- method card #238.
 
     Penalized Poisson PML gravity with high-dimensional fixed effects (an HDFE PPML baseline; a
     single-lambda lasso/ridge/plugin; a lasso/ridge path + a BIC-selected lambda).
@@ -174,5 +174,5 @@ def pp_mlfitppml(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pp_mlfitppml: not implemented. The method card is in ./README.md."
+        "pp_ml_fit: not implemented."
     )

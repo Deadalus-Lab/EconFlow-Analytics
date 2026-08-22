@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``discrete_time_markov`` -- METHOD-SELECTION card #164.
+"""Method wrapper ``discrete_time_markov`` -- method card #164.
 
 #164 Discrete-time Markov chain: estimating the transition matrix (MLE/Laplace/bootstrap CI) +
     long-run analytics (the stationary distribution, mean first passage times, irreducibility,
@@ -9,8 +9,8 @@ Category 06-volatility-regimes; module ``discrete_time_markov``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def mc_fit(
     sanitize: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``mc_fit`` -- METHOD-SELECTION card #164.
+    """Node ``mc_fit`` -- method card #164.
 
     Discrete-time Markov chain: estimating the transition matrix (MLE/Laplace/bootstrap CI) +
     long-run analytics (the stationary distribution, mean first passage times, irreducibility,
@@ -70,7 +70,7 @@ def mc_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mc_fit: not implemented. The method card is in ./README.md."
+        "mc_fit: not implemented."
     )
 
 
@@ -78,7 +78,7 @@ def mc_analytics(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``mc_analytics`` -- METHOD-SELECTION card #164.
+    """Node ``mc_analytics`` -- method card #164.
 
     Discrete-time Markov chain: estimating the transition matrix (MLE/Laplace/bootstrap CI) +
     long-run analytics (the stationary distribution, mean first passage times, irreducibility,
@@ -93,5 +93,5 @@ def mc_analytics(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mc_analytics: not implemented. The method card is in ./README.md."
+        "mc_analytics: not implemented."
     )

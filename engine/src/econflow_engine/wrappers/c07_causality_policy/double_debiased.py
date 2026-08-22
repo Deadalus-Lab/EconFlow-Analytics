@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``double_debiased`` -- METHOD-SELECTION card #45.
+"""Method wrapper ``double_debiased`` -- method card #45.
 
 #45 Double/Debiased ML
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``double_debiased``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,15 +24,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_doubleml_data",
-    "wrap_doubleml_irm",
-    "wrap_doubleml_plr",
+    "dml_irm",
+    "dml_plr",
+    "dml_prepare_data",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_doubleml_data(
+def dml_prepare_data(
     *,
     data: pd.DataFrame,
     y_col: str,
@@ -41,7 +41,7 @@ def wrap_doubleml_data(
     z_cols: Sequence[str] | None = None,
     use_other_treat_as_covariate: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_doubleml_data`` -- METHOD-SELECTION card #45.
+    """Node ``dml_prepare_data`` -- method card #45.
 
     Double/Debiased ML.
 
@@ -62,29 +62,29 @@ def wrap_doubleml_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_doubleml_data: not implemented. The method card is in ./README.md."
+        "dml_prepare_data: not implemented."
     )
 
 
-def wrap_doubleml_plr(
+def dml_plr(
     *,
     data: Any,
-    learner: Literal["ranger", "glmnet"] | None = None,
+    learner: Literal["random_forest", "elastic_net"] | None = None,
     n_folds: int | None = None,
     n_rep: int | None = None,
     score: Literal["partialling out", "IV-type"] | None = None,
     dml_procedure: Literal["dml2", "dml1"] | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``wrap_doubleml_plr`` -- METHOD-SELECTION card #45.
+    """Node ``dml_plr`` -- method card #45.
 
     Double/Debiased ML.
 
     Category 07-causality-policy; memory class ``heavy``.
 
     Args:
-        data: [raw_handle, required] Handle to a DoubleMLData object (from wrap_doubleml_data).
-        learner: [enum, optional] ML engine for the nuisance functions (default ranger).
+        data: [raw_handle, required] Handle to a DoubleMLData object (from dml_prepare_data).
+        learner: [enum, optional] ML engine for the nuisance functions (default random_forest).
         n_folds: [integer, optional] Cross-fitting folds (default 5). Default ``5``.
         n_rep: [integer, optional] Cross-fitting repetitions (default 1). Default ``1``.
         score: [enum, optional] Score function (default partialling out).
@@ -95,14 +95,14 @@ def wrap_doubleml_plr(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_doubleml_plr: not implemented. The method card is in ./README.md."
+        "dml_plr: not implemented."
     )
 
 
-def wrap_doubleml_irm(
+def dml_irm(
     *,
     data: Any,
-    learner: Literal["ranger", "glmnet"] | None = None,
+    learner: Literal["random_forest", "elastic_net"] | None = None,
     n_folds: int | None = None,
     n_rep: int | None = None,
     score: Literal["ATE", "ATTE"] | None = None,
@@ -110,7 +110,7 @@ def wrap_doubleml_irm(
     dml_procedure: Literal["dml2", "dml1"] | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``wrap_doubleml_irm`` -- METHOD-SELECTION card #45.
+    """Node ``dml_irm`` -- method card #45.
 
     Double/Debiased ML.
 
@@ -118,7 +118,7 @@ def wrap_doubleml_irm(
 
     Args:
         data: [raw_handle, required] Handle to a DoubleMLData object (binary treatment).
-        learner: [enum, optional] ML engine (default ranger).
+        learner: [enum, optional] ML engine (default random_forest).
         n_folds: [integer, optional] Cross-fitting folds (default 5). Default ``5``.
         n_rep: [integer, optional] Cross-fitting repetitions (default 1). Default ``1``.
         score: [enum, optional] Estimand (default ATE).
@@ -130,5 +130,5 @@ def wrap_doubleml_irm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_doubleml_irm: not implemented. The method card is in ./README.md."
+        "dml_irm: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``fractionally_cointegrated_var`` -- METHOD-SELECTION card #139.
+"""Method wrapper ``fractionally_cointegrated_var`` -- method card #139.
 
 #139 Fractionally Cointegrated VAR (Johansen-Nielsen): fractional cointegration with estimated d/b +
     rank tests (asymptotic + wild bootstrap) + lag selection
@@ -8,8 +8,8 @@ Category 05-cointegration; module ``fractionally_cointegrated_var``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def fcv_estimate(
     unr_constant: bool | None = None,
     grid_search: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fcv_estimate`` -- METHOD-SELECTION card #139.
+    """Node ``fcv_estimate`` -- method card #139.
 
     Fractionally Cointegrated VAR (Johansen-Nielsen): fractional cointegration with estimated d/b +
     rank tests (asymptotic + wild bootstrap) + lag selection.
@@ -58,7 +58,7 @@ def fcv_estimate(
     Registers its result under ``object``, so a later node can consume it as a handle.
 
     Args:
-        x: [matrix_handle, required] Handle to a multivariate system (matrix/mts, >=2 columns,
+        x: [matrix_handle, required] Handle to a multivariate system (matrix/panel, >=2 columns,
             fractionally integrated).
         k: [integer, optional] Number of lags in the system; integer >=0 (default 1). Default ``1``.
         r: [integer, optional] Cointegration rank; integer 0..p (default 1). Default ``1``.
@@ -80,7 +80,7 @@ def fcv_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fcv_estimate: not implemented. The method card is in ./README.md."
+        "fcv_estimate: not implemented."
     )
 
 
@@ -92,7 +92,7 @@ def fcv_rank_test(
     constrained: bool | None = None,
     grid_search: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fcv_rank_test`` -- METHOD-SELECTION card #139.
+    """Node ``fcv_rank_test`` -- method card #139.
 
     Fractionally Cointegrated VAR (Johansen-Nielsen): fractional cointegration with estimated d/b +
     rank tests (asymptotic + wild bootstrap) + lag selection.
@@ -100,7 +100,7 @@ def fcv_rank_test(
     Category 05-cointegration; memory class ``light``.
 
     Args:
-        x: [matrix_handle, required] Handle to a multivariate system (matrix/mts, >=2 columns).
+        x: [matrix_handle, required] Handle to a multivariate system (matrix/panel, >=2 columns).
         k: [integer, optional] Number of lags; integer >=0 (default 1). Default ``1``.
         restrict_db: [boolean, optional] Enforcement of d=b (default True). Default ``True``.
         constrained: [boolean, optional] Enforcement of dbMax>=d>=b>=dbMin (default False). Default
@@ -111,7 +111,7 @@ def fcv_rank_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fcv_rank_test: not implemented. The method card is in ./README.md."
+        "fcv_rank_test: not implemented."
     )
 
 
@@ -123,7 +123,7 @@ def fcv_lag_select(
     order: int | None = None,
     grid_search: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fcv_lag_select`` -- METHOD-SELECTION card #139.
+    """Node ``fcv_lag_select`` -- method card #139.
 
     Fractionally Cointegrated VAR (Johansen-Nielsen): fractional cointegration with estimated d/b +
     rank tests (asymptotic + wild bootstrap) + lag selection.
@@ -131,7 +131,7 @@ def fcv_lag_select(
     Category 05-cointegration; memory class ``light``.
 
     Args:
-        x: [matrix_handle, required] Handle to a multivariate system (matrix/mts, >=2 columns).
+        x: [matrix_handle, required] Handle to a multivariate system (matrix/panel, >=2 columns).
         kmax: [integer, optional] Maximum number of lags; integer >=1 (default 2). Default ``2``.
         r: [integer, optional] Cointegration rank; integer 0..p (default p — over-specify).
         order: [integer, optional] Serial correlation order for the white-noise tests; >=1 (default
@@ -142,7 +142,7 @@ def fcv_lag_select(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fcv_lag_select: not implemented. The method card is in ./README.md."
+        "fcv_lag_select: not implemented."
     )
 
 
@@ -156,7 +156,7 @@ def fcv_boot_rank(
     seed: int,
     grid_search: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fcv_boot_rank`` -- METHOD-SELECTION card #139.
+    """Node ``fcv_boot_rank`` -- method card #139.
 
     Fractionally Cointegrated VAR (Johansen-Nielsen): fractional cointegration with estimated d/b +
     rank tests (asymptotic + wild bootstrap) + lag selection.
@@ -164,7 +164,7 @@ def fcv_boot_rank(
     Category 05-cointegration; memory class ``heavy``.
 
     Args:
-        x: [matrix_handle, required] Handle to a multivariate system (matrix/mts, >=2 columns).
+        x: [matrix_handle, required] Handle to a multivariate system (matrix/panel, >=2 columns).
         k: [integer, optional] Number of lags; integer >=0 (default 1). Default ``1``.
         r1: [integer, optional] Rank under H0; integer 0..p (default 0). Default ``0``.
         r2: [integer, optional] Rank under H1; integer 0..p, r2>r1 (default 1). Default ``1``.
@@ -177,5 +177,5 @@ def fcv_boot_rank(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fcv_boot_rank: not implemented. The method card is in ./README.md."
+        "fcv_boot_rank: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``seasonality`` -- METHOD-SELECTION card #125.
+"""Method wrapper ``seasonality`` -- method card #125.
 
 #125 Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB)
 
@@ -7,8 +7,8 @@ Category 01-preparation-prechecks; module ``seasonality``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,19 +24,19 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "fried_test",
+    "friedman_test",
     "kw_test",
     "ocsb_test",
     "qs_test",
-    "run_isseasonal",
-    "seasdum_test",
+    "run_seasonality_test",
+    "seasonal_dummy_test",
     "welch_test",
     "NODE_META",
     "wire_model",
 ]
 
 
-def run_isseasonal(
+def run_seasonality_test(
     *,
     x: pd.Series,
     test: Literal["combined", "qs", "fried", "kw", "seasdum", "welch", "ocsb"] | None = None,
@@ -44,7 +44,7 @@ def run_isseasonal(
     alpha: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_isseasonal`` -- METHOD-SELECTION card #125.
+    """Node ``run_seasonality_test`` -- method card #125.
 
     Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB).
 
@@ -64,7 +64,7 @@ def run_isseasonal(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_isseasonal: not implemented. The method card is in ./README.md."
+        "run_seasonality_test: not implemented."
     )
 
 
@@ -77,7 +77,7 @@ def qs_test(
     autoarima: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``qs_test`` -- METHOD-SELECTION card #125.
+    """Node ``qs_test`` -- method card #125.
 
     Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB).
 
@@ -98,11 +98,11 @@ def qs_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qs_test: not implemented. The method card is in ./README.md."
+        "qs_test: not implemented."
     )
 
 
-def fried_test(
+def friedman_test(
     *,
     x: pd.Series,
     freq: int | None = None,
@@ -111,7 +111,7 @@ def fried_test(
     autoarima: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``fried_test`` -- METHOD-SELECTION card #125.
+    """Node ``friedman_test`` -- method card #125.
 
     Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB).
 
@@ -132,7 +132,7 @@ def fried_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fried_test: not implemented. The method card is in ./README.md."
+        "friedman_test: not implemented."
     )
 
 
@@ -145,7 +145,7 @@ def kw_test(
     autoarima: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``kw_test`` -- METHOD-SELECTION card #125.
+    """Node ``kw_test`` -- method card #125.
 
     Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB).
 
@@ -166,18 +166,18 @@ def kw_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "kw_test: not implemented. The method card is in ./README.md."
+        "kw_test: not implemented."
     )
 
 
-def seasdum_test(
+def seasonal_dummy_test(
     *,
     x: pd.Series,
     freq: int | None = None,
     autoarima: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``seasdum_test`` -- METHOD-SELECTION card #125.
+    """Node ``seasonal_dummy_test`` -- method card #125.
 
     Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB).
 
@@ -195,7 +195,7 @@ def seasdum_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "seasdum_test: not implemented. The method card is in ./README.md."
+        "seasonal_dummy_test: not implemented."
     )
 
 
@@ -209,7 +209,7 @@ def welch_test(
     rank: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``welch_test`` -- METHOD-SELECTION card #125.
+    """Node ``welch_test`` -- method card #125.
 
     Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB).
 
@@ -231,7 +231,7 @@ def welch_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "welch_test: not implemented. The method card is in ./README.md."
+        "welch_test: not implemented."
     )
 
 
@@ -245,7 +245,7 @@ def ocsb_test(
     nrun: int | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``ocsb_test`` -- METHOD-SELECTION card #125.
+    """Node ``ocsb_test`` -- method card #125.
 
     Seasonality tests (combined/QS/Friedman/Kruskal-Wallis/seasonal-dummies/Welch/OCSB).
 
@@ -269,5 +269,5 @@ def ocsb_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ocsb_test: not implemented. The method card is in ./README.md."
+        "ocsb_test: not implemented."
     )

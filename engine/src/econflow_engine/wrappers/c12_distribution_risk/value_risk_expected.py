@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``value_risk_expected`` -- METHOD-SELECTION card #65.
+"""Method wrapper ``value_risk_expected`` -- method card #65.
 
 #65 Value-at-Risk / Expected Shortfall / downside-risk / component-VaR
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``value_risk_expected``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,17 +24,17 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "pa_component_var",
-    "pa_downside_risk",
-    "pa_expected_shortfall",
-    "pa_returns_from_long",
-    "pa_var",
+    "risk_component_var",
+    "risk_downside",
+    "risk_expected_shortfall",
+    "risk_returns_from_long",
+    "risk_var",
     "NODE_META",
     "wire_model",
 ]
 
 
-def pa_var(
+def risk_var(
     *,
     returns: np.ndarray,
     p: float | None = None,
@@ -42,7 +42,7 @@ def pa_var(
     clean: Literal["none", "boudt", "geltner"] | None = None,
     invert: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pa_var`` -- METHOD-SELECTION card #65.
+    """Node ``risk_var`` -- method card #65.
 
     Value-at-Risk / Expected Shortfall / downside-risk / component-VaR.
 
@@ -60,11 +60,11 @@ def pa_var(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pa_var: not implemented. The method card is in ./README.md."
+        "risk_var: not implemented."
     )
 
 
-def pa_expected_shortfall(
+def risk_expected_shortfall(
     *,
     returns: np.ndarray,
     p: float | None = None,
@@ -72,7 +72,7 @@ def pa_expected_shortfall(
     clean: Literal["none", "boudt", "geltner"] | None = None,
     invert: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pa_expected_shortfall`` -- METHOD-SELECTION card #65.
+    """Node ``risk_expected_shortfall`` -- method card #65.
 
     Value-at-Risk / Expected Shortfall / downside-risk / component-VaR.
 
@@ -90,17 +90,17 @@ def pa_expected_shortfall(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pa_expected_shortfall: not implemented. The method card is in ./README.md."
+        "risk_expected_shortfall: not implemented."
     )
 
 
-def pa_downside_risk(
+def risk_downside(
     *,
     returns: np.ndarray,
     MAR: float | None = None,
     p: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``pa_downside_risk`` -- METHOD-SELECTION card #65.
+    """Node ``risk_downside`` -- method card #65.
 
     Value-at-Risk / Expected Shortfall / downside-risk / component-VaR.
 
@@ -117,18 +117,18 @@ def pa_downside_risk(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pa_downside_risk: not implemented. The method card is in ./README.md."
+        "risk_downside: not implemented."
     )
 
 
-def pa_component_var(
+def risk_component_var(
     *,
     returns: np.ndarray,
     weights: float,
     p: float | None = None,
     method: Literal["gaussian", "modified"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``pa_component_var`` -- METHOD-SELECTION card #65.
+    """Node ``risk_component_var`` -- method card #65.
 
     Value-at-Risk / Expected Shortfall / downside-risk / component-VaR.
 
@@ -146,17 +146,17 @@ def pa_component_var(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pa_component_var: not implemented. The method card is in ./README.md."
+        "risk_component_var: not implemented."
     )
 
 
-def pa_returns_from_long(
+def risk_returns_from_long(
     *,
     data: pd.DataFrame,
     period_col: str | None = None,
     value_col: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``pa_returns_from_long`` -- METHOD-SELECTION card #65.
+    """Node ``risk_returns_from_long`` -- method card #65.
 
     Value-at-Risk / Expected Shortfall / downside-risk / component-VaR.
 
@@ -171,5 +171,5 @@ def pa_returns_from_long(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pa_returns_from_long: not implemented. The method card is in ./README.md."
+        "risk_returns_from_long: not implemented."
     )

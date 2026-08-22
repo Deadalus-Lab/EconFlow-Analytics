@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``discretisation_numeric_column`` -- METHOD-SELECTION card #255.
+"""Method wrapper ``discretisation_numeric_column`` -- method card #255.
 
 #255 DISCRETISATION (binning) of ONE numeric column: EQUAL-POPULATION bins (sample quantiles,
     quantile type 7 PINNED) or EQUAL-WIDTH bins (an explicit seq over the range or over a GIVEN
@@ -9,8 +9,8 @@ Category 00-data-utilities; module ``discretisation_numeric_column``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def bn_quantile_bins(
     na_action: Literal["fail", "keep"] | None = None,
     dummies: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bn_quantile_bins`` -- METHOD-SELECTION card #255.
+    """Node ``bn_quantile_bins`` -- method card #255.
 
     DISCRETISATION (binning) of ONE numeric column: EQUAL-POPULATION bins (sample quantiles,
     quantile type 7 PINNED) or EQUAL-WIDTH bins (an explicit seq over the range or over a GIVEN
@@ -96,7 +96,7 @@ def bn_quantile_bins(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bn_quantile_bins: not implemented. The method card is in ./README.md."
+        "bn_quantile_bins: not implemented."
     )
 
 
@@ -111,7 +111,7 @@ def bn_equal_width(
     na_action: Literal["fail", "keep"] | None = None,
     dummies: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bn_equal_width`` -- METHOD-SELECTION card #255.
+    """Node ``bn_equal_width`` -- method card #255.
 
     DISCRETISATION (binning) of ONE numeric column: EQUAL-POPULATION bins (sample quantiles,
     quantile type 7 PINNED) or EQUAL-WIDTH bins (an explicit seq over the range or over a GIVEN
@@ -160,7 +160,7 @@ def bn_equal_width(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bn_equal_width: not implemented. The method card is in ./README.md."
+        "bn_equal_width: not implemented."
     )
 
 
@@ -175,7 +175,7 @@ def bn_apply(
     na_action: Literal["fail", "keep"] | None = None,
     dummies: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bn_apply`` -- METHOD-SELECTION card #255.
+    """Node ``bn_apply`` -- method card #255.
 
     DISCRETISATION (binning) of ONE numeric column: EQUAL-POPULATION bins (sample quantiles,
     quantile type 7 PINNED) or EQUAL-WIDTH bins (an explicit seq over the range or over a GIVEN
@@ -230,5 +230,5 @@ def bn_apply(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bn_apply: not implemented. The method card is in ./README.md."
+        "bn_apply: not implemented."
     )

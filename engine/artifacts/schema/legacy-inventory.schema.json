@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Deadalus-Lab/EconFlow-Analytics/engine/artifacts/schema/legacy-inventory.schema.json",
+  "title": "The retired v1 contract: its hashes and its membership",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact_version",
+    "generated_by",
+    "note",
+    "n_nodes",
+    "n_cards",
+    "contract_hashes",
+    "card_ids",
+    "category_renames"
+  ],
+  "properties": {
+    "artifact_version": {
+      "type": "integer"
+    },
+    "generated_by": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "n_nodes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "n_cards": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "contract_hashes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^c-[0-9a-f]{64}$"
+      }
+    },
+    "card_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "minItems": 1
+    },
+    "category_renames": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "was",
+          "since",
+          "why"
+        ],
+        "properties": {
+          "was": {
+            "type": "string"
+          },
+          "since": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

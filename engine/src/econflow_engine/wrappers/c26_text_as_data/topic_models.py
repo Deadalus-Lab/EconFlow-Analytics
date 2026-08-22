@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``topic_models`` -- method card #580.
+
+#580 Topic models: LDA, correlated and dynamic
+
+Category 26-text-as-data; module ``topic_models``.
+
+Reference implementation: tomotopy.
+
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c26_text_as_data import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "tx_topic_coherence",
+    "tx_topic_model",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def tx_topic_model(
+    *,
+    dtm: Any,
+    n_topics: int | None = None,
+    model: Literal["lda", "ctm", "dmr", "dtm", "hdp"] | None = None,
+    time: pd.Series | None = None,
+    iterations: int | None = None,
+    n_seeds: int | None = None,
+    seed: int,
+) -> dict[str, Any]:
+    """Node ``tx_topic_model`` -- method card #580.
+
+    Topic models: LDA, correlated and dynamic.
+
+    Category 26-text-as-data; memory class ``light``.
+
+    Registers its result under ``fit``, so a later node can consume it as a handle.
+
+    Args:
+        dtm: [raw_handle, required] Handle to a document-term matrix.
+        n_topics: [integer, optional] Number of topics; omitted = selected by coherence. Default
+            ``20``.
+        model: [enum, optional] Model. Default ``'lda'``.
+        time: [series_handle, optional] Document time index for the dynamic model.
+        iterations: [integer, optional] Sampler iterations. Default ``1000``.
+        n_seeds: [integer, optional] Seeds for a stability check. Default ``1``.
+        seed: [integer, required] Seed for the random number generator; required for
+            reproducibility.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "tx_topic_model: not implemented."
+    )
+
+
+def tx_topic_coherence(
+    *,
+    dtm: Any,
+    topic_range: Sequence[int] | None = None,
+    measure: Literal["c_v", "u_mass", "c_npmi", "perplexity"] | None = None,
+    seed: int,
+) -> dict[str, Any]:
+    """Node ``tx_topic_coherence`` -- method card #580.
+
+    Topic models: LDA, correlated and dynamic.
+
+    Category 26-text-as-data; memory class ``light``.
+
+    Args:
+        dtm: [raw_handle, required] Handle to a document-term matrix.
+        topic_range: [int_array, optional] Topic counts to evaluate. Default ``[5, 10, 20, 30,
+            50]``.
+        measure: [enum, optional] Coherence measure. Default ``'c_v'``.
+        seed: [integer, required] Seed for the random number generator; required for
+            reproducibility.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "tx_topic_coherence: not implemented."
+    )

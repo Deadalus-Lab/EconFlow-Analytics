@@ -1,0 +1,2940 @@
+{
+ "category": "20-highdim-shrinkage-ml",
+ "cards": [
+  {
+   "id": 216,
+   "method": "Regularized regression: Lasso / Ridge / Elastic-Net (+ a k-fold CV path)",
+   "wrapper_file": "c20_highdim_shrinkage_ml/regularized_regression_lasso.py",
+   "tool_fns": [
+    "enet_fit",
+    "enet_cv",
+    "enet_coefficients",
+    "enet_predict"
+   ],
+   "when": "many predictors p, or p much larger than n; you want shrinkage plus variable selection through a penalized regression; alpha=1 is the lasso (sparse), alpha=0 the ridge, and 0<alpha<1 the elastic net; enet_cv selects lambda (lambda_min minimises the CV error, lambda_1se is the parsimonious choice). Families: gaussian, binomial, poisson, multinomial",
+   "when_not": "a low dimension where you want inference and p-values (OLS or GLM); group-structured selection (-> #220); nonlinear or tree-based ML (-> #217/#218); Bayesian model averaging (-> #219); quantile or tail work (-> #64); you need unbiased coefficients (the shrinkage introduces bias — a feature, not a bug)",
+   "alternatives": [
+    {
+     "alt": "alpha=1 (Lasso)",
+     "criterion": "you want a SPARSE model — variable selection; unstable with strongly correlated predictors (it picks one arbitrarily)"
+    },
+    {
+     "alt": "alpha=0 (Ridge)",
+     "criterion": "correlated predictors; you want to shrink everything (nothing is EXACTLY zero); better under multicollinearity"
+    },
+    {
+     "alt": "0<alpha<1 (Elastic-Net)",
+     "criterion": "grouped selection under correlation — a compromise between Lasso and Ridge (Zou-Hastie)"
+    },
+    {
+     "alt": "#220 group lasso / SCAD / MCP",
+     "criterion": "the predictors have a KNOWN group structure (dummies, splines) — selecting whole groups"
+    },
+    {
+     "alt": "#217 random forests / #218 component-wise boosting",
+     "criterion": "you want non-linearity/interactions (RF / boosting) rather than a linear penalized model"
+    },
+    {
+     "alt": "lambda_min against lambda_1se",
+     "criterion": "lambda_min gives the best prediction; lambda_1se is parsimonious and interpretable (the one-standard-error rule)"
+    }
+   ],
+   "output_key_fields": [
+    "path (enet_fit): a frame of step/lambda/df/dev_ratio — the regularization path",
+    "dev_ratio (enet_fit): the share of deviance explained at each lambda (rising as lambda falls, within [0,1))",
+    "cv_curve (enet_cv): a frame of lambda/cvm/cvsd/cvup/cvlo/nzero — the cross-validation curve",
+    "lambda_min / lambda_1se (enet_cv): the selected lambdas (1se is never below min)",
+    "selected_min / selected_1se (enet_cv): the NON-ZERO coefficients (class/term/coefficient)",
+    "nzero_min / nzero_1se, and dev_ratio_min / dev_ratio_1se (enet_cv): the model size and the fit at each of the two lambdas",
+    "selected (enet_coefficients): the non-zero coefficients at a given lambda; plus n_nonzero",
+    "predictions (enet_predict): a frame of row_id + prediction, or the per-class probabilities and predicted_class",
+    "model / cv: the raw fits (to_mcp -> a stub; registry chaining)"
+   ],
+   "interpretation_traps": [
+    "shrinkage means BIASED coefficients, pulled towards 0; do NOT read them as unbiased least-squares effects — penalized coefficients carry no valid p-value or interval",
+    "lambda_min against lambda_1se: lambda_1se is ALWAYS at least lambda_min, so it keeps fewer variables; the one-standard-error rule is more parsimonious, not 'a better prediction'",
+    "the cross-validation is STOCHASTIC through the fold split — without a fixed seed or an explicit fold assignment you get a DIFFERENT lambda every time; the wrapper seeds it (default 42)",
+    "the Lasso with correlated predictors picks ONE arbitrarily => the 'selection' is not stable; use Ridge/Elastic-Net for groups",
+    "standardize=True (the default) standardizes INTERNALLY but returns the coefficients on the original scale — compare magnitudes ONLY on a standardized scale",
+    "df = the number of non-zero coefficients (EXCLUDING the intercept); nzero from cv is the same; the intercept is not penalized",
+    "binomial: 2 classes (otherwise multinomial); multinomial: >=3; predict type=response = probabilities (the rows sum to 1 in the multinomial case), type=class = a label",
+    "the variable-selection count = nrow(selected_min)/nrow(selected_1se)/n_nonzero EXCLUDES the (Intercept) and equals nzero_min/nzero_1se — do NOT add 1 for the intercept; coef_min/coef_1se/coefficients do keep the intercept",
+    "multinomial prediction: the number of new rows always equals the number of prediction rows; for ONE new period the k values are the class probabilities of that ONE observation, laid out as columns, NOT k separate observations"
+   ],
+   "sources": [
+    "Friedman, Hastie & Tibshirani 2010 JSS 33(1) (regularization paths for generalized linear models via coordinate descent)",
+    "Tibshirani 1996 JRSS-B 58(1) 267-288 (the Lasso); Hoerl-Kennard 1970 Technometrics (Ridge); Zou-Hastie 2005 JRSS-B 67(2) 301-320 (the Elastic-Net)",
+    "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/regularized_regression_lasso)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 217,
+   "method": "Random forests: OOB error, variable importance, quantile regression forests",
+   "wrapper_file": "c20_highdim_shrinkage_ml/random_forests_oob.py",
+   "tool_fns": [
+    "rf_fit",
+    "rf_predict"
+   ],
+   "when": "a non-parametric, non-linear predictive baseline on a macro/financial cross-section or a pooled panel (a design matrix X + a response y); you want an OOB error estimate without a separate validation set, variable importance (non-linear importance/interactions), or the WHOLE conditional distribution through quantile regression forests (prediction intervals / tails); a regression, classification or probability forest",
+   "when_not": "you want interpretable coefficients or sparse variable selection -> #216/#220; linear relations with few variables (a forest is excessive and loses efficiency); a temporal structure or autocorrelation that must be modelled explicitly (a forest ignores the order — build lagged features); a conditional tail of a linear outcome with interpretable standard errors -> #64; extrapolation outside the training support (a forest does not extrapolate)",
+   "alternatives": [
+    {
+     "alt": "#216 lasso / ridge / elastic net",
+     "criterion": "you want sparse, interpretable linear coefficients + a regularization path/CV rather than black-box importance; a linear structure"
+    },
+    {
+     "alt": "#218 component-wise boosting",
+     "criterion": "you want custom losses (quantile/Huber) + automatic variable selection with additive interpretability"
+    },
+    {
+     "alt": "#44/#45 causal ML (category 07)",
+     "criterion": "you want CAUSAL effects (CATE/heterogeneous treatment) with valid inference, not pure prediction"
+    },
+    {
+     "alt": "#64 quantile regression (Growth-at-Risk)",
+     "criterion": "a linear conditional-quantile relation with interpretable coefficients + analytic SE rather than a forest-based distribution"
+    }
+   ],
+   "output_key_fields": [
+    "oob_prediction_error: the out-of-bag error — MSE (regression), the misclassification rate in [0,1] (classification), the Brier score (probability); NOT in-sample",
+    "variable_importance / importance_table: the named importance per variable (sorted in decreasing order); empty when importance='none'",
+    "r_squared: the out-of-bag R² for regression; blank for a classification or probability forest",
+    "treetype: 'Regression' / 'Classification' / 'Probability estimation' (it states which forest was trained)",
+    "num_trees/mtry/min_node_size: the ACTUAL values used (the built-in defaults for mtry and min_node_size when they are left unset)",
+    "is_quantile/is_classification/is_probability/classes: the mode flags and the class levels; seed: for reproducibility",
+    "model: the raw forest (registered as a raw handle for rf_predict; a stub once serialised)",
+    "rf_predict predictions: a numeric vector (regression), character labels (classification), a probability matrix (probability), a q<value> matrix (quantiles); se/se_table (type='se')"
+   ],
+   "interpretation_traps": [
+    "DETERMINISM: the forest is NON-reproducible with more than one thread EVEN with a fixed seed, because each thread carries its own generator stream; the wrapper PINS the thread count to 1 and does not expose it — do not bypass that",
+    "type='se' (the jackknife-after-bootstrap of Wager, Hastie & Efron) draws at random, so it was NON-deterministic; the wrapper seeds the generator BEFORE predicting. The infinitesimal-jackknife standard error can also be blank at a few points when the tree count is small — that is real, not an error",
+    "importance='impurity' is biased towards high-cardinality/continuous variables (Strobl 2007); for a reliable comparison use 'permutation' or 'impurity_corrected' (Nembrini 2018); the importance is NOT a causal effect and carries no sign/direction",
+    "type='quantiles' requires a forest trained in quantile mode (Meinshausen); the wrapper fences it by checking that the node values were retained; the quantiles are not theoretically guaranteed monotone, though crossing is rare in forests",
+    "the OOB error is NOT a test error under temporal/spatial dependence (the OOB samples leak information from neighbours); for time series use out-of-time validation, not OOB",
+    "an RF does NOT extrapolate: predictions at X outside the training support are pinned to the extremes of the training values (do not use it for out-of-sample scenarios)",
+    "the classification and probability modes convert a numeric y into a categorical; the classes are the codes as strings; quantile mode is incompatible with either (a hard stop)",
+    "rf_predict NAME-MATCH gate: newdata must have column labels matching (as a set) the training variables; an unnamed/wrongly named newdata → blocked-by-gate (NOT a silent positional match); the column order does NOT matter (matching is by NAME)",
+    "rf_predict accepts a newdata of ONE row (n_pred=1, a single out-of-sample/GaR point); the >=2-row rule applies ONLY at training; the quantiles must be DISTINCT (otherwise blocked-by-gate)",
+    "type='se' (infinitesimal or plain jackknife) is SEED-INDEPENDENT, being deterministic given the in-bag counts; the seed argument acts ONLY on the rf_fit bootstrap; the thread count is pinned to 1 for determinism"
+   ],
+   "sources": [
+    "Wright & Ziegler 2017 JSS 77(1):1-17 (a fast implementation of random forests for high-dimensional data)",
+    "Breiman L. (2001) 'Random Forests' Machine Learning 45(1) 5-32",
+    "Meinshausen 2006 JMLR 7:983-999 (quantile regression forests)",
+    "Wager S., Hastie T., Efron B. (2014) 'Confidence Intervals for Random Forests: The Jackknife and the Infinitesimal Jackknife' JMLR 15 1625-1651 [type='se' infjack/jack]",
+    "Nembrini S., Koenig I., Wright M.N. (2018) 'The revival of the Gini importance?' Bioinformatics 34(21) 3711-3718 [impurity_corrected]",
+    "Strobl C. et al. (2007) 'Bias in random forest variable importance measures' BMC Bioinformatics 8:25 [permutation vs impurity bias]",
+    "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/random_forests_oob)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 218,
+   "method": "Component-wise gradient boosting — high-dimensional shrinkage + automatic variable selection with custom losses",
+   "wrapper_file": "c20_highdim_shrinkage_ml/component_wise_gradient.py",
+   "tool_fns": [
+    "boost_glm_fit",
+    "boost_glm_cv"
+   ],
+   "when": "high-dimensional (p~n or p>n) macro/financial predictors X; you want shrinkage AND sparse variable selection SIMULTANEOUSLY (unselected variables get a coefficient of EXACTLY 0) with a selectable loss (L2 Gaussian; pinball QuantReg; L1 Laplace; robust Huber; logistic Binomial; count Poisson); mstop (the regularization) is chosen data-driven with a cross-validated risk (boost_glm_cv)",
+   "when_not": "you want non-linear or smooth effects (the spline base-learners are NOT exposed; see the footer); purely non-linear prediction with importance -> #217; heterogeneous CATE -> #44; debiased inference on ONE target coefficient -> #45; a linear Growth-at-Risk over several tau -> #64; a sparse VAR or lag-multivariate model -> #142/#145",
+   "alternatives": [
+    {
+     "alt": "#217 random forest",
+     "criterion": "you want non-linear interactions + permutation importance rather than a linear sparse model; no strict sparsity"
+    },
+    {
+     "alt": "#44 causal / regression forest",
+     "criterion": "you want heterogeneous treatment effects (CATE), not predictor selection in a regression"
+    },
+    {
+     "alt": "#45 double/debiased ML",
+     "criterion": "you want an unbiased SE on ONE specific coefficient with ML nuisance controls, not a selection path"
+    },
+    {
+     "alt": "#64 linear quantile regression / Growth-at-Risk",
+     "criterion": "you want full multi-tau conditional-quantile inference (se/p-values) without boosting selection"
+    },
+    {
+     "alt": "#216 / #142 penalized regression",
+     "criterion": "you want an L1/elastic-net path with lambda (a convex penalty) rather than functional-gradient descent with mstop"
+    },
+    {
+     "alt": "gamboost (smooth base learners)",
+     "criterion": "you want non-linear P-spline effects — outside the surface, since the spline base-learners cannot be resolved without polluting the shared symbol table"
+    }
+   ],
+   "output_key_fields": [
+    "coefficients: a frame of term/coefficient/selected — COMPLETE, covering all p predictors with 0 for the unselected ones; on the centered scale when center=True",
+    "offset: the intercept level (with the centered scale the mean moves here; NOT 0)",
+    "selection_freq: term/n_selected/frequency — how often each predictor was updated along the boosting path (the sum of n_selected == mstop)",
+    "n_selected_vars / selected_vars: the number & names of the non-zero predictors (the sparsity)",
+    "path_risk / final_risk (boost_glm_fit): the empirical in-bag risk per step (chart-ready; monotonically decreasing)",
+    "optimal_mstop / optimal_mean_risk (boost_glm_cv): the data-driven mstop = the argmin of the cross-validated risk",
+    "cv_curve (boost_glm_cv): a data_frame mstop/mean_risk/se_risk — the CV curve (chart-ready)",
+    "family/tau/nu/mstop/center/n/p/cv_type/cv_B/seed: the rules that produced the result (an audit trail)",
+    "model: the raw glmboost fit — a register handle for downstream chaining; to_mcp -> a stub"
+   ],
+   "interpretation_traps": [
+    "the binomial coefficients are HALF the size of the corresponding GLM coefficients (the fitter emits a note about it); do NOT compare them directly with a logistic regression — multiply by 2 for the GLM scale",
+    "mstop IS the regularization knob: too large -> overfitting, too small -> underfitting; for an honest choice use boost_glm_cv (cross-validated), NOT an arbitrary fixed mstop",
+    "selection_freq counts the UPDATE FREQUENCY (its sum == mstop), NOT the effect size; a predictor with a large |coefficient| may have been selected few times and vice versa",
+    "center=True emits the benign warning 'model does not contain intercept' — the offset IS the intercept, and the fold-into-intercept switch is ignored; read the offset field rather than 0",
+    "the cross-validated risk is STOCHASTIC in how it draws the folds, so the generator is seeded internally (default 42) and the evaluation stays single-threaded; forking would break reproducibility. The boosting fit itself is deterministic",
+    "Binomial requires a binary y (a 2-level factor; the wrapper converts a numeric 2-value y); Poisson requires non-negative INTEGERS (counts) — hard gates",
+    "the QuantReg tau is the quantile in (0,1) of the pinball loss (default 0.5=the median); it is NOT a significance level",
+    "quantile calibration: the constant conditional-quantile LEVEL is the offset plus the intercept; the offset is ALWAYS the median of y and does NOT depend on tau — the tau dependence lives in the intercept, which is a movable base learner through the formula interface; take the calibrated fitted quantile from the model handle, and note that it needs a large enough mstop for P(y<=fitted) to approach tau",
+    "Binomial: the coefficients are HALF the GLM ones (the fitter models f = 0.5 * logit) — multiply by 2 for the logistic scale before interpreting them or forming odds ratios; the positive class is reported in positive_class, the second category level; see coef_scale"
+   ],
+   "sources": [
+    "Bühlmann P., Hothorn T. (2007) 'Boosting Algorithms: Regularization, Prediction and Model Fitting' Statistical Science 22(4) 477-505 [component-wise functional gradient descent]",
+    "Hofner, Mayr, Robinzonov & Schmid 2014 Computational Statistics 29:3-35 (a hands-on tutorial on model-based boosting)",
+    "Hothorn et al. 2010 JMLR 11:2109-2113 (model-based boosting 2.0 — the architecture, the cross-validated risk and the family objects)",
+    "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/component_wise_gradient)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 219,
+   "method": "Bayesian Model Averaging (BMA, g-priors: enumeration + MCMC)",
+   "wrapper_file": "c20_highdim_shrinkage_ml/bayesian_averaging.py",
+   "tool_fns": [
+    "bma_average",
+    "bma_coefficients"
+   ],
+   "when": "model uncertainty in a LINEAR regression with many candidate regressors (a small to moderate K); you want Posterior Inclusion Probabilities (which regressors matter), model-averaged coefficients & sign certainty without choosing ONE model (growth/determinants regressions, Sala-i-Martin BACE style)",
+   "when_not": "a very large K, above roughly 30-40, with a sparsity objective -> penalized shrinkage (#216/#220); pure prediction with no inference -> the ML nodes (#217/#218); a time series with lags or stochastic volatility -> Bayesian VAR shrinkage (#12/#143, categories 03 and 14); non-linear interactions -> a random forest or BART",
+   "alternatives": [
+    {
+     "alt": "mcmc=enumerate",
+     "criterion": "K<=20 → an EXACT enumeration of all 2^K models (deterministic, exact PMP); prefer it whenever feasible"
+    },
+    {
+     "alt": "the birth-death or reversible-jump MCMC samplers",
+     "criterion": "K>20 → model sampling; CHECK corr_pmp>=~0.9 (convergence) & the seed for reproducibility"
+    },
+    {
+     "alt": "g=UIP vs BRIC/RIC/HQ or a custom number",
+     "criterion": "UIP (g=N) is a balanced default; BRIC/RIC (g=max(N,K^2)/K^2) are more conservative (a larger penalty); run a sensitivity check — the PIP depend on g (the Bartlett/Lindley paradox)"
+    },
+    {
+     "alt": "mprior=random (the Ley-Steel beta-binomial prior)",
+     "criterion": "robustness with respect to the prior model size rather than a fixed inclusion probability of 0.5 (uniform)"
+    },
+    {
+     "alt": "penalized shrinkage (#216/#220, category 20), or spike-and-slab / SSVS in the Bayesian VAR nodes",
+     "criterion": "a very large K + sparsity (a point estimate); or a time-series/VAR context"
+    }
+   ],
+   "output_key_fields": [
+    "pip: the named PIP per regressor ∈[0,1] — the posterior probability that the regressor belongs in the model",
+    "coefficients: a data_frame term/idx/pip/post_mean/post_sd/cond_pos_sign/post_sign_prob (model-averaged, UNCONDITIONAL)",
+    "post_sign_prob: the sign certainty = P(the coefficient has the sign of post_mean) — the robustness of the sign",
+    "top_models: the PMP (exact vs mcmc) + the inclusion binary matrix + pmp_exact_share (the probability normalized within the retained set)",
+    "best_model: the highest-PMP model (included_terms, n_regressors, pmp_exact_share)",
+    "corr_pmp / corr_pmp_ok: the MCMC convergence diagnostic, the correlation between the analytical and frequency posterior model probabilities; blank under full enumeration",
+    "n_models_visited / modelspace(2^K) / pct_topmodels: the number of draws, the size of the space, the % of posterior mass in the top models",
+    "mean_n_regressors (=the sum of the PIP, the posterior E[#regressors]), shrinkage_av, K, N",
+    "bma: the raw fit (a stub once serialised; a register handle for chaining into bma_coefficients)"
+   ],
+   "interpretation_traps": [
+    "a PIP is not a p-value: under a uniform prior the prior-neutral point is 0.5; PIP>0.5 = 'supported'; the scale depends on mprior",
+    "post_mean and post_sd are UNCONDITIONAL, averaged over ALL models including those that exclude the regressor -> a low inclusion probability means a post_mean shrunk towards 0; it is NOT the conditional effect (read the conditional coefficient for that)",
+    "pmp_exact and pmp_mcmc are RAW marginal-likelihood weights — they do NOT sum to 1 over the retained set; the probability reading is pmp_exact_share",
+    "g-prior SENSITIVITY: a large g → less shrinkage but a stronger 'null penalty' (g→∞ ⇒ PIP→0, the Bartlett-Lindley paradox); UIP/BRIC/RIC give different PIP → a sensitivity check is mandatory",
+    "enumerate = exact PMP, deterministic (no seed); MCMC = CHECK corr_pmp>=~0.9 BEFORE trusting the PIP (a low value ⇒ a non-converged sampler, raise iter/burn; the corr_pmp_ok flag)",
+    "a gap or an infinity in the design -> a HARD STOP: the sampler silently drops those rows with only a warning, giving a silently wrong sample",
+    "the 1st column of X.data is the dependent variable y (NOT a regressor); the wrong column order ⇒ the wrong model",
+    "the birth-death and reversible-jump samplers are stochastic and NOT bit-reproducible even with a fixed seed — do not rely on run-to-run identity, nor on a cache hit being identical to a recompute; for an EXACTLY deterministic result enumerate the model space when K<=20 (see the deterministic and reproducibility fields)",
+    "pmp_exact & pmp_mcmc are NORMALIZED posterior model probabilities in [0,1] that sum to 1; under enumerate they coincide (analytical), under MCMC they differ (analytical vs sampling frequency); their correlation = corr_pmp (the convergence diagnostic)"
+   ],
+   "sources": [
+    "Zeugner & Feldkircher 2015 JSS 68(4) (Bayesian model averaging with fixed and flexible priors)",
+    "Fernández, Ley & Steel 2001 'Benchmark priors for Bayesian model averaging' J. Econometrics 100(2) 381-427 (the g-priors UIP/BRIC/RIC/HQ)",
+    "Sala-i-Martin, Doppelhofer & Miller 2004 'Determinants of Long-Term Growth: A BACE Approach' AER 94(4) 813-835",
+    "Ley & Steel 2009 'On the effect of prior assumptions in BMA' J. Applied Econometrics 24(4) 651-674 (the random model prior)",
+    "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/bayesian_averaging)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 220,
+   "method": "Grouped / bi-level penalized regression (group lasso, group MCP/SCAD, gel/cMCP)",
+   "wrapper_file": "c20_highdim_shrinkage_ml/grouped_level_penalized.py",
+   "tool_fns": [
+    "group_penalized_regression",
+    "cv_group_penalized_regression"
+   ],
+   "when": "a high-dimensional regression where the regressors come in KNOWN GROUPS (lags of the same variable, the dummies of one categorical variable, indicators per sector) and you want sparse selection at the GROUP level; grLasso/grMCP/grSCAD select whole groups, gel/cMCP select bi-level (groups AND variables within a group); cv_group_penalized_regression gives the data-driven lambda_min",
+   "when_not": "no natural grouping of the columns -> a plain lasso or elastic net (#216, category 20); you want oracle-fair post-selection inference -> a separate inference node; a survival outcome (scoped out); you want a conditional tail or Growth-at-Risk -> #64; a low dimension p<<n with no sparsity -> OLS or GLM",
+   "alternatives": [
+    {
+     "alt": "penalty=grLasso (the Yuan-Lin group lasso)",
+     "criterion": "you want convex, stable all-or-nothing selection of a whole group; the default, less biased for large coefficients than MCP but with more shrinkage"
+    },
+    {
+     "alt": "penalty=grMCP / grSCAD",
+     "criterion": "you want nearly unbiased large coefficients (a nonconvex group penalty); grSCAD defaults to gamma=4, grMCP to gamma=3"
+    },
+    {
+     "alt": "penalty=gel / cMCP (bi-level)",
+     "criterion": "you want sparsity BOTH BETWEEN groups AND WITHIN a group (not all-or-nothing) — only some variables inside a selected group are kept"
+    },
+    {
+     "alt": "#216 lasso / elastic net (category 20)",
+     "criterion": "the columns have NO natural grouping; you want individual-variable sparsity"
+    },
+    {
+     "alt": "#64 Growth-at-Risk",
+     "criterion": "you want a conditional tail (Growth-at-Risk) rather than a mean regression with group sparsity"
+    }
+   ],
+   "output_key_fields": [
+    "cv_curve: a data_frame lambda/cve/cvse/cvlo/cvup (the CV curve; cvlo/cvup = cve -/+ cvse)",
+    "lambda_min / min_index / cve_min: the CV-optimal lambda, its position, the minimum cross-validation error",
+    "coefficients: a frame of term/coefficient at lambda_min (the intercept plus the p columns, in the order of X)",
+    "selected_groups: the SELECTED, non-zero groups at lambda_min — taken from the group prediction, never from a manual threshold",
+    "selected_members: a data_frame variable/group of the members of the selected groups; n_nonzero_groups / n_nonzero_vars",
+    "path: a frame of step/lambda/df/deviance with a DECREASING lambda; group_structure of variable and group; plus group_multiplier",
+    "object: the raw fit (a stub once serialised)"
+   ],
+   "interpretation_traps": [
+    "the fit is DETERMINISTIC (coordinate descent, with no random draws); ONLY the cross-validation is stochastic, through the random fold assignment -> the seed defaults to 20240720; the same seed reproduces lambda_min and the CV error exactly, a different seed does not (live-verified)",
+    "group=all-or-nothing: grLasso/grMCP/grSCAD zero out a WHOLE group together; gel/cMCP allow partial selection within a group — do not confuse them",
+    "the selected groups come from the group and variable predictions, which are authoritative; do NOT threshold the coefficients by hand, since small non-zeros appear along the MCP and SCAD paths",
+    "a group value of 0 = an UNPENALIZED/always-in group (unpenalized covariates); it does not count towards n_groups — it is not a wrong label",
+    "the bi-level penalties return an UNNAMED group multiplier, while the group-level ones name it — the wrapper adds fallback labels from the non-zero groups",
+    "family='binomial' requires a BINARY {0,1} y, otherwise a 'non-binary data' error; family='poisson' rejects a negative y — both are hard gates",
+    "lambda is DECREASING (the first value = the most penalized/largest lambda, the last = the smallest); nfolds must satisfy 3<=nfolds<=n"
+   ],
+   "sources": [
+    "Yuan & Lin 2006 'Model selection and estimation in regression with grouped variables' JRSS-B 68(1) 49-67 [the group lasso]",
+    "Breheny & Huang 2015 Statistics and Computing 25:173-187 (group descent algorithms for nonconvex penalized linear and logistic regression with grouped predictors)",
+    "Breheny & Huang 2009 'Penalized methods for bi-level variable selection' Statistics and its Interface 2 369-380 [cMCP/gel bi-level]",
+    "Huang, Breheny & Ma 2012 'A selective review of group selection in high-dimensional models' Statistical Science 27(4) 481-499",
+    "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/grouped_level_penalized)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 545,
+   "method": "Adaptive lasso, square-root lasso and rigorous penalty selection",
+   "wrapper_file": "c20_highdim_shrinkage_ml/advanced_lasso.py",
+   "tool_fns": [
+    "hd_advanced_lasso"
+   ],
+   "when": "variable selection where the penalty must be chosen by a rule that supports inference, not by cross-validation alone",
+   "when_not": "the design is low dimensional; you need exact zeros and the ridge alternative will not do",
+   "alternatives": [
+    {
+     "alt": "cross-validated lasso",
+     "criterion": "prediction is the goal"
+    },
+    {
+     "alt": "adaptive lasso",
+     "criterion": "you want the oracle selection property"
+    },
+    {
+     "alt": "square-root lasso or rigorous penalty",
+     "criterion": "you want a penalty independent of the unknown error variance"
+    }
+   ],
+   "output_key_fields": [
+    "coefficients: the penalised estimates",
+    "selected: the active set",
+    "lambda_: the penalty and the rule that chose it",
+    "penalty_loadings: heteroskedasticity-robust loadings, where used"
+   ],
+   "interpretation_traps": [
+    "CROSS-VALIDATED PENALTIES SELECT TOO MANY VARIABLES for inference purposes; the rigorous penalty exists precisely because the cross-validated one invalidates the post-selection theory",
+    "the square-root lasso's penalty does not depend on the unknown error variance, which is why it is pivotal and preferred in high dimensions",
+    "the adaptive lasso needs a consistent initial estimator, and with more variables than observations that is not free"
+   ],
+   "sources": [
+    "Zou 2006 (JASA 101:1418-1429)",
+    "Belloni, Chernozhukov & Wang 2011 (Biometrika 98:791)",
+    "Belloni, Chen, Chernozhukov & Hansen 2012 (Econometrica 80:2369)",
+    "skglm"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 546,
+   "method": "Debiased and post-selection inference",
+   "wrapper_file": "c20_highdim_shrinkage_ml/debiased_inference.py",
+   "tool_fns": [
+    "hd_debiased_inference"
+   ],
+   "when": "a coefficient of interest sits among many controls selected by a penalised method, and naive post-selection standard errors are invalid",
+   "when_not": "no selection was performed; the parameter of interest is the whole coefficient vector rather than a few components",
+   "alternatives": [
+    {
+     "alt": "double selection",
+     "criterion": "select on both the outcome and the treatment equations"
+    },
+    {
+     "alt": "debiased (desparsified) lasso",
+     "criterion": "you want inference on many coefficients"
+    },
+    {
+     "alt": "double machine learning",
+     "criterion": "you want general machine learners with cross-fitting"
+    }
+   ],
+   "output_key_fields": [
+    "estimate: the debiased coefficient",
+    "se, conf_int: valid post-selection inference",
+    "selected_controls: the union of the two selection steps",
+    "bias_correction: the size of the correction applied"
+   ],
+   "interpretation_traps": [
+    "NAIVE POST-SELECTION INFERENCE IS INVALID: standard errors computed on the selected model ignore that the model was chosen from the data and are far too small",
+    "double selection selects on BOTH equations because a control weakly related to the outcome but strongly to the treatment must be kept",
+    "the debiasing correction requires sparsity conditions that are assumed rather than tested"
+   ],
+   "sources": [
+    "Belloni, Chernozhukov & Hansen 2014 (Review of Economic Studies 81:608-650)",
+    "van de Geer, Buhlmann, Ritov & Dezeure 2014 (Annals of Statistics 42:1166)",
+    "Chernozhukov et al. 2018 (Econometrics Journal 21:C1)",
+    "doubleml"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 547,
+   "method": "Gradient-boosted trees",
+   "wrapper_file": "c20_highdim_shrinkage_ml/gradient_boosting.py",
+   "tool_fns": [
+    "hd_gradient_boosting"
+   ],
+   "when": "tabular prediction where the relationship is nonlinear with interactions and no functional form is available",
+   "when_not": "inference on coefficients is required; the sample is small enough that a regularised linear model will do better",
+   "alternatives": [
+    {
+     "alt": "random forest",
+     "criterion": "less tuning, more robust out of the box"
+    },
+    {
+     "alt": "gradient boosting",
+     "criterion": "usually the strongest tabular predictor with tuning"
+    },
+    {
+     "alt": "regularised linear models",
+     "criterion": "you need coefficients"
+    }
+   ],
+   "output_key_fields": [
+    "predictions: fitted and out-of-sample predictions",
+    "feature_importance: gain- or permutation-based",
+    "best_iteration: where early stopping fired",
+    "cv_score: cross-validated performance"
+   ],
+   "interpretation_traps": [
+    "GAIN-BASED FEATURE IMPORTANCE IS BIASED toward high-cardinality and continuous features; permutation importance on held-out data is the defensible measure",
+    "tree ensembles cannot extrapolate beyond the training range of the target, which makes them unsuitable for trending series without differencing",
+    "early stopping on the same data used for evaluation leaks; a separate validation split is required"
+   ],
+   "sources": [
+    "Friedman 2001 (Annals of Statistics 29:1189-1232)",
+    "Chen & Guestrin 2016, XGBoost (KDD 2016:785)",
+    "lightgbm"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 548,
+   "method": "Explainability: SHAP, permutation importance and partial dependence",
+   "wrapper_file": "c20_highdim_shrinkage_ml/explainability.py",
+   "tool_fns": [
+    "hd_explain"
+   ],
+   "when": "a flexible model must be explained before anyone will act on it, and the explanation must not be a different model's story",
+   "when_not": "the model is already interpretable; the features are so correlated that any attribution is arbitrary",
+   "alternatives": [
+    {
+     "alt": "permutation importance",
+     "criterion": "global, model-agnostic, needs held-out data"
+    },
+    {
+     "alt": "SHAP values",
+     "criterion": "local attributions with an additivity guarantee"
+    },
+    {
+     "alt": "partial dependence and ALE",
+     "criterion": "the shape of a feature's effect"
+    }
+   ],
+   "output_key_fields": [
+    "shap_values: per-observation attributions",
+    "importance: global ranking",
+    "partial_dependence: effect curves per feature",
+    "interaction: pairwise interaction strength where computed"
+   ],
+   "interpretation_traps": [
+    "SHAP AND PARTIAL DEPENDENCE ARE UNRELIABLE WITH CORRELATED FEATURES because they evaluate the model at combinations that never occur; accumulated local effects is the fix for the curve",
+    "attributions are explanations of the MODEL, not of the world -- they are not causal effects and must not be reported as such",
+    "permutation importance on training data is optimistic; it must be computed on held-out data"
+   ],
+   "sources": [
+    "Lundberg & Lee 2017, A unified approach to interpreting model predictions (NeurIPS 30)",
+    "Apley & Zhu 2020 (JRSS-B 82:1059-1086)",
+    "Molnar 2022, Interpretable Machine Learning, 2nd ed.",
+    "shap"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 549,
+   "method": "Glass-box interpretable models: explainable boosting",
+   "wrapper_file": "c20_highdim_shrinkage_ml/glassbox_models.py",
+   "tool_fns": [
+    "hd_glassbox"
+   ],
+   "when": "you want the accuracy of a boosted model and the readability of an additive one, without a post-hoc explanation layer",
+   "when_not": "interactions beyond pairs are essential; the feature count is very large",
+   "alternatives": [
+    {
+     "alt": "gradient boosting plus SHAP",
+     "criterion": "maximum accuracy, post-hoc explanation"
+    },
+    {
+     "alt": "explainable boosting machine",
+     "criterion": "additive, exactly interpretable, near-boosting accuracy"
+    },
+    {
+     "alt": "GAM",
+     "criterion": "additive with smooth terms"
+    }
+   ],
+   "output_key_fields": [
+    "shape_functions: the exact contribution of each feature",
+    "interactions: the pairwise terms included",
+    "predictions: fitted values",
+    "accuracy: against a black-box baseline"
+   ],
+   "interpretation_traps": [
+    "THE EXPLANATION IS THE MODEL HERE, not an approximation of it -- which is the whole argument for this class over post-hoc explanation of a black box",
+    "the additive structure with pairwise interactions cannot represent higher-order interactions, and the accuracy gap against full boosting shows where that matters",
+    "shape functions are estimated and noisy at sparse feature values; their wiggles are not always signal"
+   ],
+   "sources": [
+    "Lou, Caruana, Gehrke & Hooker 2013, Accurate intelligible models with pairwise interactions (KDD 2013:623)",
+    "Nori, Jenkins, Koch & Caruana 2019, InterpretML (arXiv:1909.09223)",
+    "interpret"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 550,
+   "method": "Conformal prediction for regression and classification",
+   "wrapper_file": "c20_highdim_shrinkage_ml/conformal_prediction.py",
+   "tool_fns": [
+    "hd_conformal"
+   ],
+   "when": "prediction sets with a finite-sample coverage guarantee that holds whatever the model, with no distributional assumption",
+   "when_not": "the data are not exchangeable and no adapted variant applies; you need a full predictive density",
+   "alternatives": [
+    {
+     "alt": "model-based intervals",
+     "criterion": "the model is correct and efficiency matters"
+    },
+    {
+     "alt": "split conformal",
+     "criterion": "a guarantee with data to spare"
+    },
+    {
+     "alt": "conformalised quantile regression",
+     "criterion": "you want intervals that adapt to heteroskedasticity"
+    }
+   ],
+   "output_key_fields": [
+    "intervals: prediction intervals or sets",
+    "coverage: empirical coverage on held-out data",
+    "width: interval width or set size",
+    "adaptivity: how width varies with the input"
+   ],
+   "interpretation_traps": [
+    "THE GUARANTEE IS MARGINAL, NOT CONDITIONAL: coverage holds on average over the population, not for any particular subgroup, and subgroup coverage can be far below nominal",
+    "plain split conformal produces constant-width intervals regardless of local difficulty; conformalised quantile regression is what makes them adaptive",
+    "exchangeability is the assumption, and time series and covariate shift both break it"
+   ],
+   "sources": [
+    "Vovk, Gammerman & Shafer 2005, Algorithmic Learning in a Random World",
+    "Romano, Patterson & Candes 2019, Conformalized quantile regression (NeurIPS 32)",
+    "Angelopoulos & Bates 2023 (Foundations and Trends in Machine Learning 16:494)",
+    "mapie"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 551,
+   "method": "Bayesian shrinkage regression: horseshoe and spike-and-slab",
+   "wrapper_file": "c20_highdim_shrinkage_ml/bayesian_shrinkage.py",
+   "tool_fns": [
+    "hd_bayesian_shrinkage"
+   ],
+   "when": "high-dimensional regression where you want posterior uncertainty as well as shrinkage, and a principled treatment of sparsity",
+   "when_not": "the sampler cannot handle the dimension; a point estimate is all that is needed",
+   "alternatives": [
+    {
+     "alt": "lasso",
+     "criterion": "point estimates, exact zeros, fast"
+    },
+    {
+     "alt": "horseshoe prior",
+     "criterion": "strong shrinkage of noise with heavy tails for real signals"
+    },
+    {
+     "alt": "spike-and-slab",
+     "criterion": "explicit posterior inclusion probabilities"
+    }
+   ],
+   "output_key_fields": [
+    "posterior: coefficient draws",
+    "inclusion_probability: posterior probability each coefficient is non-zero",
+    "shrinkage: per-coefficient shrinkage factors",
+    "convergence: sampler diagnostics"
+   ],
+   "interpretation_traps": [
+    "THE HORSESHOE DOES NOT PRODUCE EXACT ZEROS; it shrinks aggressively toward zero while leaving heavy tails, so selection requires a separate thresholding decision",
+    "spike-and-slab posteriors are multimodal and mix badly in high dimensions; convergence diagnostics are essential and often fail quietly",
+    "posterior inclusion probabilities depend on the prior inclusion probability, which is an assumption about sparsity"
+   ],
+   "sources": [
+    "Carvalho, Polson & Scott 2010 (Biometrika 97:465-480)",
+    "George & McCulloch 1993 (JASA 88:881)",
+    "Piironen & Vehtari 2017 (Electronic Journal of Statistics 11:5018)",
+    "bambi"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 552,
+   "method": "Generalised additive models with penalised splines for prediction",
+   "wrapper_file": "c20_highdim_shrinkage_ml/gam_prediction.py",
+   "tool_fns": [
+    "hd_gam_prediction"
+   ],
+   "when": "you want a flexible model whose every term can be plotted and explained, with smoothness chosen by penalty",
+   "when_not": "interactions dominate and additivity fails; a boosted model is needed for accuracy",
+   "alternatives": [
+    {
+     "alt": "linear regression",
+     "criterion": "the relationship is linear"
+    },
+    {
+     "alt": "GAM with penalised splines",
+     "criterion": "smooth additive terms, interpretable"
+    },
+    {
+     "alt": "explainable boosting",
+     "criterion": "you want automatic interaction detection"
+    }
+   ],
+   "output_key_fields": [
+    "fitted: predictions",
+    "partial_effects: each term's curve with a band",
+    "edf: effective degrees of freedom per term",
+    "gcv: the criterion that selected the penalties"
+   ],
+   "interpretation_traps": [
+    "EFFECTIVE DEGREES OF FREEDOM NEAR ONE MEANS THE TERM IS LINEAR, which is a finding about the shape rather than a failure of the fit",
+    "the bands are conditional on the selected smoothing parameters and exclude the uncertainty of selecting them",
+    "additivity is an assumption; an apparently flat term may be flat only because an omitted interaction absorbs its variation"
+   ],
+   "sources": [
+    "Wood 2017, Generalized Additive Models, 2nd ed.",
+    "Hastie & Tibshirani 1990, Generalized Additive Models",
+    "pygam"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "bma_average",
+   "card_id": 219,
+   "register": {
+    "field": "bma"
+   },
+   "input_example": {
+    "X_data": "<matrix_handle>",
+    "nmodel": 100,
+    "burn": 1000,
+    "iter": 3000,
+    "seed": 42
+   },
+   "arguments": [
+    {
+     "name": "X_data",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric data matrix: 1st column = dependent y, remaining columns = regressors (K >= 1). Without NA/Inf; N > K+1.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "mprior",
+     "kind": "enum",
+     "required": false,
+     "description": "Model prior (default uniform): uniform (each model equiprobable); fixed (fixed expected size); random (beta-binomial, Ley-Steel)· pip (fixed inclusion probs).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "uniform",
+      "fixed",
+      "random",
+      "pip"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "g",
+     "kind": "string",
+     "required": false,
+     "description": "g-prior: 'UIP' (unit info, g=N· default)· 'BRIC' (g=max(N,K^2))· 'RIC' (g=K^2)· 'HQ' (Hannan-Quinn), or a positive number as a string (e.g. '10') for a custom g.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "mcmc",
+     "kind": "enum",
+     "required": false,
+     "description": "Sampler (default enumerate): 'enumerate' = exact enumeration of ALL 2^K models (DETERMINISTIC; only K<=20 — prefer it there); 'bd' = birth-death MCMC; 'rev.jump' = reversible-jump MCMC. THE MCMC ARE STOCHASTIC and are NOT bit-reproducible even with a fixed seed (see $reproducibility in the output).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "enumerate",
+      "bd",
+      "rev.jump"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nmodel",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of top models kept (default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "burn",
+     "kind": "integer",
+     "required": false,
+     "description": "MCMC burn-in draws (only for bd/rev.jump; default 1000).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "iter",
+     "kind": "integer",
+     "required": false,
+     "description": "MCMC posterior draws (only for bd/rev.jump; default 3000).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "mprior_size",
+     "kind": "number",
+     "required": false,
+     "description": "Expected model size for fixed/random priors, in (0, K); default K/2 of the package.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "MCMC reproducibility seed (inert in enumerate; default 42).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 42,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "bma_coefficients",
+   "card_id": 219,
+   "register": null,
+   "input_example": {
+    "object": "<raw_handle>",
+    "exact": false,
+    "order_by_pip": true
+   },
+   "arguments": [
+    {
+     "name": "object",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted bma object (from bma_average register).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exact",
+     "kind": "boolean",
+     "required": false,
+     "description": "True = analytical (exact) posterior moments· False = MCMC-frequency-based (default False· use True after enumerate).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "order_by_pip",
+     "kind": "boolean",
+     "required": false,
+     "description": "Sorting of regressors by descending PIP (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "enet_cv",
+   "card_id": 216,
+   "register": {
+    "field": "cv"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "y": "<matrix_handle>",
+    "alpha": 1,
+    "nfolds": 10,
+    "seed": 42,
+    "standardize": true,
+    "intercept": true
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric design matrix X (n×p, p>=2, without NA/Inf).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to the response y (length == the row count of x); gates per family as in enet_fit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Distribution/loss (default gaussian).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gaussian",
+      "binomial",
+      "poisson",
+      "multinomial"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Elastic-net mixing ∈ [0,1] (1=Lasso, 0=Ridge).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "nfolds",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of CV folds (>=3, <= n; default 10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "type_measure",
+     "kind": "enum",
+     "required": false,
+     "description": "CV metric (default = family default); auc only binomial; class only binomial/multinomial.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "default",
+      "mse",
+      "deviance",
+      "mae",
+      "class",
+      "auc"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for DETERMINISTIC foldid (same seed => identical CV).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 42,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "standardize",
+     "kind": "boolean",
+     "required": false,
+     "description": "Standardization of predictors (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "intercept",
+     "kind": "boolean",
+     "required": false,
+     "description": "Inclusion of intercept (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "cv_group_penalized_regression",
+   "card_id": 220,
+   "register": null,
+   "input_example": {
+    "X": "<matrix_handle>",
+    "y": "<matrix_handle>",
+    "nfolds": 10,
+    "seed": 20240720,
+    "nlambda": 100,
+    "alpha": 1
+   },
+   "arguments": [
+    {
+     "name": "X",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric design matrix X (n x p; >=1 column, >=2 rows, without NA/Inf). The columns correspond to the group labels.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric response y of length the row count of X. binomial -> exactly {0,1}; poisson -> non-negative; without NA/Inf.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "group",
+     "kind": "int_array",
+     "required": false,
+     "description": "Grouping vector, length == the column count of X: the group integer of each column (0 = unpenalized/always-in group). None -> each column its own group (ordinary lasso).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "penalty",
+     "kind": "enum",
+     "required": false,
+     "description": "Penalty: grLasso/grMCP/grSCAD select ENTIRE groups together; gel/cMCP are bi-level (select groups AND variables within a group). Default grLasso.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "grLasso",
+      "grMCP",
+      "grSCAD",
+      "gel",
+      "cMCP"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Family: gaussian (continuous y), binomial (binary y {0,1}), poisson (non-negative counts). Default gaussian.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gaussian",
+      "binomial",
+      "poisson"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nfolds",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of folds in the cross-validation (>=3, <= n; default 10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the RANDOM assignment of folds (reproducibility; default 20240720). Same seed -> identical lambda_min.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20240720,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "nlambda",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of lambda values in the regularization path (>=2, default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "gamma",
+     "kind": "number",
+     "required": false,
+     "description": "Concavity parameter for MCP/SCAD (>1; default 3, or 4 for grSCAD).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Balance of group-penalty vs ridge, in (0,1] (default 1 = pure group penalty).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "enet_fit",
+   "card_id": 216,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "y": "<matrix_handle>",
+    "alpha": 1,
+    "nlambda": 100,
+    "standardize": true,
+    "intercept": true
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric design matrix X (n×p, p>=2 columns, without NA/Inf). The predictors — NEVER in the schema, they pass as a handle.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to the response y (length == the row count of x). gaussian: numeric; poisson: non-negative counts; binomial: 2 classes; multinomial: >=3.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Distribution/loss (default gaussian; binomial/poisson/multinomial).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gaussian",
+      "binomial",
+      "poisson",
+      "multinomial"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Elastic-net mixing ∈ [0,1]: 1=Lasso (sparse), 0=Ridge, intermediate=Elastic-Net.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "nlambda",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of points on the lambda path (default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "standardize",
+     "kind": "boolean",
+     "required": false,
+     "description": "Standardization of predictors before the fit (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "intercept",
+     "kind": "boolean",
+     "required": false,
+     "description": "Inclusion of intercept (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "boost_glm_cv",
+   "card_id": 218,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "y": "<matrix_handle>",
+    "mstop_max": 200,
+    "cv_B": 25,
+    "seed": 42
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric design matrix X (n x p), without NA/Inf.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to response y (length n); same requirements per family as in boost_glm_fit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Loss family (default Gaussian). Binomial: $coefficients HALF those of glm ($coef_scale=\"mboost_half_logit\"). QuantReg level = $offset+$intercept.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "Gaussian",
+      "QuantReg",
+      "Binomial",
+      "Poisson",
+      "Laplace",
+      "Huber"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tau",
+     "kind": "number",
+     "required": false,
+     "description": "Quantile in (0,1) when family=\"QuantReg\" (default 0.5); needs enough mstop_max for a calibrated level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "mstop_max",
+     "kind": "integer",
+     "required": false,
+     "description": "Upper bound of boosting steps for the cvrisk grid (>= 2; default 200).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 200,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "nu",
+     "kind": "number",
+     "required": false,
+     "description": "Learning rate (shrinkage) in (0,1] (default 0.1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "center",
+     "kind": "boolean",
+     "required": false,
+     "description": "Centering of predictors (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cv_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Resampling scheme of cvrisk (default subsampling).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "subsampling",
+      "kfold",
+      "bootstrap"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cv_B",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of resamples/folds (>= 2; default 25).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 25,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for generating the folds (reproducibility; default 42).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 42,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "boost_glm_fit",
+   "card_id": 218,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "y": "<matrix_handle>",
+    "mstop": 100
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric design matrix X (n x p predictors), >= 3 rows, >= 1 column, without NA/Inf.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to response y (length n). Gaussian/QuantReg/Laplace/Huber: numeric; Binomial: EXACTLY 2 values; Poisson: non-negative integers (counts).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Loss family (default Gaussian=L2). QuantReg=pinball(tau)· Laplace=L1· Huber=robust· Binomial=logistic· Poisson=counts. Binomial: the $coefficients are HALF those of glm(binomial) ($coef_scale=\"mboost_half_logit\"; $positive_class=2nd level).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "Gaussian",
+      "QuantReg",
+      "Binomial",
+      "Poisson",
+      "Laplace",
+      "Huber"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tau",
+     "kind": "number",
+     "required": false,
+     "description": "Quantile in (0,1) when family=\"QuantReg\" (default 0.5). The conditional-quantile level = $offset+$intercept and needs ENOUGH mstop to calibrate to tau.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "mstop",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of boosting steps (regularization; default 100; positive integer).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "nu",
+     "kind": "number",
+     "required": false,
+     "description": "Learning rate (shrinkage) in (0,1] (default 0.1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "center",
+     "kind": "boolean",
+     "required": false,
+     "description": "Centering of predictors (default True; offset as intercept).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "enet_coefficients",
+   "card_id": 216,
+   "register": null,
+   "input_example": {
+    "object": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "object",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a elastic_net or the cross-validated elastic net fit (from enet_fit.model / enet_cv.cv register).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lambda",
+     "kind": "number",
+     "required": false,
+     "description": "Explicit lambda (non-negative). REQUIRED for a elastic_net path fit; for the cross-validated fit it overrides 'which'.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "which",
+     "kind": "enum",
+     "required": false,
+     "description": "For the cross-validated fit: lambda_min (min CV error) or lambda_1se (parsimonious).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lambda_min",
+      "lambda_1se"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "enet_predict",
+   "card_id": 216,
+   "register": null,
+   "input_example": {
+    "object": "<raw_handle>",
+    "newx": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "object",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a elastic_net or the cross-validated elastic net fit (from enet_fit/enet_cv register).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "newx",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a new design matrix (same p columns as the training x, without NA/Inf).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lambda",
+     "kind": "number",
+     "required": false,
+     "description": "Explicit lambda; REQUIRED for a elastic_net path fit; cv overrides 'which'.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "which",
+     "kind": "enum",
+     "required": false,
+     "description": "For the cross-validated fit: lambda_min or lambda_1se.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lambda_min",
+      "lambda_1se"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "required": false,
+     "description": "link (linear predictor); response (probabilities/mean value); class (label — only binomial/multinomial).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "link",
+      "response",
+      "class"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "group_penalized_regression",
+   "card_id": 220,
+   "register": null,
+   "input_example": {
+    "X": "<matrix_handle>",
+    "y": "<matrix_handle>",
+    "nlambda": 100,
+    "alpha": 1
+   },
+   "arguments": [
+    {
+     "name": "X",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric design matrix X (n x p; >=1 column, >=2 rows, without NA/Inf). The columns correspond to the group labels.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric response y of length the row count of X. binomial -> exactly {0,1}; poisson -> non-negative; without NA/Inf.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "group",
+     "kind": "int_array",
+     "required": false,
+     "description": "Grouping vector, length == the column count of X: the group integer of each column (0 = unpenalized/always-in group). None -> each column its own group (ordinary lasso).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "penalty",
+     "kind": "enum",
+     "required": false,
+     "description": "Penalty: grLasso/grMCP/grSCAD select ENTIRE groups together; gel/cMCP are bi-level (select groups AND variables within a group). Default grLasso.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "grLasso",
+      "grMCP",
+      "grSCAD",
+      "gel",
+      "cMCP"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Family: gaussian (continuous y), binomial (binary y {0,1}), poisson (non-negative counts). Default gaussian.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gaussian",
+      "binomial",
+      "poisson"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nlambda",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of lambda values in the regularization path (>=2, default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "gamma",
+     "kind": "number",
+     "required": false,
+     "description": "Concavity parameter for MCP/SCAD (>1; default 3, or 4 for grSCAD).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Balance of group-penalty vs ridge, in (0,1] (default 1 = pure group penalty).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rf_fit",
+   "card_id": 217,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "y": "<matrix_handle>",
+    "num_trees": 500,
+    "quantile_regression": false,
+    "probability": false,
+    "classification": false,
+    "seed": 42
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to the design matrix X (rows=observations, columns=variables), numeric, without NA/Inf, >= 2 rows.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to the response y (numeric vector; length == the row count of x). Regression if numeric; set classification/probability=True for categorical (numerically coded -> factor).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "num_trees",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of trees (default 500; positive integer).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 500,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "mtry",
+     "kind": "integer",
+     "required": false,
+     "description": "Variables tried per split (default: floor(sqrt(p))· <= the column count of x).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "min_node_size",
+     "kind": "integer",
+     "required": false,
+     "description": "Minimum terminal-node size (default 5 regression / 1 classification).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "importance",
+     "kind": "enum",
+     "required": false,
+     "description": "Variable importance: none; impurity (fast, biased toward high-cardinality)· impurity_corrected (bias-corrected)· permutation (more reliable, more expensive).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "impurity",
+      "impurity_corrected",
+      "permutation"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "quantile_regression",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> quantile regression forest (Meinshausen); requires REGRESSION; enables rf_predict type=\"quantiles\".",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "probability",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> probability forest (conditional class probabilities; y -> factor).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "classification",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> classification forest (label prediction· y -> factor).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed (num.threads pinned to 1 internally).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 42,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "rf_predict",
+   "card_id": 217,
+   "register": null,
+   "input_example": {
+    "object": "<raw_handle>",
+    "newdata": "<matrix_handle>",
+    "seed": 42
+   },
+   "arguments": [
+    {
+     "name": "object",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted random forest (from rf_fit register field 'model').",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "newdata",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a design matrix (>= 1 row — a single out-of-sample observation is valid) with COLUMN NAMES matching the training variables (same set); anonymous/wrong newdata is blocked (a name-match gate, not positional).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "required": false,
+     "description": "response (point/label/probabilities); quantiles (requires a quantile-regression forest); se (jackknife SE; regression only).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "response",
+      "quantiles",
+      "se"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "quantiles",
+     "kind": "num_array",
+     "required": false,
+     "description": "Quantiles in (0,1) for type=\"quantiles\" (default 0.1,0.5,0.9).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "se_method",
+     "kind": "enum",
+     "required": false,
+     "description": "SE method for type=\"se\": infjack (infinitesimal jackknife) or jack.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "infjack",
+      "jack"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed (type=\"se\" draws from the random number generator).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 42,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "hd_advanced_lasso",
+   "card_id": 545,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "method": "sqrt_lasso",
+    "robust_loadings": true,
+    "n_folds": 10
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lasso",
+      "adaptive_lasso",
+      "sqrt_lasso",
+      "rigorous_lasso",
+      "elastic_net"
+     ],
+     "allowed_vars": null,
+     "default": "sqrt_lasso",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "lambda_",
+     "kind": "number",
+     "required": false,
+     "description": "Penalty; omitted = by the method's own rule.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "robust_loadings",
+     "kind": "boolean",
+     "required": false,
+     "description": "Use heteroskedasticity-robust penalty loadings.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "n_folds",
+     "kind": "integer",
+     "required": false,
+     "description": "Folds when cross-validating.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hd_debiased_inference",
+   "card_id": 546,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "y": "...",
+    "d": "...",
+    "method": "double_selection",
+    "n_folds": 5,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "string",
+     "required": true,
+     "description": "Outcome column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "d",
+     "kind": "string",
+     "required": true,
+     "description": "Target regressor.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "controls",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Candidate control columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "double_selection",
+      "desparsified",
+      "dml_plr"
+     ],
+     "allowed_vars": null,
+     "default": "double_selection",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_folds",
+     "kind": "integer",
+     "required": false,
+     "description": "Cross-fitting folds.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "hd_gradient_boosting",
+   "card_id": 547,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "objective": "regression",
+    "n_estimators": 1000,
+    "learning_rate": 0.05,
+    "max_depth": 6,
+    "early_stopping": 50,
+    "validation_fraction": 0.2,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "objective",
+     "kind": "enum",
+     "required": false,
+     "description": "Objective.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "regression",
+      "binary",
+      "multiclass",
+      "poisson",
+      "quantile"
+     ],
+     "allowed_vars": null,
+     "default": "regression",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_estimators",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum boosting rounds.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "learning_rate",
+     "kind": "number",
+     "required": false,
+     "description": "Learning rate.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "max_depth",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum tree depth.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 6,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "early_stopping",
+     "kind": "integer",
+     "required": false,
+     "description": "Rounds without improvement before stopping.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 50,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "validation_fraction",
+     "kind": "number",
+     "required": false,
+     "description": "Held-out fraction for early stopping.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.2,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hd_explain",
+   "card_id": 548,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "x": "<df_handle>",
+    "method": "shap",
+    "n_repeats": 10
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data to explain.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Explanation method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "shap",
+      "permutation",
+      "partial_dependence",
+      "ale"
+     ],
+     "allowed_vars": null,
+     "default": "shap",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "features",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Features to explain; omitted = all.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_repeats",
+     "kind": "integer",
+     "required": false,
+     "description": "Repeats for permutation importance.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hd_glassbox",
+   "card_id": 549,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "objective": "regression",
+    "interactions": 10,
+    "max_bins": 256,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "objective",
+     "kind": "enum",
+     "required": false,
+     "description": "Objective.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "regression",
+      "classification"
+     ],
+     "allowed_vars": null,
+     "default": "regression",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "interactions",
+     "kind": "integer",
+     "required": false,
+     "description": "Pairwise interaction terms included.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "max_bins",
+     "kind": "integer",
+     "required": false,
+     "description": "Bins per feature.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 256,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hd_conformal",
+   "card_id": 550,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "x_calibration": "<df_handle>",
+    "y_calibration": "<series_handle>",
+    "x_test": "<df_handle>",
+    "method": "cqr",
+    "levels": [
+     0.9,
+     0.95
+    ]
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x_calibration",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Calibration covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_calibration",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Calibration outcomes.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x_test",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariates to predict for.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Conformal variant.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "split",
+      "cv_plus",
+      "jackknife_plus",
+      "cqr",
+      "naive"
+     ],
+     "allowed_vars": null,
+     "default": "cqr",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "levels",
+     "kind": "num_array",
+     "required": false,
+     "description": "Coverage levels.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.9,
+      0.95
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    }
+   ]
+  },
+  {
+   "fn": "hd_bayesian_shrinkage",
+   "card_id": 551,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "prior": "horseshoe",
+    "draws": 2000,
+    "warmup": 1000,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prior",
+     "kind": "enum",
+     "required": false,
+     "description": "Shrinkage prior.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "horseshoe",
+      "regularised_horseshoe",
+      "spike_slab",
+      "laplace",
+      "ridge"
+     ],
+     "allowed_vars": null,
+     "default": "horseshoe",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "expected_nonzero",
+     "kind": "number",
+     "required": false,
+     "description": "Prior guess at the number of non-zero coefficients.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "draws",
+     "kind": "integer",
+     "required": false,
+     "description": "Posterior draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "warmup",
+     "kind": "integer",
+     "required": false,
+     "description": "Warm-up draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hd_gam_prediction",
+   "card_id": 552,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "distribution": "normal",
+    "n_splines": 20,
+    "selection": "gcv"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distribution",
+     "kind": "enum",
+     "required": false,
+     "description": "Response distribution.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "normal",
+      "binomial",
+      "poisson",
+      "gamma"
+     ],
+     "allowed_vars": null,
+     "default": "normal",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_splines",
+     "kind": "integer",
+     "required": false,
+     "description": "Basis functions per term.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "selection",
+     "kind": "enum",
+     "required": false,
+     "description": "Penalty selection criterion.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gcv",
+      "aic",
+      "cv"
+     ],
+     "allowed_vars": null,
+     "default": "gcv",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  }
+ ]
+}

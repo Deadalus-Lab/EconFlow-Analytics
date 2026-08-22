@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``local_projections_lp`` -- METHOD-SELECTION card #22.
+"""Method wrapper ``local_projections_lp`` -- method card #22.
 
 #22 Local projections (Jordà) + LP-IV / non-linear state-dependent / panel
 
@@ -7,8 +7,8 @@ Category 04-structural-shocks; module ``local_projections_lp``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def lp_linear(
     confint: float | None = None,
     hor: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``lp_linear`` -- METHOD-SELECTION card #22.
+    """Node ``lp_linear`` -- method card #22.
 
     Local projections (Jordà) + LP-IV / non-linear state-dependent / panel.
 
@@ -63,7 +63,7 @@ def lp_linear(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lp_linear: not implemented. The method card is in ./README.md."
+        "lp_linear: not implemented."
     )
 
 
@@ -78,7 +78,7 @@ def lp_linear_iv(
     cumul_mult: bool | None = None,
     use_twosls: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``lp_linear_iv`` -- METHOD-SELECTION card #22.
+    """Node ``lp_linear_iv`` -- method card #22.
 
     Local projections (Jordà) + LP-IV / non-linear state-dependent / panel.
 
@@ -99,7 +99,7 @@ def lp_linear_iv(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lp_linear_iv: not implemented. The method card is in ./README.md."
+        "lp_linear_iv: not implemented."
     )
 
 
@@ -118,7 +118,7 @@ def lp_nonlinear(
     lambda_: float | None = None,
     gamma: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``lp_nonlinear`` -- METHOD-SELECTION card #22.
+    """Node ``lp_nonlinear`` -- method card #22.
 
     Local projections (Jordà) + LP-IV / non-linear state-dependent / panel.
 
@@ -146,7 +146,7 @@ def lp_nonlinear(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lp_nonlinear: not implemented. The method card is in ./README.md."
+        "lp_nonlinear: not implemented."
     )
 
 
@@ -165,7 +165,7 @@ def lp_nonlinear_iv(
     lambda_: float | None = None,
     gamma: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``lp_nonlinear_iv`` -- METHOD-SELECTION card #22.
+    """Node ``lp_nonlinear_iv`` -- method card #22.
 
     Local projections (Jordà) + LP-IV / non-linear state-dependent / panel.
 
@@ -191,7 +191,7 @@ def lp_nonlinear_iv(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lp_nonlinear_iv: not implemented. The method card is in ./README.md."
+        "lp_nonlinear_iv: not implemented."
     )
 
 
@@ -208,7 +208,7 @@ def lp_panel(
     cumul_mult: bool | None = None,
     diff_shock: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``lp_panel`` -- METHOD-SELECTION card #22.
+    """Node ``lp_panel`` -- method card #22.
 
     Local projections (Jordà) + LP-IV / non-linear state-dependent / panel.
 
@@ -221,9 +221,9 @@ def lp_panel(
         shock: [string, required] NAME of the shock column (not the data).
         hor: [integer, optional] IRF horizon (default 10). Default ``10``.
         confint: [number, optional] CI multiplier (default 1.96). Default ``1.96``.
-        panel_model: [string, optional] plm estimator (default within = fixed effects). Default
+        panel_model: [string, optional] panel estimator (default within = fixed effects). Default
             ``'within'``.
-        panel_effect: [string, optional] plm effect dimension (default individual). Default
+        panel_effect: [string, optional] panel effect dimension (default individual). Default
             ``'individual'``.
         iv_reg: [boolean, optional] IV/GMM (requires instrum) (default False). Default ``False``.
         cumul_mult: [boolean, optional] Cumulative multipliers (default True). Default ``True``.
@@ -233,7 +233,7 @@ def lp_panel(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lp_panel: not implemented. The method card is in ./README.md."
+        "lp_panel: not implemented."
     )
 
 
@@ -254,7 +254,7 @@ def lp_panel_nl(
     lambda_: float | None = None,
     gamma: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``lp_panel_nl`` -- METHOD-SELECTION card #22.
+    """Node ``lp_panel_nl`` -- method card #22.
 
     Local projections (Jordà) + LP-IV / non-linear state-dependent / panel.
 
@@ -268,8 +268,8 @@ def lp_panel_nl(
         switching: [string, required] NAME of the regime-variable column.
         hor: [integer, optional] IRF horizon (default 10). Default ``10``.
         confint: [number, optional] CI multiplier (default 1.96). Default ``1.96``.
-        panel_model: [string, optional] plm estimator (default within). Default ``'within'``.
-        panel_effect: [string, optional] plm effect dimension (default individual). Default
+        panel_model: [string, optional] panel estimator (default within). Default ``'within'``.
+        panel_effect: [string, optional] panel effect dimension (default individual). Default
             ``'individual'``.
         cumul_mult: [boolean, optional] Cumulative multipliers (default True). Default ``True``.
         diff_shock: [boolean, optional] First-difference the shock (default True). Default ``True``.
@@ -283,5 +283,5 @@ def lp_panel_nl(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lp_panel_nl: not implemented. The method card is in ./README.md."
+        "lp_panel_nl: not implemented."
     )

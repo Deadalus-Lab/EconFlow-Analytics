@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``hierarchical_multilevel_linear`` -- METHOD-SELECTION card #175.
+"""Method wrapper ``hierarchical_multilevel_linear`` -- method card #175.
 
 #175 Hierarchical / multilevel (mixed) models — linear & generalized (partial pooling)
 
@@ -7,8 +7,8 @@ Category 08-panel-data; module ``hierarchical_multilevel_linear``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,22 +23,22 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "lme_glmer",
-    "lme_lmer",
-    "lme_ranef",
-    "lme_varcorr",
+    "lme_fit",
+    "lme_fit_glm",
+    "lme_random_effects",
+    "lme_variance_components",
     "NODE_META",
     "wire_model",
 ]
 
 
-def lme_lmer(
+def lme_fit(
     *,
     formula: str,
     data: pd.DataFrame,
     REML: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``lme_lmer`` -- METHOD-SELECTION card #175.
+    """Node ``lme_fit`` -- method card #175.
 
     Hierarchical / multilevel (mixed) models — linear & generalized (partial pooling).
 
@@ -58,18 +58,18 @@ def lme_lmer(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lme_lmer: not implemented. The method card is in ./README.md."
+        "lme_fit: not implemented."
     )
 
 
-def lme_glmer(
+def lme_fit_glm(
     *,
     formula: str,
     data: pd.DataFrame,
     family: Literal["binomial", "poisson", "Gamma", "inverse.gaussian"] | None = None,
     nAGQ: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``lme_glmer`` -- METHOD-SELECTION card #175.
+    """Node ``lme_fit_glm`` -- method card #175.
 
     Hierarchical / multilevel (mixed) models — linear & generalized (partial pooling).
 
@@ -83,7 +83,7 @@ def lme_glmer(
         data: [df_handle, required] Handle to a DataFrame (variables of the formula + grouping
             factor).
         family: [enum, optional] Response distribution (closed set· default binomial). NOT gaussian
-            (use lme_lmer).
+            (use lme_fit).
         nAGQ: [integer, optional] Adaptive Gauss-Hermite quadrature points (default 1· >1 = more
             accurate likelihood, only single scalar RE). Default ``1``.
 
@@ -91,23 +91,23 @@ def lme_glmer(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lme_glmer: not implemented. The method card is in ./README.md."
+        "lme_fit_glm: not implemented."
     )
 
 
-def lme_ranef(
+def lme_random_effects(
     *,
     object: Any,
     condVar: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``lme_ranef`` -- METHOD-SELECTION card #175.
+    """Node ``lme_random_effects`` -- method card #175.
 
     Hierarchical / multilevel (mixed) models — linear & generalized (partial pooling).
 
     Category 08-panel-data; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to a merMod model (from lme_lmer/lme_glmer).
+        object: [raw_handle, required] Handle to a merMod model (from lme_fit/lme_fit_glm).
         condVar: [boolean, optional] Computation of conditional variances -> condsd in the records
             (default True). Default ``True``.
 
@@ -115,26 +115,26 @@ def lme_ranef(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lme_ranef: not implemented. The method card is in ./README.md."
+        "lme_random_effects: not implemented."
     )
 
 
-def lme_varcorr(
+def lme_variance_components(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``lme_varcorr`` -- METHOD-SELECTION card #175.
+    """Node ``lme_variance_components`` -- method card #175.
 
     Hierarchical / multilevel (mixed) models — linear & generalized (partial pooling).
 
     Category 08-panel-data; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to a merMod model (from lme_lmer/lme_glmer).
+        object: [raw_handle, required] Handle to a merMod model (from lme_fit/lme_fit_glm).
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lme_varcorr: not implemented. The method card is in ./README.md."
+        "lme_variance_components: not implemented."
     )

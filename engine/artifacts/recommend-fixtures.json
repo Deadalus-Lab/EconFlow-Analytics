@@ -1,0 +1,2154 @@
+{
+  "artifact_version": 1,
+  "generated_by": "frozen input: committed to this repository, not produced by any generator in it",
+  "source": {
+    "trees_yaml_sha256": "92f3abaed1556b7f8d75f06ab3b303acb37bc2bc9aa5d8e65790eaa038eb9d9f",
+    "n_fixtures": 114,
+    "statuses_covered": [
+      "guard",
+      "need_data_property",
+      "no_route",
+      "no_tree",
+      "recommended"
+    ],
+    "trees_covered": [
+      "A",
+      "B",
+      "B2",
+      "C",
+      "D",
+      "E",
+      "F",
+      "FAVAR",
+      "G",
+      "H"
+    ],
+    "leaves_reached": 48,
+    "leaves_total": 48
+  },
+  "fixtures": [
+    {
+      "input": [],
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "goal",
+        "note": "Give ONE 'goal' (scalar) for the data.",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": null
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "goal",
+        "note": "Give ONE 'goal' (scalar) for the data.",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": ""
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "goal",
+        "note": "Give ONE 'goal' (scalar) for the data.",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": "bogus"
+      },
+      "output": {
+        "status": "no_tree",
+        "goal": "bogus",
+        "note": "No master tree for this goal.",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": [
+          "univariate",
+          "panel"
+        ]
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "goal",
+        "note": "Give ONE 'goal' (scalar) for the data.",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": null
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "goal",
+        "note": "Give ONE 'goal' (scalar) for the data.",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": "univariate"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "seasonal",
+        "question": "Is there seasonality? (seasonal unit-root test)",
+        "run_tools": [
+          "c01_preparation_prechecks/seasonal_unit_roots.run_hegy_test",
+          "c01_preparation_prechecks/seasonal_unit_roots.run_ch_test"
+        ],
+        "tree": "A",
+        "node": "A_seasonal"
+      }
+    },
+    {
+      "input": {
+        "goal": "univariate",
+        "seasonal": false
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "A",
+        "node": "A_seasonal",
+        "tool_fns": "run_auto_arima",
+        "card_id": 7,
+        "rationale": "Non-seasonal: auto_arima baseline (endogenous d). Alternatives: run_ets (ETS state-space), run_theta (cheap robust benchmark).",
+        "source": "Box-Jenkins· Hyndman-Khandakar 2008"
+      }
+    },
+    {
+      "input": {
+        "goal": "univariate",
+        "seasonal": true
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "A",
+        "node": "A_seasonal",
+        "tool_fns": [
+          "run_auto_arima",
+          "run_tbats",
+          "run_prophet"
+        ],
+        "card_id": 7,
+        "rationale": "Seasonal: run_auto_arima(seasonal=TRUE) or run_ets. MULTIPLE/high-freq/non-integer seasonalities -> run_tbats; seasonalities+holidays+changepoints -> run_prophet.",
+        "source": "De Livera-Hyndman-Snyder 2011· Taylor-Letham 2018"
+      }
+    },
+    {
+      "input": {
+        "goal": "univariate",
+        "seasonal": true,
+        "n_series": 7,
+        "has_break": true
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "A",
+        "node": "A_seasonal",
+        "tool_fns": [
+          "run_auto_arima",
+          "run_tbats",
+          "run_prophet"
+        ],
+        "card_id": 7,
+        "rationale": "Seasonal: run_auto_arima(seasonal=TRUE) or run_ets. MULTIPLE/high-freq/non-integer seasonalities -> run_tbats; seasonalities+holidays+changepoints -> run_prophet.",
+        "source": "De Livera-Hyndman-Snyder 2011· Taylor-Letham 2018"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "many_predictors": true
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "FAVAR",
+        "node": "FAVAR_leaf",
+        "tool_fns": [
+          "df_fit",
+          "vr_fit",
+          "vr_irf",
+          "vr_fevd"
+        ],
+        "card_id": 15,
+        "rationale": "Dozens to hundreds of indicators: extract K factors (df_fit) -> augmented VAR [factors, observables] (vr_fit) -> structural IRF/FEVD (vr_irf/vr_fevd). Solves the degrees-of-freedom problem without Bayesian shrinkage.",
+        "warn": "Generated regressors (Pagan 1984): the factors are ESTIMATED -> IRF standard errors are understated; for fewer than 20 variables prefer BVAR (#12).",
+        "source": "Bernanke-Boivin-Eliasz 2005 QJE· Stock-Watson 2016"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "many_predictors": true,
+        "n_series": 50,
+        "integration_orders": [
+          "I1",
+          "I1"
+        ]
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "FAVAR",
+        "node": "FAVAR_leaf",
+        "tool_fns": [
+          "df_fit",
+          "vr_fit",
+          "vr_irf",
+          "vr_fevd"
+        ],
+        "card_id": 15,
+        "rationale": "Dozens to hundreds of indicators: extract K factors (df_fit) -> augmented VAR [factors, observables] (vr_fit) -> structural IRF/FEVD (vr_irf/vr_fevd). Solves the degrees-of-freedom problem without Bayesian shrinkage.",
+        "warn": "Generated regressors (Pagan 1984): the factors are ESTIMATED -> IRF standard errors are understated; for fewer than 20 variables prefer BVAR (#12).",
+        "source": "Bernanke-Boivin-Eliasz 2005 QJE· Stock-Watson 2016"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "many_predictors": false,
+        "n_series": 2
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "integration_orders",
+        "question": "Order of integration per series (confirmatory ADF + KPSS)",
+        "run_tools": [
+          "c01_preparation_prechecks/unit_root_normality.run_adf_test",
+          "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
+        ],
+        "tree": "B",
+        "node": "B_step1"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "n_series",
+        "note": "Goal 'multivariate' is covered by tree B; give n_series (>= 2) for routing.",
+        "tree": "B",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": "cointegration"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "n_series",
+        "note": "Goal 'cointegration' is covered by tree B; give n_series (>= 2) for routing.",
+        "tree": "B",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 1
+      },
+      "output": {
+        "status": "no_tree",
+        "goal": "multivariate",
+        "note": "No master tree for this goal.",
+        "goals": [
+          "causality",
+          "cointegration",
+          "distribution_risk",
+          "forecast_workflow",
+          "multivariate",
+          "panel",
+          "structural",
+          "trend_cycle",
+          "univariate",
+          "volatility"
+        ]
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "integration_orders",
+        "question": "Order of integration per series (confirmatory ADF + KPSS)",
+        "run_tools": [
+          "c01_preparation_prechecks/unit_root_normality.run_adf_test",
+          "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
+        ],
+        "tree": "B",
+        "node": "B_step1"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I0"
+        ]
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I0"
+        ],
+        "cointegration_rank": 0
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I0"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I0"
+        ],
+        "cointegration_rank": 2
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I0"
+        ],
+        "cointegration_rank": 4
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I1"
+        ]
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "cointegration_rank",
+        "question": "Johansen cointegration rank r (sequentially from r=0)",
+        "run_tools": "c05_cointegration/johansen_restricted_vecm.coint_johansen",
+        "tree": "B",
+        "node": "B_johansen"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 0
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_johansen",
+        "tool_fns": "vr_fit",
+        "card_id": 11,
+        "rationale": "r=0 (no cointegration) -> VAR IN FIRST DIFFERENCES (difference each series, then vr_fit).",
+        "warn": "NEVER a VAR in levels here — spurious regression (Granger-Newbold 1974).",
+        "source": "Enders 2015· Hamilton 1994"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_johansen",
+        "tool_fns": [
+          "coint_johansen_vecm",
+          "vr_vecm_to_var"
+        ],
+        "card_id": 23,
+        "rationale": "0<r<K (cointegration) -> VECM: coint_johansen_vecm (restricted VECM at rank r). IRF/FEVD: bridge to a level-VAR with vr_vecm_to_var(z, r) -> vr_irf/vr_fevd.",
+        "source": "Johansen 1995· Lütkepohl 2005 §6.3"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 2
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_johansen",
+        "tool_fns": "run_adf_test",
+        "card_id": 1,
+        "recheck": true,
+        "rationale": "r=K (full rank) -> the series were effectively I(0); re-test stationarity (Step 1) and go to a VAR in levels.",
+        "source": "Johansen 1995 (full rank ⇒ stationary VAR)"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 4
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "B",
+        "node": "B_johansen",
+        "value": 4,
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I1",
+          "I1",
+          "I1"
+        ]
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "cointegration_rank",
+        "question": "Johansen cointegration rank r (sequentially from r=0)",
+        "run_tools": "c05_cointegration/johansen_restricted_vecm.coint_johansen",
+        "tree": "B",
+        "node": "B_johansen"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I1",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 0
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_johansen",
+        "tool_fns": "vr_fit",
+        "card_id": 11,
+        "rationale": "r=0 (no cointegration) -> VAR IN FIRST DIFFERENCES (difference each series, then vr_fit).",
+        "warn": "NEVER a VAR in levels here — spurious regression (Granger-Newbold 1974).",
+        "source": "Enders 2015· Hamilton 1994"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I1",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_johansen",
+        "tool_fns": [
+          "coint_johansen_vecm",
+          "vr_vecm_to_var"
+        ],
+        "card_id": 23,
+        "rationale": "0<r<K (cointegration) -> VECM: coint_johansen_vecm (restricted VECM at rank r). IRF/FEVD: bridge to a level-VAR with vr_vecm_to_var(z, r) -> vr_irf/vr_fevd.",
+        "source": "Johansen 1995· Lütkepohl 2005 §6.3"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I1",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 2
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_johansen",
+        "tool_fns": [
+          "coint_johansen_vecm",
+          "vr_vecm_to_var"
+        ],
+        "card_id": 23,
+        "rationale": "0<r<K (cointegration) -> VECM: coint_johansen_vecm (restricted VECM at rank r). IRF/FEVD: bridge to a level-VAR with vr_vecm_to_var(z, r) -> vr_irf/vr_fevd.",
+        "source": "Johansen 1995· Lütkepohl 2005 §6.3"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I1",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 4
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "B",
+        "node": "B_johansen",
+        "value": 4,
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I1"
+        ]
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I1"
+        ],
+        "cointegration_rank": 0
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I1"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I1"
+        ],
+        "cointegration_rank": 2
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I0",
+          "I1"
+        ],
+        "cointegration_rank": 4
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I0",
+          "I1",
+          "I1"
+        ]
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I0",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 0
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I0",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I0",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 2
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 3,
+        "integration_orders": [
+          "I0",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 4
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "ardl_fit",
+          "ardl_bounds_f"
+        ],
+        "card_id": 25,
+        "rationale": "MIXED I(0)/I(1) (no I(2)) -> ARDL bounds: ardl_fit/ardl_auto -> ardl_bounds_f (F). F>upper ⇒ cointegration; F<lower ⇒ none; in between ⇒ inconclusive.",
+        "source": "Pesaran-Shin-Smith 2001"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I2",
+          "I2"
+        ]
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I2",
+          "I2"
+        ],
+        "cointegration_rank": 0
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I2",
+          "I2"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I2",
+          "I2"
+        ],
+        "cointegration_rank": 2
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I2",
+          "I2"
+        ],
+        "cointegration_rank": 4
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I2"
+        ]
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I2"
+        ],
+        "cointegration_rank": 0
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I2"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I2"
+        ],
+        "cointegration_rank": 2
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I1",
+          "I2"
+        ],
+        "cointegration_rank": 4
+      },
+      "output": {
+        "status": "guard",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [],
+        "card_id": 1,
+        "guard": true,
+        "rationale": "An I(2) series is present -> NEITHER classical Johansen NOR ARDL bounds hold as they stand. Take the first difference of the I(2) series and re-test (Step 1).",
+        "source": "Pesaran-Shin-Smith 2001 (regressors I(0)/I(1), not I(2))"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 4,
+        "integration_orders": [
+          "I0",
+          "I0",
+          "I0",
+          "I0"
+        ]
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 4,
+        "integration_orders": [
+          "I0",
+          "I0",
+          "I0",
+          "I0"
+        ],
+        "cointegration_rank": 0
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 4,
+        "integration_orders": [
+          "I0",
+          "I0",
+          "I0",
+          "I0"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 4,
+        "integration_orders": [
+          "I0",
+          "I0",
+          "I0",
+          "I0"
+        ],
+        "cointegration_rank": 2
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 4,
+        "integration_orders": [
+          "I0",
+          "I0",
+          "I0",
+          "I0"
+        ],
+        "cointegration_rank": 4
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_step1",
+        "tool_fns": [
+          "vr_lag_select",
+          "vr_fit"
+        ],
+        "card_id": 11,
+        "rationale": "ALL I(0) -> VAR IN LEVELS: vr_lag_select (lag AIC/HQ/SC/FPE) -> vr_fit -> stability GATE (vr_fit.stable). Structural -> goal=structural (Tree B2).",
+        "source": "Lütkepohl 2005"
+      }
+    },
+    {
+      "input": {
+        "goal": "cointegration",
+        "n_series": 3,
+        "integration_orders": [
+          "I1",
+          "I1",
+          "I1"
+        ],
+        "cointegration_rank": 1
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_johansen",
+        "tool_fns": [
+          "coint_johansen_vecm",
+          "vr_vecm_to_var"
+        ],
+        "card_id": 23,
+        "rationale": "0<r<K (cointegration) -> VECM: coint_johansen_vecm (restricted VECM at rank r). IRF/FEVD: bridge to a level-VAR with vr_vecm_to_var(z, r) -> vr_irf/vr_fevd.",
+        "source": "Johansen 1995· Lütkepohl 2005 §6.3"
+      }
+    },
+    {
+      "input": {
+        "goal": "multivariate",
+        "n_series": 2,
+        "integration_orders": [
+          "I3",
+          "I3"
+        ]
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "B",
+        "node": "B_step1",
+        "value": [
+          "I3",
+          "I3"
+        ],
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "choice",
+        "question": "Which identification strategy? choice ∈ recursive|long_run|sign|changes_in_volatility|independence|non_gaussian|local_projection (a theoretical choice, not a data test)",
+        "run_tools": null,
+        "tree": "B2",
+        "node": "B2_id"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural",
+        "choice": "recursive"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B2",
+        "node": "B2_id",
+        "tool_fns": [
+          "vr_svar",
+          "svar_id_cholesky"
+        ],
+        "card_id": 20,
+        "rationale": "A clear contemporaneous ordering -> Cholesky/recursive. ⚠ the ordering IS an assumption (test its robustness).",
+        "source": "Sims 1980· CEE 1999"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural",
+        "choice": "long_run"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B2",
+        "node": "B2_id",
+        "tool_fns": "vr_bq",
+        "card_id": 19,
+        "rationale": "Long-run restriction (e.g. a demand shock neutral on output) -> Blanchard-Quah (LRIM).",
+        "source": "Blanchard-Quah 1989"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural",
+        "choice": "sign"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B2",
+        "node": "B2_id",
+        "tool_fns": "sgn_uhlig_reject",
+        "card_id": 21,
+        "rationale": "A-priori signs of the responses (not zero restrictions) -> sign restrictions (Uhlig reject/penalty, RWZ).",
+        "source": "Uhlig 2005· Rubio-Ramírez-Waggoner-Zha 2010"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural",
+        "choice": "changes_in_volatility"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B2",
+        "node": "B2_id",
+        "tool_fns": "svar_id_volatility_change",
+        "card_id": 20,
+        "rationale": "A known regime or break in volatility -> changes-in-volatility statistical ID.",
+        "source": "Rigobon 2003· Lanne-Lütkepohl-Maciejowska 2010"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural",
+        "choice": "independence"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B2",
+        "node": "B2_id",
+        "tool_fns": "svar_id_distance_covariance",
+        "card_id": 20,
+        "rationale": "Statistical independence of the shocks -> distance covariance ID (seed).",
+        "source": "Matteson-Tsay 2017"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural",
+        "choice": "non_gaussian"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B2",
+        "node": "B2_id",
+        "tool_fns": "svar_id_non_gaussian_ml",
+        "card_id": 20,
+        "rationale": "Non-Gaussian shocks -> non-Gaussian ML ID (seed).",
+        "source": "Lanne-Meitz-Saikkonen 2017"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural",
+        "choice": "local_projection"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "B2",
+        "node": "B2_id",
+        "tool_fns": [
+          "lp_linear",
+          "lp_linear_iv"
+        ],
+        "card_id": 22,
+        "rationale": "VAR misspecification concern / external instrument -> Local Projections (lp_linear, lp_linear_iv with an external IV).",
+        "source": "Jordà 2005· Stock-Watson 2018"
+      }
+    },
+    {
+      "input": {
+        "goal": "structural",
+        "choice": "__does_not_exist__"
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "B2",
+        "node": "B2_id",
+        "value": "__does_not_exist__",
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "volatility"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "choice",
+        "question": "What are you modelling? choice ∈ univariate_garch|dcc|ms_mean|ms_garch|threshold. (The GARCH family REQUIRES run_arch_test first.)",
+        "run_tools": "c15_model_evaluation/arch.run_arch_test",
+        "tree": "C",
+        "node": "C_model"
+      }
+    },
+    {
+      "input": {
+        "goal": "volatility",
+        "choice": "univariate_garch"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "C",
+        "node": "C_model",
+        "tool_fns": "ga_fit",
+        "card_id": 28,
+        "rationale": "Conditional variance of a single series (volatility clustering) -> univariate GARCH (ga_spec->ga_fit->ga_forecast). REQUIRES ARCH effects.",
+        "source": "Bollerslev 1986· Engle 1982 (ARCH-LM precondition)"
+      }
+    },
+    {
+      "input": {
+        "goal": "volatility",
+        "choice": "dcc"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "C",
+        "node": "C_model",
+        "tool_fns": "dcc_fit",
+        "card_id": 29,
+        "rationale": "Several series with time-varying correlations (contagion) -> DCC-GARCH.",
+        "source": "Engle 2002"
+      }
+    },
+    {
+      "input": {
+        "goal": "volatility",
+        "choice": "ms_mean"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "C",
+        "node": "C_model",
+        "tool_fns": "ms_fit",
+        "card_id": 30,
+        "rationale": "Abrupt changes in the mean or dynamics (business-cycle regimes) -> Markov-switching mean/AR. Does NOT require ARCH.",
+        "source": "Hamilton 1989"
+      }
+    },
+    {
+      "input": {
+        "goal": "volatility",
+        "choice": "ms_garch"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "C",
+        "node": "C_model",
+        "tool_fns": "msg_fit_ml",
+        "card_id": 31,
+        "rationale": "Regime-switching in the variance as well -> MS-GARCH (msg_fit_ml/msg_fit_mcmc, MCMC->seed).",
+        "source": "Haas-Mittnik-Paolella 2004"
+      }
+    },
+    {
+      "input": {
+        "goal": "volatility",
+        "choice": "threshold"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "C",
+        "node": "C_model",
+        "tool_fns": [
+          "setar_test",
+          "setar_fit",
+          "lstar_fit"
+        ],
+        "card_id": 32,
+        "rationale": "Nonlinear threshold dynamics -> setar_test (linearity) COMES FIRST; then setar_fit (abrupt) or lstar_fit (smooth). Does NOT require ARCH.",
+        "source": "Tong 1990· Teräsvirta 1994"
+      }
+    },
+    {
+      "input": {
+        "goal": "volatility",
+        "choice": "__does_not_exist__"
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "C",
+        "node": "C_model",
+        "value": "__does_not_exist__",
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "choice",
+        "question": "Where does the exogeneity come from? choice ∈ rdd|staggered_did|synthetic_control|iv|dml|causal_forest|ts_intervention|granger. ⚠ Granger = predictive, NOT causal.",
+        "run_tools": null,
+        "tree": "D",
+        "node": "D_design"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "rdd"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "D",
+        "node": "D_design",
+        "tool_fns": "rd_robust",
+        "card_id": 38,
+        "rationale": "Sharp or fuzzy cutoff in a running variable -> RDD (rd_robust/rd_bandwidth_select).",
+        "source": "Calonico-Cattaneo-Titiunik 2014"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "staggered_did"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "D",
+        "node": "D_design",
+        "tool_fns": "did_att_gt",
+        "card_id": 36,
+        "rationale": "Treatment at different times (staggered) -> Callaway-Sant'Anna group-time ATT (did_att_gt->did_aggregate_att); corrects TWFE bias.",
+        "source": "Callaway-Sant'Anna 2021· Goodman-Bacon 2021"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "synthetic_control"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "D",
+        "node": "D_design",
+        "tool_fns": "sc_fit",
+        "card_id": 40,
+        "rationale": "One treated unit plus a donor pool -> Synthetic Control (sc_prepare_data->sc_fit; inference scp_intervals).",
+        "source": "Abadie-Diamond-Hainmueller 2010"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "iv"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "D",
+        "node": "D_design",
+        "tool_fns": "iv_2sls",
+        "card_id": 34,
+        "rationale": "A valid instrument (relevant + exclusion) -> IV/2SLS (iv_2sls or fx_fit(...|iv)).",
+        "source": "Wooldridge"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "dml"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "D",
+        "node": "D_design",
+        "tool_fns": "dml_plr",
+        "card_id": 45,
+        "rationale": "High-dim controls, √n-consistent effect -> Double/Debiased ML (dml_plr/_irm).",
+        "source": "Chernozhukov et al. 2018"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "causal_forest"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "D",
+        "node": "D_design",
+        "tool_fns": "causal_forest_fit",
+        "card_id": 44,
+        "rationale": "Heterogeneous treatment (CATE) -> causal forest (causal_forest_fit->causal_forest_ate).",
+        "source": "Wager-Athey 2018"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "ts_intervention"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "D",
+        "node": "D_design",
+        "tool_fns": "run_causal_impact",
+        "card_id": 90,
+        "rationale": "Time-series intervention at a known date (single-series counterfactual) -> CausalImpact (BSTS).",
+        "source": "Brodersen et al. 2015"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "granger"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "D",
+        "node": "D_design",
+        "tool_fns": "vr_causality",
+        "card_id": 11,
+        "rationale": "Predictive precedence (NOT structural) -> Granger causality (vr_causality).",
+        "source": "Granger 1969"
+      }
+    },
+    {
+      "input": {
+        "goal": "causality",
+        "choice": "__does_not_exist__"
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "D",
+        "node": "D_design",
+        "value": "__does_not_exist__",
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "distribution_risk"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "choice",
+        "question": "Which risk? choice ∈ growth_at_risk (conditional macro downside) | var_es (portfolio/returns tail)",
+        "run_tools": null,
+        "tree": "E",
+        "node": "E_target"
+      }
+    },
+    {
+      "input": {
+        "goal": "distribution_risk",
+        "choice": "growth_at_risk"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "E",
+        "node": "E_target",
+        "tool_fns": [
+          "qr_growth_at_risk",
+          "st_fit_quantiles",
+          "st_density",
+          "st_shortfall"
+        ],
+        "card_id": 64,
+        "rationale": "Growth-at-Risk: STEP 1 qr_growth_at_risk (conditional quantiles); STEP 2 (the full ABG) st_fit_quantiles->st_density/st_shortfall (skew-t density + ES).",
+        "source": "Adrian-Boyarchenko-Giannone 2019· Koenker-Bassett 1978· Azzalini-Capitanio 2003"
+      }
+    },
+    {
+      "input": {
+        "goal": "distribution_risk",
+        "choice": "var_es"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "E",
+        "node": "E_target",
+        "tool_fns": [
+          "risk_var",
+          "risk_expected_shortfall"
+        ],
+        "card_id": 65,
+        "rationale": "Portfolio/returns tail risk -> risk_var/risk_expected_shortfall (historical/gaussian/modified Cornish-Fisher).",
+        "source": "PerformanceAnalytics· Boudt-Peterson-Croux 2008"
+      }
+    },
+    {
+      "input": {
+        "goal": "distribution_risk",
+        "choice": "__does_not_exist__"
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "E",
+        "node": "E_target",
+        "value": "__does_not_exist__",
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "trend_cycle"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "choice",
+        "question": "Which decomposition? choice ∈ hp (two-sided in-sample) | one_sided_hp (real-time/policy) | hamilton (regression, no HP artefacts) | band_pass | uc_kalman (model-based, with CI) | dfa (multivariate common trend)",
+        "run_tools": null,
+        "tree": "F",
+        "node": "F_filter"
+      }
+    },
+    {
+      "input": {
+        "goal": "trend_cycle",
+        "choice": "hp"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "F",
+        "node": "F_filter",
+        "tool_fns": "filt_hp",
+        "card_id": 56,
+        "rationale": "Two-sided smoothing, ex post -> HP filter (lambda=1600 for quarterly data). ⚠ end-point bias + spurious cycles.",
+        "source": "Hodrick-Prescott 1997· Ravn-Uhlig 2002"
+      }
+    },
+    {
+      "input": {
+        "goal": "trend_cycle",
+        "choice": "one_sided_hp"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "F",
+        "node": "F_filter",
+        "tool_fns": "hp_one_sided",
+        "card_id": 92,
+        "rationale": "Real-time/one-sided (policy; Basel credit gap lambda=400000) -> one-sided HP.",
+        "source": "Drehmann-Borio-Tsatsaronis 2011"
+      }
+    },
+    {
+      "input": {
+        "goal": "trend_cycle",
+        "choice": "hamilton"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "F",
+        "node": "F_filter",
+        "tool_fns": "ham_filter",
+        "card_id": 57,
+        "rationale": "Avoiding HP spurious-cycle artefacts -> Hamilton regression filter.",
+        "source": "Hamilton 2018"
+      }
+    },
+    {
+      "input": {
+        "goal": "trend_cycle",
+        "choice": "band_pass"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "F",
+        "node": "F_filter",
+        "tool_fns": [
+          "filt_baxter_king",
+          "filt_christiano_fitzgerald"
+        ],
+        "card_id": 56,
+        "rationale": "Band-pass cycle -> filt_baxter_king (Baxter-King) / filt_christiano_fitzgerald (Christiano-Fitzgerald).",
+        "source": "Baxter-King 1999· Christiano-Fitzgerald 2003"
+      }
+    },
+    {
+      "input": {
+        "goal": "trend_cycle",
+        "choice": "uc_kalman"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "F",
+        "node": "F_filter",
+        "tool_fns": [
+          "kf_trend_cycle",
+          "dl_trend_cycle"
+        ],
+        "card_id": 58,
+        "rationale": "Model-based unobserved components (trend/cycle as state, with CI) -> kf_trend_cycle / dl_trend_cycle.",
+        "source": "Harvey 1989"
+      }
+    },
+    {
+      "input": {
+        "goal": "trend_cycle",
+        "choice": "dfa"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "F",
+        "node": "F_filter",
+        "tool_fns": "mss_dfa",
+        "card_id": 61,
+        "rationale": "Multivariate common trend (NAIRU-style, many indicators -> one trend) -> dynamic factor analysis (mss_dfa).",
+        "source": "Holmes-Ward-Wills 2012"
+      }
+    },
+    {
+      "input": {
+        "goal": "trend_cycle",
+        "choice": "__does_not_exist__"
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "F",
+        "node": "F_filter",
+        "value": "__does_not_exist__",
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "panel"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "choice",
+        "question": "Which panel step? choice ∈ poolability | fe_re | dynamic | panel_unit_root | csd",
+        "run_tools": null,
+        "tree": "G",
+        "node": "G_step"
+      }
+    },
+    {
+      "input": {
+        "goal": "panel",
+        "choice": "poolability"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "G",
+        "node": "G_step",
+        "tool_fns": [
+          "pd_poolability_test",
+          "pd_effects_ftest"
+        ],
+        "card_id": 46,
+        "rationale": "Are there individual effects? -> pd_poolability_test (Breusch-Pagan LM) + pd_effects_ftest (F, within vs pooling).",
+        "source": "Breusch-Pagan 1980· Baltagi"
+      }
+    },
+    {
+      "input": {
+        "goal": "panel",
+        "choice": "fe_re"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "G",
+        "node": "G_step",
+        "tool_fns": [
+          "pd_hausman_test",
+          "pd_fit"
+        ],
+        "card_id": 46,
+        "rationale": "FE vs RE (are the effects correlated with the regressors?) -> pd_hausman_test (reject ⇒ FE); estimate with pd_fit(model='within'|'random').",
+        "source": "Hausman 1978"
+      }
+    },
+    {
+      "input": {
+        "goal": "panel",
+        "choice": "dynamic"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "G",
+        "node": "G_step",
+        "tool_fns": [
+          "pd_gmm_fit",
+          "pd_gmm_autocorr_test",
+          "pd_gmm_sargan_test"
+        ],
+        "card_id": 47,
+        "rationale": "Dynamic panel (lagged y), small T and large N (Nickell bias) -> GMM (pd_gmm_fit, NOT FE). POST-GATES: pd_gmm_autocorr_test (AR(2)) + pd_gmm_sargan_test.",
+        "source": "Arellano-Bond 1991· Nickell 1981"
+      }
+    },
+    {
+      "input": {
+        "goal": "panel",
+        "choice": "panel_unit_root"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "G",
+        "node": "G_step",
+        "tool_fns": "run_panel_unit_root",
+        "card_id": 6,
+        "rationale": "Panel unit roots — ONLY for macro panels (large T) -> run_panel_unit_root (LLC/IPS/Fisher/Hadri). ⚠ hadri has the opposite polarity.",
+        "source": "Levin-Lin-Chu· Im-Pesaran-Shin"
+      }
+    },
+    {
+      "input": {
+        "goal": "panel",
+        "choice": "csd"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "G",
+        "node": "G_step",
+        "tool_fns": "run_cipstest",
+        "card_id": 6,
+        "rationale": "Cross-sectional dependence (common shocks) -> run_cipstest (Pesaran CIPS/CMG, second generation). First-generation purtest is size-distorted under CSD.",
+        "source": "Pesaran 2006, 2007"
+      }
+    },
+    {
+      "input": {
+        "goal": "panel",
+        "choice": "__does_not_exist__"
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "G",
+        "node": "G_step",
+        "value": "__does_not_exist__",
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": {
+        "goal": "forecast_workflow"
+      },
+      "output": {
+        "status": "need_data_property",
+        "missing_property": "choice",
+        "question": "Which evaluation? choice ∈ diagnostics | backtest | compare_two | compare_many | combine | density",
+        "run_tools": null,
+        "tree": "H",
+        "node": "H_step"
+      }
+    },
+    {
+      "input": {
+        "goal": "forecast_workflow",
+        "choice": "diagnostics"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "H",
+        "node": "H_step",
+        "tool_fns": [
+          "run_bg_test",
+          "run_bp_test",
+          "run_reset_test"
+        ],
+        "card_id": 76,
+        "rationale": "In-sample diagnostics (model adequacy) -> run_bg_test (serial correlation) / run_bp_test (heteroskedasticity) / run_reset_test (functional form); plus run_arch_test (ARCH -> volatility model).",
+        "source": "Breusch-Godfrey· Breusch-Pagan· Ramsey RESET"
+      }
+    },
+    {
+      "input": {
+        "goal": "forecast_workflow",
+        "choice": "backtest"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "H",
+        "node": "H_step",
+        "tool_fns": "eval_rolling_origin",
+        "card_id": 74,
+        "rationale": "Out-of-sample backtest (rolling origin) -> eval_rolling_origin (per-horizon RMSE/MAE).",
+        "source": "Hyndman-Athanasopoulos"
+      }
+    },
+    {
+      "input": {
+        "goal": "forecast_workflow",
+        "choice": "compare_two"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "H",
+        "node": "H_step",
+        "tool_fns": "eval_dm_test",
+        "card_id": 74,
+        "rationale": "Point-forecast comparison of two models -> Diebold-Mariano (eval_dm_test). NOT for distributions.",
+        "source": "Diebold-Mariano 1995"
+      }
+    },
+    {
+      "input": {
+        "goal": "forecast_workflow",
+        "choice": "compare_many"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "H",
+        "node": "H_step",
+        "tool_fns": "run_mcs_procedure",
+        "card_id": 75,
+        "rationale": "MANY models -> Model Confidence Set (run_mcs_procedure): the set that is not eliminated. Avoid multiple pairwise DM tests.",
+        "source": "Hansen-Lunde-Nason 2011"
+      }
+    },
+    {
+      "input": {
+        "goal": "forecast_workflow",
+        "choice": "combine"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "H",
+        "node": "H_step",
+        "tool_fns": "run_hybrid",
+        "card_id": 85,
+        "rationale": "Combination rather than selection -> forecastHybrid (run_hybrid; equal/insample/CV weights).",
+        "source": "Bates-Granger 1969· Timmermann 2006"
+      }
+    },
+    {
+      "input": {
+        "goal": "forecast_workflow",
+        "choice": "density"
+      },
+      "output": {
+        "status": "recommended",
+        "tree": "H",
+        "node": "H_step",
+        "tool_fns": [
+          "sr_crps_sample",
+          "sr_logs_sample",
+          "sr_pit_sample"
+        ],
+        "card_id": 94,
+        "rationale": "Density forecast (draws) -> proper scoring: sr_crps_sample/sr_logs_sample (NEGATIVELY ORIENTED, LOWER IS BETTER) + sr_pit_sample (calibration). NOT DM.",
+        "source": "Gneiting-Raftery 2007"
+      }
+    },
+    {
+      "input": {
+        "goal": "forecast_workflow",
+        "choice": "__does_not_exist__"
+      },
+      "output": {
+        "status": "no_route",
+        "tree": "H",
+        "node": "H_step",
+        "value": "__does_not_exist__",
+        "note": "no branch matches the value"
+      }
+    },
+    {
+      "input": "{\"goal\":\"univariate\",\"seasonal\":false}",
+      "output": {
+        "status": "recommended",
+        "tree": "A",
+        "node": "A_seasonal",
+        "tool_fns": "run_auto_arima",
+        "card_id": 7,
+        "rationale": "Non-seasonal: auto_arima baseline (endogenous d). Alternatives: run_ets (ETS state-space), run_theta (cheap robust benchmark).",
+        "source": "Box-Jenkins· Hyndman-Khandakar 2008"
+      }
+    },
+    {
+      "input": "{\"goal\":\"multivariate\",\"n_series\":3,\"integration_orders\":[\"I1\",\"I1\",\"I1\"],\"cointegration_rank\":1}",
+      "output": {
+        "status": "recommended",
+        "tree": "B",
+        "node": "B_johansen",
+        "tool_fns": [
+          "coint_johansen_vecm",
+          "vr_vecm_to_var"
+        ],
+        "card_id": 23,
+        "rationale": "0<r<K (cointegration) -> VECM: coint_johansen_vecm (restricted VECM at rank r). IRF/FEVD: bridge to a level-VAR with vr_vecm_to_var(z, r) -> vr_irf/vr_fevd.",
+        "source": "Johansen 1995· Lütkepohl 2005 §6.3"
+      }
+    }
+  ]
+}

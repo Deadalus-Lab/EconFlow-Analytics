@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``online_probabilistic_forecast`` -- METHOD-SELECTION card #207.
+"""Method wrapper ``online_probabilistic_forecast`` -- method card #207.
 
 #207 Online probabilistic forecast combination via CRPS-Learning (BOA/BEWA/ML-Poly/EWA aggregation
     of quantile expert forecasts)
@@ -8,8 +8,8 @@ Category 17-forecast-combination; module ``online_probabilistic_forecast``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "profoc_online",
+    "crps_learning",
     "NODE_META",
     "wire_model",
 ]
 
 
-def profoc_online(
+def crps_learning(
     *,
     y: np.ndarray,
     experts: Any,
@@ -49,7 +49,7 @@ def profoc_online(
     allow_quantile_crossing: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``profoc_online`` -- METHOD-SELECTION card #207.
+    """Node ``crps_learning`` -- method card #207.
 
     Online probabilistic forecast combination via CRPS-Learning (BOA/BEWA/ML-Poly/EWA aggregation of
     quantile expert forecasts).
@@ -91,5 +91,5 @@ def profoc_online(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "profoc_online: not implemented. The method card is in ./README.md."
+        "crps_learning: not implemented."
     )

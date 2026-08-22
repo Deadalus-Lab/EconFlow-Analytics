@@ -1,0 +1,1356 @@
+{
+ "category": "37-asset-pricing-factors",
+ "cards": [
+  {
+   "id": 316,
+   "method": "Time-series factor regressions with alphas: CAPM, Fama-French three and five factor, Carhart",
+   "wrapper_file": "c37_asset_pricing_factors/factor_regressions.py",
+   "tool_fns": [
+    "ap_factor_regression",
+    "ap_alpha_table"
+   ],
+   "when": "testing whether a portfolio earns a return the known factors cannot explain -- the alpha is the object of interest",
+   "when_not": "the test assets are individual stocks with short histories; you want cross-sectional risk prices (-> Fama-MacBeth)",
+   "alternatives": [
+    {
+     "alt": "Fama-MacBeth",
+     "criterion": "the question is the price of risk rather than a portfolio alpha"
+    },
+    {
+     "alt": "GRS joint test",
+     "criterion": "you have many portfolios and want one test of all alphas"
+    },
+    {
+     "alt": "GMM factor pricing",
+     "criterion": "you want inference robust to heteroskedasticity and autocorrelation"
+    }
+   ],
+   "output_key_fields": [
+    "alpha: the intercept, in the same units as the returns",
+    "betas: factor loadings with standard errors",
+    "t_alpha, p_alpha: the test of zero alpha",
+    "r_squared, residual_vol: how much the factors explain"
+   ],
+   "interpretation_traps": [
+    "alpha is the excess return the model cannot explain and is only as meaningful as the factor set is complete",
+    "the standard errors need a HAC correction; returns are heteroskedastic and mildly autocorrelated",
+    "testing many portfolios one at a time guarantees false alphas -- that is what the joint test exists for"
+   ],
+   "sources": [
+    "Fama & French 1993 (Journal of Financial Economics 33:3-56)",
+    "Carhart 1997 (Journal of Finance 52:57)",
+    "Fama & French 2015 (Journal of Financial Economics 116:1)",
+    "linearmodels.asset_pricing"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 317,
+   "method": "The GRS joint test of zero alphas",
+   "wrapper_file": "c37_asset_pricing_factors/grs_test.py",
+   "tool_fns": [
+    "ap_grs_test"
+   ],
+   "when": "you have many test portfolios and want ONE test of whether the model prices them all, instead of many individually mined alphas",
+   "when_not": "the number of assets approaches the number of periods, where the test is undefined or badly sized; the residuals are far from normal",
+   "alternatives": [
+    {
+     "alt": "individual alpha t-tests",
+     "criterion": "you care about one specific portfolio"
+    },
+    {
+     "alt": "GRS",
+     "criterion": "the classic exact test under normality"
+    },
+    {
+     "alt": "GMM-based joint test",
+     "criterion": "you want to relax normality and homoskedasticity"
+    }
+   ],
+   "output_key_fields": [
+    "grs_statistic, p_value: the joint test",
+    "df1, df2: degrees of freedom, which show how close to infeasible the test is",
+    "mean_abs_alpha: average absolute pricing error, the economic magnitude",
+    "sharpe_ratio_gain: how much the test assets improve the tangency portfolio"
+   ],
+   "interpretation_traps": [
+    "the test REQUIRES more time periods than assets, and its power collapses as the two approach each other",
+    "it assumes normal, homoskedastic, serially independent residuals -- all three are questionable for returns",
+    "a rejection says the factor model is incomplete; it does not say which asset or which missing factor"
+   ],
+   "sources": [
+    "Gibbons, Ross & Shanken 1989 (Econometrica 57:1121-1152)",
+    "Cochrane 2005, Asset Pricing, revised ed., ch.12",
+    "linearmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 318,
+   "method": "Fama-MacBeth two-pass regression with the Shanken correction",
+   "wrapper_file": "c37_asset_pricing_factors/fama_macbeth.py",
+   "tool_fns": [
+    "ap_fama_macbeth"
+   ],
+   "when": "estimating the cross-sectional PRICE of risk -- what the market pays per unit of exposure -- rather than a single portfolio's alpha",
+   "when_not": "you only need time-series alphas; the betas are estimated on so little data that the errors-in-variables problem dominates",
+   "alternatives": [
+    {
+     "alt": "time-series factor regression",
+     "criterion": "the question is alpha, not the price of risk"
+    },
+    {
+     "alt": "GMM one-step",
+     "criterion": "you want to estimate both passes jointly and avoid the correction"
+    },
+    {
+     "alt": "portfolio sorts",
+     "criterion": "you want a model-free look at the same cross-sectional pattern"
+    }
+   ],
+   "output_key_fields": [
+    "lambda: the estimated risk prices, one per factor",
+    "t_shanken: t-statistics after the errors-in-variables correction",
+    "t_naive: uncorrected t-statistics, always larger -- shown so the difference is visible",
+    "r_squared_cs: cross-sectional fit per period and on average"
+   ],
+   "interpretation_traps": [
+    "the naive Fama-MacBeth standard error IGNORES that betas were estimated; the Shanken correction is not optional and always widens the interval",
+    "using individual stocks rather than portfolios makes the beta estimates noisy and biases the risk price toward zero",
+    "a significant risk price on a factor that does not span the test assets is a common artefact of a poorly chosen cross-section"
+   ],
+   "sources": [
+    "Fama & MacBeth 1973 (Journal of Political Economy 81:607-636)",
+    "Shanken 1992 (Review of Financial Studies 5:1-33)",
+    "linearmodels.asset_pricing"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 319,
+   "method": "Traded and non-traded linear factor models and GMM factor pricing",
+   "wrapper_file": "c37_asset_pricing_factors/gmm_factor_pricing.py",
+   "tool_fns": [
+    "ap_sdf_gmm",
+    "ap_pricing_errors"
+   ],
+   "when": "the factors are macroeconomic rather than portfolio returns, so the risk price cannot be read off a mean and must be estimated from the pricing kernel",
+   "when_not": "every factor is a traded excess return, where the risk price is just the factor mean",
+   "alternatives": [
+    {
+     "alt": "traded-factor regression",
+     "criterion": "all factors are excess returns"
+    },
+    {
+     "alt": "GMM stochastic discount factor",
+     "criterion": "factors are macro variables"
+    },
+    {
+     "alt": "Fama-MacBeth",
+     "criterion": "you want the two-pass estimate with its familiar diagnostics"
+    }
+   ],
+   "output_key_fields": [
+    "b: stochastic-discount-factor coefficients",
+    "lambda: implied risk prices",
+    "j_statistic, p_value: the overidentification test of the pricing restrictions",
+    "pricing_errors: per-asset alpha under the model"
+   ],
+   "interpretation_traps": [
+    "for a NON-TRADED factor the risk price is not the factor mean, and treating it as such is a common and serious error",
+    "the SDF coefficient b and the risk price lambda are different parameters related by the factor covariance; reporting one as the other inverts conclusions",
+    "with many test assets the J statistic almost always rejects, which says more about the asset count than the model"
+   ],
+   "sources": [
+    "Cochrane 2005, Asset Pricing, revised ed., ch.10-13",
+    "Hansen & Jagannathan 1997 (Journal of Finance 52:557-590)",
+    "Kan & Robotti 2008 (Review of Financial Studies 21:1409)",
+    "linearmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 320,
+   "method": "Portfolio sorts and characteristic-managed portfolios",
+   "wrapper_file": "c37_asset_pricing_factors/portfolio_sorts.py",
+   "tool_fns": [
+    "ap_portfolio_sort",
+    "ap_double_sort"
+   ],
+   "when": "a model-free look at whether a characteristic predicts returns, by sorting assets on it and reading the spread",
+   "when_not": "the characteristic is continuous and you want its marginal effect controlling for others (-> cross-sectional regression)",
+   "alternatives": [
+    {
+     "alt": "cross-sectional regression",
+     "criterion": "you need controls and a continuous marginal effect"
+    },
+    {
+     "alt": "double sorts",
+     "criterion": "two characteristics interact and you want to hold one fixed"
+    },
+    {
+     "alt": "characteristic-managed portfolios",
+     "criterion": "you want a continuous weighting rather than bins"
+    }
+   ],
+   "output_key_fields": [
+    "portfolio_returns: the time series of each sorted portfolio",
+    "spread: the long-short return and its t-statistic",
+    "breakpoints: the sort thresholds used each period",
+    "transition: portfolio persistence, which reveals turnover"
+   ],
+   "interpretation_traps": [
+    "breakpoints must be formed from information available AT THE SORT DATE; using full-sample quantiles is look-ahead bias and inflates every spread",
+    "equal- and value-weighted spreads routinely differ in sign when small stocks drive the effect",
+    "the number of bins is a researcher choice that moves the spread; report it and check robustness"
+   ],
+   "sources": [
+    "Fama & French 1992 (Journal of Finance 47:427-465)",
+    "Bali, Engle & Murray 2016, Empirical Asset Pricing: The Cross Section of Stock Returns"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 321,
+   "method": "Statistical factors: principal components, asymptotic PCA and risk-premium PCA",
+   "wrapper_file": "c37_asset_pricing_factors/statistical_factors.py",
+   "tool_fns": [
+    "ap_pca_factors",
+    "ap_n_factors_test"
+   ],
+   "when": "you want the factors the data actually contain rather than the ones a theory names, and a way to decide how many there are",
+   "when_not": "the factors must be economically interpretable; the panel is too short for the covariance to be estimable",
+   "alternatives": [
+    {
+     "alt": "observed factor models",
+     "criterion": "you want interpretable, nameable factors"
+    },
+    {
+     "alt": "asymptotic PCA",
+     "criterion": "there are far more assets than periods"
+    },
+    {
+     "alt": "risk-premium PCA",
+     "criterion": "you want factors that price the cross-section, not just explain variance"
+    }
+   ],
+   "output_key_fields": [
+    "loadings, factors: the extracted structure",
+    "explained_variance: share per component",
+    "n_factors_selected: the number chosen and the criterion that chose it",
+    "scree: eigenvalues, so the elbow is visible"
+   ],
+   "interpretation_traps": [
+    "principal components maximise VARIANCE explained, not pricing power -- the largest component need not carry any risk premium",
+    "components are identified only up to rotation and sign; naming them is interpretation, not estimation",
+    "when assets far outnumber periods the sample covariance is singular and standard PCA is inconsistent -- asymptotic PCA exists for exactly that case"
+   ],
+   "sources": [
+    "Connor & Korajczyk 1986 (Journal of Financial Economics 15:373)",
+    "Bai & Ng 2002 (Econometrica 70:191-221)",
+    "Lettau & Pelger 2020 (Review of Financial Studies 33:2274)",
+    "scikit-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 322,
+   "method": "Financial event studies: abnormal returns, CAR and BHAR",
+   "wrapper_file": "c37_asset_pricing_factors/event_study.py",
+   "tool_fns": [
+    "ap_event_study",
+    "ap_car_test"
+   ],
+   "when": "measuring the return impact of a dated corporate or policy event, net of what the market would have delivered anyway",
+   "when_not": "the event is not sharply dated; events cluster in calendar time so abnormal returns are cross-correlated and the usual tests fail",
+   "alternatives": [
+    {
+     "alt": "CAR (cumulative abnormal return)",
+     "criterion": "short horizons, additive aggregation"
+    },
+    {
+     "alt": "BHAR (buy-and-hold abnormal return)",
+     "criterion": "long horizons, compounding matters"
+    },
+    {
+     "alt": "calendar-time portfolios",
+     "criterion": "events cluster and cross-correlation invalidates event-time tests"
+    }
+   ],
+   "output_key_fields": [
+    "ar: abnormal return per event per day",
+    "car, bhar: cumulative and buy-and-hold aggregates over the window",
+    "test_statistics: parametric and rank tests over the cross-section",
+    "estimation_diagnostics: fit of the normal-return model per event"
+   ],
+   "interpretation_traps": [
+    "EVENT CLUSTERING in calendar time makes abnormal returns cross-correlated, and every standard test assumes they are not -- this is the single most common failure",
+    "CAR and BHAR answer different questions and diverge more the longer the window; long-horizon BHAR inference is notoriously fragile",
+    "the estimation window must not overlap the event window, or the normal-return model absorbs the effect"
+   ],
+   "sources": [
+    "Brown & Warner 1985 (Journal of Financial Economics 14:3-31)",
+    "MacKinlay 1997 (Journal of Economic Literature 35:13-39)",
+    "Kothari & Warner 2007, Econometrics of event studies (Handbook of Corporate Finance 1)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 323,
+   "method": "Performance analytics: Sharpe, Sortino, information ratio, drawdown and turnover",
+   "wrapper_file": "c37_asset_pricing_factors/performance_analytics.py",
+   "tool_fns": [
+    "ap_performance_summary",
+    "ap_drawdown",
+    "ap_turnover"
+   ],
+   "when": "summarising a return stream in the risk-adjusted terms an investment committee actually reads",
+   "when_not": "the return series is too short for any of these ratios to be estimated with useful precision",
+   "alternatives": [
+    {
+     "alt": "Sharpe ratio",
+     "criterion": "symmetric risk and a single summary"
+    },
+    {
+     "alt": "Sortino ratio",
+     "criterion": "downside risk is the concern"
+    },
+    {
+     "alt": "information ratio",
+     "criterion": "performance is measured against a benchmark"
+    }
+   ],
+   "output_key_fields": [
+    "sharpe, sortino, information_ratio, calmar: the ratio family, annualised",
+    "max_drawdown, drawdown_duration: the path-dependent risk measures",
+    "turnover: portfolio churn, the cost driver",
+    "se_sharpe: standard error of the Sharpe ratio, which is rarely small"
+   ],
+   "interpretation_traps": [
+    "the Sharpe ratio's standard error is LARGE -- distinguishing 0.8 from 1.2 needs decades of monthly data, so ranking managers on it is mostly noise",
+    "annualising by the square root of the frequency assumes independent returns; with autocorrelation it overstates the ratio",
+    "maximum drawdown is a single realised path statistic with enormous sampling variability; it is not a risk parameter"
+   ],
+   "sources": [
+    "Sharpe 1994 (Journal of Portfolio Management 21:49)",
+    "Lo 2002 (Financial Analysts Journal 58:36-52)",
+    "Sortino & Price 1994 (Journal of Investing 3:59)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "ap_factor_regression",
+   "card_id": 316,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "returns": "<multiseries_handle>",
+    "factors": "<multiseries_handle>",
+    "cov_type": "hac",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Excess returns, one column per test asset.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "factors",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Factor returns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cov_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Covariance estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "nonrobust",
+      "robust",
+      "hac"
+     ],
+     "allowed_vars": null,
+     "default": "hac",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "bandwidth",
+     "kind": "integer",
+     "required": false,
+     "description": "HAC lag truncation; omitted = automatic.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ap_alpha_table",
+   "card_id": 316,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "annualise": true
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted factor regression.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "annualise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Report alpha in annual units.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "ap_grs_test",
+   "card_id": 317,
+   "register": null,
+   "input_example": {
+    "returns": "<multiseries_handle>",
+    "factors": "<multiseries_handle>",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Excess returns of the test assets.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "factors",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Factor returns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ap_fama_macbeth",
+   "card_id": 318,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "returns": "<multiseries_handle>",
+    "factors": "<multiseries_handle>",
+    "shanken": true,
+    "intercept": true,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Excess returns of the test assets.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "factors",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Factor returns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "shanken",
+     "kind": "boolean",
+     "required": false,
+     "description": "Apply the errors-in-variables correction.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "intercept",
+     "kind": "boolean",
+     "required": false,
+     "description": "Include a cross-sectional intercept.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ap_sdf_gmm",
+   "card_id": 319,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "returns": "<multiseries_handle>",
+    "factors": "<multiseries_handle>",
+    "traded": false,
+    "weighting": "hansen_jagannathan",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Excess returns of the test assets.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "factors",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Factor series, traded or not.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "traded",
+     "kind": "boolean",
+     "required": false,
+     "description": "Whether the factors are traded excess returns.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "weighting",
+     "kind": "enum",
+     "required": false,
+     "description": "GMM weighting.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "identity",
+      "optimal",
+      "hansen_jagannathan"
+     ],
+     "allowed_vars": null,
+     "default": "hansen_jagannathan",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ap_pricing_errors",
+   "card_id": 319,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted factor-pricing model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "ap_portfolio_sort",
+   "card_id": 320,
+   "register": null,
+   "input_example": {
+    "returns": "<df_handle>",
+    "characteristic": "<df_handle>",
+    "n_portfolios": 5,
+    "weighting": "equal"
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel of asset returns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "characteristic",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel of the sorting characteristic, lagged.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_portfolios",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of sort bins.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "weighting",
+     "kind": "enum",
+     "required": false,
+     "description": "Within-portfolio weighting.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "equal",
+      "value"
+     ],
+     "allowed_vars": null,
+     "default": "equal",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "market_cap",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Panel of market values for value weighting.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "ap_double_sort",
+   "card_id": 320,
+   "register": null,
+   "input_example": {
+    "returns": "<df_handle>",
+    "characteristic_1": "<df_handle>",
+    "characteristic_2": "<df_handle>",
+    "n_1": 5,
+    "n_2": 5,
+    "conditional": false
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel of asset returns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "characteristic_1",
+     "kind": "df_handle",
+     "required": true,
+     "description": "First sorting characteristic.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "characteristic_2",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Second sorting characteristic.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_1",
+     "kind": "integer",
+     "required": false,
+     "description": "Bins on the first characteristic.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "n_2",
+     "kind": "integer",
+     "required": false,
+     "description": "Bins on the second characteristic.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "conditional",
+     "kind": "boolean",
+     "required": false,
+     "description": "Sort on the second within the first.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "ap_pca_factors",
+   "card_id": 321,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "returns": "<df_handle>",
+    "method": "pca",
+    "criterion": "bai_ng_icp2",
+    "standardise": true
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel of asset returns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "Factors to extract; omitted = selected by criterion.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Extraction method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "pca",
+      "asymptotic_pca",
+      "rp_pca"
+     ],
+     "allowed_vars": null,
+     "default": "pca",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "criterion",
+     "kind": "enum",
+     "required": false,
+     "description": "Selection criterion when n_factors is omitted.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bai_ng_icp1",
+      "bai_ng_icp2",
+      "bai_ng_icp3",
+      "scree",
+      "explained_variance"
+     ],
+     "allowed_vars": null,
+     "default": "bai_ng_icp2",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "standardise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Standardise returns before extraction.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "ap_n_factors_test",
+   "card_id": 321,
+   "register": null,
+   "input_example": {
+    "returns": "<df_handle>",
+    "k_max": 10
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel of asset returns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k_max",
+     "kind": "integer",
+     "required": false,
+     "description": "Largest number of factors considered.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "ap_event_study",
+   "card_id": 322,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "returns": "<df_handle>",
+    "events": "<df_handle>",
+    "model": "market",
+    "estimation_window": [
+     -250,
+     -30
+    ],
+    "event_window": [
+     -5,
+     5
+    ]
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel of asset returns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "events",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Event table: asset identifier and event date.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Market return for the normal-return model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Normal-return model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "market",
+      "market_adjusted",
+      "mean_adjusted",
+      "fama_french"
+     ],
+     "allowed_vars": null,
+     "default": "market",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "estimation_window",
+     "kind": "int_array",
+     "required": false,
+     "description": "Estimation window offsets.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      -250,
+      -30
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "event_window",
+     "kind": "int_array",
+     "required": false,
+     "description": "Event window offsets.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      -5,
+      5
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    }
+   ]
+  },
+  {
+   "fn": "ap_car_test",
+   "card_id": 322,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "aggregation": "car",
+    "test": "patell",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted event study.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "aggregation",
+     "kind": "enum",
+     "required": false,
+     "description": "Aggregation over the window.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "car",
+      "bhar"
+     ],
+     "allowed_vars": null,
+     "default": "car",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "test",
+     "kind": "enum",
+     "required": false,
+     "description": "Test statistic.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "patell",
+      "boehmer",
+      "rank",
+      "sign",
+      "crude"
+     ],
+     "allowed_vars": null,
+     "default": "patell",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ap_performance_summary",
+   "card_id": 323,
+   "register": null,
+   "input_example": {
+    "returns": "<series_handle>",
+    "frequency": "monthly",
+    "autocorrelation_adjust": true
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Portfolio return series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "benchmark",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Benchmark return series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "risk_free",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Risk-free rate series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "frequency",
+     "kind": "enum",
+     "required": false,
+     "description": "Return frequency for annualisation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "daily",
+      "weekly",
+      "monthly",
+      "quarterly",
+      "annual"
+     ],
+     "allowed_vars": null,
+     "default": "monthly",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "autocorrelation_adjust",
+     "kind": "boolean",
+     "required": false,
+     "description": "Apply the Lo autocorrelation correction.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "ap_drawdown",
+   "card_id": 323,
+   "register": null,
+   "input_example": {
+    "returns": "<series_handle>",
+    "top_n": 5
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Portfolio return series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "top_n",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of largest drawdowns to report.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "ap_turnover",
+   "card_id": 323,
+   "register": null,
+   "input_example": {
+    "weights": "<df_handle>",
+    "cost_bps": 10.0
+   },
+   "arguments": [
+    {
+     "name": "weights",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel of portfolio weights over time.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cost_bps",
+     "kind": "number",
+     "required": false,
+     "description": "Round-trip cost in basis points.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10.0,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  }
+ ]
+}

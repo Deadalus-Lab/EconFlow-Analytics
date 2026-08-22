@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``profiling_quality_report`` -- METHOD-SELECTION card #248.
+"""Method wrapper ``profiling_quality_report`` -- method card #248.
 
 #248 Data profiling / a quality report: a PER-COLUMN profile (type/missing/uniqueness/Joanes-Gill
     moments) + a dataset-level summary + RULE-BASED quality flags (blocker/warning) with a rule and
@@ -9,8 +9,8 @@ Category 01-preparation-prechecks; module ``profiling_quality_report``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def dp_profile(
     quantile_type: int | None = None,
     moment_type: Literal["type1", "type2", "type3"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dp_profile`` -- METHOD-SELECTION card #248.
+    """Node ``dp_profile`` -- method card #248.
 
     Data profiling / a quality report: a PER-COLUMN profile (type/missing/uniqueness/Joanes-Gill
     moments) + a dataset-level summary + RULE-BASED quality flags (blocker/warning) with a rule and
@@ -50,21 +50,21 @@ def dp_profile(
     Args:
         data: [df_handle, required] Handle to a DataFrame (rows = observations, columns =
             variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column
-            names, NO list-column / POSIXlt / complex / unknown S3 class (e.g. difftime).
-            Non-numeric columns are NEVER silently coerced.
+            names, NO list-column / complex / unknown class (e.g. a time delta). Non-numeric columns
+            are NEVER silently coerced.
         quantile_type: [integer, optional] Quantile estimator, integer 1..9 (Hyndman & Fan 1996;
             default 7). Returned in the output: two profiles are comparable ONLY under the SAME
             estimator. Default ``7``.
-        moment_type: [enum, optional] Skewness/kurtosis estimator per Joanes & Gill (1998), same
-            typology as e1071: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS G1/G2
-            (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2. KURTOSIS
-            IS ALWAYS EXCESS (normal => 0).
+        moment_type: [enum, optional] Skewness/kurtosis estimator per Joanes & Gill (1998), the
+            standard type1/2/3 typology: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS
+            G1/G2 (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2.
+            KURTOSIS IS ALWAYS EXCESS (normal => 0).
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dp_profile: not implemented. The method card is in ./README.md."
+        "dp_profile: not implemented."
     )
 
 
@@ -77,7 +77,7 @@ def dp_column_profile(
     bins: int | None = None,
     top_n: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dp_column_profile`` -- METHOD-SELECTION card #248.
+    """Node ``dp_column_profile`` -- method card #248.
 
     Data profiling / a quality report: a PER-COLUMN profile (type/missing/uniqueness/Joanes-Gill
     moments) + a dataset-level summary + RULE-BASED quality flags (blocker/warning) with a rule and
@@ -88,17 +88,17 @@ def dp_column_profile(
     Args:
         data: [df_handle, required] Handle to a DataFrame (rows = observations, columns =
             variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column
-            names, NO list-column / POSIXlt / complex / unknown S3 class (e.g. difftime).
-            Non-numeric columns are NEVER silently coerced.
+            names, NO list-column / complex / unknown class (e.g. a time delta). Non-numeric columns
+            are NEVER silently coerced.
         column: [string, required] ONE non-empty column name that EXISTS in the dataset (otherwise
             the node blocks and returns the list of available ones).
         quantile_type: [integer, optional] Quantile estimator, integer 1..9 (Hyndman & Fan 1996;
             default 7). Returned in the output: two profiles are comparable ONLY under the SAME
             estimator. Default ``7``.
-        moment_type: [enum, optional] Skewness/kurtosis estimator per Joanes & Gill (1998), same
-            typology as e1071: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS G1/G2
-            (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2. KURTOSIS
-            IS ALWAYS EXCESS (normal => 0).
+        moment_type: [enum, optional] Skewness/kurtosis estimator per Joanes & Gill (1998), the
+            standard type1/2/3 typology: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS
+            G1/G2 (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2.
+            KURTOSIS IS ALWAYS EXCESS (normal => 0).
         bins: [integer, optional] Number of EQUAL-WIDTH histogram bins for the NUMERIC column
             (default 10; positive integer). the default histogram binning is NOT used (its 'pretty'
             breaks are not reproducible); for a constant column, ONE degenerate bin is returned.
@@ -111,7 +111,7 @@ def dp_column_profile(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dp_column_profile: not implemented. The method card is in ./README.md."
+        "dp_column_profile: not implemented."
     )
 
 
@@ -124,7 +124,7 @@ def dp_quality_flags(
     quantile_type: int | None = None,
     moment_type: Literal["type1", "type2", "type3"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dp_quality_flags`` -- METHOD-SELECTION card #248.
+    """Node ``dp_quality_flags`` -- method card #248.
 
     Data profiling / a quality report: a PER-COLUMN profile (type/missing/uniqueness/Joanes-Gill
     moments) + a dataset-level summary + RULE-BASED quality flags (blocker/warning) with a rule and
@@ -135,8 +135,8 @@ def dp_quality_flags(
     Args:
         data: [df_handle, required] Handle to a DataFrame (rows = observations, columns =
             variables). >= 1 row AND >= 1 column ARE REQUIRED, non-empty and NON-DUPLICATE column
-            names, NO list-column / POSIXlt / complex / unknown S3 class (e.g. difftime).
-            Non-numeric columns are NEVER silently coerced.
+            names, NO list-column / complex / unknown class (e.g. a time delta). Non-numeric columns
+            are NEVER silently coerced.
         max_missing_pct: [number, optional] Missing-value threshold per column as a PERCENTAGE
             [0,100] (default 10) above which a 'high_missing' flag is issued (warning); a column
             missing IN ITS ENTIRETY is always blocker. Default ``10``.
@@ -149,14 +149,14 @@ def dp_quality_flags(
         quantile_type: [integer, optional] Quantile estimator, integer 1..9 (Hyndman & Fan 1996;
             default 7). Returned in the output: two profiles are comparable ONLY under the SAME
             estimator. Default ``7``.
-        moment_type: [enum, optional] Skewness/kurtosis estimator per Joanes & Gill (1998), same
-            typology as e1071: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS G1/G2
-            (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2. KURTOSIS
-            IS ALWAYS EXCESS (normal => 0).
+        moment_type: [enum, optional] Skewness/kurtosis estimator per Joanes & Gill (1998), the
+            standard type1/2/3 typology: type1 = moment-based g1/g2 (default); type2 = SAS/SPSS
+            G1/G2 (unbiased under normality; requires n>=3 / n>=4); type3 = MINITAB/BMDP b1/b2.
+            KURTOSIS IS ALWAYS EXCESS (normal => 0).
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dp_quality_flags: not implemented. The method card is in ./README.md."
+        "dp_quality_flags: not implemented."
     )

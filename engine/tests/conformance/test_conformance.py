@@ -2,7 +2,7 @@
 """Oracle harness: a node's output against an independently established value.
 
 SKIPPED BY DEFAULT, AND THAT IS THE HONEST STATE. It reads
-``artifacts/golden-corpus.v1.json``, which DOES NOT EXIST YET. The corpus is
+``artifacts/golden-corpus.json``, which DOES NOT EXIST YET. The corpus is
 built case by case as methods are implemented, from the three sources this
 project admits as an oracle: a published paper's reported figures, a
 hand-verified fixture, and a property that must hold. The harness is written
@@ -48,14 +48,14 @@ from typing import Any
 import pytest
 
 ARTIFACTS = Path(__file__).resolve().parent.parent.parent / "artifacts"
-GOLDEN = ARTIFACTS / "golden-corpus.v1.json"
+GOLDEN = ARTIFACTS / "golden-corpus.json"
 
 pytestmark = pytest.mark.conformance
 
 requires_corpus = pytest.mark.skipif(
     not GOLDEN.is_file(),
     reason=(
-        "artifacts/golden-corpus.v1.json is absent, so there is nothing to compare "
+        "artifacts/golden-corpus.json is absent, so there is nothing to compare "
         "against yet."
     ),
 )

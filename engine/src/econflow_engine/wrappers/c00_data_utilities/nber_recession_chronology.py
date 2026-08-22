@@ -1,15 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``nber_recession_chronology`` -- METHOD-SELECTION card #119.
+"""Method wrapper ``nber_recession_chronology`` -- method card #119.
 
 #119 US NBER recession chronology — recession-shading intervals + a per-date 0/1 recession dummy
-    (nberDates)
 
 Category 00-data-utilities; module ``nber_recession_chronology``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -35,10 +34,9 @@ def nber_recessions(
     to: str | None = None,
     as_date: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``nber_recessions`` -- METHOD-SELECTION card #119.
+    """Node ``nber_recessions`` -- method card #119.
 
-    US NBER recession chronology — recession-shading intervals + a per-date 0/1 recession dummy
-    (nberDates).
+    US NBER recession chronology — recession-shading intervals + a per-date 0/1 recession dummy.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -54,7 +52,7 @@ def nber_recessions(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nber_recessions: not implemented. The method card is in ./README.md."
+        "nber_recessions: not implemented."
     )
 
 
@@ -63,10 +61,9 @@ def nber_recession_flag(
     dates: Sequence[str],
     as_date: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``nber_recession_flag`` -- METHOD-SELECTION card #119.
+    """Node ``nber_recession_flag`` -- method card #119.
 
-    US NBER recession chronology — recession-shading intervals + a per-date 0/1 recession dummy
-    (nberDates).
+    US NBER recession chronology — recession-shading intervals + a per-date 0/1 recession dummy.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -80,5 +77,5 @@ def nber_recession_flag(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nber_recession_flag: not implemented. The method card is in ./README.md."
+        "nber_recession_flag: not implemented."
     )

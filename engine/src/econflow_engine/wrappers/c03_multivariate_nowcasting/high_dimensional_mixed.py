@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``high_dimensional_mixed`` -- METHOD-SELECTION card #145.
+"""Method wrapper ``high_dimensional_mixed`` -- method card #145.
 
 #145 High-dimensional mixed-frequency regression via MIDAS-ML sparse-group LASSO
     (Legendre/Gegenbauer weighted high-frequency blocks -> a low-frequency target, sg-LASSO lambda +
@@ -9,8 +9,8 @@ Category 03-multivariate-nowcasting; module ``high_dimensional_mixed``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def mml_fit(
     intercept: bool | None = None,
     standardize: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``mml_fit`` -- METHOD-SELECTION card #145.
+    """Node ``mml_fit`` -- method card #145.
 
     High-dimensional mixed-frequency regression via MIDAS-ML sparse-group LASSO (Legendre/Gegenbauer
     weighted high-frequency blocks -> a low-frequency target, sg-LASSO lambda + mixing gamma,
@@ -84,7 +84,7 @@ def mml_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mml_fit: not implemented. The method card is in ./README.md."
+        "mml_fit: not implemented."
     )
 
 
@@ -103,7 +103,7 @@ def mml_cv(
     standardize: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``mml_cv`` -- METHOD-SELECTION card #145.
+    """Node ``mml_cv`` -- method card #145.
 
     High-dimensional mixed-frequency regression via MIDAS-ML sparse-group LASSO (Legendre/Gegenbauer
     weighted high-frequency blocks -> a low-frequency target, sg-LASSO lambda + mixing gamma,
@@ -135,7 +135,7 @@ def mml_cv(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mml_cv: not implemented. The method card is in ./README.md."
+        "mml_cv: not implemented."
     )
 
 
@@ -145,7 +145,7 @@ def mml_predict(
     newx: np.ndarray,
     s: Literal["lam.min", "lam.1se"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``mml_predict`` -- METHOD-SELECTION card #145.
+    """Node ``mml_predict`` -- method card #145.
 
     High-dimensional mixed-frequency regression via MIDAS-ML sparse-group LASSO (Legendre/Gegenbauer
     weighted high-frequency blocks -> a low-frequency target, sg-LASSO lambda + mixing gamma,
@@ -164,5 +164,5 @@ def mml_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mml_predict: not implemented. The method card is in ./README.md."
+        "mml_predict: not implemented."
     )

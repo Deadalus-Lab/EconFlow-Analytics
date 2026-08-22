@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``fixed_effects_individual`` -- METHOD-SELECTION card #173.
+"""Method wrapper ``fixed_effects_individual`` -- method card #173.
 
 #173 Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
     bootstrapped)
@@ -8,8 +8,8 @@ Category 08-panel-data; module ``fixed_effects_individual``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "feis_bstest",
+    "feis_bootstrap_test",
     "feis_fit",
     "feis_slopes",
     "feis_test",
@@ -42,7 +42,7 @@ def feis_fit(
     intercept: bool | None = None,
     dropgroups: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``feis_fit`` -- METHOD-SELECTION card #173.
+    """Node ``feis_fit`` -- method card #173.
 
     Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
     bootstrapped).
@@ -68,7 +68,7 @@ def feis_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "feis_fit: not implemented. The method card is in ./README.md."
+        "feis_fit: not implemented."
     )
 
 
@@ -79,7 +79,7 @@ def feis_test(
     robust: bool | None = None,
     terms: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``feis_test`` -- METHOD-SELECTION card #173.
+    """Node ``feis_test`` -- method card #173.
 
     Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
     bootstrapped).
@@ -98,11 +98,11 @@ def feis_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "feis_test: not implemented. The method card is in ./README.md."
+        "feis_test: not implemented."
     )
 
 
-def feis_bstest(
+def feis_bootstrap_test(
     *,
     object: Any,
     type: Literal["all", "bs1", "bs2", "bs3"] | None = None,
@@ -110,7 +110,7 @@ def feis_bstest(
     seed: int | None = None,
     terms: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``feis_bstest`` -- METHOD-SELECTION card #173.
+    """Node ``feis_bootstrap_test`` -- method card #173.
 
     Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
     bootstrapped).
@@ -131,7 +131,7 @@ def feis_bstest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "feis_bstest: not implemented. The method card is in ./README.md."
+        "feis_bootstrap_test: not implemented."
     )
 
 
@@ -139,7 +139,7 @@ def feis_slopes(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``feis_slopes`` -- METHOD-SELECTION card #173.
+    """Node ``feis_slopes`` -- method card #173.
 
     Fixed-Effects Individual-Slopes (FEIS) + a slope-heterogeneity Hausman test (artificial &
     bootstrapped).
@@ -154,5 +154,5 @@ def feis_slopes(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "feis_slopes: not implemented. The method card is in ./README.md."
+        "feis_slopes: not implemented."
     )

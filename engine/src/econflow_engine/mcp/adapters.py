@@ -6,8 +6,9 @@ before it is called.
 
 THE SPLIT THE PREVIOUS DESIGN DID NOT HAVE. There, one step both validated and coerced,
 because the engine has no schema layer. Here validation belongs to
-:mod:`econflow_engine.kinds` (strict pydantic models mirroring ``.mcp_coerce_one``
-one branch at a time) and this module does only the second half: MATERIALISATION.
+:mod:`econflow_engine.kinds` (strict pydantic models mirroring the frozen
+contract's coercion, one branch at a time) and this module does only the second
+half: MATERIALISATION.
 That is why every reason code the parity corpus knows is produced by ``kinds``
 and none by this file.
 

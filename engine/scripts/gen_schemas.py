@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-only
-"""artifacts/node-specs.v1.json -> src/econflow_engine/generated/**.
+"""artifacts/node-specs.json -> src/econflow_engine/generated/**.
 
 Runs on the standard library alone. ONE input: the committed artifact. No
 network, no ``eval`` -- building the engine never needs the
@@ -9,10 +9,10 @@ engine installed.
 THREE TIERS, because the descriptions are roughly 80% of the artifact and a
 worker executing a graph needs none of them:
 
-    manifest.py          tier 1: 913 entries, NO descriptions, plus the
+    manifest.py          tier 1: 1456 entries, NO descriptions, plus the
                          vocabulary block the allowlists read.
-    args/<cat>.py  x30   tier 2: NodeMeta + the pydantic models + defaults.
-    docs/<cat>.py  x30   tier 3: descriptions + input_example.
+    args/<cat>.py  x46   tier 2: NodeMeta + the pydantic models + defaults.
+    docs/<cat>.py  x46   tier 3: descriptions + input_example.
 
 ``contract_hash`` is COPIED VERBATIM from the artifact. It is computed over the
 node's structural contract when the artifact is written, never here: this tier is
@@ -43,7 +43,7 @@ sys.path.insert(0, str(ENGINE_ROOT / "src"))
 
 from econflow_engine.naming import category_package  # noqa: E402  (after sys.path)
 
-ARTIFACT_PATH = ENGINE_ROOT / "artifacts" / "node-specs.v1.json"
+ARTIFACT_PATH = ENGINE_ROOT / "artifacts" / "node-specs.json"
 OUT_ROOT = ENGINE_ROOT / "src" / "econflow_engine" / "generated"
 
 _IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -51,7 +51,12 @@ _IDENT_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 def banner(source: str) -> str:
     return (
+        # REUSE-IgnoreStart -- the line below is EMITTED INTO GENERATED OUTPUT, not a
+        # declaration about this file. reuse reads the tag wherever it appears, sees the
+        # surrounding quotes and escapes as part of the expression, and reports it as an
+        # invalid SPDX expression. This file's own licence is declared at the top.
         "# SPDX-License-Identifier: AGPL-3.0-only\n"
+        # REUSE-IgnoreEnd
         "# ============================================================\n"
         "# GENERATED FILE -- DO NOT EDIT.\n"
         f"# Source: artifacts/{source} (committed) via scripts/gen_schemas.py.\n"
@@ -114,7 +119,7 @@ def defaults_lit(node: dict[str, Any]) -> str:
 def node_description(node: dict[str, Any]) -> str:
     base = (
         f"{node['fn']} -- category {node['category']}, "
-        f"METHOD-SELECTION card #{node['card_id']}."
+        f"method card #{node['card_id']}."
     )
     reason = node["executability"]["reason"]
     if reason is None:
@@ -130,7 +135,7 @@ def write(root: Path, relative: str, body: str) -> None:
 
 def emit_manifest(root: Path, artifact: dict[str, Any], artifact_sha256: str) -> None:
     lines = [
-        banner("node-specs.v1.json"),
+        banner("node-specs.json"),
         '"""Tier 1: routing and palette data -- no descriptions, no imports.',
         "",
         "This module deliberately imports NOTHING. `econflow_engine.mcp.allowlists`",
@@ -176,7 +181,7 @@ def emit_manifest(root: Path, artifact: dict[str, Any], artifact_sha256: str) ->
 def emit_args(root: Path, category: str, nodes: list[dict[str, Any]]) -> None:
     module = category_package(category)
     lines = [
-        banner("node-specs.v1.json"),
+        banner("node-specs.json"),
         f'"""Tier 2 for category {category} -- {len(nodes)} nodes. No descriptions."""',
         "",
         "from functools import cache",
@@ -238,7 +243,7 @@ def emit_args(root: Path, category: str, nodes: list[dict[str, Any]]) -> None:
 def emit_docs(root: Path, category: str, nodes: list[dict[str, Any]]) -> None:
     module = category_package(category)
     lines = [
-        banner("node-specs.v1.json"),
+        banner("node-specs.json"),
         f'"""Tier 3 for category {category}: descriptions and input examples.',
         "",
         "A worker executing a graph must NOT import from here -- this tier is",
@@ -279,7 +284,7 @@ def emit_package_inits(root: Path, categories: list[str]) -> None:
     write(
         root,
         "__init__.py",
-        banner("node-specs.v1.json")
+        banner("node-specs.json")
         + '"""Machine-emitted node schemas. Gitignored: the reviewed diff is the JSON."""\n',
     )
     for tier, blurb in (("args", "Tier 2 modules, one per category."), ("docs", "Tier 3 modules.")):
@@ -287,15 +292,19 @@ def emit_package_inits(root: Path, categories: list[str]) -> None:
         write(
             root,
             f"{tier}/__init__.py",
-            banner("node-specs.v1.json")
+            banner("node-specs.json")
             + f'"""{blurb}"""\n\nMODULES: tuple[str, ...] = (\n{listing})\n',
         )
 
 
 def assert_argument_shape(artifact: dict[str, Any]) -> None:
     """Re-assert the invariants the emitted code silently depends on."""
-    if artifact["artifact_version"] != 1:
-        raise SystemExit(f"gen_schemas: unknown artifact_version {artifact['artifact_version']}.")
+    if artifact["artifact_version"] != 2:
+        raise SystemExit(
+            f"gen_schemas: unknown artifact_version {artifact['artifact_version']}. "
+            "This tier is emitted from node-specs.json; a v1 artifact carries opaque "
+            "contract hashes and must not be regenerated from."
+        )
     nodes = artifact["nodes"]
     if len(nodes) != artifact["engine"]["n_nodes"]:
         raise SystemExit("gen_schemas: node count disagrees with engine.n_nodes.")

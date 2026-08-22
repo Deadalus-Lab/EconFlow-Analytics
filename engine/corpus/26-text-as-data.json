@@ -1,0 +1,1617 @@
+{
+ "category": "26-text-as-data",
+ "cards": [
+  {
+   "id": 234,
+   "method": "Textual sentiment pipeline (corpus -> lexicon sentiment -> time aggregation -> elastic-net sparse-regression forecasting)",
+   "wrapper_file": "c26_text_as_data/textual_sentiment_pipeline.py",
+   "tool_fns": [
+    "snt_corpus",
+    "snt_sentiment",
+    "snt_measures",
+    "snt_model"
+   ],
+   "when": "you have time-stamped TEXT (news/reports/tweets) {id,date,texts,+features} and you want to turn it into numeric sentiment indicators and forecast a macro variable: (a) build the corpus, (b) compute the lexicon-based document sentiment, (c) aggregate it over time into several measures (lexicon×feature×time scheme), (d) run a sparse elastic-net regression of y on the measures",
+   "when_not": "you have no text, only numeric series (-> #219/#220); you want a general sparse regression with no textual sentiment (-> #216/#219); word embeddings or transformer NLP (outside the surface); data ingestion (a file upload — a frontend route, not a node)",
+   "alternatives": [
+    {
+     "alt": "snt_corpus",
+     "criterion": "the first step: a df {id,date,texts,+numeric features} -> a sento_corpus (a register handle for the chain)"
+    },
+    {
+     "alt": "snt_sentiment (how ∈ counts/proportional/TFIDF/UShaped/..)",
+     "criterion": "lexicon-based document sentiment with >=1 built-in lexicons (LM_en/HENRY_en/GI_en/FEEL/..) and a within-document weighting"
+    },
+    {
+     "alt": "snt_measures (by/lag/how_time/how_docs/fill)",
+     "criterion": "the temporal aggregation of the document sentiment into measure time series; how_time (equal_weight/linear/almon/beta/exponential) — ALL of them are tried -> nmeasures=lexicons×features×time"
+    },
+    {
+     "alt": "snt_model (model=gaussian/binomial/multinomial, type=BIC/AIC/Cp/cv)",
+     "criterion": "a sparse elastic-net regression of y on the measures; the alpha and lambda pair is selected by an information criterion (gaussian only), or by out-of-sample cross-validation, which also covers classification"
+    }
+   ],
+   "output_key_fields": [
+    "snt_corpus: corpus (a register raw_handle) + n_documents/date_min/date_max/features/n_features",
+    "snt_sentiment: sentiment (a registered raw handle; the per-document records are the chart data) + sentiment_columns (lexicon and feature), lexicons, and how",
+    "snt_measures: measures (a register raw_handle) + measures_table (date + the measure columns = chart-data) + measure_names/n_measures/n_dates/dates/dimensions(features,lexicons,time)",
+    "snt_model: a coefficients frame {term, coefficient}, with a class column in the multinomial case; alpha and the selected lambda; n_predictors; n_selected, the non-zero ones excluding the intercept; a discarded frame; ic_criterion, blank under cross-validation; fit_dates; and the raw fit as a stub"
+   ],
+   "interpretation_traps": [
+    "a 4-stage CHAIN: each stage REGISTERS the raw object as a handle (a raw_handle) that feeds the next one; snt_model is TERMINAL",
+    "the information criteria (type=BIC/AIC/Cp) apply ONLY to model='gaussian'; binomial/multinomial REQUIRE type='cv' (with train_window/test_window)",
+    "y MUST be aligned with the measure dates (length == n_dates); gaussian numeric; binomial 2 values; multinomial >=3 values",
+    "how_time and alphas are vectors, and ALL of their entries are tried — they are not a single enumerated choice; a custom weight matrix is not supported",
+    "alpha=0=ridge, alpha=1=lasso (the elastic-net mixing); n_selected = the sparse (non-zero) coefficients; a higher lambda => a sparser model",
+    "the seed pins the cross-validation fold draw (defence in depth; the information-criterion path is deterministic anyway)"
+   ],
+   "sources": [
+    "Ardia, Bluteau, Boudt, Borms & Vrontos 2021 JSS 99(2) (computing, aggregating and predicting with textual sentiment)",
+    "Ardia, Bluteau & Boudt 2019 'Questioning the news about economic growth: Sparse forecasting using thousands of news-based sentiment values' International Journal of Forecasting 35(4) 1370-1386",
+    "Loughran & McDonald 2011 'When Is a Liability Not a Liability? Textual Analysis, Dictionaries, and 10-Ks' Journal of Finance 66(1) 35-65 (the LM lexicon); Henry 2008 (the HENRY lexicon); Stone et al. General Inquirer (the GI lexicon)",
+    "Zou & Hastie 2005 JRSS-B 67(2):301-320 (regularization and variable selection via the elastic net); Friedman, Hastie & Tibshirani 2010 JSS 33(1) (regularization paths via coordinate descent)",
+    "wrapper footer IMPLEMENTATION NOTE (c26_text_as_data/textual_sentiment_pipeline)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 579,
+   "method": "Preprocessing and keyword extraction",
+   "wrapper_file": "c26_text_as_data/text_preprocessing.py",
+   "tool_fns": [
+    "tx_preprocess"
+   ],
+   "when": "raw text must become a document-term matrix before anything else, and every choice in that pipeline changes downstream results",
+   "when_not": "the text is already tokenised and vectorised; the corpus is too small for frequency weighting to mean anything",
+   "alternatives": [
+    {
+     "alt": "bag of words",
+     "criterion": "simple counts"
+    },
+    {
+     "alt": "TF-IDF",
+     "criterion": "downweights ubiquitous terms"
+    },
+    {
+     "alt": "n-grams",
+     "criterion": "phrases carry meaning single words lose"
+    }
+   ],
+   "output_key_fields": [
+    "dtm: the document-term matrix",
+    "vocabulary: the retained terms and the pruning applied",
+    "keywords: top terms per document by the chosen weighting",
+    "preprocessing: the exact steps applied, for reproducibility"
+   ],
+   "interpretation_traps": [
+    "THE STOP-WORD LIST AND THE PRUNING THRESHOLDS DETERMINE THE RESULT; a generic English stop-word list removes negations and modal verbs that carry the economic meaning in central-bank text",
+    "stemming conflates words with different economic meanings, and lemmatisation is usually the better choice for policy text",
+    "TF-IDF weights depend on the corpus, so a document's vector changes when other documents are added"
+   ],
+   "sources": [
+    "Manning, Raghavan & Schutze 2008, Introduction to Information Retrieval",
+    "Gentzkow, Kelly & Taddy 2019 (Journal of Economic Literature 57:535-574)",
+    "nltk"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 580,
+   "method": "Topic models: LDA, correlated and dynamic",
+   "wrapper_file": "c26_text_as_data/topic_models.py",
+   "tool_fns": [
+    "tx_topic_model",
+    "tx_topic_coherence"
+   ],
+   "when": "discovering the themes in a large corpus and how they move over time, which no keyword list can do",
+   "when_not": "the corpus is small or the documents very short, where topics are unstable; you need supervised categories rather than discovered ones",
+   "alternatives": [
+    {
+     "alt": "latent Dirichlet allocation",
+     "criterion": "the standard, assumes topics are independent"
+    },
+    {
+     "alt": "correlated topic model",
+     "criterion": "topics co-occur systematically"
+    },
+    {
+     "alt": "dynamic topic model",
+     "criterion": "topic content evolves over time"
+    }
+   ],
+   "output_key_fields": [
+    "topics: term distributions per topic",
+    "document_topics: topic shares per document",
+    "coherence: topic quality, which is how the topic count is chosen",
+    "n_topics: the number used and how it was selected"
+   ],
+   "interpretation_traps": [
+    "TOPIC LABELS ARE ASSIGNED BY THE ANALYST, not the model; the model returns term distributions, and naming them is interpretation that should be documented",
+    "topic solutions are not stable across random seeds, and reporting one run without checking stability is standard practice and standard error",
+    "the number of topics is chosen by coherence or perplexity, and these two criteria routinely disagree"
+   ],
+   "sources": [
+    "Blei, Ng & Jordan 2003 (Journal of Machine Learning Research 3:993-1022)",
+    "Blei & Lafferty 2006, Dynamic topic models (ICML 2006:113)",
+    "Hansen, McMahon & Prat 2018 (Quarterly Journal of Economics 133:801)",
+    "tomotopy"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 581,
+   "method": "Matrix-factorisation topics: NMF and latent semantic analysis",
+   "wrapper_file": "c26_text_as_data/matrix_factorisation_topics.py",
+   "tool_fns": [
+    "tx_matrix_topics"
+   ],
+   "when": "a fast, deterministic alternative to probabilistic topic models, which is often more stable on short documents",
+   "when_not": "you need a generative model with document-level probabilities; the corpus is very large and sparse enough that a probabilistic model scales better",
+   "alternatives": [
+    {
+     "alt": "NMF",
+     "criterion": "non-negative, parts-based, deterministic given a seed"
+    },
+    {
+     "alt": "latent semantic analysis",
+     "criterion": "SVD-based, allows negative loadings"
+    },
+    {
+     "alt": "LDA",
+     "criterion": "a probabilistic generative model"
+    }
+   ],
+   "output_key_fields": [
+    "components: term loadings per component",
+    "document_scores: component scores per document",
+    "explained_variance: for the SVD-based method",
+    "reconstruction_error: fit of the factorisation"
+   ],
+   "interpretation_traps": [
+    "LATENT SEMANTIC ANALYSIS PRODUCES NEGATIVE LOADINGS that have no interpretation as topic membership; NMF's non-negativity is what makes its components readable",
+    "these methods are deterministic given initialisation but sensitive to it; NMF with random initialisation still needs a seed",
+    "component count is chosen by reconstruction error, which decreases monotonically and therefore selects nothing on its own"
+   ],
+   "sources": [
+    "Lee & Seung 1999 (Nature 401:788-791)",
+    "Deerwester, Dumais, Furnas, Landauer & Harshman 1990 (Journal of the American Society for Information Science 41:391)",
+    "scikit-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 582,
+   "method": "Word and document embeddings",
+   "wrapper_file": "c26_text_as_data/embeddings.py",
+   "tool_fns": [
+    "tx_embeddings",
+    "tx_similarity"
+   ],
+   "when": "representing words or documents as vectors so semantic similarity becomes a computable distance",
+   "when_not": "the corpus is too small to train embeddings; you need interpretable features rather than dense vectors",
+   "alternatives": [
+    {
+     "alt": "word2vec or fastText",
+     "criterion": "word-level semantics, trained on your corpus"
+    },
+    {
+     "alt": "doc2vec",
+     "criterion": "document-level vectors"
+    },
+    {
+     "alt": "averaged word vectors",
+     "criterion": "a simple document representation"
+    }
+   ],
+   "output_key_fields": [
+    "embeddings: the trained vectors",
+    "similarity: nearest neighbours for queried terms",
+    "vocabulary_coverage: share of tokens represented",
+    "training_loss: convergence of the training"
+   ],
+   "interpretation_traps": [
+    "EMBEDDINGS TRAINED ON A SMALL CORPUS ARE MOSTLY NOISE; the vectors will still produce confident-looking nearest neighbours, which is the trap",
+    "embeddings encode the associations of the training corpus, including its biases, and those propagate into every downstream use",
+    "cosine similarity between vectors trained in separate runs is meaningless without alignment"
+   ],
+   "sources": [
+    "Mikolov, Chen, Corrado & Dean 2013, Efficient estimation of word representations (arXiv:1301.3781)",
+    "Le & Mikolov 2014, Distributed representations of sentences and documents (ICML 2014:1188)",
+    "Bojanowski, Grave, Joulin & Mikolov 2017 (Transactions of the ACL 5:135)",
+    "gensim"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 583,
+   "method": "News-based uncertainty and policy indices",
+   "wrapper_file": "c26_text_as_data/news_indices.py",
+   "tool_fns": [
+    "tx_news_index"
+   ],
+   "when": "constructing an economic-policy-uncertainty or policy-stance index from a keyword rule over a news or statement corpus",
+   "when_not": "the corpus coverage changes over the period in ways the normalisation cannot absorb",
+   "alternatives": [
+    {
+     "alt": "keyword-count index",
+     "criterion": "the Baker-Bloom-Davis construction"
+    },
+    {
+     "alt": "dictionary-weighted index",
+     "criterion": "terms carry weights rather than counts"
+    },
+    {
+     "alt": "topic-share index",
+     "criterion": "the index is a topic's prevalence over time"
+    }
+   ],
+   "output_key_fields": [
+    "index: the standardised index series",
+    "raw_counts: hits before normalisation",
+    "normalisation: how article volume was controlled for",
+    "term_contributions: which terms drive the index"
+   ],
+   "interpretation_traps": [
+    "THE INDEX MUST BE NORMALISED BY TOTAL ARTICLE VOLUME, or it measures how much the newspaper published rather than how uncertain the economy was",
+    "keyword lists are hand-built and their coverage of a concept changes as language changes; a fixed list drifts in meaning over decades",
+    "corpus composition changes -- outlets entering and leaving -- create breaks that look like uncertainty episodes"
+   ],
+   "sources": [
+    "Baker, Bloom & Davis 2016 (Quarterly Journal of Economics 131:1593-1636)",
+    "Apel & Blix Grimaldi 2014 (Journal of Money, Credit and Banking 46:783)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 584,
+   "method": "Lexicon sentiment with negation handling",
+   "wrapper_file": "c26_text_as_data/lexicon_sentiment.py",
+   "tool_fns": [
+    "tx_lexicon_sentiment"
+   ],
+   "when": "scoring text tone with a domain lexicon, which is transparent and reproducible where a trained classifier is neither",
+   "when_not": "the domain has no suitable lexicon; the text is short and informal where a general-purpose rule-based scorer does better",
+   "alternatives": [
+    {
+     "alt": "Loughran-McDonald",
+     "criterion": "financial and regulatory text"
+    },
+    {
+     "alt": "VADER",
+     "criterion": "short informal text, handles intensity and negation"
+    },
+    {
+     "alt": "custom dictionary",
+     "criterion": "a domain-specific concept"
+    }
+   ],
+   "output_key_fields": [
+    "sentiment: the tone score per document",
+    "components: positive, negative, uncertainty and litigious counts",
+    "negation_adjusted: scores after negation handling",
+    "coverage: share of tokens matched by the lexicon"
+   ],
+   "interpretation_traps": [
+    "GENERAL-PURPOSE SENTIMENT LEXICONS ARE WRONG FOR FINANCIAL TEXT: words like liability, cost and capital are negative in a general lexicon and neutral in accounting, which is exactly why Loughran-McDonald exists",
+    "negation flips meaning and simple counting ignores it -- 'not strong' scores positive without handling",
+    "low lexicon coverage means the score rests on a handful of matched tokens"
+   ],
+   "sources": [
+    "Loughran & McDonald 2011 (Journal of Finance 66:35-65)",
+    "Hutto & Gilbert 2014, VADER (ICWSM 2014:216)",
+    "vaderSentiment"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 585,
+   "method": "Readability and linguistic complexity",
+   "wrapper_file": "c26_text_as_data/readability.py",
+   "tool_fns": [
+    "tx_readability"
+   ],
+   "when": "how hard a document is to read is itself a variable -- central-bank communication clarity, disclosure complexity, contract obfuscation",
+   "when_not": "the text is too short for the indices to be stable; the language is not one the indices were calibrated on",
+   "alternatives": [
+    {
+     "alt": "Flesch-Kincaid and Gunning Fog",
+     "criterion": "the classic readability indices"
+    },
+    {
+     "alt": "type-token ratio and lexical density",
+     "criterion": "vocabulary richness"
+    },
+    {
+     "alt": "sentence and clause complexity",
+     "criterion": "syntactic rather than lexical difficulty"
+    }
+   ],
+   "output_key_fields": [
+    "indices: readability scores per document",
+    "lexical: type-token ratio and density",
+    "syntactic: sentence length and clause depth",
+    "n_words: document length, which several indices depend on"
+   ],
+   "interpretation_traps": [
+    "READABILITY INDICES ARE CALIBRATED ON GENERAL ENGLISH PROSE and are not meaningful for text dense with numbers, tables or technical terms -- a policy statement's Fog index is not a school grade",
+    "the type-token ratio falls mechanically with document length, so comparing documents of different lengths without standardisation is invalid",
+    "these indices measure surface features, not comprehensibility; a short-sentence document full of jargon scores as easy"
+   ],
+   "sources": [
+    "Flesch 1948 (Journal of Applied Psychology 32:221-233)",
+    "Gunning 1952, The Technique of Clear Writing",
+    "Loughran & McDonald 2014 (Journal of Finance 69:1643)",
+    "nltk"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "snt_corpus",
+   "card_id": 234,
+   "register": {
+    "field": "corpus"
+   },
+   "input_example": {
+    "df": "<df_handle>",
+    "do_clean": false
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a DataFrame {id(char), date(YYYY-MM-DD), texts(char, non-empty)} + optional numeric feature columns (dummies/weights e.g. wsj/wapo). >=1 document.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "do_clean",
+     "kind": "boolean",
+     "required": false,
+     "description": "Text cleaning (removal of extra whitespace/HTML/characters) (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "snt_measures",
+   "card_id": 234,
+   "register": {
+    "field": "measures"
+   },
+   "input_example": {
+    "sentiment": "<raw_handle>",
+    "lag": 1,
+    "do_ignore_zeros": true
+   },
+   "arguments": [
+    {
+     "name": "sentiment",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to sentiment (from snt_sentiment).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "by",
+     "kind": "enum",
+     "required": false,
+     "description": "Aggregation time frequency (default month).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "year",
+      "month",
+      "week",
+      "day"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lag",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of time periods in the smoothing window (positive integer; default 1 = no time aggregation).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "how_time",
+     "kind": "series_codes",
+     "required": false,
+     "description": "One or more time-weighting schemes (ALL are tried; default equal_weight). Valid: equal_weight, linear, almon, beta, exponential ('own' is not supported).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "how_docs",
+     "kind": "enum",
+     "required": false,
+     "description": "Weighting of documents within a period (default equal_weight).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "equal_weight",
+      "proportional",
+      "inverseProportional",
+      "exponential",
+      "inverseExponential"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "fill",
+     "kind": "enum",
+     "required": false,
+     "description": "Filling of periods without documents (default zero).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "zero",
+      "latest",
+      "none"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "do_ignore_zeros",
+     "kind": "boolean",
+     "required": false,
+     "description": "Ignore zero sentiment values in document weighting (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "snt_model",
+   "card_id": 234,
+   "register": null,
+   "input_example": {
+    "measures": "<raw_handle>",
+    "y": [
+     0.5,
+     0.5
+    ],
+    "h": 0,
+    "do_intercept": true,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "measures",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to sento_measures (from snt_measures).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "num_array",
+     "required": true,
+     "description": "Target (dependent) ALIGNED with the dates of the measures (length == n_dates). gaussian: numeric; binomial: 2 values; multinomial: >=3 values.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Family (default gaussian=linear; binomial/multinomial=classification).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gaussian",
+      "binomial",
+      "multinomial"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "required": false,
+     "description": "Selection of (alpha,lambda) (default BIC): information criterion BIC/AIC/Cp (gaussian ONLY) or cv=out-of-sample cross-validation (required also for binomial/multinomial; needs train/test_window).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "BIC",
+      "AIC",
+      "Cp",
+      "cv"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alphas",
+     "kind": "num_array",
+     "required": false,
+     "description": "Elastic-net mixing grid in [0,1] (0=ridge,1=lasso; ALL are tried; default 0,0.5,1).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon/lead (non-negative integer; default 0; h<n_dates).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "do_intercept",
+     "kind": "boolean",
+     "required": false,
+     "description": "Inclusion of intercept (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "train_window",
+     "kind": "integer",
+     "required": false,
+     "description": "type='cv': training window size (positive integer; train+test < n_dates).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "test_window",
+     "kind": "integer",
+     "required": false,
+     "description": "type='cv': test window size (positive integer).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed before the fit (locks the cv fold-RNG; default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "snt_sentiment",
+   "card_id": 234,
+   "register": {
+    "field": "sentiment"
+   },
+   "input_example": {
+    "corpus": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "corpus",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a sento_corpus (from snt_corpus).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lexicons",
+     "kind": "series_codes",
+     "required": false,
+     "description": "One or more built-in lexicons (default LM_en). Valid: LM_en, HENRY_en, GI_en, FEEL_en_tr, GI_fr_tr, LM_fr_tr, HENRY_fr_tr, FEEL_fr, GI_nl_tr, LM_nl_tr, HENRY_nl_tr, FEEL_nl_tr.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "how",
+     "kind": "enum",
+     "required": false,
+     "description": "Within-document word weighting (default proportional): counts=sum of polarities; proportional=/word_count; TFIDF=tf-idf; U/inverseU/exponential=position-in-text.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "proportional",
+      "counts",
+      "proportionalPol",
+      "proportionalSquareRoot",
+      "UShaped",
+      "inverseUShaped",
+      "exponential",
+      "inverseExponential",
+      "TFIDF"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tx_preprocess",
+   "card_id": 579,
+   "register": {
+    "field": "dtm"
+   },
+   "input_example": {
+    "documents": "<df_handle>",
+    "text": "...",
+    "normalise": "lemmatise",
+    "ngram_range": [
+     1,
+     2
+    ],
+    "min_df": 0.01,
+    "max_df": 0.95,
+    "weighting": "tfidf"
+   },
+   "arguments": [
+    {
+     "name": "documents",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Documents with an identifier and text column.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "text",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the text.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "normalise",
+     "kind": "enum",
+     "required": false,
+     "description": "Word normalisation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "stem",
+      "lemmatise"
+     ],
+     "allowed_vars": null,
+     "default": "lemmatise",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "stop_words",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Stop-word list; omitted = a generic English list.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ngram_range",
+     "kind": "int_array",
+     "required": false,
+     "description": "Minimum and maximum n-gram length.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      1,
+      2
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "min_df",
+     "kind": "number",
+     "required": false,
+     "description": "Minimum document frequency.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.01,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "max_df",
+     "kind": "number",
+     "required": false,
+     "description": "Maximum document frequency.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "weighting",
+     "kind": "enum",
+     "required": false,
+     "description": "Term weighting.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "count",
+      "tfidf",
+      "binary",
+      "log_count"
+     ],
+     "allowed_vars": null,
+     "default": "tfidf",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "tx_topic_model",
+   "card_id": 580,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "dtm": "<raw_handle>",
+    "n_topics": 20,
+    "model": "lda",
+    "iterations": 1000,
+    "n_seeds": 1,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "dtm",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a document-term matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_topics",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of topics; omitted = selected by coherence.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lda",
+      "ctm",
+      "dmr",
+      "dtm",
+      "hdp"
+     ],
+     "allowed_vars": null,
+     "default": "lda",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "time",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Document time index for the dynamic model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "iterations",
+     "kind": "integer",
+     "required": false,
+     "description": "Sampler iterations.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "n_seeds",
+     "kind": "integer",
+     "required": false,
+     "description": "Seeds for a stability check.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tx_topic_coherence",
+   "card_id": 580,
+   "register": null,
+   "input_example": {
+    "dtm": "<raw_handle>",
+    "topic_range": [
+     5,
+     10,
+     20,
+     30,
+     50
+    ],
+    "measure": "c_v",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "dtm",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a document-term matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "topic_range",
+     "kind": "int_array",
+     "required": false,
+     "description": "Topic counts to evaluate.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      5,
+      10,
+      20,
+      30,
+      50
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "measure",
+     "kind": "enum",
+     "required": false,
+     "description": "Coherence measure.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "c_v",
+      "u_mass",
+      "c_npmi",
+      "perplexity"
+     ],
+     "allowed_vars": null,
+     "default": "c_v",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tx_matrix_topics",
+   "card_id": 581,
+   "register": null,
+   "input_example": {
+    "dtm": "<raw_handle>",
+    "n_components": 20,
+    "method": "nmf",
+    "init": "nndsvd",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "dtm",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a document-term matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_components",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of components.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Factorisation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "nmf",
+      "lsa",
+      "pca"
+     ],
+     "allowed_vars": null,
+     "default": "nmf",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "init",
+     "kind": "enum",
+     "required": false,
+     "description": "Initialisation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "random",
+      "nndsvd",
+      "nndsvda"
+     ],
+     "allowed_vars": null,
+     "default": "nndsvd",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tx_embeddings",
+   "card_id": 582,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "documents": "<df_handle>",
+    "text": "...",
+    "model": "word2vec",
+    "dimensions": 100,
+    "window": 5,
+    "min_count": 5,
+    "epochs": 10,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "documents",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Tokenised documents.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "text",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the tokens.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Embedding model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "word2vec",
+      "fasttext",
+      "doc2vec"
+     ],
+     "allowed_vars": null,
+     "default": "word2vec",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "dimensions",
+     "kind": "integer",
+     "required": false,
+     "description": "Vector dimension.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "window",
+     "kind": "integer",
+     "required": false,
+     "description": "Context window.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "min_count",
+     "kind": "integer",
+     "required": false,
+     "description": "Minimum token frequency.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "epochs",
+     "kind": "integer",
+     "required": false,
+     "description": "Training epochs.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tx_similarity",
+   "card_id": 582,
+   "register": null,
+   "input_example": {
+    "model": "<raw_handle>",
+    "terms": [
+     "a",
+     "b"
+    ],
+    "top_n": 10
+   },
+   "arguments": [
+    {
+     "name": "model",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to trained embeddings.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "terms",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Terms or document ids to query.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "top_n",
+     "kind": "integer",
+     "required": false,
+     "description": "Neighbours returned.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "tx_news_index",
+   "card_id": 583,
+   "register": null,
+   "input_example": {
+    "documents": "<df_handle>",
+    "text": "...",
+    "date": "...",
+    "terms": "...",
+    "normalise_by": "article_count",
+    "frequency": "monthly",
+    "standardise": true
+   },
+   "arguments": [
+    {
+     "name": "documents",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Documents with a date and text column.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "text",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the text.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "date",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the document date.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "terms",
+     "kind": "raw",
+     "required": true,
+     "description": "Term groups that must co-occur.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "normalise_by",
+     "kind": "enum",
+     "required": false,
+     "description": "Normalisation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "article_count",
+      "word_count"
+     ],
+     "allowed_vars": null,
+     "default": "article_count",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "frequency",
+     "kind": "enum",
+     "required": false,
+     "description": "Aggregation frequency.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "daily",
+      "weekly",
+      "monthly",
+      "quarterly"
+     ],
+     "allowed_vars": null,
+     "default": "monthly",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "standardise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Standardise to unit variance.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "tx_lexicon_sentiment",
+   "card_id": 584,
+   "register": null,
+   "input_example": {
+    "documents": "<df_handle>",
+    "text": "...",
+    "lexicon": "loughran_mcdonald",
+    "negation": true,
+    "normalise": "word_count"
+   },
+   "arguments": [
+    {
+     "name": "documents",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Documents with a text column.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "text",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the text.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lexicon",
+     "kind": "enum",
+     "required": false,
+     "description": "Lexicon.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "loughran_mcdonald",
+      "vader",
+      "harvard_iv",
+      "custom"
+     ],
+     "allowed_vars": null,
+     "default": "loughran_mcdonald",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "custom_lexicon",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Custom term-polarity table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "negation",
+     "kind": "boolean",
+     "required": false,
+     "description": "Apply negation handling.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "normalise",
+     "kind": "enum",
+     "required": false,
+     "description": "Score normalisation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "word_count",
+      "sentence_count"
+     ],
+     "allowed_vars": null,
+     "default": "word_count",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "tx_readability",
+   "card_id": 585,
+   "register": null,
+   "input_example": {
+    "documents": "<df_handle>",
+    "text": "...",
+    "standardise_length": true
+   },
+   "arguments": [
+    {
+     "name": "documents",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Documents with a text column.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "text",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the text.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "indices",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Indices to compute; omitted = the standard set.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "standardise_length",
+     "kind": "boolean",
+     "required": false,
+     "description": "Standardise length-dependent measures.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  }
+ ]
+}

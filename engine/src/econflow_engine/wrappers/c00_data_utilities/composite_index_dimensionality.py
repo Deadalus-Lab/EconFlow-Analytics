@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``composite_index_dimensionality`` -- METHOD-SELECTION card #117.
+"""Method wrapper ``composite_index_dimensionality`` -- method card #117.
 
 #117 Composite index / dimensionality reduction with PCA (PC1 composite index + loadings + variance
     decomposition + biplot coordinates + newdata projection + rules for the number of components +
@@ -9,8 +9,8 @@ Category 00-data-utilities; module ``composite_index_dimensionality``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def pca_composite(
     center: bool | None = None,
     scale: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pca_composite`` -- METHOD-SELECTION card #117.
+    """Node ``pca_composite`` -- method card #117.
 
     Composite index / dimensionality reduction with PCA (PC1 composite index + loadings + variance
     decomposition + biplot coordinates + newdata projection + rules for the number of components +
@@ -64,7 +64,7 @@ def pca_composite(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pca_composite: not implemented. The method card is in ./README.md."
+        "pca_composite: not implemented."
     )
 
 
@@ -77,7 +77,7 @@ def pca_biplot_coords(
     biplot_scale: float | None = None,
     pc_biplot: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pca_biplot_coords`` -- METHOD-SELECTION card #117.
+    """Node ``pca_biplot_coords`` -- method card #117.
 
     Composite index / dimensionality reduction with PCA (PC1 composite index + loadings + variance
     decomposition + biplot coordinates + newdata projection + rules for the number of components +
@@ -106,7 +106,7 @@ def pca_biplot_coords(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pca_biplot_coords: not implemented. The method card is in ./README.md."
+        "pca_biplot_coords: not implemented."
     )
 
 
@@ -117,7 +117,7 @@ def pca_predict(
     center: bool | None = None,
     scale: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pca_predict`` -- METHOD-SELECTION card #117.
+    """Node ``pca_predict`` -- method card #117.
 
     Composite index / dimensionality reduction with PCA (PC1 composite index + loadings + variance
     decomposition + biplot coordinates + newdata projection + rules for the number of components +
@@ -126,11 +126,11 @@ def pca_predict(
     Category 00-data-utilities; memory class ``light``.
 
     Args:
-        x: [matrix_handle, required] Handle to the TRAINING matrix (fit). It MUST have colnames —
-            without them predict.prcomp matches columns BY POSITION and projects SILENTLY WRONG
+        x: [matrix_handle, required] Handle to the TRAINING matrix (fit). It MUST have column labels
+            — without them predict.prcomp matches columns BY POSITION and projects SILENTLY WRONG
             (hard gate).
         newdata: [matrix_handle, required] Handle to the NEW observations to project; IDENTICAL
-            colnames AND SAME ORDER as x, >=1 row, no NA/Inf.
+            column labels AND SAME ORDER as x, >=1 row, no NA/Inf.
         center: [boolean, optional] Centering at fit time (prcomp center); the APPLIED center is
             returned as center_used. Default True. Default ``True``.
         scale: [boolean, optional] Scaling at fit time (prcomp scale.); the APPLIED scale is
@@ -140,7 +140,7 @@ def pca_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pca_predict: not implemented. The method card is in ./README.md."
+        "pca_predict: not implemented."
     )
 
 
@@ -151,7 +151,7 @@ def pca_n_components(
     scale: bool | None = None,
     cum_var_threshold: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``pca_n_components`` -- METHOD-SELECTION card #117.
+    """Node ``pca_n_components`` -- method card #117.
 
     Composite index / dimensionality reduction with PCA (PC1 composite index + loadings + variance
     decomposition + biplot coordinates + newdata projection + rules for the number of components +
@@ -176,7 +176,7 @@ def pca_n_components(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pca_n_components: not implemented. The method card is in ./README.md."
+        "pca_n_components: not implemented."
     )
 
 
@@ -187,7 +187,7 @@ def pca_stationarity_precheck(
     lshort: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``pca_stationarity_precheck`` -- METHOD-SELECTION card #117.
+    """Node ``pca_stationarity_precheck`` -- method card #117.
 
     Composite index / dimensionality reduction with PCA (PC1 composite index + loadings + variance
     decomposition + biplot coordinates + newdata projection + rules for the number of components +
@@ -202,7 +202,7 @@ def pca_stationarity_precheck(
             Trend (trend-stationary).
         lshort: [boolean, optional] True (default) => truncation lag floor(4*(n/100)^0.25); False =>
             floor(12*(n/100)^0.25) (the kpss.test documentation). Default ``True``.
-        alpha: [number, optional] Significance level in [0.01, 0.10] (default 0.05). ⚠️ tseries
+        alpha: [number, optional] Significance level in [0.01, 0.10] (default 0.05). the test
             returns a p-value ONLY inside that interval (interpolation in the KPSS 1992 Table 1);
             outside => undecidable => stop. Per column, p_at_bound (lower/interpolated/upper) is
             returned. Default ``0.05``.
@@ -211,5 +211,5 @@ def pca_stationarity_precheck(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pca_stationarity_precheck: not implemented. The method card is in ./README.md."
+        "pca_stationarity_precheck: not implemented."
     )

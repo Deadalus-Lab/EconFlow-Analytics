@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``dynamic_factor_nowcasting`` -- METHOD-SELECTION card #15.
+"""Method wrapper ``dynamic_factor_nowcasting`` -- method card #15.
 
-#15 Dynamic Factor Model / nowcasting (routes #16)
+#15 Dynamic Factor Model / nowcasting
 
 Category 03-multivariate-nowcasting; module ``dynamic_factor_nowcasting``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,23 +23,23 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "df_dfm",
-    "df_icr",
+    "df_fit",
     "df_predict",
+    "df_select_factors",
     "df_summary",
     "NODE_META",
     "wire_model",
 ]
 
 
-def df_icr(
+def df_select_factors(
     *,
     X: pd.DataFrame,
     max_r: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``df_icr`` -- METHOD-SELECTION card #15.
+    """Node ``df_select_factors`` -- method card #15.
 
-    Dynamic Factor Model / nowcasting (routes #16).
+    Dynamic Factor Model / nowcasting.
 
     Category 03-multivariate-nowcasting; memory class ``light``.
 
@@ -51,11 +51,11 @@ def df_icr(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "df_icr: not implemented. The method card is in ./README.md."
+        "df_select_factors: not implemented."
     )
 
 
-def df_dfm(
+def df_fit(
     *,
     X: pd.DataFrame,
     r: int | None = None,
@@ -64,9 +64,9 @@ def df_dfm(
     rQ: Literal["none", "diagonal", "identity"] | None = None,
     rR: Literal["diagonal", "none"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``df_dfm`` -- METHOD-SELECTION card #15.
+    """Node ``df_fit`` -- method card #15.
 
-    Dynamic Factor Model / nowcasting (routes #16).
+    Dynamic Factor Model / nowcasting.
 
     Category 03-multivariate-nowcasting; memory class ``light``.
 
@@ -86,7 +86,7 @@ def df_dfm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "df_dfm: not implemented. The method card is in ./README.md."
+        "df_fit: not implemented."
     )
 
 
@@ -96,14 +96,14 @@ def df_predict(
     h: int | None = None,
     standardized: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``df_predict`` -- METHOD-SELECTION card #15.
+    """Node ``df_predict`` -- method card #15.
 
-    Dynamic Factor Model / nowcasting (routes #16).
+    Dynamic Factor Model / nowcasting.
 
     Category 03-multivariate-nowcasting; memory class ``light``.
 
     Args:
-        model: [raw_handle, required] Handle to a dfm model (from df_dfm).
+        model: [raw_handle, required] Handle to a dfm model (from df_fit).
         h: [integer, optional] Forecast horizon for factors + variables (default 10). Default
             ``10``.
         standardized: [boolean, optional] Output in standardised units (default False = original
@@ -113,7 +113,7 @@ def df_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "df_predict: not implemented. The method card is in ./README.md."
+        "df_predict: not implemented."
     )
 
 
@@ -121,9 +121,9 @@ def df_summary(
     *,
     model: Any,
 ) -> dict[str, Any]:
-    """Node ``df_summary`` -- METHOD-SELECTION card #15.
+    """Node ``df_summary`` -- method card #15.
 
-    Dynamic Factor Model / nowcasting (routes #16).
+    Dynamic Factor Model / nowcasting.
 
     Category 03-multivariate-nowcasting; memory class ``light``.
 
@@ -134,5 +134,5 @@ def df_summary(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "df_summary: not implemented. The method card is in ./README.md."
+        "df_summary: not implemented."
     )

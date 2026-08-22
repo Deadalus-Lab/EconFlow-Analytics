@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``pca_mixed_variables`` -- METHOD-SELECTION card #256.
+"""Method wrapper ``pca_mixed_variables`` -- method card #256.
 
 #256 PCA for MIXED I(0)/I(1) variables: an h-step-ahead OLS regression per series (a constant + p
     own lags) -> PCA on the RESIDUALS (Hamilton-Ma-Xi)
@@ -8,8 +8,8 @@ Category 03-multivariate-nowcasting; module ``pca_mixed_variables``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def pn_cyclical_components(
     h: int | None = None,
     p: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pn_cyclical_components`` -- METHOD-SELECTION card #256.
+    """Node ``pn_cyclical_components`` -- method card #256.
 
     PCA for MIXED I(0)/I(1) variables: an h-step-ahead OLS regression per series (a constant + p own
     lags) -> PCA on the RESIDUALS (Hamilton-Ma-Xi).
@@ -66,7 +66,7 @@ def pn_cyclical_components(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pn_cyclical_components: not implemented. The method card is in ./README.md."
+        "pn_cyclical_components: not implemented."
     )
 
 
@@ -78,7 +78,7 @@ def pn_pca_nonstationary(
     scale_residuals: Literal["unit_variance", "none"] | None = None,
     r_max: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pn_pca_nonstationary`` -- METHOD-SELECTION card #256.
+    """Node ``pn_pca_nonstationary`` -- method card #256.
 
     PCA for MIXED I(0)/I(1) variables: an h-step-ahead OLS regression per series (a constant + p own
     lags) -> PCA on the RESIDUALS (Hamilton-Ma-Xi).
@@ -120,5 +120,5 @@ def pn_pca_nonstationary(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pn_pca_nonstationary: not implemented. The method card is in ./README.md."
+        "pn_pca_nonstationary: not implemented."
     )

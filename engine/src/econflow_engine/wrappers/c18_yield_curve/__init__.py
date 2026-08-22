@@ -1,2 +1,2 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Wrappers for METHOD-SELECTION category 18-yield-curve."""
+"""Wrappers for category 18-yield-curve."""

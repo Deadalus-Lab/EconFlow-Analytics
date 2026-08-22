@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``roc_auc_binary`` -- METHOD-SELECTION card #84.
+"""Method wrapper ``roc_auc_binary`` -- method card #84.
 
 #84 ROC / AUC — binary forecast evaluation
 
@@ -7,8 +7,8 @@ Category 16-limited-dependent; module ``roc_auc_binary``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ def run_roc(
     ci: bool | None = None,
     conf_level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_roc`` -- METHOD-SELECTION card #84.
+    """Node ``run_roc`` -- method card #84.
 
     ROC / AUC — binary forecast evaluation.
 
@@ -56,5 +56,5 @@ def run_roc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_roc: not implemented. The method card is in ./README.md."
+        "run_roc: not implemented."
     )

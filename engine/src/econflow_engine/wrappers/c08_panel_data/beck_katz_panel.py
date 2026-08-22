@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``beck_katz_panel`` -- METHOD-SELECTION card #174.
+"""Method wrapper ``beck_katz_panel`` -- method card #174.
 
 #174 Beck-Katz Panel-Corrected Standard Errors (PCSE) for pooled TSCS/OLS
 
@@ -7,8 +7,8 @@ Category 08-panel-data; module ``beck_katz_panel``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def pcse_fit(
     groupT: str,
     pairwise: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pcse_fit`` -- METHOD-SELECTION card #174.
+    """Node ``pcse_fit`` -- method card #174.
 
     Beck-Katz Panel-Corrected Standard Errors (PCSE) for pooled TSCS/OLS.
 
@@ -61,7 +61,7 @@ def pcse_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pcse_fit: not implemented. The method card is in ./README.md."
+        "pcse_fit: not implemented."
     )
 
 
@@ -72,7 +72,7 @@ def pcse_vcov(
     groupT: Sequence[float],
     pairwise: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pcse_vcov`` -- METHOD-SELECTION card #174.
+    """Node ``pcse_vcov`` -- method card #174.
 
     Beck-Katz Panel-Corrected Standard Errors (PCSE) for pooled TSCS/OLS.
 
@@ -93,7 +93,7 @@ def pcse_vcov(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pcse_vcov: not implemented. The method card is in ./README.md."
+        "pcse_vcov: not implemented."
     )
 
 
@@ -101,7 +101,7 @@ def pcse_summary(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``pcse_summary`` -- METHOD-SELECTION card #174.
+    """Node ``pcse_summary`` -- method card #174.
 
     Beck-Katz Panel-Corrected Standard Errors (PCSE) for pooled TSCS/OLS.
 
@@ -114,5 +114,5 @@ def pcse_summary(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pcse_summary: not implemented. The method card is in ./README.md."
+        "pcse_summary: not implemented."
     )

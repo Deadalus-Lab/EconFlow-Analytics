@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``battery_non_parametric`` -- METHOD-SELECTION card #251.
+"""Method wrapper ``battery_non_parametric`` -- method card #251.
 
 #251 Battery of NON-PARAMETRIC (rank-based) tests on CROSS-SECTION data: Wilcoxon signed rank (one
     sample / paired) & rank sum = Mann-Whitney (two independent) with an optional non-parametric CI
@@ -10,8 +10,8 @@ Category 01-preparation-prechecks; module ``battery_non_parametric``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ def tn_wilcox(
     gate_alpha: float | None = None,
     ordered: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tn_wilcox`` -- METHOD-SELECTION card #251.
+    """Node ``tn_wilcox`` -- method card #251.
 
     Battery of NON-PARAMETRIC (rank-based) tests on CROSS-SECTION data: Wilcoxon signed rank (one
     sample / paired) & rank sum = Mann-Whitney (two independent) with an optional non-parametric CI
@@ -105,7 +105,7 @@ def tn_wilcox(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tn_wilcox: not implemented. The method card is in ./README.md."
+        "tn_wilcox: not implemented."
     )
 
 
@@ -117,7 +117,7 @@ def tn_kruskal(
     gate_alpha: float | None = None,
     ordered: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tn_kruskal`` -- METHOD-SELECTION card #251.
+    """Node ``tn_kruskal`` -- method card #251.
 
     Battery of NON-PARAMETRIC (rank-based) tests on CROSS-SECTION data: Wilcoxon signed rank (one
     sample / paired) & rank sum = Mann-Whitney (two independent) with an optional non-parametric CI
@@ -151,7 +151,7 @@ def tn_kruskal(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tn_kruskal: not implemented. The method card is in ./README.md."
+        "tn_kruskal: not implemented."
     )
 
 
@@ -165,7 +165,7 @@ def tn_friedman(
     gate_alpha: float | None = None,
     ordered: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tn_friedman`` -- METHOD-SELECTION card #251.
+    """Node ``tn_friedman`` -- method card #251.
 
     Battery of NON-PARAMETRIC (rank-based) tests on CROSS-SECTION data: Wilcoxon signed rank (one
     sample / paired) & rank sum = Mann-Whitney (two independent) with an optional non-parametric CI
@@ -205,5 +205,5 @@ def tn_friedman(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tn_friedman: not implemented. The method card is in ./README.md."
+        "tn_friedman: not implemented."
     )

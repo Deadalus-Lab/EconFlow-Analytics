@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Deadalus-Lab/EconFlow-Analytics/engine/artifacts/schema/parity-fixtures.schema.json",
+  "title": "parity-fixtures",
+  "description": "The frozen argument-contract corpus: every case is an input to the argument adapter together with the verdict it must produce. The suite replays all of them, so a case that lost its verdict does not fail loudly -- it quietly stops asserting anything. That is the failure this schema exists to catch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "artifact_version",
+    "generated_by",
+    "oracle",
+    "patch_semantics",
+    "reason_codes",
+    "n_cases",
+    "families",
+    "cases"
+  ],
+  "properties": {
+    "artifact_version": { "const": 1 },
+    "generated_by": { "type": "string", "minLength": 1 },
+    "oracle": {
+      "description": "What was and was not modelled when these verdicts were produced. `stubbed` and `not_stubbed` are the honest boundary of the corpus, and dropping either would make it look more authoritative than it is.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapt_args",
+        "stubbed",
+        "not_stubbed",
+        "pointer_gates",
+        "seed",
+        "base",
+        "spec_source_sha256"
+      ],
+      "properties": {
+        "adapt_args": { "type": "string", "minLength": 1 },
+        "stubbed": { "type": "array", "items": { "type": "string" } },
+        "not_stubbed": { "type": "array", "items": { "type": "string" } },
+        "pointer_gates": { "type": "array", "items": { "type": "string" } },
+        "seed": {
+          "description": "The corpus is generated, so it is only reproducible with its seed.",
+          "type": "integer"
+        },
+        "base": { "type": "string", "minLength": 1 },
+        "spec_source_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "patch_semantics": { "type": "string", "minLength": 1 },
+    "reason_codes": {
+      "description": "The closed set of wire reason codes. Every reason_code appearing on a case must be one of these; the suite asserts that join, and this schema asserts the list is present and non-empty.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "n_cases": { "type": "integer", "minimum": 1 },
+    "families": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/case" }
+    }
+  },
+  "$defs": {
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "family",
+        "fn",
+        "arg",
+        "kind",
+        "mutation",
+        "patch",
+        "drop",
+        "set_null",
+        "verdict"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "family": { "type": "string", "minLength": 1 },
+        "fn": { "type": ["string", "null"] },
+        "arg": { "type": ["string", "null"] },
+        "kind": { "type": ["string", "null"] },
+        "mutation": { "type": ["string", "null"] },
+        "patch": {
+          "description": "NOT JSON-merge-patch. Read `patch_semantics` above before assuming an ordering: drop, then patch, then set_null.",
+          "type": ["object", "null"]
+        },
+        "drop": {
+          "type": ["array", "null"],
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "set_null": {
+          "description": "Keys set to an EXPLICIT null, which is a different contract from an absent key and must never be collapsed into `drop`.",
+          "type": ["array", "null"],
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "verdict": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["verdict", "reason_code", "coerced_na", "message_excerpt"],
+          "properties": {
+            "verdict": { "enum": ["accept", "reject"] },
+            "reason_code": {
+              "description": "Null exactly when the verdict is accept: an accepted call has nothing to explain.",
+              "type": ["string", "null"]
+            },
+            "coerced_na": { "type": "boolean" },
+            "message_excerpt": { "type": ["string", "null"] }
+          }
+        },
+        "arg_specs": {
+          "description": "Present on the two cases that carry their own inline argument spec rather than reading it from node-specs.",
+          "type": "object"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1566 @@
+{
+ "category": "41-credit-risk-default",
+ "cards": [
+  {
+   "id": 347,
+   "method": "Merton structural model: distance to default and implied default probability",
+   "wrapper_file": "c41_credit_risk_default/merton_structural.py",
+   "tool_fns": [
+    "cr_distance_to_default",
+    "cr_merton_pd"
+   ],
+   "when": "inferring a firm's default risk from its equity market value and its liabilities, using the option analogy rather than a rating",
+   "when_not": "the firm is unlisted so there is no equity price; the capital structure is too complex for a single default barrier",
+   "alternatives": [
+    {
+     "alt": "reduced-form hazard models",
+     "criterion": "you have default histories and covariates"
+    },
+    {
+     "alt": "credit scorecards",
+     "criterion": "the obligor is a retail borrower"
+    },
+    {
+     "alt": "rating transition matrices",
+     "criterion": "ratings are available and sufficient"
+    }
+   ],
+   "output_key_fields": [
+    "distance_to_default: standardised distance from the barrier",
+    "implied_pd: the model default probability",
+    "asset_value, asset_volatility: the recovered unobservables",
+    "converged: whether the simultaneous system solved"
+   ],
+   "interpretation_traps": [
+    "asset value and asset volatility are NOT observed; they are solved from a two-equation system, and non-convergence produces plausible-looking numbers",
+    "the model PD is risk-neutral and is systematically higher than the physical default rate",
+    "distance to default is far more useful as a RANKING than as a level; the calibrated probability depends heavily on the barrier definition"
+   ],
+   "sources": [
+    "Merton 1974 (Journal of Finance 29:449-470)",
+    "Crosbie & Bohn 2003, Modeling default risk (Moody's KMV)",
+    "Bharath & Shumway 2008 (Review of Financial Studies 21:1339)",
+    "frds"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 348,
+   "method": "Rating and state transition matrices, generators and long-run behaviour",
+   "wrapper_file": "c41_credit_risk_default/transition_matrices.py",
+   "tool_fns": [
+    "cr_transition_matrix",
+    "cr_generator",
+    "cr_stationary_distribution"
+   ],
+   "when": "summarising migration between rating or risk states, and projecting it forward to a multi-period or continuous-time horizon",
+   "when_not": "there are no discrete states; the sample has too few migrations for the off-diagonal cells to be estimated",
+   "alternatives": [
+    {
+     "alt": "cohort estimator",
+     "criterion": "simple, uses period-end states only"
+    },
+    {
+     "alt": "duration (hazard) estimator",
+     "criterion": "uses the exact timing of every migration and is far more efficient"
+    },
+    {
+     "alt": "generator matrix",
+     "criterion": "you need continuous-time or non-integer horizons"
+    }
+   ],
+   "output_key_fields": [
+    "transition_matrix: the estimated migration probabilities",
+    "generator: the continuous-time generator, where one exists",
+    "stationary_distribution: the long-run state shares",
+    "embeddability: whether a valid generator exists at all"
+   ],
+   "interpretation_traps": [
+    "a discrete transition matrix need not have a valid GENERATOR -- the embedding problem -- and forcing one produces negative off-diagonal rates",
+    "the cohort estimator discards within-period migrations and understates volatility of ratings; the duration estimator does not",
+    "sparse off-diagonal cells give zero estimated probabilities for rare but important transitions, which then propagate to zero multi-period risk"
+   ],
+   "sources": [
+    "Jarrow, Lando & Turnbull 1997 (Review of Financial Studies 10:481-523)",
+    "Lando & Skodeberg 2002 (Journal of Banking and Finance 26:423)",
+    "Israel, Rosenthal & Wei 2001 (Mathematical Finance 11:245)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 349,
+   "method": "Credit scorecards: optimal binning, weight of evidence and monotonic constraints",
+   "wrapper_file": "c41_credit_risk_default/scorecards.py",
+   "tool_fns": [
+    "cr_optimal_binning",
+    "cr_woe_transform",
+    "cr_scorecard"
+   ],
+   "when": "building a transparent, monotone, regulator-defensible credit score from borrower characteristics",
+   "when_not": "interpretability is not required and pure predictive power is the only objective; the default count is too small for binning to be stable",
+   "alternatives": [
+    {
+     "alt": "gradient boosting",
+     "criterion": "prediction matters more than explanation"
+    },
+    {
+     "alt": "plain logistic regression",
+     "criterion": "no binning wanted and relationships are near-linear"
+    },
+    {
+     "alt": "optimal binning with monotone constraints",
+     "criterion": "a scorecard that must be explained and signed off"
+    }
+   ],
+   "output_key_fields": [
+    "bins: the selected cut points per variable",
+    "woe, iv: weight of evidence per bin and information value per variable",
+    "scorecard: points per attribute",
+    "monotonic: whether each variable's default rate is monotone in its bins"
+   ],
+   "interpretation_traps": [
+    "INFORMATION VALUE is a univariate screen; a variable with high IV can be useless after controlling for another, and one with low IV can matter",
+    "binning on the full sample and then validating on part of it leaks information -- bins must be fitted on the training split only",
+    "weight of evidence is undefined for a bin with no defaults or no non-defaults; the smoothing used to avoid that changes the score"
+   ],
+   "sources": [
+    "Siddiqi 2017, Intelligent Credit Scoring, 2nd ed.",
+    "Thomas, Edelman & Crook 2002, Credit Scoring and Its Applications",
+    "optbinning"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 350,
+   "method": "Probability-of-default calibration, discrimination and reliability",
+   "wrapper_file": "c41_credit_risk_default/pd_calibration.py",
+   "tool_fns": [
+    "cr_discrimination",
+    "cr_calibration",
+    "cr_grade_test"
+   ],
+   "when": "checking that a credit model both RANKS obligors correctly and produces probabilities at the right level -- two different requirements",
+   "when_not": "the model output is a score with no probability interpretation and none is wanted",
+   "alternatives": [
+    {
+     "alt": "AUC / Gini / KS",
+     "criterion": "discrimination -- can the model rank"
+    },
+    {
+     "alt": "calibration curve and Brier decomposition",
+     "criterion": "level -- are the probabilities right"
+    },
+    {
+     "alt": "Hosmer-Lemeshow",
+     "criterion": "a formal calibration test, though it is sensitive to binning"
+    }
+   ],
+   "output_key_fields": [
+    "auc, gini, ks: discrimination measures",
+    "calibration_curve: predicted against realised default rate by bucket",
+    "brier, reliability, resolution: the Brier decomposition",
+    "binomial_test: per-grade test that the realised rate matches the assigned PD"
+   ],
+   "interpretation_traps": [
+    "DISCRIMINATION AND CALIBRATION ARE INDEPENDENT: a model can rank perfectly (AUC 1.0) while every probability is wrong by a factor of ten",
+    "a model calibrated on a benign period is systematically under-calibrated in a downturn; through-the-cycle and point-in-time PDs are different objects",
+    "Hosmer-Lemeshow depends on the number of groups chosen and can be made to pass or fail by that choice"
+   ],
+   "sources": [
+    "Hosmer & Lemeshow 2000, Applied Logistic Regression, 2nd ed.",
+    "Murphy 1973 (Journal of Applied Meteorology 12:595-600)",
+    "Basel Committee 2005, Studies on the validation of internal rating systems (Working Paper 14)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 351,
+   "method": "Loss given default and exposure at default models",
+   "wrapper_file": "c41_credit_risk_default/lgd_ead.py",
+   "tool_fns": [
+    "cr_lgd_model",
+    "cr_ead_model"
+   ],
+   "when": "modelling the other two components of expected loss, whose distributions are bounded, bimodal and badly served by ordinary regression",
+   "when_not": "recovery data is absent and a regulatory floor is being applied instead",
+   "alternatives": [
+    {
+     "alt": "beta regression",
+     "criterion": "the outcome is a proportion strictly inside the unit interval"
+    },
+    {
+     "alt": "fractional response",
+     "criterion": "the outcome includes exact zeros and ones"
+    },
+    {
+     "alt": "two-part model",
+     "criterion": "a mass at zero or one plus a continuous part"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients on the chosen link",
+    "fitted: predicted loss given default or credit conversion factor",
+    "distribution_fit: how well the bounded distribution matches the observed shape",
+    "downturn_lgd: the stressed value where a downturn indicator is supplied"
+   ],
+   "interpretation_traps": [
+    "observed recovery is strongly BIMODAL -- clustered near zero and near one -- so a model fitting only the conditional mean misses the shape entirely",
+    "linear regression on a bounded outcome predicts outside the unit interval, and truncating the prediction is not a fix",
+    "downturn LGD is a regulatory concept requiring a stressed estimate; the through-the-cycle average is not it"
+   ],
+   "sources": [
+    "Schuermann 2004, What do we know about loss given default? (Wharton Financial Institutions Center)",
+    "Papke & Wooldridge 1996 (Journal of Applied Econometrics 11:619-632)",
+    "Ferrari & Cribari-Neto 2004 (Journal of Applied Statistics 31:799)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 352,
+   "method": "Time-to-default hazard models and lifetime PD term structures",
+   "wrapper_file": "c41_credit_risk_default/lifetime_pd.py",
+   "tool_fns": [
+    "cr_lifetime_pd",
+    "cr_pd_scenario"
+   ],
+   "when": "producing a PD for every future year rather than one year ahead -- the requirement behind lifetime expected credit loss",
+   "when_not": "only a one-year PD is needed; the panel is too short for a term structure to be estimated rather than extrapolated",
+   "alternatives": [
+    {
+     "alt": "one-year PD models",
+     "criterion": "only the next year matters"
+    },
+    {
+     "alt": "discrete-time hazard",
+     "criterion": "the panel is annual and the natural model is a hazard"
+    },
+    {
+     "alt": "transition-matrix projection",
+     "criterion": "ratings are available and the matrix can be powered up"
+    }
+   ],
+   "output_key_fields": [
+    "marginal_pd: the default probability in each future period",
+    "cumulative_pd: the survival-implied cumulative probability",
+    "term_structure: the PD curve over the lifetime",
+    "conditioning: how macroeconomic scenarios shifted the curve"
+   ],
+   "interpretation_traps": [
+    "cumulative PD is ONE MINUS the survival probability, not a sum of marginal PDs; adding them overstates lifetime risk and the error compounds with horizon",
+    "extrapolating a term structure beyond the observed panel is an assumption about duration dependence, and it dominates long-horizon loss",
+    "point-in-time conditioning on macro scenarios makes the curve move procyclically, which is the intent but also a source of volatility in reported loss"
+   ],
+   "sources": [
+    "Lando 2004, Credit Risk Modeling: Theory and Applications",
+    "Bellotti & Crook 2013 (International Journal of Forecasting 29:563-574)",
+    "lifelines"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 353,
+   "method": "Portfolio credit loss distribution: Vasicek single- and multi-factor and Monte Carlo",
+   "wrapper_file": "c41_credit_risk_default/portfolio_credit_loss.py",
+   "tool_fns": [
+    "cr_vasicek_loss",
+    "cr_credit_monte_carlo",
+    "cr_concentration"
+   ],
+   "when": "aggregating obligor-level risk into a portfolio loss distribution, where correlation rather than average PD drives the tail",
+   "when_not": "the portfolio is a single exposure; correlations cannot be estimated or assumed with any credibility",
+   "alternatives": [
+    {
+     "alt": "Vasicek single factor",
+     "criterion": "the regulatory closed form, one systematic factor"
+    },
+    {
+     "alt": "multi-factor Monte Carlo",
+     "criterion": "sector or geographic concentration matters"
+    },
+    {
+     "alt": "saddlepoint approximation",
+     "criterion": "you want tail accuracy without full simulation"
+    }
+   ],
+   "output_key_fields": [
+    "loss_distribution: the simulated or analytic distribution",
+    "expected_loss, unexpected_loss: mean and standard deviation",
+    "var, es: tail measures at the requested level",
+    "concentration: the share of tail loss attributable to the largest exposures"
+   ],
+   "interpretation_traps": [
+    "the ASSET CORRELATION drives the tail far more than the average PD does; a small change in correlation moves capital by a large multiple",
+    "the single-factor model assumes an infinitely granular portfolio -- with concentrated exposures it understates the tail badly",
+    "simulated tail quantiles at 99.9% need very many draws; the reported figure has Monte Carlo error that is rarely reported with it"
+   ],
+   "sources": [
+    "Vasicek 2002 (Risk 15:160)",
+    "Gordy 2003 (Journal of Financial Intermediation 12:199-232)",
+    "Basel Committee 2006, International Convergence of Capital Measurement and Capital Standards"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "cr_distance_to_default",
+   "card_id": 347,
+   "register": null,
+   "input_example": {
+    "equity_value": "<series_handle>",
+    "equity_volatility": "<series_handle>",
+    "debt": "<series_handle>",
+    "rate": "<series_handle>",
+    "horizon": 1.0,
+    "barrier": "short_plus_half_long"
+   },
+   "arguments": [
+    {
+     "name": "equity_value",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Market value of equity.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "equity_volatility",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Equity volatility.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "debt",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Face value of debt at the horizon.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "rate",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Risk-free rate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "number",
+     "required": false,
+     "description": "Horizon in years.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "barrier",
+     "kind": "enum",
+     "required": false,
+     "description": "Default barrier definition.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "total_debt",
+      "short_plus_half_long",
+      "short_term"
+     ],
+     "allowed_vars": null,
+     "default": "short_plus_half_long",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "cr_merton_pd",
+   "card_id": 347,
+   "register": null,
+   "input_example": {
+    "distance_to_default": "<series_handle>",
+    "mapping": "normal"
+   },
+   "arguments": [
+    {
+     "name": "distance_to_default",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Distance to default.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "mapping",
+     "kind": "enum",
+     "required": false,
+     "description": "Mapping to a probability.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "normal",
+      "empirical"
+     ],
+     "allowed_vars": null,
+     "default": "normal",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "empirical_map",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Empirical default frequency table when mapping is empirical.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cr_transition_matrix",
+   "card_id": 348,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "id": "...",
+    "state": "...",
+    "date": "...",
+    "estimator": "duration",
+    "horizon": 1.0
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel of state observations.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "id",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the obligor.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "state",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the state.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "date",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the observation date.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "estimator",
+     "kind": "enum",
+     "required": false,
+     "description": "Estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "cohort",
+      "duration"
+     ],
+     "allowed_vars": null,
+     "default": "duration",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "horizon",
+     "kind": "number",
+     "required": false,
+     "description": "Horizon in years.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.0,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cr_generator",
+   "card_id": 348,
+   "register": null,
+   "input_example": {
+    "transition_matrix": "<matrix_handle>",
+    "method": "qo"
+   },
+   "arguments": [
+    {
+     "name": "transition_matrix",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Discrete transition matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Embedding method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "log",
+      "qo",
+      "wa",
+      "dae"
+     ],
+     "allowed_vars": null,
+     "default": "qo",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "cr_stationary_distribution",
+   "card_id": 348,
+   "register": null,
+   "input_example": {
+    "transition_matrix": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "transition_matrix",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Transition matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cr_optimal_binning",
+   "card_id": 349,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>",
+    "y": "<series_handle>",
+    "monotonic_trend": "auto",
+    "max_bins": 10,
+    "min_bin_size": 0.05
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Characteristic to bin.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Binary default indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "monotonic_trend",
+     "kind": "enum",
+     "required": false,
+     "description": "Required trend of the default rate.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "auto",
+      "ascending",
+      "descending",
+      "convex",
+      "concave",
+      "none"
+     ],
+     "allowed_vars": null,
+     "default": "auto",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "max_bins",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum number of bins.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "min_bin_size",
+     "kind": "number",
+     "required": false,
+     "description": "Minimum share of observations per bin.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cr_woe_transform",
+   "card_id": 349,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>",
+    "y": "<series_handle>",
+    "smoothing": 0.5
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Characteristic to transform.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Binary default indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bins",
+     "kind": "num_array",
+     "required": false,
+     "description": "Bin edges; omitted = fitted here.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "smoothing",
+     "kind": "number",
+     "required": false,
+     "description": "Laplace smoothing for empty cells.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cr_scorecard",
+   "card_id": 349,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "y": "...",
+    "base_points": 600.0,
+    "pdo": 20.0
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Training table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "string",
+     "required": true,
+     "description": "Binary default indicator column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Characteristic columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "base_points",
+     "kind": "number",
+     "required": false,
+     "description": "Score at the base odds.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 600.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "pdo",
+     "kind": "number",
+     "required": false,
+     "description": "Points to double the odds.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20.0,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cr_discrimination",
+   "card_id": 350,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "score": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Binary default indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "score",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Model score or predicted probability.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cr_calibration",
+   "card_id": 350,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "pd": "<series_handle>",
+    "n_bins": 10,
+    "strategy": "quantile"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Binary default indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "pd",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Predicted default probability.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_bins",
+     "kind": "integer",
+     "required": false,
+     "description": "Calibration buckets.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "strategy",
+     "kind": "enum",
+     "required": false,
+     "description": "Bucketing strategy.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "quantile",
+      "uniform"
+     ],
+     "allowed_vars": null,
+     "default": "quantile",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "cr_grade_test",
+   "card_id": 350,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "grade": "<series_handle>",
+    "grade_pd": "<series_handle>",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Binary default indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grade",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Assigned rating grade.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grade_pd",
+     "kind": "series_handle",
+     "required": true,
+     "description": "PD assigned to each grade.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cr_lgd_model",
+   "card_id": 351,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "lgd": "...",
+    "model": "fractional"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Table of resolved defaults.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lgd",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding realised loss given default.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Model family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "beta",
+      "fractional",
+      "two_part",
+      "tobit",
+      "linear"
+     ],
+     "allowed_vars": null,
+     "default": "fractional",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "downturn",
+     "kind": "string",
+     "required": false,
+     "description": "Indicator column marking downturn periods.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cr_ead_model",
+   "card_id": 351,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "ccf": "...",
+    "model": "fractional"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Table of resolved defaults.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ccf",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the realised credit conversion factor.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Model family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "beta",
+      "fractional",
+      "two_part",
+      "linear"
+     ],
+     "allowed_vars": null,
+     "default": "fractional",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "cr_lifetime_pd",
+   "card_id": 352,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "time": "...",
+    "event": "...",
+    "horizon": 10,
+    "model": "cox"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Person-period or duration table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the duration or period index.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the default indicator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Lifetime horizon in periods.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Hazard model family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "cox",
+      "discrete_cloglog",
+      "weibull",
+      "piecewise"
+     ],
+     "allowed_vars": null,
+     "default": "cox",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "cr_pd_scenario",
+   "card_id": 352,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "scenarios": "<df_handle>"
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted lifetime PD model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "scenarios",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Macroeconomic scenario paths.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "num_array",
+     "required": false,
+     "description": "Scenario probability weights.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cr_vasicek_loss",
+   "card_id": 353,
+   "register": null,
+   "input_example": {
+    "pd": "<series_handle>",
+    "lgd": "<series_handle>",
+    "exposure": "<series_handle>",
+    "asset_correlation": 1.0,
+    "confidence": 0.999
+   },
+   "arguments": [
+    {
+     "name": "pd",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Default probability per exposure.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lgd",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Loss given default per exposure.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exposure",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Exposure at default.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "asset_correlation",
+     "kind": "number",
+     "required": true,
+     "description": "Asset correlation.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "confidence",
+     "kind": "number",
+     "required": false,
+     "description": "Tail level for VaR and ES.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.999,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cr_credit_monte_carlo",
+   "card_id": 353,
+   "register": null,
+   "input_example": {
+    "pd": "<series_handle>",
+    "lgd": "<series_handle>",
+    "exposure": "<series_handle>",
+    "factor_loadings": "<matrix_handle>",
+    "n_simulations": 100000,
+    "confidence": 0.999,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "pd",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Default probability per exposure.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lgd",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Loss given default per exposure.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exposure",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Exposure at default.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "factor_loadings",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Systematic factor loadings per exposure.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_simulations",
+     "kind": "integer",
+     "required": false,
+     "description": "Monte Carlo draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "confidence",
+     "kind": "number",
+     "required": false,
+     "description": "Tail level for VaR and ES.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.999,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cr_concentration",
+   "card_id": 353,
+   "register": null,
+   "input_example": {
+    "exposure": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "exposure",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Exposure at default.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "pd",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Default probability per exposure.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "sector",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Sector label per exposure.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  }
+ ]
+}

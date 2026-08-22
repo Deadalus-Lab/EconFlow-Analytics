@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``energy_statistics_nonparametric`` -- METHOD-SELECTION card #215.
+"""Method wrapper ``energy_statistics_nonparametric`` -- method card #215.
 
 #215 Energy-statistics nonparametric multivariate change-point detection (E-divisive /
     E-agglomerative)
@@ -8,8 +8,8 @@ Category 19-business-cycle-dating; module ``energy_statistics_nonparametric``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def detect_changepoints_divisive(
     k: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``detect_changepoints_divisive`` -- METHOD-SELECTION card #215.
+    """Node ``detect_changepoints_divisive`` -- method card #215.
 
     Energy-statistics nonparametric multivariate change-point detection (E-divisive /
     E-agglomerative).
@@ -69,7 +69,7 @@ def detect_changepoints_divisive(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "detect_changepoints_divisive: not implemented. The method card is in ./README.md."
+        "detect_changepoints_divisive: not implemented."
     )
 
 
@@ -80,7 +80,7 @@ def detect_changepoints_agglo(
     alpha: float | None = None,
     penalty: Literal["none", "num_cp"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``detect_changepoints_agglo`` -- METHOD-SELECTION card #215.
+    """Node ``detect_changepoints_agglo`` -- method card #215.
 
     Energy-statistics nonparametric multivariate change-point detection (E-divisive /
     E-agglomerative).
@@ -101,5 +101,5 @@ def detect_changepoints_agglo(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "detect_changepoints_agglo: not implemented. The method card is in ./README.md."
+        "detect_changepoints_agglo: not implemented."
     )

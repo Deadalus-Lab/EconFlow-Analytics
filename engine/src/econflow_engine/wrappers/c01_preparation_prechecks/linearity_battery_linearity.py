@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``linearity_battery_linearity`` -- METHOD-SELECTION card #132.
+"""Method wrapper ``linearity_battery_linearity`` -- method card #132.
 
 #132 (Non-)linearity tests: a battery of linearity tests (Teraesvirta/White ANN, Keenan, McLeod-Li,
     Tsay, LR-threshold) + an FFT surrogate-data test
@@ -8,8 +8,8 @@ Category 01-preparation-prechecks; module ``linearity_battery_linearity``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def nlt_nonlinearity(
     seed: int,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``nlt_nonlinearity`` -- METHOD-SELECTION card #132.
+    """Node ``nlt_nonlinearity`` -- method card #132.
 
     (Non-)linearity tests: a battery of linearity tests (Teraesvirta/White ANN, Keenan, McLeod-Li,
     Tsay, LR-threshold) + an FFT surrogate-data test.
@@ -48,7 +48,7 @@ def nlt_nonlinearity(
         x: [series_handle, required] Handle to a univariate numeric series/ts (no NA/Inf, >= 50 obs,
             var > 0).
         seed: [integer, required] Integer seed — the White/Teraesvirta ANN component uses RANDOM
-            weights· set.seed for reproducibility.
+            weights· seeded for reproducibility.
         alpha: [number, optional] Decision significance level per test, in (0,1) (default 0.05).
             Default ``0.05``.
 
@@ -56,7 +56,7 @@ def nlt_nonlinearity(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nlt_nonlinearity: not implemented. The method card is in ./README.md."
+        "nlt_nonlinearity: not implemented."
     )
 
 
@@ -71,7 +71,7 @@ def nlt_surrogate(
     K: int | None = None,
     tau: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``nlt_surrogate`` -- METHOD-SELECTION card #132.
+    """Node ``nlt_surrogate`` -- method card #132.
 
     (Non-)linearity tests: a battery of linearity tests (Teraesvirta/White ANN, Keenan, McLeod-Li,
     Tsay, LR-threshold) + an FFT surrogate-data test.
@@ -100,5 +100,5 @@ def nlt_surrogate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nlt_surrogate: not implemented. The method card is in ./README.md."
+        "nlt_surrogate: not implemented."
     )

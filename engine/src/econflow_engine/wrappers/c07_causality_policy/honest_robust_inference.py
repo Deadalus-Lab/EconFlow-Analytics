@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``honest_robust_inference`` -- METHOD-SELECTION card #168.
+"""Method wrapper ``honest_robust_inference`` -- method card #168.
 
 #168 Honest/robust inference under relaxed parallel trends (Rambachan-Roth sensitivity analysis)
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``honest_robust_inference``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ def honest_smoothness(
     alpha: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``honest_smoothness`` -- METHOD-SELECTION card #168.
+    """Node ``honest_smoothness`` -- method card #168.
 
     Honest/robust inference under relaxed parallel trends (Rambachan-Roth sensitivity analysis).
 
@@ -77,7 +77,7 @@ def honest_smoothness(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "honest_smoothness: not implemented. The method card is in ./README.md."
+        "honest_smoothness: not implemented."
     )
 
 
@@ -96,7 +96,7 @@ def honest_relmag(
     gridPoints: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``honest_relmag`` -- METHOD-SELECTION card #168.
+    """Node ``honest_relmag`` -- method card #168.
 
     Honest/robust inference under relaxed parallel trends (Rambachan-Roth sensitivity analysis).
 
@@ -129,7 +129,7 @@ def honest_relmag(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "honest_relmag: not implemented. The method card is in ./README.md."
+        "honest_relmag: not implemented."
     )
 
 
@@ -142,7 +142,7 @@ def honest_original_cs(
     l_vec: Sequence[float] | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``honest_original_cs`` -- METHOD-SELECTION card #168.
+    """Node ``honest_original_cs`` -- method card #168.
 
     Honest/robust inference under relaxed parallel trends (Rambachan-Roth sensitivity analysis).
 
@@ -165,5 +165,5 @@ def honest_original_cs(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "honest_original_cs: not implemented. The method card is in ./README.md."
+        "honest_original_cs: not implemented."
     )

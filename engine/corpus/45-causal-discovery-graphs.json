@@ -1,0 +1,1184 @@
+{
+ "category": "45-causal-discovery-graphs",
+ "cards": [
+  {
+   "id": 374,
+   "method": "Constraint-based structure learning: PC and FCI",
+   "wrapper_file": "c45_causal_discovery_graphs/constraint_discovery.py",
+   "tool_fns": [
+    "cd_pc",
+    "cd_fci"
+   ],
+   "when": "learning the causal graph from data using conditional independence, when the structure itself is the question rather than an assumed input",
+   "when_not": "you already know the graph; the sample is too small for conditional independence tests to have power at the needed conditioning-set size",
+   "alternatives": [
+    {
+     "alt": "PC",
+     "criterion": "you are willing to assume no latent confounders"
+    },
+    {
+     "alt": "FCI",
+     "criterion": "latent confounders are possible and must be allowed for"
+    },
+    {
+     "alt": "score-based search",
+     "criterion": "you prefer a global fit criterion to a sequence of tests"
+    }
+   ],
+   "output_key_fields": [
+    "graph: the learned equivalence class",
+    "edges: directed, undirected and bidirected edges with their orientation reasons",
+    "separating_sets: the conditioning sets that removed each edge",
+    "n_tests: how many independence tests were run"
+   ],
+   "interpretation_traps": [
+    "PC returns an EQUIVALENCE CLASS, not one graph -- an undirected edge means the direction is unidentified, and reading it as a null finding is wrong",
+    "PC assumes causal sufficiency (no latent confounders); if that fails the output is not merely imprecise but wrong, which is why FCI exists",
+    "the result depends on the ORDER variables are tested in for the original algorithm; stable variants exist and should be preferred"
+   ],
+   "sources": [
+    "Spirtes, Glymour & Scheines 2000, Causation, Prediction, and Search, 2nd ed.",
+    "Colombo & Maathuis 2014 (Journal of Machine Learning Research 15:3741)",
+    "causal-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 375,
+   "method": "Score-based structure learning: GES, exact search and permutation methods",
+   "wrapper_file": "c45_causal_discovery_graphs/score_discovery.py",
+   "tool_fns": [
+    "cd_ges",
+    "cd_exact_search"
+   ],
+   "when": "learning structure by optimising a global fit score rather than by a sequence of independence tests, which is often more stable in moderate samples",
+   "when_not": "the variable count makes exact search infeasible and you need the guarantee it provides; latent confounders are present (-> FCI)",
+   "alternatives": [
+    {
+     "alt": "GES",
+     "criterion": "greedy equivalence search, the standard score-based method"
+    },
+    {
+     "alt": "exact search",
+     "criterion": "few variables and you want the global optimum"
+    },
+    {
+     "alt": "permutation-based search",
+     "criterion": "you want order-based search with fewer assumptions"
+    }
+   ],
+   "output_key_fields": [
+    "graph: the learned equivalence class",
+    "score: the final score and its improvement path",
+    "n_variables, search_space: the size of the problem actually solved",
+    "converged: whether the search terminated at a local optimum"
+   ],
+   "interpretation_traps": [
+    "the score assumes a MODEL FAMILY -- BIC assumes linear Gaussian -- and a mis-specified score returns a confident, wrong graph",
+    "greedy search finds a local optimum; different starting points give different graphs and the difference is rarely reported",
+    "exact search is exponential in the number of variables and is infeasible beyond roughly twenty"
+   ],
+   "sources": [
+    "Chickering 2002 (Journal of Machine Learning Research 3:507-554)",
+    "Solus, Wang & Uhler 2021 (Biometrika 108:795)",
+    "causal-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 376,
+   "method": "Functional causal models: ICA-LiNGAM, DirectLiNGAM and VAR-LiNGAM",
+   "wrapper_file": "c45_causal_discovery_graphs/lingam.py",
+   "tool_fns": [
+    "cd_lingam",
+    "cd_nongaussianity_check"
+   ],
+   "when": "orienting edges the independence-based methods leave undirected, by exploiting non-Gaussianity of the errors",
+   "when_not": "the errors are Gaussian, where the method is not identified at all; the relationships are strongly nonlinear",
+   "alternatives": [
+    {
+     "alt": "PC or FCI",
+     "criterion": "you are unwilling to assume linearity and non-Gaussianity"
+    },
+    {
+     "alt": "DirectLiNGAM",
+     "criterion": "you want a deterministic algorithm with no ICA convergence issues"
+    },
+    {
+     "alt": "VAR-LiNGAM",
+     "criterion": "the data are time series and you want contemporaneous plus lagged structure"
+    }
+   ],
+   "output_key_fields": [
+    "adjacency: the estimated causal ordering and coefficients",
+    "causal_order: the topological order recovered",
+    "non_gaussianity: per-variable measures -- the assumption the method rests on",
+    "bootstrap_probabilities: edge stability across resamples"
+   ],
+   "interpretation_traps": [
+    "identification comes ENTIRELY from NON-GAUSSIANITY; with Gaussian errors the model is unidentified and the returned ordering is arbitrary -- always check the diagnostic",
+    "ICA-LiNGAM depends on ICA convergence and can return different orders across runs; DirectLiNGAM is deterministic",
+    "a single fitted graph without bootstrap edge probabilities overstates confidence dramatically"
+   ],
+   "sources": [
+    "Shimizu, Hoyer, Hyvarinen & Kerminen 2006 (Journal of Machine Learning Research 7:2003-2030)",
+    "Shimizu et al. 2011 (Journal of Machine Learning Research 12:1225)",
+    "Hyvarinen, Zhang, Shimizu & Hoyer 2010 (Journal of Machine Learning Research 11:1709)",
+    "lingam"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 377,
+   "method": "Graph identification: backdoor, frontdoor, instruments and estimand derivation",
+   "wrapper_file": "c45_causal_discovery_graphs/identification.py",
+   "tool_fns": [
+    "cd_identify_effect",
+    "cd_adjustment_sets",
+    "cd_estimate_effect"
+   ],
+   "when": "deciding, from a stated causal graph, whether an effect is identified at all and which adjustment set estimates it",
+   "when_not": "you have no graph and are unwilling to state one; the effect is identified by design rather than by adjustment",
+   "alternatives": [
+    {
+     "alt": "backdoor adjustment",
+     "criterion": "a sufficient observed adjustment set exists"
+    },
+    {
+     "alt": "frontdoor adjustment",
+     "criterion": "a full mediating path is observed while confounders are not"
+    },
+    {
+     "alt": "instrumental variables",
+     "criterion": "an instrument exists in the graph"
+    }
+   ],
+   "output_key_fields": [
+    "identifiable: whether the effect is identified from the graph",
+    "estimand: the derived expression to estimate",
+    "adjustment_sets: minimal sufficient sets, of which there are usually several",
+    "instruments: variables the graph qualifies as instruments"
+   ],
+   "interpretation_traps": [
+    "identification is a property of the GRAPH, not of the data -- a wrong graph yields a confidently derived, wrong estimand",
+    "adjusting for a COLLIDER or a mediator introduces bias rather than removing it; more controls is not safer",
+    "several minimal adjustment sets usually exist and they differ in efficiency; if they disagree empirically the graph is wrong"
+   ],
+   "sources": [
+    "Pearl 2009, Causality: Models, Reasoning, and Inference, 2nd ed.",
+    "Shpitser & Pearl 2008 (Journal of Machine Learning Research 9:1941-1979)",
+    "Sharma & Kiciman 2020, DoWhy: an end-to-end library for causal inference (arXiv:2011.04216)",
+    "dowhy"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 378,
+   "method": "Refutation: placebo treatment, random common cause, subset and unobserved confounder",
+   "wrapper_file": "c45_causal_discovery_graphs/refutation.py",
+   "tool_fns": [
+    "cd_refute",
+    "cd_sensitivity_confounder"
+   ],
+   "when": "attacking your own causal estimate to see whether it survives -- the step that separates a causal claim from a regression coefficient",
+   "when_not": "the estimate has not been produced yet; the refuters cannot run on the design in question",
+   "alternatives": [
+    {
+     "alt": "placebo treatment",
+     "criterion": "replace treatment with noise; the effect should vanish"
+    },
+    {
+     "alt": "random common cause",
+     "criterion": "add an irrelevant confounder; the effect should not move"
+    },
+    {
+     "alt": "unobserved common cause",
+     "criterion": "simulate a confounder of stated strength and see what survives"
+    }
+   ],
+   "output_key_fields": [
+    "refutation_results: the estimate under each refuter",
+    "passed: whether each refutation behaved as it should",
+    "sensitivity: the confounder strength that would nullify the effect",
+    "p_values: significance of the change under each refuter"
+   ],
+   "interpretation_traps": [
+    "a PLACEBO effect that is not near zero means the estimate is driven by something other than the treatment -- this is the single most informative check here",
+    "passing every refuter does not prove the graph is right; the refuters test consequences of the assumptions, not the assumptions",
+    "the unobserved-confounder refuter requires you to state a confounder strength, and that choice determines the verdict"
+   ],
+   "sources": [
+    "Sharma & Kiciman 2020, DoWhy (arXiv:2011.04216)",
+    "Cinelli & Hazlett 2020 (JRSS-B 82:39-67)",
+    "dowhy"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 379,
+   "method": "Conditional and unconditional independence testing",
+   "wrapper_file": "c45_causal_discovery_graphs/independence_tests.py",
+   "tool_fns": [
+    "cd_independence_test",
+    "cd_distance_correlation"
+   ],
+   "when": "the primitive every constraint-based discovery method is built on, and a useful diagnostic in its own right",
+   "when_not": "the relationship is known to be linear and Gaussian, where a partial correlation suffices and the general tests only cost power",
+   "alternatives": [
+    {
+     "alt": "Fisher z / partial correlation",
+     "criterion": "linear Gaussian, fast"
+    },
+    {
+     "alt": "kernel-based conditional independence",
+     "criterion": "nonlinear dependence, no distributional assumption"
+    },
+    {
+     "alt": "distance correlation",
+     "criterion": "unconditional dependence of any kind"
+    }
+   ],
+   "output_key_fields": [
+    "statistic, p_value: the test result",
+    "test: which test was applied",
+    "conditioning_set: the variables conditioned on",
+    "power_warning: flagged when the conditioning set is large relative to the sample"
+   ],
+   "interpretation_traps": [
+    "conditional independence testing is HARD: power falls sharply as the conditioning set grows, and a non-rejection with a large set is uninformative rather than evidence of independence",
+    "distance correlation detects any dependence but says nothing about its direction or form",
+    "kernel tests need bandwidth choices that materially affect power, and their permutation null is expensive"
+   ],
+   "sources": [
+    "Szekely, Rizzo & Bakirov 2007 (Annals of Statistics 35:2769-2794)",
+    "Zhang, Peters, Janzing & Scholkopf 2011, Kernel-based conditional independence test (UAI 2011)",
+    "Shah & Peters 2020 (Annals of Statistics 48:1514)",
+    "hyppo"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "cd_pc",
+   "card_id": 374,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "independence_test": "fisherz",
+    "stable": true,
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observational data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "independence_test",
+     "kind": "enum",
+     "required": false,
+     "description": "Conditional independence test.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "fisherz",
+      "chisq",
+      "gsq",
+      "kci",
+      "mv_fisherz"
+     ],
+     "allowed_vars": null,
+     "default": "fisherz",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "stable",
+     "kind": "boolean",
+     "required": false,
+     "description": "Use the order-independent stable variant.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "max_conditioning_set",
+     "kind": "integer",
+     "required": false,
+     "description": "Largest conditioning set considered.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cd_fci",
+   "card_id": 374,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "independence_test": "fisherz",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observational data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "independence_test",
+     "kind": "enum",
+     "required": false,
+     "description": "Conditional independence test.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "fisherz",
+      "chisq",
+      "gsq",
+      "kci"
+     ],
+     "allowed_vars": null,
+     "default": "fisherz",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "max_conditioning_set",
+     "kind": "integer",
+     "required": false,
+     "description": "Largest conditioning set considered.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cd_ges",
+   "card_id": 375,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "score": "bic"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observational data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "score",
+     "kind": "enum",
+     "required": false,
+     "description": "Scoring function.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bic",
+      "bdeu",
+      "generalised_score",
+      "marginal_likelihood"
+     ],
+     "allowed_vars": null,
+     "default": "bic",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "max_parents",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum parents per node.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cd_exact_search",
+   "card_id": 375,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "score": "bic",
+    "max_parents": 3
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observational data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "score",
+     "kind": "enum",
+     "required": false,
+     "description": "Scoring function.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bic",
+      "bdeu"
+     ],
+     "allowed_vars": null,
+     "default": "bic",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "max_parents",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum parents per node.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "cd_lingam",
+   "card_id": 376,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "variant": "direct",
+    "lags": 1,
+    "nboot": 0
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observational data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variant",
+     "kind": "enum",
+     "required": false,
+     "description": "Algorithm variant.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "ica",
+      "direct",
+      "var",
+      "rcd"
+     ],
+     "allowed_vars": null,
+     "default": "direct",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": false,
+     "description": "Lag order for the time-series variant.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cd_nongaussianity_check",
+   "card_id": 376,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "test": "jarque_bera",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observational data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "test",
+     "kind": "enum",
+     "required": false,
+     "description": "Normality test.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "jarque_bera",
+      "shapiro",
+      "anderson",
+      "dagostino"
+     ],
+     "allowed_vars": null,
+     "default": "jarque_bera",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cd_identify_effect",
+   "card_id": 377,
+   "register": {
+    "field": "estimand"
+   },
+   "input_example": {
+    "graph": "...",
+    "treatment": "...",
+    "outcome": "...",
+    "method": "auto"
+   },
+   "arguments": [
+    {
+     "name": "graph",
+     "kind": "string",
+     "required": true,
+     "description": "Causal graph in DOT or GML form.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "treatment",
+     "kind": "string",
+     "required": true,
+     "description": "Treatment variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "outcome",
+     "kind": "string",
+     "required": true,
+     "description": "Outcome variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Identification strategy to attempt.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "auto",
+      "backdoor",
+      "frontdoor",
+      "iv",
+      "mediation"
+     ],
+     "allowed_vars": null,
+     "default": "auto",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "cd_adjustment_sets",
+   "card_id": 377,
+   "register": null,
+   "input_example": {
+    "graph": "...",
+    "treatment": "...",
+    "outcome": "...",
+    "max_sets": 10
+   },
+   "arguments": [
+    {
+     "name": "graph",
+     "kind": "string",
+     "required": true,
+     "description": "Causal graph in DOT or GML form.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "treatment",
+     "kind": "string",
+     "required": true,
+     "description": "Treatment variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "outcome",
+     "kind": "string",
+     "required": true,
+     "description": "Outcome variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "max_sets",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum sets to return.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "cd_estimate_effect",
+   "card_id": 377,
+   "register": null,
+   "input_example": {
+    "estimand": "<raw_handle>",
+    "data": "<df_handle>",
+    "method": "linear_regression",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "estimand",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a derived estimand.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data to estimate on.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "linear_regression",
+      "propensity_matching",
+      "propensity_weighting",
+      "instrumental_variable",
+      "two_stage_regression"
+     ],
+     "allowed_vars": null,
+     "default": "linear_regression",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cd_refute",
+   "card_id": 378,
+   "register": null,
+   "input_example": {
+    "estimand": "<raw_handle>",
+    "data": "<df_handle>",
+    "n_simulations": 100,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "estimand",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a derived estimand.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data the estimate was produced on.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "refuters",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Refuters to run; omitted = the standard set.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_simulations",
+     "kind": "integer",
+     "required": false,
+     "description": "Simulations per refuter.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cd_sensitivity_confounder",
+   "card_id": 378,
+   "register": null,
+   "input_example": {
+    "estimand": "<raw_handle>",
+    "data": "<df_handle>"
+   },
+   "arguments": [
+    {
+     "name": "estimand",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a derived estimand.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data the estimate was produced on.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "effect_strength_treatment",
+     "kind": "num_array",
+     "required": false,
+     "description": "Confounder-treatment strengths to scan.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "effect_strength_outcome",
+     "kind": "num_array",
+     "required": false,
+     "description": "Confounder-outcome strengths to scan.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "cd_independence_test",
+   "card_id": 379,
+   "register": null,
+   "input_example": {
+    "x": "<multiseries_handle>",
+    "y": "<multiseries_handle>",
+    "test": "dcorr",
+    "n_permutations": 1000,
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "First variable set.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Second variable set.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "z",
+     "kind": "multiseries_handle",
+     "required": false,
+     "description": "Conditioning variable set.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "test",
+     "kind": "enum",
+     "required": false,
+     "description": "Test to apply.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "dcorr",
+      "hsic",
+      "kci",
+      "fisherz",
+      "mgc",
+      "hhg"
+     ],
+     "allowed_vars": null,
+     "default": "dcorr",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_permutations",
+     "kind": "integer",
+     "required": false,
+     "description": "Permutations for the null; 0 = asymptotic.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "cd_distance_correlation",
+   "card_id": 379,
+   "register": null,
+   "input_example": {
+    "x": "<multiseries_handle>",
+    "y": "<multiseries_handle>"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "First variable set.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Second variable set.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "z",
+     "kind": "multiseries_handle",
+     "required": false,
+     "description": "Variables to partial out.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  }
+ ]
+}

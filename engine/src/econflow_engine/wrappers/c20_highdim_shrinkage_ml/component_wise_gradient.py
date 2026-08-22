@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``component_wise_gradient`` -- METHOD-SELECTION card #218.
+"""Method wrapper ``component_wise_gradient`` -- method card #218.
 
-#218 Component-wise gradient boosting (glmboost) — high-dimensional shrinkage + automatic variable
-    selection with custom losses
+#218 Component-wise gradient boosting — high-dimensional shrinkage + automatic variable selection
+    with custom losses
 
 Category 20-highdim-shrinkage-ml; module ``component_wise_gradient``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,14 +24,14 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "glmboost_cv_mstop",
-    "glmboost_fit",
+    "boost_glm_cv",
+    "boost_glm_fit",
     "NODE_META",
     "wire_model",
 ]
 
 
-def glmboost_fit(
+def boost_glm_fit(
     *,
     x: np.ndarray,
     y: np.ndarray,
@@ -51,10 +51,10 @@ def glmboost_fit(
     nu: float | None = None,
     center: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``glmboost_fit`` -- METHOD-SELECTION card #218.
+    """Node ``boost_glm_fit`` -- method card #218.
 
-    Component-wise gradient boosting (glmboost) — high-dimensional shrinkage + automatic variable
-    selection with custom losses.
+    Component-wise gradient boosting — high-dimensional shrinkage + automatic variable selection
+    with custom losses.
 
     Category 20-highdim-shrinkage-ml; memory class ``light``.
 
@@ -82,11 +82,11 @@ def glmboost_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "glmboost_fit: not implemented. The method card is in ./README.md."
+        "boost_glm_fit: not implemented."
     )
 
 
-def glmboost_cv_mstop(
+def boost_glm_cv(
     *,
     x: np.ndarray,
     y: np.ndarray,
@@ -109,10 +109,10 @@ def glmboost_cv_mstop(
     cv_B: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``glmboost_cv_mstop`` -- METHOD-SELECTION card #218.
+    """Node ``boost_glm_cv`` -- method card #218.
 
-    Component-wise gradient boosting (glmboost) — high-dimensional shrinkage + automatic variable
-    selection with custom losses.
+    Component-wise gradient boosting — high-dimensional shrinkage + automatic variable selection
+    with custom losses.
 
     Category 20-highdim-shrinkage-ml; memory class ``light``.
 
@@ -121,7 +121,7 @@ def glmboost_cv_mstop(
     Args:
         x: [matrix_handle, required] Handle to a numeric design matrix X (n x p), without NA/Inf.
         y: [matrix_handle, required] Handle to response y (length n); same requirements per family
-            as in glmboost_fit.
+            as in boost_glm_fit.
         family: [enum, optional] Loss family (default Gaussian). Binomial: $coefficients HALF those
             of glm ($coef_scale="mboost_half_logit"). QuantReg level = $offset+$intercept.
         tau: [number, optional] Quantile in (0,1) when family="QuantReg" (default 0.5); needs enough
@@ -139,5 +139,5 @@ def glmboost_cv_mstop(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "glmboost_cv_mstop: not implemented. The method card is in ./README.md."
+        "boost_glm_cv: not implemented."
     )

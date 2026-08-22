@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``tax_progressivity_redistribution`` -- METHOD-SELECTION card #224.
+"""Method wrapper ``tax_progressivity_redistribution`` -- method card #224.
 
 #224 tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz)
@@ -8,8 +8,8 @@ Category 22-inequality; module ``tax_progressivity_redistribution``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,26 +25,26 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "ic2_atkinson",
-    "ic2_decomp_atkinson",
-    "ic2_decomp_gei",
-    "ic2_decomp_sgini",
-    "ic2_gei",
-    "ic2_lorenz",
-    "ic2_sconc",
-    "ic2_sgini",
+    "ineqd_atkinson",
+    "ineqd_decomp_atkinson",
+    "ineqd_decomp_gei",
+    "ineqd_decomp_sgini",
+    "ineqd_gei",
+    "ineqd_lorenz",
+    "ineqd_sconc",
+    "ineqd_sgini",
     "NODE_META",
     "wire_model",
 ]
 
 
-def ic2_sgini(
+def ineqd_sgini(
     *,
     x: np.ndarray,
     w: np.ndarray | None = None,
     param: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``ic2_sgini`` -- METHOD-SELECTION card #224.
+    """Node ``ineqd_sgini`` -- method card #224.
 
     tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz).
@@ -63,18 +63,18 @@ def ic2_sgini(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ic2_sgini: not implemented. The method card is in ./README.md."
+        "ineqd_sgini: not implemented."
     )
 
 
-def ic2_sconc(
+def ineqd_sconc(
     *,
     x: np.ndarray,
     y: np.ndarray,
     w: np.ndarray | None = None,
     param: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``ic2_sconc`` -- METHOD-SELECTION card #224.
+    """Node ``ineqd_sconc`` -- method card #224.
 
     tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz).
@@ -94,17 +94,17 @@ def ic2_sconc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ic2_sconc: not implemented. The method card is in ./README.md."
+        "ineqd_sconc: not implemented."
     )
 
 
-def ic2_atkinson(
+def ineqd_atkinson(
     *,
     x: np.ndarray,
     w: np.ndarray | None = None,
     epsilon: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``ic2_atkinson`` -- METHOD-SELECTION card #224.
+    """Node ``ineqd_atkinson`` -- method card #224.
 
     tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz).
@@ -123,17 +123,17 @@ def ic2_atkinson(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ic2_atkinson: not implemented. The method card is in ./README.md."
+        "ineqd_atkinson: not implemented."
     )
 
 
-def ic2_gei(
+def ineqd_gei(
     *,
     x: np.ndarray,
     w: np.ndarray | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``ic2_gei`` -- METHOD-SELECTION card #224.
+    """Node ``ineqd_gei`` -- method card #224.
 
     tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz).
@@ -152,16 +152,16 @@ def ic2_gei(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ic2_gei: not implemented. The method card is in ./README.md."
+        "ineqd_gei: not implemented."
     )
 
 
-def ic2_lorenz(
+def ineqd_lorenz(
     *,
     x: np.ndarray,
     w: np.ndarray | None = None,
 ) -> dict[str, Any]:
-    """Node ``ic2_lorenz`` -- METHOD-SELECTION card #224.
+    """Node ``ineqd_lorenz`` -- method card #224.
 
     tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz).
@@ -178,11 +178,11 @@ def ic2_lorenz(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ic2_lorenz: not implemented. The method card is in ./README.md."
+        "ineqd_lorenz: not implemented."
     )
 
 
-def ic2_decomp_sgini(
+def ineqd_decomp_sgini(
     *,
     x: np.ndarray,
     z: Sequence[str],
@@ -191,7 +191,7 @@ def ic2_decomp_sgini(
     decomp: Literal["BM", "YL"] | None = None,
     ELMO: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ic2_decomp_sgini`` -- METHOD-SELECTION card #224.
+    """Node ``ineqd_decomp_sgini`` -- method card #224.
 
     tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz).
@@ -215,11 +215,11 @@ def ic2_decomp_sgini(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ic2_decomp_sgini: not implemented. The method card is in ./README.md."
+        "ineqd_decomp_sgini: not implemented."
     )
 
 
-def ic2_decomp_gei(
+def ineqd_decomp_gei(
     *,
     x: np.ndarray,
     z: Sequence[str],
@@ -227,7 +227,7 @@ def ic2_decomp_gei(
     alpha: float | None = None,
     ELMO: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ic2_decomp_gei`` -- METHOD-SELECTION card #224.
+    """Node ``ineqd_decomp_gei`` -- method card #224.
 
     tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz).
@@ -249,11 +249,11 @@ def ic2_decomp_gei(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ic2_decomp_gei: not implemented. The method card is in ./README.md."
+        "ineqd_decomp_gei: not implemented."
     )
 
 
-def ic2_decomp_atkinson(
+def ineqd_decomp_atkinson(
     *,
     x: np.ndarray,
     z: Sequence[str],
@@ -262,7 +262,7 @@ def ic2_decomp_atkinson(
     decomp: Literal["BDA", "DP"] | None = None,
     ELMO: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ic2_decomp_atkinson`` -- METHOD-SELECTION card #224.
+    """Node ``ineqd_decomp_atkinson`` -- method card #224.
 
     tax progressivity & redistribution + subgroup decomposition of inequality (extended/S-Gini ·
     concentration · Atkinson · GEI · Lorenz).
@@ -288,5 +288,5 @@ def ic2_decomp_atkinson(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ic2_decomp_atkinson: not implemented. The method card is in ./README.md."
+        "ineqd_decomp_atkinson: not implemented."
     )

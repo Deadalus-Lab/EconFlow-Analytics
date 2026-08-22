@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``design_complex_survey`` -- METHOD-SELECTION card #232.
+"""Method wrapper ``design_complex_survey`` -- method card #232.
 
 #232 Design-based complex-survey estimation (means/totals/quantiles/domains) with correct design
     variances (stratification, clustering, weights, fpc)
@@ -8,8 +8,8 @@ Category 25-expectations-surveys; module ``design_complex_survey``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,17 +25,17 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "sv_svyby",
-    "sv_svydesign",
-    "sv_svymean",
-    "sv_svyquantile",
-    "sv_svytotal",
+    "srv_by_domain",
+    "srv_design",
+    "srv_mean",
+    "srv_quantile",
+    "srv_total",
     "NODE_META",
     "wire_model",
 ]
 
 
-def sv_svydesign(
+def srv_design(
     *,
     df: pd.DataFrame,
     ids: Sequence[str] | None = None,
@@ -45,7 +45,7 @@ def sv_svydesign(
     fpc: Sequence[str] | None = None,
     nest: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_svydesign`` -- METHOD-SELECTION card #232.
+    """Node ``srv_design`` -- method card #232.
 
     Design-based complex-survey estimation (means/totals/quantiles/domains) with correct design
     variances (stratification, clustering, weights, fpc).
@@ -79,18 +79,18 @@ def sv_svydesign(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_svydesign: not implemented. The method card is in ./README.md."
+        "srv_design: not implemented."
     )
 
 
-def sv_svymean(
+def srv_mean(
     *,
     design: Any,
     vars: Sequence[str],
     deff: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_svymean`` -- METHOD-SELECTION card #232.
+    """Node ``srv_mean`` -- method card #232.
 
     Design-based complex-survey estimation (means/totals/quantiles/domains) with correct design
     variances (stratification, clustering, weights, fpc).
@@ -98,7 +98,7 @@ def sv_svymean(
     Category 25-expectations-surveys; memory class ``light``.
 
     Args:
-        design: [raw_handle, required] Handle to the survey.design from sv_svydesign (register field
+        design: [raw_handle, required] Handle to the survey.design from srv_design (register field
             'design').
         vars: [series_codes, required] NUMERIC variables of the design for the mean estimation (one
             or more column names; factor is not supported here).
@@ -111,18 +111,18 @@ def sv_svymean(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_svymean: not implemented. The method card is in ./README.md."
+        "srv_mean: not implemented."
     )
 
 
-def sv_svytotal(
+def srv_total(
     *,
     design: Any,
     vars: Sequence[str],
     deff: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_svytotal`` -- METHOD-SELECTION card #232.
+    """Node ``srv_total`` -- method card #232.
 
     Design-based complex-survey estimation (means/totals/quantiles/domains) with correct design
     variances (stratification, clustering, weights, fpc).
@@ -130,11 +130,11 @@ def sv_svytotal(
     Category 25-expectations-surveys; memory class ``light``.
 
     Args:
-        design: [raw_handle, required] Handle to the survey.design from sv_svydesign (register field
+        design: [raw_handle, required] Handle to the survey.design from srv_design (register field
             'design').
         vars: [series_codes, required] NUMERIC variables for the population TOTAL estimation
             (population total; weighted sum).
-        deff: [boolean, optional] Design effect (see sv_svymean). Default True. Default ``True``.
+        deff: [boolean, optional] Design effect (see srv_mean). Default True. Default ``True``.
         na_rm: [boolean, optional] Removal of NA before the estimation. Default False. Default
             ``False``.
 
@@ -142,18 +142,18 @@ def sv_svytotal(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_svytotal: not implemented. The method card is in ./README.md."
+        "srv_total: not implemented."
     )
 
 
-def sv_svyquantile(
+def srv_quantile(
     *,
     design: Any,
     vars: Sequence[str],
     quantiles: Sequence[float] | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_svyquantile`` -- METHOD-SELECTION card #232.
+    """Node ``srv_quantile`` -- method card #232.
 
     Design-based complex-survey estimation (means/totals/quantiles/domains) with correct design
     variances (stratification, clustering, weights, fpc).
@@ -161,7 +161,7 @@ def sv_svyquantile(
     Category 25-expectations-surveys; memory class ``light``.
 
     Args:
-        design: [raw_handle, required] Handle to the survey.design from sv_svydesign (register field
+        design: [raw_handle, required] Handle to the survey.design from srv_design (register field
             'design').
         vars: [series_codes, required] NUMERIC variables for the weighted quantiles estimation.
         quantiles: [num_array, optional] Quantile probabilities STRICTLY in (0,1) (default
@@ -173,11 +173,11 @@ def sv_svyquantile(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_svyquantile: not implemented. The method card is in ./README.md."
+        "srv_quantile: not implemented."
     )
 
 
-def sv_svyby(
+def srv_by_domain(
     *,
     design: Any,
     vars: Sequence[str],
@@ -186,7 +186,7 @@ def sv_svyby(
     deff: bool | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_svyby`` -- METHOD-SELECTION card #232.
+    """Node ``srv_by_domain`` -- method card #232.
 
     Design-based complex-survey estimation (means/totals/quantiles/domains) with correct design
     variances (stratification, clustering, weights, fpc).
@@ -194,7 +194,7 @@ def sv_svyby(
     Category 25-expectations-surveys; memory class ``light``.
 
     Args:
-        design: [raw_handle, required] Handle to the survey.design from sv_svydesign (register field
+        design: [raw_handle, required] Handle to the survey.design from srv_design (register field
             'design').
         vars: [series_codes, required] NUMERIC variables for the per-domain estimation.
         by: [series_codes, required] >= 1 grouping column of the design (domains/subpopulations);
@@ -208,5 +208,5 @@ def sv_svyby(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_svyby: not implemented. The method card is in ./README.md."
+        "srv_by_domain: not implemented."
     )

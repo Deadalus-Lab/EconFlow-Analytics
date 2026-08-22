@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``change_point_detection`` -- METHOD-SELECTION card #213.
+"""Method wrapper ``change_point_detection`` -- method card #213.
 
 #213 Change-point detection in mean / variance / mean+variance (PELT/BinSeg/SegNeigh/AMOC)
 
@@ -7,8 +7,8 @@ Category 19-business-cycle-dating; module ``change_point_detection``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -56,7 +56,7 @@ def detect_changepoints(
     mu: float | None = None,
     shape: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``detect_changepoints`` -- METHOD-SELECTION card #213.
+    """Node ``detect_changepoints`` -- method card #213.
 
     Change-point detection in mean / variance / mean+variance (PELT/BinSeg/SegNeigh/AMOC).
 
@@ -92,7 +92,7 @@ def detect_changepoints(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "detect_changepoints: not implemented. The method card is in ./README.md."
+        "detect_changepoints: not implemented."
     )
 
 
@@ -100,7 +100,7 @@ def changepoint_segments(
     *,
     fit: Any,
 ) -> dict[str, Any]:
-    """Node ``changepoint_segments`` -- METHOD-SELECTION card #213.
+    """Node ``changepoint_segments`` -- method card #213.
 
     Change-point detection in mean / variance / mean+variance (PELT/BinSeg/SegNeigh/AMOC).
 
@@ -114,5 +114,5 @@ def changepoint_segments(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "changepoint_segments: not implemented. The method card is in ./README.md."
+        "changepoint_segments: not implemented."
     )

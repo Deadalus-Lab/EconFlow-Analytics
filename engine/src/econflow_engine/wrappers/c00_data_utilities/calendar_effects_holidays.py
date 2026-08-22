@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``calendar_effects_holidays`` -- METHOD-SELECTION card #254.
+"""Method wrapper ``calendar_effects_holidays`` -- method card #254.
 
 #254 CALENDAR EFFECTS: holidays for G7+CH & financial centres (NYSE/LONDON/ZURICH/TSX) -> NAMED 0/1
-    columns aligned to a given vector of dates + isWeekday/isBizday
+    columns aligned to a given vector of dates + weekday/business-day flags
 
 Category 00-data-utilities; module ``calendar_effects_holidays``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -34,10 +34,10 @@ def hd_list(
     *,
     pattern: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``hd_list`` -- METHOD-SELECTION card #254.
+    """Node ``hd_list`` -- method card #254.
 
     CALENDAR EFFECTS: holidays for G7+CH & financial centres (NYSE/LONDON/ZURICH/TSX) -> NAMED 0/1
-    columns aligned to a given vector of dates + isWeekday/isBizday.
+    columns aligned to a given vector of dates + weekday/business-day flags.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -51,7 +51,7 @@ def hd_list(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hd_list: not implemented. The method card is in ./README.md."
+        "hd_list: not implemented."
     )
 
 
@@ -62,10 +62,10 @@ def hd_holidays(
     calendar: Literal["none", "NYSE", "LONDON", "ZURICH", "TSX"] | None = None,
     nyse_type: Literal["all", "standard", "special"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``hd_holidays`` -- METHOD-SELECTION card #254.
+    """Node ``hd_holidays`` -- method card #254.
 
     CALENDAR EFFECTS: holidays for G7+CH & financial centres (NYSE/LONDON/ZURICH/TSX) -> NAMED 0/1
-    columns aligned to a given vector of dates + isWeekday/isBizday.
+    columns aligned to a given vector of dates + weekday/business-day flags.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -95,7 +95,7 @@ def hd_holidays(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hd_holidays: not implemented. The method card is in ./README.md."
+        "hd_holidays: not implemented."
     )
 
 
@@ -109,10 +109,10 @@ def hd_dummies(
     dummy_type: Literal["per_holiday", "aggregate", "both"] | None = None,
     wday: Sequence[int] | None = None,
 ) -> dict[str, Any]:
-    """Node ``hd_dummies`` -- METHOD-SELECTION card #254.
+    """Node ``hd_dummies`` -- method card #254.
 
     CALENDAR EFFECTS: holidays for G7+CH & financial centres (NYSE/LONDON/ZURICH/TSX) -> NAMED 0/1
-    columns aligned to a given vector of dates + isWeekday/isBizday.
+    columns aligned to a given vector of dates + weekday/business-day flags.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -155,5 +155,5 @@ def hd_dummies(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hd_dummies: not implemented. The method card is in ./README.md."
+        "hd_dummies: not implemented."
     )

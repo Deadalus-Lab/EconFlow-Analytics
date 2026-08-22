@@ -50,6 +50,32 @@
     },
     {
       "type": "library",
+      "name": "attrs",
+      "version": "26.1.0",
+      "purl": "pkg:pypi/attrs@26.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "beartype",
+      "version": "0.22.9",
+      "purl": "pkg:pypi/beartype@0.22.9",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "click",
       "version": "8.4.2",
       "purl": "pkg:pypi/click@8.4.2",
@@ -69,7 +95,72 @@
       "licenses": [
         {
           "license": {
-            "name": "not resolved on this platform"
+            "name": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "coverage",
+      "version": "7.15.4",
+      "purl": "pkg:pypi/coverage@7.15.4",
+      "licenses": [
+        {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "deptry",
+      "version": "0.25.1",
+      "purl": "pkg:pypi/deptry@0.25.1",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "griffe",
+      "version": "2.1.0",
+      "purl": "pkg:pypi/griffe@2.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "ISC"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "griffecli",
+      "version": "2.1.0",
+      "purl": "pkg:pypi/griffecli@2.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "ISC"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "griffelib",
+      "version": "2.1.0",
+      "purl": "pkg:pypi/griffelib@2.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "ISC"
           }
         }
       ]
@@ -105,6 +196,19 @@
       "name": "iniconfig",
       "version": "2.3.0",
       "purl": "pkg:pypi/iniconfig@2.3.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "interrogate",
+      "version": "1.7.0",
+      "purl": "pkg:pypi/interrogate@1.7.0",
       "licenses": [
         {
           "license": {
@@ -170,6 +274,32 @@
       "name": "mypy-extensions",
       "version": "1.1.0",
       "purl": "pkg:pypi/mypy-extensions@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "nodeenv",
+      "version": "1.10.0",
+      "purl": "pkg:pypi/nodeenv@1.10.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "nodejs-wheel-binaries",
+      "version": "24.16.0",
+      "purl": "pkg:pypi/nodejs-wheel-binaries@24.16.0",
       "licenses": [
         {
           "license": {
@@ -284,13 +414,13 @@
     },
     {
       "type": "library",
-      "name": "pyarrow",
-      "version": "25.0.1",
-      "purl": "pkg:pypi/pyarrow@25.0.1",
+      "name": "py",
+      "version": "1.11.0",
+      "purl": "pkg:pypi/py@1.11.0",
       "licenses": [
         {
           "license": {
-            "name": "Apache-2.0"
+            "name": "MIT"
           }
         }
       ]
@@ -336,9 +466,61 @@
     },
     {
       "type": "library",
+      "name": "pyright",
+      "version": "1.1.411",
+      "purl": "pkg:pypi/pyright@1.1.411",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "pytest",
       "version": "9.1.1",
       "purl": "pkg:pypi/pytest@9.1.1",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "pytest-cov",
+      "version": "7.1.0",
+      "purl": "pkg:pypi/pytest-cov@7.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "pytest-randomly",
+      "version": "4.1.0",
+      "purl": "pkg:pypi/pytest-randomly@4.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "pytest-timeout",
+      "version": "2.4.0",
+      "purl": "pkg:pypi/pytest-timeout@2.4.0",
       "licenses": [
         {
           "license": {
@@ -356,6 +538,19 @@
         {
           "license": {
             "name": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "requirements-parser",
+      "version": "0.13.1",
+      "purl": "pkg:pypi/requirements-parser@0.13.1",
+      "licenses": [
+        {
+          "license": {
+            "name": "Apache-2.0"
           }
         }
       ]
@@ -421,6 +616,45 @@
         {
           "license": {
             "name": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "tabulate",
+      "version": "0.10.0",
+      "purl": "pkg:pypi/tabulate@0.10.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "threadpoolctl",
+      "version": "3.6.0",
+      "purl": "pkg:pypi/threadpoolctl@3.6.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "tomli",
+      "version": "2.4.1",
+      "purl": "pkg:pypi/tomli@2.4.1",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
           }
         }
       ]

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``heterogeneity_robust_dynamic`` -- METHOD-SELECTION card #166.
+"""Method wrapper ``heterogeneity_robust_dynamic`` -- method card #166.
 
 #166 Heterogeneity-robust dynamic DiD event study (de Chaisemartin & D'Haultfoeuille;
     non-binary/non-absorbing treatments)
@@ -8,8 +8,8 @@ Category 07-causality-policy; module ``heterogeneity_robust_dynamic``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "didm_dyn",
+    "didm_dynamic",
     "NODE_META",
     "wire_model",
 ]
 
 
-def didm_dyn(
+def didm_dynamic(
     *,
     df: pd.DataFrame,
     outcome: str,
@@ -51,7 +51,7 @@ def didm_dyn(
     bootstrap: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``didm_dyn`` -- METHOD-SELECTION card #166.
+    """Node ``didm_dynamic`` -- method card #166.
 
     Heterogeneity-robust dynamic DiD event study (de Chaisemartin & D'Haultfoeuille;
     non-binary/non-absorbing treatments).
@@ -94,5 +94,5 @@ def didm_dyn(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "didm_dyn: not implemented. The method card is in ./README.md."
+        "didm_dynamic: not implemented."
     )

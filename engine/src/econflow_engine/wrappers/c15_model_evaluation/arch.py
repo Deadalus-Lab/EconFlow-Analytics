@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``arch`` -- METHOD-SELECTION card #77.
+"""Method wrapper ``arch`` -- method card #77.
 
 #77 ARCH-LM test (Engle)
 
@@ -7,8 +7,8 @@ Category 15-model-evaluation; module ``arch``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ def run_arch_test(
     lags: int | None = None,
     demean: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_arch_test`` -- METHOD-SELECTION card #77.
+    """Node ``run_arch_test`` -- method card #77.
 
     ARCH-LM test (Engle).
 
@@ -53,5 +53,5 @@ def run_arch_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_arch_test: not implemented. The method card is in ./README.md."
+        "run_arch_test: not implemented."
     )

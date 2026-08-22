@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``quantile_regression`` -- METHOD-SELECTION card #64.
+"""Method wrapper ``quantile_regression`` -- method card #64.
 
 #64 Quantile regression (+ Growth-at-Risk, ABG)
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``quantile_regression``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def qr_regression(
     boot_replications: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``qr_regression`` -- METHOD-SELECTION card #64.
+    """Node ``qr_regression`` -- method card #64.
 
     Quantile regression (+ Growth-at-Risk, ABG).
 
@@ -65,7 +65,7 @@ def qr_regression(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qr_regression: not implemented. The method card is in ./README.md."
+        "qr_regression: not implemented."
     )
 
 
@@ -74,7 +74,7 @@ def qr_conditional_quantiles(
     object: Any,
     newdata: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
-    """Node ``qr_conditional_quantiles`` -- METHOD-SELECTION card #64.
+    """Node ``qr_conditional_quantiles`` -- method card #64.
 
     Quantile regression (+ Growth-at-Risk, ABG).
 
@@ -90,7 +90,7 @@ def qr_conditional_quantiles(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qr_conditional_quantiles: not implemented. The method card is in ./README.md."
+        "qr_conditional_quantiles: not implemented."
     )
 
 
@@ -98,7 +98,7 @@ def qr_slope_equality(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``qr_slope_equality`` -- METHOD-SELECTION card #64.
+    """Node ``qr_slope_equality`` -- method card #64.
 
     Quantile regression (+ Growth-at-Risk, ABG).
 
@@ -112,7 +112,7 @@ def qr_slope_equality(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qr_slope_equality: not implemented. The method card is in ./README.md."
+        "qr_slope_equality: not implemented."
     )
 
 
@@ -129,7 +129,7 @@ def qr_growth_at_risk(
     boot_replications: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``qr_growth_at_risk`` -- METHOD-SELECTION card #64.
+    """Node ``qr_growth_at_risk`` -- method card #64.
 
     Quantile regression (+ Growth-at-Risk, ABG).
 
@@ -157,5 +157,5 @@ def qr_growth_at_risk(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qr_growth_at_risk: not implemented. The method card is in ./README.md."
+        "qr_growth_at_risk: not implemented."
     )

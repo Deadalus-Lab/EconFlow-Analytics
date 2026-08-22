@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``copula_dependence_tail`` -- METHOD-SELECTION card #197.
+"""Method wrapper ``copula_dependence_tail`` -- method card #197.
 
 #197 Copula dependence + tail dependence + goodness of fit (joint stress)
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``copula_dependence_tail``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def cop_fit(
     dim: int | None = None,
     method: Literal["mpl", "ml", "itau", "irho", "itau.mpl"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``cop_fit`` -- METHOD-SELECTION card #197.
+    """Node ``cop_fit`` -- method card #197.
 
     Copula dependence + tail dependence + goodness of fit (joint stress).
 
@@ -60,7 +60,7 @@ def cop_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cop_fit: not implemented. The method card is in ./README.md."
+        "cop_fit: not implemented."
     )
 
 
@@ -68,7 +68,7 @@ def cop_tail_index(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``cop_tail_index`` -- METHOD-SELECTION card #197.
+    """Node ``cop_tail_index`` -- method card #197.
 
     Copula dependence + tail dependence + goodness of fit (joint stress).
 
@@ -82,7 +82,7 @@ def cop_tail_index(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cop_tail_index: not implemented. The method card is in ./README.md."
+        "cop_tail_index: not implemented."
     )
 
 
@@ -95,7 +95,7 @@ def cop_gof(
     estim_method: Literal["mpl", "ml", "itau", "irho", "itau.mpl"] | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``cop_gof`` -- METHOD-SELECTION card #197.
+    """Node ``cop_gof`` -- method card #197.
 
     Copula dependence + tail dependence + goodness of fit (joint stress).
 
@@ -119,5 +119,5 @@ def cop_gof(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cop_gof: not implemented. The method card is in ./README.md."
+        "cop_gof: not implemented."
     )

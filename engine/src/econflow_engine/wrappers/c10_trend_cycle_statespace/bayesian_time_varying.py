@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_time_varying`` -- METHOD-SELECTION card #183.
+"""Method wrapper ``bayesian_time_varying`` -- method card #183.
 
 #183 Bayesian time-varying-parameter (TVP) regression with global-local shrinkage
     (triple/double/ridge) + SV
@@ -8,8 +8,8 @@ Category 10-trend-cycle-statespace; module ``bayesian_time_varying``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def stvp_fit(
     nthin: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``stvp_fit`` -- METHOD-SELECTION card #183.
+    """Node ``stvp_fit`` -- method card #183.
 
     Bayesian time-varying-parameter (TVP) regression with global-local shrinkage
     (triple/double/ridge) + SV.
@@ -71,7 +71,7 @@ def stvp_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "stvp_fit: not implemented. The method card is in ./README.md."
+        "stvp_fit: not implemented."
     )
 
 
@@ -81,7 +81,7 @@ def stvp_forecast(
     newdata: pd.DataFrame,
     n_ahead: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``stvp_forecast`` -- METHOD-SELECTION card #183.
+    """Node ``stvp_forecast`` -- method card #183.
 
     Bayesian time-varying-parameter (TVP) regression with global-local shrinkage
     (triple/double/ridge) + SV.
@@ -98,7 +98,7 @@ def stvp_forecast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "stvp_forecast: not implemented. The method card is in ./README.md."
+        "stvp_forecast: not implemented."
     )
 
 
@@ -107,7 +107,7 @@ def stvp_lpds(
     object: Any,
     data_test: pd.DataFrame,
 ) -> dict[str, Any]:
-    """Node ``stvp_lpds`` -- METHOD-SELECTION card #183.
+    """Node ``stvp_lpds`` -- method card #183.
 
     Bayesian time-varying-parameter (TVP) regression with global-local shrinkage
     (triple/double/ridge) + SV.
@@ -123,5 +123,5 @@ def stvp_lpds(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "stvp_lpds: not implemented. The method card is in ./README.md."
+        "stvp_lpds: not implemented."
     )

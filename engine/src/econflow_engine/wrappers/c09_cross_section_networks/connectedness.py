@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``connectedness`` -- METHOD-SELECTION card #51.
+"""Method wrapper ``connectedness`` -- method card #51.
 
 #51 Connectedness (Diebold-Yılmaz, full)
 
@@ -7,8 +7,8 @@ Category 09-cross-section-networks; module ``connectedness``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def dy_fit(
     corrected: bool | None = None,
     model: Literal["VAR", "TVP-VAR"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dy_fit`` -- METHOD-SELECTION card #51.
+    """Node ``dy_fit`` -- method card #51.
 
     Connectedness (Diebold-Yılmaz, full).
 
@@ -61,7 +61,7 @@ def dy_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dy_fit: not implemented. The method card is in ./README.md."
+        "dy_fit: not implemented."
     )
 
 
@@ -70,7 +70,7 @@ def dy_var(
     x: pd.Series,
     nlag: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dy_var`` -- METHOD-SELECTION card #51.
+    """Node ``dy_var`` -- method card #51.
 
     Connectedness (Diebold-Yılmaz, full).
 
@@ -85,7 +85,7 @@ def dy_var(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dy_var: not implemented. The method card is in ./README.md."
+        "dy_var: not implemented."
     )
 
 
@@ -98,7 +98,7 @@ def dy_time_connectedness(
     corrected: bool | None = None,
     FEVD: np.ndarray | None = None,
 ) -> dict[str, Any]:
-    """Node ``dy_time_connectedness`` -- METHOD-SELECTION card #51.
+    """Node ``dy_time_connectedness`` -- method card #51.
 
     Connectedness (Diebold-Yılmaz, full).
 
@@ -116,7 +116,7 @@ def dy_time_connectedness(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dy_time_connectedness: not implemented. The method card is in ./README.md."
+        "dy_time_connectedness: not implemented."
     )
 
 
@@ -125,7 +125,7 @@ def dy_table(
     FEVD: np.ndarray,
     digit: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dy_table`` -- METHOD-SELECTION card #51.
+    """Node ``dy_table`` -- method card #51.
 
     Connectedness (Diebold-Yılmaz, full).
 
@@ -139,5 +139,5 @@ def dy_table(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dy_table: not implemented. The method card is in ./README.md."
+        "dy_table: not implemented."
     )

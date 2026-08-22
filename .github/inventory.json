@@ -14,12 +14,17 @@
     "Comparisons are EXACT EQUALITY, not >=. Adding a wrapper must be a",
     "deliberate bump of this manifest, not something that slips through.",
     "",
-    "THE FIVE CONTINUITY CONSTANTS -- n_nodes, n_categories, n_cards,",
-    "n_parity_cases, n_recommend_fixtures -- are language-neutral. They describe",
-    "the committed artifacts, which are frozen inputs rather than outputs of the",
-    "current implementation. They did not move when the engine was reimplemented",
-    "in Python, and that is exactly the point: they are the proof that the same",
-    "913 nodes and the same 4855 verdicts are still being served.",
+    "TWO CONTINUITY CONSTANTS, AND ONLY TWO. n_legacy_nodes and n_legacy_cards",
+    "describe the contract retired on 2026-08-21 and are read from",
+    "legacy-inventory.json. They must never move, because a continuity constant",
+    "that drifts was never one.",
+    "",
+    "EVERYTHING ELSE HERE IS A MEASUREMENT of the tree as it stands, and moves",
+    "with it. n_nodes, n_categories and n_cards describe the LIVE catalogue;",
+    "engine.methods tracks the same catalogue, because the pyright, deptry and",
+    "interrogate floors have to scale with what actually exists. n_parity_cases",
+    "and n_recommend_fixtures count frozen oracles, so they do not move in",
+    "practice -- but they are measured from the artifacts, not promised.",
     "",
     "THE VALUE \"unmeasured\" IS A HARD FAILURE, NOT A PLACEHOLDER. It marks a",
     "constant whose measuring artifact does not exist in the tree yet. assert.sh",
@@ -32,47 +37,61 @@
     "running its command first."
   ],
   "engine": {
-    "wrappers": 251,
-    "categories": 30,
-    "methods": 913,
-    "generators": 3,
+    "wrappers": 598,
+    "categories": 46,
+    "methods": 1456,
+    "generators": 4,
     "infra_py_files": 23,
-    "test_files": 3,
+    "test_files": 9,
     "test_helpers": 1,
-    "py_packages": 36,
+    "py_packages": 54,
     "python_version": "3.12",
-    "n_implemented": 0
+    "n_implemented": 0,
+    "docstring_coverage_percent": 100,
+    "wrapper_network_calls": 0
   },
   "spdx": {
-    "_comment": "380 as of 2026-08-16, and every one of them carries a header. The set is src/ + scripts/ + tests/, and it breaks down as 282 under wrappers/ (251 modules plus 31 package __init__), 64 in the generated tier, 24 infrastructure modules, 3 generators and 7 test modules. The number moving is the point: this pair is the one figure a licence change touches everywhere at once, so a reviewer should see it move in a one-line diff rather than infer it. Note that wrappers is 251 while this counts 282 of the same directory -- these measure different sets, and so does test_files at 2 against the 7 counted here.",
-    "py_files_total": 380,
-    "py_files_with_header": 380
+    "_comment": "TWO VALUES, NOT ONE, AND THAT IS THE WHOLE MECHANISM. py_files_total counts the Python files under src/ + scripts/ + tests/; py_files_with_header counts those that declare SPDX-License-Identifier. Asserting both means a file added without a header turns the gate red, where a single figure would simply have moved. This pair is also the one figure a licence change touches everywhere at once, so a reviewer sees it move in a reviewed one-line diff rather than inferring it. It counts a WIDER set than engine.wrappers: alongside the wrapper modules it takes in one __init__.py per wrapper package, the generated tier, the infrastructure modules, the scripts and the tests. engine.test_files is narrower again -- only test_*.py. Reproduce any part by narrowing the py_files_total command below to a single directory; do not restate a breakdown here, because the last one rotted within a day of being written. BOTH FELL BY TWO ON 2026-08-22, together as the pair requires: the replication fixtures were removed by owner decision, and the two Python files that read them went with them. Those two files were written and deleted inside the same uncommitted work, so the commit diff shows neither: what a reviewer sees is the 11 deleted files under engine/fixtures/replications/ and this pair two lower. Each carried an SPDX header, so the two figures moved by the same two files and stayed equal, which is the outcome that proves nothing lost a header in the process.",
+    "py_files_total": 783,
+    "py_files_with_header": 783
   },
   "artifacts": {
-    "_comment": "sbom_components is 41 and py_packages is 43, and the two-package gap is deliberate, not a rounding error: uv.lock counts every workspace member, and econflow-engine and econflow-backend are ours rather than third-party attribution, so the register and the SBOM exclude them. Both figures are now measurable because gen_third_party.py regenerated the document from uv.lock; before that they were held at 'unmeasured' rather than read off a file describing a dependency set this engine no longer loads. A measurable figure is not the same as a true one.",
-    "n_nodes": 913,
-    "n_categories": 30,
-    "n_cards": 252,
+    "_comment": "COUNTS OF THE COMMITTED ARTIFACTS. n_nodes, n_categories and n_cards describe the LIVE catalogue and move when it grows -- they are measurements, not promises. n_legacy_nodes and n_legacy_cards describe the contract that was retired on 2026-08-21 and are read from legacy-inventory.json; they must NEVER move, because a continuity constant that drifts was never one. Until that date the live pair was asserted under _v2 names beside a frozen pair under the plain names, and after the merge both read the same file and contradicted each other. n_parity_cases and n_recommend_fixtures describe frozen oracles and do not move either. THE VALUE \"unmeasured\" IS A HARD FAILURE, NOT A PLACEHOLDER: it marks a constant whose measuring artifact is not in the tree yet, and assert.sh fails loudly and names it.",
+    "n_nodes": 1456,
+    "n_categories": 46,
+    "n_cards": 600,
+    "n_legacy_nodes": 913,
+    "n_legacy_cards": 252,
     "n_parity_cases": 4855,
     "n_recommend_fixtures": 114,
-    "sbom_components": 34,
-    "sidecars": 6
+    "sbom_components": 52,
+    "sidecars": 7
+  },
+  "boundary": {
+    "_comment": "backend/ declares no dependency of its own, and THAT is the assertion. The engine-boundary gate used to report that it examined zero specifiers and pass, which is indistinguishable from a detector that stopped working. Zero here is a MEASURED figure, not an unset default: the gate fails outright if this key is missing, and the comparison is EXACT, so the first dependency the platform layer ever takes turns the gate red until this number is moved in a reviewed one-line diff.",
+    "backend_specifiers": 0
+  },
+  "docs": {
+    "_comment": "FLOORS, not exact counts, and each one sits BELOW what its command returns. Re-baselined 2026-08-22, after the published documentation set was cut to README.md and ARCHITECTURE.md. Everything else -- the decision records, the layer READMEs, CONTRIBUTING, CHANGELOG, SECURITY, PROVENANCE and the generated category guides -- was deleted because the project documents far more than it does: nothing computes yet. Measured 2026-08-22 by the commands below, which are the only figures that count: min_markdown_files returns 3, min_links_checked returns 5, min_doc_claims returns 14. THE MARKDOWN COUNT IS 3, NOT 2, AND THE EARLIER COMMENT HERE CONTRADICTED ITS OWN COMMAND. `git ls-files '*.md'` also finds .github/vale/styles/proselint/README.md, the README of the vendored errata-ai style, which is tracked and which vale lints like any other file. The floor stays at 2 and must not be raised to meet the measurement: it answers for the published set, while the vendored README arrives and leaves with an upstream sync that has nothing to say about this repository's documentation. The link total moves with ordinary content for the same reason, which is why 3 rather than 5. A floor below its measurement still refuses the one failure these exist for -- a gate that quietly stopped examining the tree -- whereas a floor set to equality turns an ordinary content change into a red gate and teaches people to edit the number.",
+    "min_markdown_files": 2,
+    "min_links_checked": 3,
+    "min_doc_claims": 12
+  },
+  "secrets": {
+    "_comment": "A FLOOR ON WORK DONE, not on findings. trufflehog exits 0 whether it scanned the tree or nothing at all, and --only-verified means a clean run is the EXPECTED outcome -- so the exit code carries almost no information and the chunk count carries all of it. Measured 2026-08-20 against a clean export of the tracked tree (30 MB, what a CI checkout actually holds): 3504 chunks. The floor is set well below that because the figure moves with ordinary content, and its job is to catch a scan that examined a handful of files, not to track the tree.",
+    "min_chunks_scanned": 2000
   },
   "suite": {
-    "_comment": "min_tests is a floor, deliberately. The suite total moves upward as tests are added; it must never move DOWN unnoticed, which is what this floor catches. failed and error are exact. The figure is low because the 913 handlers are typed stubs that raise, and their tests land with their implementations: the conformance and argument-contract harnesses are the only ones that exist yet. It rises as the per-wrapper suites land, and it may never be lowered.",
-    "min_tests": 30,
+    "_comment": "min_tests is a floor, deliberately. The suite total moves upward as tests are added and must never move DOWN unnoticed, which is what this floor catches; failed and error are exact. The figure is low because every method handler is still a typed stub that raises, and a handler's tests land with its implementation -- the conformance harness, the argument-contract harness and the contract-hash suite are the only suites that exist yet. It rises as the per-wrapper suites land, and it is lowered only when the tests it counted are themselves deleted, in a diff that says so and names them. Each rise so far was its own reviewed diff: 73 -> 103 by the contract-hash suite, 103 -> 132 by the corpus and gen_artifacts suite, 132 -> 143 by the index-label suite, 143 -> 149 by the thread-pinning suite, all on 2026-08-20. The value below is higher than 149 and the step that took it there was never recorded here; record the next one. The pyright narrowings brought tests of their own: serialize.py and chart_spec.py had no test of any kind when their missing-stamp guards were rewritten to satisfy a type checker. THIS FLOOR MOVED DOWN ON 2026-08-22, 163 -> 139, FOR THE FIRST TIME. The replication fixtures under engine/fixtures/replications/ were removed by owner decision, and the 24 tests that read them went with them. That test module was written and deleted inside the same uncommitted work, so a reviewer sees the 11 deleted fixture files and no test module beside them. A floor left at 163 would then refuse every run of a suite that is complete, which is the opposite of what it exists for. The new value measures the whole collected suite after that removal: the command below returns 139, and engine.test_files fell from 10 to 9 in the same change.",
+    "min_tests": 139,
     "failed": 0,
     "error": 0
-  },
-  "residue": {
-    "_comment": "Floor for check-vocabulary.sh. A floor, not an exact count: files come and go constantly, and the only thing this must catch is a scan that stopped examining the tree.",
-    "min_files_scanned": 100
   },
   "commands": {
     "wrappers": "find src/econflow_engine/wrappers -name '*.py' -type f -not -name '__init__.py' | wc -l",
     "categories": "find src/econflow_engine/wrappers -mindepth 1 -maxdepth 1 -type d -not -name '__pycache__' | wc -l",
-    "generators": "find scripts -maxdepth 1 -name '*.py' -type f | wc -l",
-    "methods": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.v1.json'))['engine']['n_nodes'])\"",
+    "generators": "find scripts -maxdepth 1 -name 'gen_*.py' -type f | wc -l",
+    "methods": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.json'))['engine']['n_nodes'])\"",
     "infra_py_files": "find src -name '*.py' -not -path '*__pycache__*' -not -path 'src/econflow_engine/wrappers/*' -not -path 'src/econflow_engine/generated/*' | wc -l",
     "test_files": "find tests -name 'test_*.py' -not -path '*__pycache__*' | wc -l",
     "test_helpers": "find tests -maxdepth 1 -name 'conftest.py' | wc -l",
@@ -80,22 +99,36 @@
     "python_version": "cat .python-version",
     "py_files_total": "find src scripts tests -name '*.py' -not -path '*__pycache__*' | wc -l",
     "py_files_with_header": "find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 | xargs -0 grep -l 'SPDX-License-Identifier' | wc -l",
-    "n_nodes": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.v1.json'))['engine']['n_nodes'])\"",
-    "n_categories": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.v1.json'))['engine']['n_categories'])\"",
-    "n_cards": "python3 -c \"import json;print(json.load(open('artifacts/method-cards.v1.json'))['source']['n_cards'])\"",
-    "n_parity_cases": "python3 -c \"import json;print(json.load(open('artifacts/parity-fixtures.v1.json'))['n_cases'])\"",
-    "n_recommend_fixtures": "python3 -c \"import json;print(json.load(open('artifacts/recommend-fixtures.v1.json'))['source']['n_fixtures'])\"",
+    "n_nodes": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.json'))['engine']['n_nodes'])\"",
+    "n_categories": "python3 -c \"import json;print(json.load(open('artifacts/node-specs.json'))['engine']['n_categories'])\"",
+    "n_cards": "python3 -c \"import json;print(json.load(open('artifacts/method-cards.json'))['source']['n_cards'])\"",
+    "n_parity_cases": "python3 -c \"import json;print(json.load(open('artifacts/parity-fixtures.json'))['n_cases'])\"",
+    "n_recommend_fixtures": "python3 -c \"import json;print(json.load(open('artifacts/recommend-fixtures.json'))['source']['n_fixtures'])\"",
     "sbom_components": "python3 -c \"import json;print(len(json.load(open('sbom.cdx.json'))['components']))\"",
     "min_tests": "python3 -m pytest --collect-only -q | tail -1 | sed 's/ tests\\? collected.*//'",
-    "residue_files_scanned": "bash .github/scripts/check-vocabulary.sh . | sed 's/.*examined \\([0-9]*\\) files.*/\\1/'",
     "n_implemented": "python3 -c \"\nimport ast, pathlib\ndef is_stub(fn):\n    body = [s for s in fn.body if not (isinstance(s, ast.Expr) and isinstance(s.value, ast.Constant) and isinstance(s.value.value, str))]\n    if len(body) != 1 or not isinstance(body[0], ast.Raise):\n        return False\n    exc = body[0].exc\n    name = getattr(exc, \\\"func\\\", exc)\n    return isinstance(name, ast.Name) and name.id == \\\"NotImplementedError\\\"\nn = 0\nfor f in pathlib.Path(\\\"src/econflow_engine/wrappers\\\").rglob(\\\"*.py\\\"):\n    if f.name == \\\"__init__.py\\\":\n        continue\n    for node in ast.walk(ast.parse(f.read_text())):\n        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not node.name.startswith(\\\"_\\\") and not is_stub(node):\n            n += 1\nprint(n)\n\"",
-    "sidecars": "ls artifacts/*.sha256 | wc -l"
+    "docstring_coverage_percent": "python3 -c \"import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['tool']['interrogate']['fail-under'])\"",
+    "sidecars": "ls artifacts/*.sha256 | wc -l",
+    "backend_specifiers": "python3 -c \"import tomllib;p=tomllib.load(open('backend/pyproject.toml','rb')).get('project',{});print(len(p.get('dependencies',[]))+sum(len(v) for v in (p.get('optional-dependencies') or {}).values()))\"",
+    "min_markdown_files": "git ls-files '*.md' | wc -l",
+    "min_links_checked": "lychee --config lychee.toml --no-progress --format json . | python3 -c \"import json,sys;print(json.load(sys.stdin)['total'])\"",
+    "vocabulary_files_scanned": "bash .github/scripts/check-vocabulary.sh . | sed 's/.*examined \\([0-9]*\\) files.*/\\1/'",
+    "n_legacy_nodes": "python3 -c \"import json;print(json.load(open('artifacts/legacy-inventory.json'))['n_nodes'])\"",
+    "n_legacy_cards": "python3 -c \"import json;print(json.load(open('artifacts/legacy-inventory.json'))['n_cards'])\"",
+    "doc_claims": "bash .github/scripts/check-doc-claims.sh . | grep -oE '[0-9]+ verified' | cut -d' ' -f1",
+    "wrapper_network_calls": "bash .github/scripts/check-no-network.sh . | grep -oE 'ok: [0-9]+ of' | grep -oE '[0-9]+'"
   },
   "_note_on_grep": [
     "py_files_with_header uses find -print0 | xargs -0 grep -l, NOT grep -rl --include.",
-    "Measured on a maintainer machine: `grep` resolves to ugrep 7.5.0, whose",
-    "--include under -r reported 315 of 379 files while GNU grep reported 379.",
-    "A gate written with --include therefore UNDERCOUNTS silently on that host",
-    "and passes in CI, which is the failure direction CONTRIBUTING.md forbids."
-  ]
+    "On a maintainer machine `grep` resolves to ugrep, which under 7.5.0 read",
+    "--include differently and silently undercounted the tree. CONTRIBUTING.md",
+    "carries that measurement and both commands; it also records that 7.8.4 fixed",
+    "the behaviour. The rule stands: a gate written with --include undercounts on",
+    "an older host and passes in CI, which is the failure direction CONTRIBUTING.md",
+    "forbids -- the gate goes green locally while missing files."
+  ],
+  "vocabulary": {
+    "_comment": "Floor for check-vocabulary.sh. A floor, not an exact count: files come and go constantly, and the only thing this must catch is a scan that stopped examining the tree. Measured 2026-08-21: 1056 files examined, so the floor sits well below the measurement and still refuses a scan whose walk collapsed.",
+    "min_files_scanned": 500
+  }
 }

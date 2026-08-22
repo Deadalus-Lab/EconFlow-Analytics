@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``market_systemic_risk`` -- METHOD-SELECTION card #221.
+"""Method wrapper ``market_systemic_risk`` -- method card #221.
 
 #221 Market-based systemic risk: CoVaR / Delta-CoVaR (Adrian-Brunnermeier) + correlation-network
     measures
@@ -8,8 +8,8 @@ Category 21-systemic-risk; module ``market_systemic_risk``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,20 +24,20 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "syr_correlation_network_measures",
-    "syr_covar_delta_covar",
-    "syr_covar_delta_covar_t",
-    "syr_scale",
+    "sys_correlation_network_measures",
+    "sys_covar_delta_covar",
+    "sys_covar_delta_covar_t",
+    "sys_scale",
     "NODE_META",
     "wire_model",
 ]
 
 
-def syr_covar_delta_covar(
+def sys_covar_delta_covar(
     *,
     returns: np.ndarray,
 ) -> dict[str, Any]:
-    """Node ``syr_covar_delta_covar`` -- METHOD-SELECTION card #221.
+    """Node ``sys_covar_delta_covar`` -- method card #221.
 
     Market-based systemic risk: CoVaR / Delta-CoVaR (Adrian-Brunnermeier) + correlation-network
     measures.
@@ -53,16 +53,16 @@ def syr_covar_delta_covar(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "syr_covar_delta_covar: not implemented. The method card is in ./README.md."
+        "sys_covar_delta_covar: not implemented."
     )
 
 
-def syr_covar_delta_covar_t(
+def sys_covar_delta_covar_t(
     *,
     returns: np.ndarray,
     state_variables: np.ndarray,
 ) -> dict[str, Any]:
-    """Node ``syr_covar_delta_covar_t`` -- METHOD-SELECTION card #221.
+    """Node ``sys_covar_delta_covar_t`` -- method card #221.
 
     Market-based systemic risk: CoVaR / Delta-CoVaR (Adrian-Brunnermeier) + correlation-network
     measures.
@@ -80,16 +80,16 @@ def syr_covar_delta_covar_t(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "syr_covar_delta_covar_t: not implemented. The method card is in ./README.md."
+        "sys_covar_delta_covar_t: not implemented."
     )
 
 
-def syr_correlation_network_measures(
+def sys_correlation_network_measures(
     *,
     returns: np.ndarray,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``syr_correlation_network_measures`` -- METHOD-SELECTION card #221.
+    """Node ``sys_correlation_network_measures`` -- method card #221.
 
     Market-based systemic risk: CoVaR / Delta-CoVaR (Adrian-Brunnermeier) + correlation-network
     measures.
@@ -108,15 +108,15 @@ def syr_correlation_network_measures(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "syr_correlation_network_measures: not implemented. The method card is in ./README.md."
+        "sys_correlation_network_measures: not implemented."
     )
 
 
-def syr_scale(
+def sys_scale(
     *,
     x: np.ndarray,
 ) -> dict[str, Any]:
-    """Node ``syr_scale`` -- METHOD-SELECTION card #221.
+    """Node ``sys_scale`` -- method card #221.
 
     Market-based systemic risk: CoVaR / Delta-CoVaR (Adrian-Brunnermeier) + correlation-network
     measures.
@@ -131,5 +131,5 @@ def syr_scale(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "syr_scale: not implemented. The method card is in ./README.md."
+        "sys_scale: not implemented."
     )

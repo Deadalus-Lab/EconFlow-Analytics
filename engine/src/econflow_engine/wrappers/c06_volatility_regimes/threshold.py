@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``threshold`` -- METHOD-SELECTION card #32.
+"""Method wrapper ``threshold`` -- method card #32.
 
 #32 Threshold models (SETAR/LSTAR/STAR)
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``threshold``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def setar_fit(
     nthresh: int | None = None,
     trim: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``setar_fit`` -- METHOD-SELECTION card #32.
+    """Node ``setar_fit`` -- method card #32.
 
     Threshold models (SETAR/LSTAR/STAR).
 
@@ -72,7 +72,7 @@ def setar_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "setar_fit: not implemented. The method card is in ./README.md."
+        "setar_fit: not implemented."
     )
 
 
@@ -85,7 +85,7 @@ def lstar_fit(
     gamma: float | None = None,
     include: Literal["const", "trend", "none", "both"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``lstar_fit`` -- METHOD-SELECTION card #32.
+    """Node ``lstar_fit`` -- method card #32.
 
     Threshold models (SETAR/LSTAR/STAR).
 
@@ -105,7 +105,7 @@ def lstar_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lstar_fit: not implemented. The method card is in ./README.md."
+        "lstar_fit: not implemented."
     )
 
 
@@ -117,7 +117,7 @@ def star_fit(
     d: int | None = None,
     sig: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``star_fit`` -- METHOD-SELECTION card #32.
+    """Node ``star_fit`` -- method card #32.
 
     Threshold models (SETAR/LSTAR/STAR).
 
@@ -137,7 +137,7 @@ def star_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "star_fit: not implemented. The method card is in ./README.md."
+        "star_fit: not implemented."
     )
 
 
@@ -152,7 +152,7 @@ def setar_select(
     include: Literal["const", "trend", "none", "both"] | None = None,
     model: Literal["TAR", "MTAR"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``setar_select`` -- METHOD-SELECTION card #32.
+    """Node ``setar_select`` -- method card #32.
 
     Threshold models (SETAR/LSTAR/STAR).
 
@@ -173,7 +173,7 @@ def setar_select(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "setar_select: not implemented. The method card is in ./README.md."
+        "setar_select: not implemented."
     )
 
 
@@ -188,7 +188,7 @@ def setar_test(
     test: Literal["1vs", "2vs3"] | None = None,
     boot_scheme: Literal["resample", "resample_block", "wild1", "wild2", "check"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``setar_test`` -- METHOD-SELECTION card #32.
+    """Node ``setar_test`` -- method card #32.
 
     Threshold models (SETAR/LSTAR/STAR).
 
@@ -208,7 +208,7 @@ def setar_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "setar_test: not implemented. The method card is in ./README.md."
+        "setar_test: not implemented."
     )
 
 
@@ -220,7 +220,7 @@ def thr_predict(
     nboot: int | None = None,
     ci: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``thr_predict`` -- METHOD-SELECTION card #32.
+    """Node ``thr_predict`` -- method card #32.
 
     Threshold models (SETAR/LSTAR/STAR).
 
@@ -238,7 +238,7 @@ def thr_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "thr_predict: not implemented. The method card is in ./README.md."
+        "thr_predict: not implemented."
     )
 
 
@@ -246,7 +246,7 @@ def thr_regime(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``thr_regime`` -- METHOD-SELECTION card #32.
+    """Node ``thr_regime`` -- method card #32.
 
     Threshold models (SETAR/LSTAR/STAR).
 
@@ -259,5 +259,5 @@ def thr_regime(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "thr_regime: not implemented. The method card is in ./README.md."
+        "thr_regime: not implemented."
     )

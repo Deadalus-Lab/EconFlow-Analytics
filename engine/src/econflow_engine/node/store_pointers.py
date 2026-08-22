@@ -3,7 +3,7 @@
 
 SOURCE OF TRUTH (read, not recalled):
 
-``.node_is_pointer``
+the pointer predicate
     a mapping carrying ``pointer_uri``, OR a scalar string beginning with
     ``store://``.
 the pointer contract
@@ -13,11 +13,11 @@ the key parser
     ``store://bucket/key``; requires at least two segments and a non-empty key;
     rejects a ``..`` segment, a leading ``/``, a backslash, and control
     characters.
-``.node_ptr_deserialize``
-    parquet WITHOUT ``sidecar$class`` is a hard stop -- reconstruction is
-    impossible because Parquet carries no ts index and no type information.
+the pointer deserialiser
+    parquet WITHOUT the sidecar's ``class`` field is a hard stop -- reconstruction is
+    impossible because Parquet carries no time index and no type information.
 the handle registry
-    ``sprintf("h_%06d_%s", counter, 8 chars of [a-z0-9])``.
+    ``h_<counter, six digits>_<eight characters of [a-z0-9]>``.
 
 Anything here that is STRICTER than the frozen corpus expects is deliberate
 (P1 soundness: whatever this accepts, the corpus accepts). The enumeration of
@@ -193,12 +193,12 @@ def check_handle_input(value: object) -> object:
 
 
 def check_path_uri(value: object) -> str:
-    """Gate a ``kind: "path"`` argument -- a mirror of ``.mcp_path_gate``.
+    """Gate a ``kind: "path"`` argument -- a mirror of the frozen contract's path gate.
 
     REASON CODE: every refusal here reports ``other``. That is not a shortcut, it
     is what the engine does: the parity oracle classifies EVERY ``node path:``
     message as ``other`` (measured -- all ten shape mutations of
-    ``kind/path/*`` in ``parity-fixtures.v1.json`` carry ``reason_code: "other"``,
+    ``kind/path/*`` in ``parity-fixtures.json`` carry ``reason_code: "other"``,
     and no ``pointer-*`` code appears for any path argument). The precise
     diagnosis is preserved in ``GateError.detail_code``.
     """

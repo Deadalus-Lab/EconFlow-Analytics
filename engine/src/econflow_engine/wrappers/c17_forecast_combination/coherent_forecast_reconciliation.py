@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``coherent_forecast_reconciliation`` -- METHOD-SELECTION card #208.
+"""Method wrapper ``coherent_forecast_reconciliation`` -- method card #208.
 
 #208 Coherent forecast reconciliation (cross-sectional / temporal / cross-temporal) via an optimal
     least-squares projection (MinT: ols/str/wls/shr/sam)
@@ -8,8 +8,8 @@ Category 17-forecast-combination; module ``coherent_forecast_reconciliation``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "foreco_reconcile",
+    "reconcile_cross_temporal",
     "NODE_META",
     "wire_model",
 ]
 
 
-def foreco_reconcile(
+def reconcile_cross_temporal(
     *,
     type: Literal["cs", "te", "ct"],
     base: np.ndarray,
@@ -43,7 +43,7 @@ def foreco_reconcile(
     res: np.ndarray | None = None,
     nn: Literal["none", "osqp", "sntz", "bpv", "nfca", "nnic"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``foreco_reconcile`` -- METHOD-SELECTION card #208.
+    """Node ``reconcile_cross_temporal`` -- method card #208.
 
     Coherent forecast reconciliation (cross-sectional / temporal / cross-temporal) via an optimal
     least-squares projection (MinT: ols/str/wls/shr/sam).
@@ -76,5 +76,5 @@ def foreco_reconcile(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "foreco_reconcile: not implemented. The method card is in ./README.md."
+        "reconcile_cross_temporal: not implemented."
     )

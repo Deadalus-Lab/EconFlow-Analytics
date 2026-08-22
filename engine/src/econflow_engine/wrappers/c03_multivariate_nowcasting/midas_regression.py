@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``midas_regression`` -- METHOD-SELECTION card #18.
+"""Method wrapper ``midas_regression`` -- method card #18.
 
 #18 MIDAS regression (mixed data sampling)
 
@@ -7,8 +7,8 @@ Category 03-multivariate-nowcasting; module ``midas_regression``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -20,16 +20,16 @@ from econflow_engine.generated.args.c03_multivariate_nowcasting import NODE_META
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
+    "md_adequacy_test",
+    "md_fit",
     "md_forecast",
-    "md_haht",
-    "md_midas",
     "md_select",
     "NODE_META",
     "wire_model",
 ]
 
 
-def md_midas(
+def md_fit(
     *,
     y: Any,
     x: Any,
@@ -39,7 +39,7 @@ def md_midas(
     poly_degree: int | None = None,
     trend: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``md_midas`` -- METHOD-SELECTION card #18.
+    """Node ``md_fit`` -- method card #18.
 
     MIDAS regression (mixed data sampling).
 
@@ -61,23 +61,23 @@ def md_midas(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "md_midas: not implemented. The method card is in ./README.md."
+        "md_fit: not implemented."
     )
 
 
-def md_haht(
+def md_adequacy_test(
     *,
     model: Any,
     robust: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``md_haht`` -- METHOD-SELECTION card #18.
+    """Node ``md_adequacy_test`` -- method card #18.
 
     MIDAS regression (mixed data sampling).
 
     Category 03-multivariate-nowcasting; memory class ``light``.
 
     Args:
-        model: [raw_handle, required] Handle to a midas_r model (from md_midas).
+        model: [raw_handle, required] Handle to a midas_r model (from md_fit).
         robust: [boolean, optional] HAC-robust hAhr_test instead of hAh_test (default False).
             Default ``False``.
 
@@ -85,7 +85,7 @@ def md_haht(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "md_haht: not implemented. The method card is in ./README.md."
+        "md_adequacy_test: not implemented."
     )
 
 
@@ -95,14 +95,14 @@ def md_forecast(
     newx: Any,
     m: int,
 ) -> dict[str, Any]:
-    """Node ``md_forecast`` -- METHOD-SELECTION card #18.
+    """Node ``md_forecast`` -- method card #18.
 
     MIDAS regression (mixed data sampling).
 
     Category 03-multivariate-nowcasting; memory class ``light``.
 
     Args:
-        model: [raw_handle, required] Handle to a midas_r model (from md_midas).
+        model: [raw_handle, required] Handle to a midas_r model (from md_fit).
         newx: [raw_handle, required] Handle to future high-freq values (length = h*m).
         m: [integer, required] Frequency ratio (same as the fit).
 
@@ -110,7 +110,7 @@ def md_forecast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "md_forecast: not implemented. The method card is in ./README.md."
+        "md_forecast: not implemented."
     )
 
 
@@ -124,7 +124,7 @@ def md_select(
     poly_degree: int | None = None,
     trend: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``md_select`` -- METHOD-SELECTION card #18.
+    """Node ``md_select`` -- method card #18.
 
     MIDAS regression (mixed data sampling).
 
@@ -143,5 +143,5 @@ def md_select(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "md_select: not implemented. The method card is in ./README.md."
+        "md_select: not implemented."
     )

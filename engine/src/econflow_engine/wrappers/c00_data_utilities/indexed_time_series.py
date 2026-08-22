@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``indexed_time_series`` -- METHOD-SELECTION card #106.
+"""Method wrapper ``indexed_time_series`` -- method card #106.
 
 #106 Indexed (time-stamped) time-series toolbox (periodicity->OHLC, calendar-period aggregation,
     index merge/join, intraday alignment)
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``indexed_time_series``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,17 +24,17 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "xts_align_time",
-    "xts_apply_monthly",
-    "xts_merge",
-    "xts_period_apply",
-    "xts_to_period",
+    "idx_align_time",
+    "idx_apply_monthly",
+    "idx_merge",
+    "idx_period_apply",
+    "idx_to_period",
     "NODE_META",
     "wire_model",
 ]
 
 
-def xts_to_period(
+def idx_to_period(
     *,
     x: pd.Series,
     period: (
@@ -53,7 +53,7 @@ def xts_to_period(
     k: int | None = None,
     OHLC: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``xts_to_period`` -- METHOD-SELECTION card #106.
+    """Node ``idx_to_period`` -- method card #106.
 
     Indexed (time-stamped) time-series toolbox (periodicity->OHLC, calendar-period aggregation,
     index merge/join, intraday alignment).
@@ -73,11 +73,11 @@ def xts_to_period(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xts_to_period: not implemented. The method card is in ./README.md."
+        "idx_to_period: not implemented."
     )
 
 
-def xts_period_apply(
+def idx_period_apply(
     *,
     x: pd.Series,
     on: (
@@ -97,7 +97,7 @@ def xts_period_apply(
     fun: Literal["mean", "sum", "median", "sd", "min", "max", "first", "last"] | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``xts_period_apply`` -- METHOD-SELECTION card #106.
+    """Node ``idx_period_apply`` -- method card #106.
 
     Indexed (time-stamped) time-series toolbox (periodicity->OHLC, calendar-period aggregation,
     index merge/join, intraday alignment).
@@ -116,17 +116,17 @@ def xts_period_apply(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xts_period_apply: not implemented. The method card is in ./README.md."
+        "idx_period_apply: not implemented."
     )
 
 
-def xts_apply_monthly(
+def idx_apply_monthly(
     *,
     x: pd.Series,
     fun: Literal["mean", "sum", "median", "sd", "min", "max", "first", "last"] | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``xts_apply_monthly`` -- METHOD-SELECTION card #106.
+    """Node ``idx_apply_monthly`` -- method card #106.
 
     Indexed (time-stamped) time-series toolbox (periodicity->OHLC, calendar-period aggregation,
     index merge/join, intraday alignment).
@@ -143,18 +143,18 @@ def xts_apply_monthly(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xts_apply_monthly: not implemented. The method card is in ./README.md."
+        "idx_apply_monthly: not implemented."
     )
 
 
-def xts_merge(
+def idx_merge(
     *,
     x: pd.Series,
     y: pd.Series,
     join: Literal["outer", "inner", "left", "right"] | None = None,
     fill: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``xts_merge`` -- METHOD-SELECTION card #106.
+    """Node ``idx_merge`` -- method card #106.
 
     Indexed (time-stamped) time-series toolbox (periodicity->OHLC, calendar-period aggregation,
     index merge/join, intraday alignment).
@@ -173,16 +173,16 @@ def xts_merge(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xts_merge: not implemented. The method card is in ./README.md."
+        "idx_merge: not implemented."
     )
 
 
-def xts_align_time(
+def idx_align_time(
     *,
     x: pd.Series,
     n: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``xts_align_time`` -- METHOD-SELECTION card #106.
+    """Node ``idx_align_time`` -- method card #106.
 
     Indexed (time-stamped) time-series toolbox (periodicity->OHLC, calendar-period aggregation,
     index merge/join, intraday alignment).
@@ -190,7 +190,7 @@ def xts_align_time(
     Category 00-data-utilities; memory class ``light``.
 
     Args:
-        x: [irregular_series_handle, required] Handle to an intraday time series with a POSIXct
+        x: [irregular_series_handle, required] Handle to an intraday time series with a timestamp
             index (required).
         n: [number, optional] Rounding window in SECONDS (positive; default 60). Default ``60``.
 
@@ -198,5 +198,5 @@ def xts_align_time(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xts_align_time: not implemented. The method card is in ./README.md."
+        "idx_align_time: not implemented."
     )

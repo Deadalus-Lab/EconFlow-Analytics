@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``oaxaca`` -- METHOD-SELECTION card #63.
+"""Method wrapper ``oaxaca`` -- method card #63.
 
 #63 oaxaca (Blinder-Oaxaca decomposition)
 
@@ -7,8 +7,8 @@ Category 11-decomposition-accounting; module ``oaxaca``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ def ox_decompose(
     n_bootstrap: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ox_decompose`` -- METHOD-SELECTION card #63.
+    """Node ``ox_decompose`` -- method card #63.
 
     oaxaca (Blinder-Oaxaca decomposition).
 
@@ -54,5 +54,5 @@ def ox_decompose(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ox_decompose: not implemented. The method card is in ./README.md."
+        "ox_decompose: not implemented."
     )

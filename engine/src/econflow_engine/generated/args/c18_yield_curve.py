@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # ============================================================
 # GENERATED FILE -- DO NOT EDIT.
-# Source: artifacts/node-specs.v1.json (committed) via scripts/gen_schemas.py.
+# Source: artifacts/node-specs.json (committed) via scripts/gen_schemas.py.
 # Rebuild with: python scripts/gen_schemas.py
 # ============================================================
 
-"""Tier 2 for category 18-yield-curve -- 6 nodes. No descriptions."""
+"""Tier 2 for category 18-yield-curve -- 11 nodes. No descriptions."""
 
 from functools import cache
 
@@ -24,7 +24,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='atsm_estimate',
         category='18-yield-curve',
         card_id=211,
-        contract_hash='c-04efe0ae69952ba5daa1e045e4ad09d6c94e725a0104cde1d6968929ec238b6a',
+        contract_hash='c2-7cedf61dcca6c1b4d54cb892223351e4cc51246152848b4e474ee3b9973aa78d',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -50,7 +50,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='fit_nelson_siegel',
         category='18-yield-curve',
         card_id=87,
-        contract_hash='c-33136cecac87f5a4cfac3f962ce5d4fb0f034a9f32b2a346931446d3c5129ebd',
+        contract_hash='c2-c19727bbf29a40daf4436aaa098079036fdc22e19bfb6796bfa7441e4f21193f',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -64,7 +64,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='fit_svensson',
         category='18-yield-curve',
         card_id=87,
-        contract_hash='c-9bfcda3517f8d436eb23b6bf23adaebdd2c3db7652e31cc5243ec94653c961a4',
+        contract_hash='c2-a8efed67bc04d5e6a744680dd71fe7da68cb572730c5e65249eac95e1af9421e',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -79,7 +79,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='yc_fit',
         category='18-yield-curve',
         card_id=210,
-        contract_hash='c-f33d06d3c4170bde7be37d5a560596207556e6ab8c3d9b711475ce4f7a8de35d',
+        contract_hash='c2-04bd164db514a3ffcdce6deb6be6e81460d4149a8964c27997095de5e30c1ce8',
         register_field='object',
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -101,7 +101,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='yc_transform',
         category='18-yield-curve',
         card_id=210,
-        contract_hash='c-54134b52866a69f27d11c262e56d273e72704e4c5000b84a2d170b50a667765d',
+        contract_hash='c2-0c4cc360d1b12e261dfd96ba0b1fe3757e5676f6444d67bc3651f245d1145d57',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -116,11 +116,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'n_components': 3, 'scale': False},
     ),
-    'ycevo_estimate': NodeMeta(
-        fn='ycevo_estimate',
+    'ycnp_estimate': NodeMeta(
+        fn='ycnp_estimate',
         category='18-yield-curve',
         card_id=212,
-        contract_hash='c-25597341c1e79b979fa484956ae500264ca805c546c7a884fb61a1d654d48552',
+        contract_hash='c2-7d2db3557af69dcba30cdb7cc8965fdc5d124168e8b35adf0a53f33c71cada54',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -135,6 +135,91 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'span_x': 60, 'smooth': False},
     ),
+    'yc_acm_decomposition': NodeMeta(
+        fn='yc_acm_decomposition',
+        category='18-yield-curve',
+        card_id=535,
+        contract_hash='c2-851455661559949166015d4a205d2af64704d638a2a085fe025248ee0fe7902f',
+        register_field='fit',
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='yields', kind='df_handle', required=True),
+        NodeArgMeta(name='maturities', kind='num_array', required=True),
+        NodeArgMeta(name='n_factors', kind='integer', required=False),
+        NodeArgMeta(name='real', kind='boolean', required=False),
+        ),
+        defaults={'n_factors': 5, 'real': False},
+    ),
+    'yc_bootstrap_curve': NodeMeta(
+        fn='yc_bootstrap_curve',
+        category='18-yield-curve',
+        card_id=536,
+        contract_hash='c2-59613bb031f1de92b13041e6c68cb3d09bbc3c465518191f41e7bfce7b45c15b',
+        register_field='curve',
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='instruments', kind='df_handle', required=True),
+        NodeArgMeta(name='method', kind='enum', required=False, enum=('bootstrap', 'cubic_spline', 'monotone_convex', 'nelson_siegel', 'svensson', )),
+        NodeArgMeta(name='interpolation', kind='enum', required=False, enum=('zero_rate', 'log_discount', 'forward', )),
+        NodeArgMeta(name='day_count', kind='enum', required=False, enum=('act360', 'act365', 'thirty360', 'actact', )),
+        ),
+        defaults={'method': 'bootstrap', 'interpolation': 'log_discount', 'day_count': 'act365'},
+    ),
+    'yc_dynamic_nelson_siegel': NodeMeta(
+        fn='yc_dynamic_nelson_siegel',
+        category='18-yield-curve',
+        card_id=537,
+        contract_hash='c2-02b0f4d1f6993de11591968e3d9b9fc8027acc287770b4b13d112a2dabe568d7',
+        register_field='fit',
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='yields', kind='df_handle', required=True),
+        NodeArgMeta(name='maturities', kind='num_array', required=True),
+        NodeArgMeta(name='macro', kind='exog_handle', required=False),
+        NodeArgMeta(name='decay', kind='number', required=False),
+        NodeArgMeta(name='factors', kind='enum', required=False, enum=('three', 'four_svensson', )),
+        NodeArgMeta(name='h', kind='integer', required=False),
+        ),
+        defaults={'decay': 0.0609, 'factors': 'three', 'h': 0},
+    ),
+    'yc_shadow_short_rate': NodeMeta(
+        fn='yc_shadow_short_rate',
+        category='18-yield-curve',
+        card_id=538,
+        contract_hash='c2-03f265bbfcac921ae5e9dcd7235a3b6d18cc848f464f8c643130a8e23f054eed',
+        register_field='fit',
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='yields', kind='df_handle', required=True),
+        NodeArgMeta(name='maturities', kind='num_array', required=True),
+        NodeArgMeta(name='lower_bound', kind='number', required=False),
+        NodeArgMeta(name='n_factors', kind='integer', required=False),
+        NodeArgMeta(name='model', kind='enum', required=False, enum=('wu_xia', 'krippner', )),
+        ),
+        defaults={'lower_bound': 0.0, 'n_factors': 3, 'model': 'wu_xia'},
+    ),
+    'yc_bond_return_predictability': NodeMeta(
+        fn='yc_bond_return_predictability',
+        category='18-yield-curve',
+        card_id=539,
+        contract_hash='c2-78ae0f1cb7acfa6063e65bbdcd0c4d5fd7f3dd25e3709e1d0417bd73d61a6d8a',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='yields', kind='df_handle', required=True),
+        NodeArgMeta(name='maturities', kind='num_array', required=True),
+        NodeArgMeta(name='holding_period', kind='integer', required=False),
+        NodeArgMeta(name='factor', kind='boolean', required=False),
+        NodeArgMeta(name='cov_type', kind='enum', required=False, enum=('hac', 'hodrick', 'robust', )),
+        NodeArgMeta(name='conf_level', kind='number', required=False),
+        ),
+        defaults={'holding_period': 12, 'factor': True, 'cov_type': 'hac', 'conf_level': 0.95},
+    ),
 }
 
 #: Argument defaults, for FORM PREFILL ONLY. A default must never be sent
@@ -145,7 +230,12 @@ DEFAULTS: dict[str, dict[str, object]] = {
     'fit_svensson': {},
     'yc_fit': {'tau_init': 1, 'tau1_init': 1, 'tau2_init': 5},
     'yc_transform': {'n_components': 3, 'scale': False},
-    'ycevo_estimate': {'span_x': 60, 'smooth': False},
+    'ycnp_estimate': {'span_x': 60, 'smooth': False},
+    'yc_acm_decomposition': {'n_factors': 5, 'real': False},
+    'yc_bootstrap_curve': {'method': 'bootstrap', 'interpolation': 'log_discount', 'day_count': 'act365'},
+    'yc_dynamic_nelson_siegel': {'decay': 0.0609, 'factors': 'three', 'h': 0},
+    'yc_shadow_short_rate': {'lower_bound': 0.0, 'n_factors': 3, 'model': 'wu_xia'},
+    'yc_bond_return_predictability': {'holding_period': 12, 'factor': True, 'cov_type': 'hac', 'conf_level': 0.95},
 }
 
 

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``garch_midas`` -- METHOD-SELECTION card #159.
+"""Method wrapper ``garch_midas`` -- method card #159.
 
 #159 GARCH-MIDAS (a short-run GARCH × a long-run MIDAS macro component)
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``garch_midas``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def mfg_fit(
     gamma: bool | None = None,
     var_ratio_freq: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``mfg_fit`` -- METHOD-SELECTION card #159.
+    """Node ``mfg_fit`` -- method card #159.
 
     GARCH-MIDAS (a short-run GARCH × a long-run MIDAS macro component).
 
@@ -70,7 +70,7 @@ def mfg_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mfg_fit: not implemented. The method card is in ./README.md."
+        "mfg_fit: not implemented."
     )
 
 
@@ -79,7 +79,7 @@ def mfg_predict(
     object: Any,
     horizon: Sequence[int] | None = None,
 ) -> dict[str, Any]:
-    """Node ``mfg_predict`` -- METHOD-SELECTION card #159.
+    """Node ``mfg_predict`` -- method card #159.
 
     GARCH-MIDAS (a short-run GARCH × a long-run MIDAS macro component).
 
@@ -94,7 +94,7 @@ def mfg_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mfg_predict: not implemented. The method card is in ./README.md."
+        "mfg_predict: not implemented."
     )
 
 
@@ -116,7 +116,7 @@ def mfg_simulate(
     n_intraday: int | None = None,
     corr: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``mfg_simulate`` -- METHOD-SELECTION card #159.
+    """Node ``mfg_simulate`` -- method card #159.
 
     GARCH-MIDAS (a short-run GARCH × a long-run MIDAS macro component).
 
@@ -145,5 +145,5 @@ def mfg_simulate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mfg_simulate: not implemented. The method card is in ./README.md."
+        "mfg_simulate: not implemented."
     )

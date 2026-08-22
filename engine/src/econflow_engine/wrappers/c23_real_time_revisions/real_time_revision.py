@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``real_time_revision`` -- METHOD-SELECTION card #229.
+"""Method wrapper ``real_time_revision`` -- method card #229.
 
 #229 Real-time data-revision analysis (vintages: a triangle, revision statistics,
     news-vs-noise/efficiency tests, a state-space nowcast)
@@ -8,8 +8,8 @@ Category 23-real-time-revisions; module ``real_time_revision``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def build_revision_triangle(
     *,
     df: pd.DataFrame,
 ) -> dict[str, Any]:
-    """Node ``build_revision_triangle`` -- METHOD-SELECTION card #229.
+    """Node ``build_revision_triangle`` -- method card #229.
 
     Real-time data-revision analysis (vintages: a triangle, revision statistics,
     news-vs-noise/efficiency tests, a state-space nowcast).
@@ -53,7 +53,7 @@ def build_revision_triangle(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "build_revision_triangle: not implemented. The method card is in ./README.md."
+        "build_revision_triangle: not implemented."
     )
 
 
@@ -65,7 +65,7 @@ def compute_revisions(
     nth_release: str | None = None,
     ref_date: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``compute_revisions`` -- METHOD-SELECTION card #229.
+    """Node ``compute_revisions`` -- method card #229.
 
     Real-time data-revision analysis (vintages: a triangle, revision statistics,
     news-vs-noise/efficiency tests, a state-space nowcast).
@@ -87,7 +87,7 @@ def compute_revisions(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "compute_revisions: not implemented. The method card is in ./README.md."
+        "compute_revisions: not implemented."
     )
 
 
@@ -98,7 +98,7 @@ def analyze_revisions(
     final_release: str | None = None,
     degree: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``analyze_revisions`` -- METHOD-SELECTION card #229.
+    """Node ``analyze_revisions`` -- method card #229.
 
     Real-time data-revision analysis (vintages: a triangle, revision statistics,
     news-vs-noise/efficiency tests, a state-space nowcast).
@@ -118,7 +118,7 @@ def analyze_revisions(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "analyze_revisions: not implemented. The method card is in ./README.md."
+        "analyze_revisions: not implemented."
     )
 
 
@@ -131,7 +131,7 @@ def first_efficient_release(
     robust: bool | None = None,
     test_all: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``first_efficient_release`` -- METHOD-SELECTION card #229.
+    """Node ``first_efficient_release`` -- method card #229.
 
     Real-time data-revision analysis (vintages: a triangle, revision statistics,
     news-vs-noise/efficiency tests, a state-space nowcast).
@@ -155,7 +155,7 @@ def first_efficient_release(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "first_efficient_release: not implemented. The method card is in ./README.md."
+        "first_efficient_release: not implemented."
     )
 
 
@@ -168,7 +168,7 @@ def nowcast_revisions(
     h: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``nowcast_revisions`` -- METHOD-SELECTION card #229.
+    """Node ``nowcast_revisions`` -- method card #229.
 
     Real-time data-revision analysis (vintages: a triangle, revision statistics,
     news-vs-noise/efficiency tests, a state-space nowcast).
@@ -178,7 +178,7 @@ def nowcast_revisions(
     Args:
         df: [df_handle, required] Handle to a long vintage DataFrame {time, pub_date, value}.
         e: [integer, required] Index of the first efficient release (> 0; from
-            first_efficient_release$e); e < n_releases is required.
+            first_efficient_release.e); e < n_releases is required.
         n_releases: [integer, optional] Number of releases for the state-space (0..n_releases;
             default 6). Default ``6``.
         method: [enum, optional] Model (default jvn): jvn=Jacobs-van Norden news/noise;
@@ -190,5 +190,5 @@ def nowcast_revisions(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nowcast_revisions: not implemented. The method card is in ./README.md."
+        "nowcast_revisions: not implemented."
     )

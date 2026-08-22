@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``nonparametric_time_varying`` -- METHOD-SELECTION card #212.
+"""Method wrapper ``nonparametric_time_varying`` -- method card #212.
 
 #212 Nonparametric time-varying yield curve / discount function estimation from coupon-bond
     cash-flow data (the Koo-La Vecchia-Linton kernel estimator)
@@ -8,8 +8,8 @@ Category 18-yield-curve; module ``nonparametric_time_varying``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "ycevo_estimate",
+    "ycnp_estimate",
     "NODE_META",
     "wire_model",
 ]
 
 
-def ycevo_estimate(
+def ycnp_estimate(
     *,
     data: pd.DataFrame,
     x: Sequence[str],
@@ -41,7 +41,7 @@ def ycevo_estimate(
     ht: Sequence[float] | None = None,
     smooth: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ycevo_estimate`` -- METHOD-SELECTION card #212.
+    """Node ``ycnp_estimate`` -- method card #212.
 
     Nonparametric time-varying yield curve / discount function estimation from coupon-bond cash-flow
     data (the Koo-La Vecchia-Linton kernel estimator).
@@ -68,5 +68,5 @@ def ycevo_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ycevo_estimate: not implemented. The method card is in ./README.md."
+        "ycnp_estimate: not implemented."
     )

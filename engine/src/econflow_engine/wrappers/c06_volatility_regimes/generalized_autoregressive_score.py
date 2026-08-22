@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``generalized_autoregressive_score`` -- METHOD-SELECTION card #158.
+"""Method wrapper ``generalized_autoregressive_score`` -- method card #158.
 
 #158 Generalized Autoregressive Score / Dynamic Conditional Score (GAS/DCS) — a time-varying
     volatility/location/tails
@@ -8,8 +8,8 @@ Category 06-volatility-regimes; module ``generalized_autoregressive_score``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -68,7 +68,7 @@ def gas_fit(
     par_static: Sequence[int] | None = None,
     maxeval: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``gas_fit`` -- METHOD-SELECTION card #158.
+    """Node ``gas_fit`` -- method card #158.
 
     Generalized Autoregressive Score / Dynamic Conditional Score (GAS/DCS) — a time-varying
     volatility/location/tails.
@@ -98,7 +98,7 @@ def gas_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gas_fit: not implemented. The method card is in ./README.md."
+        "gas_fit: not implemented."
     )
 
 
@@ -110,7 +110,7 @@ def gas_forecast(
     rep_ahead: int | None = None,
     quant: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``gas_forecast`` -- METHOD-SELECTION card #158.
+    """Node ``gas_forecast`` -- method card #158.
 
     Generalized Autoregressive Score / Dynamic Conditional Score (GAS/DCS) — a time-varying
     volatility/location/tails.
@@ -131,7 +131,7 @@ def gas_forecast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gas_forecast: not implemented. The method card is in ./README.md."
+        "gas_forecast: not implemented."
     )
 
 
@@ -140,7 +140,7 @@ def gas_simulate(
     object: Any,
     t_sim: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``gas_simulate`` -- METHOD-SELECTION card #158.
+    """Node ``gas_simulate`` -- method card #158.
 
     Generalized Autoregressive Score / Dynamic Conditional Score (GAS/DCS) — a time-varying
     volatility/location/tails.
@@ -156,5 +156,5 @@ def gas_simulate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gas_simulate: not implemented. The method card is in ./README.md."
+        "gas_simulate: not implemented."
     )

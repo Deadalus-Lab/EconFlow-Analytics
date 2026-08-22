@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``stl_decomposition_tolerant`` -- METHOD-SELECTION card #188.
+"""Method wrapper ``stl_decomposition_tolerant`` -- method card #188.
 
-#188 STL decomposition (seasonal-trend-loess) tolerant of NA + short series
+#188 STL decomposition (seasonal-trend-loess) tolerant of gaps and short series
 
 Category 10-trend-cycle-statespace; module ``stl_decomposition_tolerant``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,13 +23,13 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "stlplus_decompose",
+    "stl_tolerant_decompose",
     "NODE_META",
     "wire_model",
 ]
 
 
-def stlplus_decompose(
+def stl_tolerant_decompose(
     *,
     x: pd.Series,
     n_p: int | None = None,
@@ -40,9 +40,9 @@ def stlplus_decompose(
     inner: int | None = None,
     outer: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``stlplus_decompose`` -- METHOD-SELECTION card #188.
+    """Node ``stl_tolerant_decompose`` -- method card #188.
 
-    STL decomposition (seasonal-trend-loess) tolerant of NA + short series.
+    STL decomposition (seasonal-trend-loess) tolerant of gaps and short series.
 
     Category 10-trend-cycle-statespace; memory class ``light``.
 
@@ -65,5 +65,5 @@ def stlplus_decompose(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "stlplus_decompose: not implemented. The method card is in ./README.md."
+        "stl_tolerant_decompose: not implemented."
     )

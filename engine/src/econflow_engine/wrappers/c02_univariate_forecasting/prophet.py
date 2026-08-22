@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``prophet`` -- METHOD-SELECTION card #9.
+"""Method wrapper ``prophet`` -- method card #9.
 
-#9 prophet
+#9 Additive/logistic-trend forecasting with holidays and multiple seasonalities (Prophet)
 
 Category 02-univariate-forecasting; module ``prophet``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,9 +40,9 @@ def run_prophet(
     periods: int | None = None,
     freq: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_prophet`` -- METHOD-SELECTION card #9.
+    """Node ``run_prophet`` -- method card #9.
 
-    prophet.
+    Additive/logistic-trend forecasting with holidays and multiple seasonalities (Prophet).
 
     Category 02-univariate-forecasting; memory class ``heavy``.
 
@@ -62,7 +62,7 @@ def run_prophet(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_prophet: not implemented. The method card is in ./README.md."
+        "run_prophet: not implemented."
     )
 
 
@@ -75,9 +75,9 @@ def run_prophet_cv(
     initial: int | None = None,
     rolling_window: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_prophet_cv`` -- METHOD-SELECTION card #9.
+    """Node ``run_prophet_cv`` -- method card #9.
 
-    prophet.
+    Additive/logistic-trend forecasting with holidays and multiple seasonalities (Prophet).
 
     Category 02-univariate-forecasting; memory class ``heavy``.
 
@@ -94,5 +94,5 @@ def run_prophet_cv(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_prophet_cv: not implemented. The method card is in ./README.md."
+        "run_prophet_cv: not implemented."
     )

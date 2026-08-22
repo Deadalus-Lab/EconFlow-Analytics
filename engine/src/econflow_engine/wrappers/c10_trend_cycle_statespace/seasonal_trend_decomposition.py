@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``seasonal_trend_decomposition`` -- METHOD-SELECTION card #187.
+"""Method wrapper ``seasonal_trend_decomposition`` -- method card #187.
 
 #187 Seasonal-Trend decomposition using Regression (AutoSTR) — trend + multiple/complex seasonality
     + remainder with CIs per component
@@ -8,8 +8,8 @@ Category 10-trend-cycle-statespace; module ``seasonal_trend_decomposition``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,14 +25,14 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "str_decompose",
-    "str_seasadj",
+    "regdec_decompose",
+    "regdec_seasadj",
     "NODE_META",
     "wire_model",
 ]
 
 
-def str_decompose(
+def regdec_decompose(
     *,
     y: pd.Series,
     frequency: int | None = None,
@@ -42,7 +42,7 @@ def str_decompose(
     lambdas: Sequence[float] | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``str_decompose`` -- METHOD-SELECTION card #187.
+    """Node ``regdec_decompose`` -- method card #187.
 
     Seasonal-Trend decomposition using Regression (AutoSTR) — trend + multiple/complex seasonality +
     remainder with CIs per component.
@@ -71,16 +71,16 @@ def str_decompose(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "str_decompose: not implemented. The method card is in ./README.md."
+        "regdec_decompose: not implemented."
     )
 
 
-def str_seasadj(
+def regdec_seasadj(
     *,
     object: Any,
     include: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``str_seasadj`` -- METHOD-SELECTION card #187.
+    """Node ``regdec_seasadj`` -- method card #187.
 
     Seasonal-Trend decomposition using Regression (AutoSTR) — trend + multiple/complex seasonality +
     remainder with CIs per component.
@@ -88,7 +88,7 @@ def str_seasadj(
     Category 10-trend-cycle-statespace; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to an STR object (str_decompose$object).
+        object: [raw_handle, required] Handle to an STR object (regdec_decompose.object).
         include: [raw, optional] Names of the components that are summed (character vector)· None =
             ["Trend","Random"] = seasonally-adjusted.
 
@@ -96,5 +96,5 @@ def str_seasadj(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "str_seasadj: not implemented. The method card is in ./README.md."
+        "regdec_seasadj: not implemented."
     )

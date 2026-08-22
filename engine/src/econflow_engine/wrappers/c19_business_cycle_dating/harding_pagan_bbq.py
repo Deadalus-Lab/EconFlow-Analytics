@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``harding_pagan_bbq`` -- METHOD-SELECTION card #88.
+"""Method wrapper ``harding_pagan_bbq`` -- method card #88.
 
 #88 Harding-Pagan BBQ (Quarterly Bry-Boschan turning points)
 
@@ -7,8 +7,8 @@ Category 19-business-cycle-dating; module ``harding_pagan_bbq``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def date_business_cycles(
     minphase: int | None = None,
     name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``date_business_cycles`` -- METHOD-SELECTION card #88.
+    """Node ``date_business_cycles`` -- method card #88.
 
     Harding-Pagan BBQ (Quarterly Bry-Boschan turning points).
 
@@ -56,7 +56,7 @@ def date_business_cycles(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "date_business_cycles: not implemented. The method card is in ./README.md."
+        "date_business_cycles: not implemented."
     )
 
 
@@ -65,7 +65,7 @@ def average_over_phases(
     series: pd.Series,
     dates: Any,
 ) -> dict[str, Any]:
-    """Node ``average_over_phases`` -- METHOD-SELECTION card #88.
+    """Node ``average_over_phases`` -- method card #88.
 
     Harding-Pagan BBQ (Quarterly Bry-Boschan turning points).
 
@@ -81,5 +81,5 @@ def average_over_phases(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "average_over_phases: not implemented. The method card is in ./README.md."
+        "average_over_phases: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``confidence_set`` -- METHOD-SELECTION card #75.
+"""Method wrapper ``confidence_set`` -- method card #75.
 
 #75 Model Confidence Set (Hansen-Lunde-Nason)
 
@@ -7,8 +7,8 @@ Category 15-model-evaluation; module ``confidence_set``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def run_mcs_procedure(
     min_k: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_mcs_procedure`` -- METHOD-SELECTION card #75.
+    """Node ``run_mcs_procedure`` -- method card #75.
 
     Model Confidence Set (Hansen-Lunde-Nason).
 
@@ -64,7 +64,7 @@ def run_mcs_procedure(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_mcs_procedure: not implemented. The method card is in ./README.md."
+        "run_mcs_procedure: not implemented."
     )
 
 
@@ -74,7 +74,7 @@ def compute_loss_level(
     evaluated: np.ndarray,
     which: Literal["SE", "AE"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``compute_loss_level`` -- METHOD-SELECTION card #75.
+    """Node ``compute_loss_level`` -- method card #75.
 
     Model Confidence Set (Hansen-Lunde-Nason).
 
@@ -90,7 +90,7 @@ def compute_loss_level(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "compute_loss_level: not implemented. The method card is in ./README.md."
+        "compute_loss_level: not implemented."
     )
 
 
@@ -100,7 +100,7 @@ def compute_loss_vol(
     evaluated: np.ndarray,
     which: Literal["SE1", "SE2", "QLIKE", "R2LOG", "AE1", "AE2"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``compute_loss_vol`` -- METHOD-SELECTION card #75.
+    """Node ``compute_loss_vol`` -- method card #75.
 
     Model Confidence Set (Hansen-Lunde-Nason).
 
@@ -118,5 +118,5 @@ def compute_loss_vol(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "compute_loss_vol: not implemented. The method card is in ./README.md."
+        "compute_loss_vol: not implemented."
     )

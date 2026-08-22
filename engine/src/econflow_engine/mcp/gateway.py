@@ -83,7 +83,7 @@ def _card_index() -> dict[int, str]:
     """
     from pathlib import Path
 
-    artifact = Path(__file__).resolve().parents[3] / "artifacts" / "method-cards.v1.json"
+    artifact = Path(__file__).resolve().parents[3] / "artifacts" / "method-cards.json"
     cards = json.loads(artifact.read_bytes().decode("utf-8"))["cards"]
     return {int(c["id"]): str(c["wrapper_file"]) for c in cards}
 

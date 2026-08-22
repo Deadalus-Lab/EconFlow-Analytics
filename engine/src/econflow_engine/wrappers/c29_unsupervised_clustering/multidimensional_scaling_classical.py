@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``multidimensional_scaling_classical`` -- METHOD-SELECTION card #245.
+"""Method wrapper ``multidimensional_scaling_classical`` -- method card #245.
 
-#245 Multidimensional Scaling: CLASSICAL/metric (cmdscale = principal coordinates analysis, + the
-    Cailliez constant) · NON-METRIC after Kruskal (isoMDS) · the NON-LINEAR Sammon mapping
+#245 Multidimensional Scaling: CLASSICAL/metric (principal coordinates analysis + the Cailliez
+    constant) · NON-METRIC after Kruskal · the NON-LINEAR Sammon mapping
 
 Category 29-unsupervised-clustering; module ``multidimensional_scaling_classical``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -21,24 +21,24 @@ from econflow_engine.generated.args.c29_unsupervised_clustering import NODE_META
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "mds_cmdscale",
-    "mds_isomds",
+    "mds_classical",
+    "mds_nonmetric",
     "mds_sammon",
     "NODE_META",
     "wire_model",
 ]
 
 
-def mds_cmdscale(
+def mds_classical(
     *,
     d: Any,
     k: int | None = None,
     add: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``mds_cmdscale`` -- METHOD-SELECTION card #245.
+    """Node ``mds_classical`` -- method card #245.
 
-    Multidimensional Scaling: CLASSICAL/metric (cmdscale = principal coordinates analysis, + the
-    Cailliez constant) · NON-METRIC after Kruskal (isoMDS) · the NON-LINEAR Sammon mapping.
+    Multidimensional Scaling: CLASSICAL/metric (principal coordinates analysis + the Cailliez
+    constant) · NON-METRIC after Kruskal · the NON-LINEAR Sammon mapping.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
@@ -57,11 +57,11 @@ def mds_cmdscale(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mds_cmdscale: not implemented. The method card is in ./README.md."
+        "mds_classical: not implemented."
     )
 
 
-def mds_isomds(
+def mds_nonmetric(
     *,
     d: Any,
     k: int | None = None,
@@ -69,10 +69,10 @@ def mds_isomds(
     tol: float | None = None,
     p: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``mds_isomds`` -- METHOD-SELECTION card #245.
+    """Node ``mds_nonmetric`` -- method card #245.
 
-    Multidimensional Scaling: CLASSICAL/metric (cmdscale = principal coordinates analysis, + the
-    Cailliez constant) · NON-METRIC after Kruskal (isoMDS) · the NON-LINEAR Sammon mapping.
+    Multidimensional Scaling: CLASSICAL/metric (principal coordinates analysis + the Cailliez
+    constant) · NON-METRIC after Kruskal · the NON-LINEAR Sammon mapping.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
@@ -95,7 +95,7 @@ def mds_isomds(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mds_isomds: not implemented. The method card is in ./README.md."
+        "mds_nonmetric: not implemented."
     )
 
 
@@ -107,10 +107,10 @@ def mds_sammon(
     magic: float | None = None,
     tol: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``mds_sammon`` -- METHOD-SELECTION card #245.
+    """Node ``mds_sammon`` -- method card #245.
 
-    Multidimensional Scaling: CLASSICAL/metric (cmdscale = principal coordinates analysis, + the
-    Cailliez constant) · NON-METRIC after Kruskal (isoMDS) · the NON-LINEAR Sammon mapping.
+    Multidimensional Scaling: CLASSICAL/metric (principal coordinates analysis + the Cailliez
+    constant) · NON-METRIC after Kruskal · the NON-LINEAR Sammon mapping.
 
     Category 29-unsupervised-clustering; memory class ``mcmc``.
 
@@ -131,5 +131,5 @@ def mds_sammon(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mds_sammon: not implemented. The method card is in ./README.md."
+        "mds_sammon: not implemented."
     )

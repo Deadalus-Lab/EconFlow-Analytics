@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``numeric_rescaling_axis`` -- METHOD-SELECTION card #120.
+"""Method wrapper ``numeric_rescaling_axis`` -- method card #120.
 
 #120 Numeric rescaling (min-max / around-mid) + axis break positions (extended/log) + label strings
     (number/percent)
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``numeric_rescaling_axis``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def scale_rescale(
     to: Sequence[float] | None = None,
     from_: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``scale_rescale`` -- METHOD-SELECTION card #120.
+    """Node ``scale_rescale`` -- method card #120.
 
     Numeric rescaling (min-max / around-mid) + axis break positions (extended/log) + label strings
     (number/percent).
@@ -58,7 +58,7 @@ def scale_rescale(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "scale_rescale: not implemented. The method card is in ./README.md."
+        "scale_rescale: not implemented."
     )
 
 
@@ -69,7 +69,7 @@ def scale_rescale_mid(
     to: Sequence[float] | None = None,
     from_: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``scale_rescale_mid`` -- METHOD-SELECTION card #120.
+    """Node ``scale_rescale_mid`` -- method card #120.
 
     Numeric rescaling (min-max / around-mid) + axis break positions (extended/log) + label strings
     (number/percent).
@@ -89,7 +89,7 @@ def scale_rescale_mid(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "scale_rescale_mid: not implemented. The method card is in ./README.md."
+        "scale_rescale_mid: not implemented."
     )
 
 
@@ -100,7 +100,7 @@ def scale_breaks(
     type: Literal["extended", "log"] | None = None,
     base: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``scale_breaks`` -- METHOD-SELECTION card #120.
+    """Node ``scale_breaks`` -- method card #120.
 
     Numeric rescaling (min-max / around-mid) + axis break positions (extended/log) + label strings
     (number/percent).
@@ -120,7 +120,7 @@ def scale_breaks(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "scale_breaks: not implemented. The method card is in ./README.md."
+        "scale_breaks: not implemented."
     )
 
 
@@ -131,7 +131,7 @@ def scale_labels(
     accuracy: float | None = None,
     big_mark: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``scale_labels`` -- METHOD-SELECTION card #120.
+    """Node ``scale_labels`` -- method card #120.
 
     Numeric rescaling (min-max / around-mid) + axis break positions (extended/log) + label strings
     (number/percent).
@@ -149,5 +149,5 @@ def scale_labels(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "scale_labels: not implemented. The method card is in ./README.md."
+        "scale_labels: not implemented."
     )

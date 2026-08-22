@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``gb2_parametric_income`` -- METHOD-SELECTION card #227.
+"""Method wrapper ``gb2_parametric_income`` -- method card #227.
 
 #227 GB2 (Generalized Beta of the 2nd kind, 4 parameters a,b,p,q) parametric income-distribution ML
     fit + analytic Gini/ARPR
@@ -8,8 +8,8 @@ Category 22-inequality; module ``gb2_parametric_income``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def fit_gb2(
     prop: float | None = None,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fit_gb2`` -- METHOD-SELECTION card #227.
+    """Node ``fit_gb2`` -- method card #227.
 
     GB2 (Generalized Beta of the 2nd kind, 4 parameters a,b,p,q) parametric income-distribution ML
     fit + analytic Gini/ARPR.
@@ -60,7 +60,7 @@ def fit_gb2(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fit_gb2: not implemented. The method card is in ./README.md."
+        "fit_gb2: not implemented."
     )
 
 
@@ -70,7 +70,7 @@ def gini_gb2(
     shape2: float,
     shape3: float,
 ) -> dict[str, Any]:
-    """Node ``gini_gb2`` -- METHOD-SELECTION card #227.
+    """Node ``gini_gb2`` -- method card #227.
 
     GB2 (Generalized Beta of the 2nd kind, 4 parameters a,b,p,q) parametric income-distribution ML
     fit + analytic Gini/ARPR.
@@ -86,7 +86,7 @@ def gini_gb2(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gini_gb2: not implemented. The method card is in ./README.md."
+        "gini_gb2: not implemented."
     )
 
 
@@ -97,7 +97,7 @@ def arpr_gb2(
     shape2: float,
     shape3: float,
 ) -> dict[str, Any]:
-    """Node ``arpr_gb2`` -- METHOD-SELECTION card #227.
+    """Node ``arpr_gb2`` -- method card #227.
 
     GB2 (Generalized Beta of the 2nd kind, 4 parameters a,b,p,q) parametric income-distribution ML
     fit + analytic Gini/ARPR.
@@ -114,5 +114,5 @@ def arpr_gb2(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "arpr_gb2: not implemented. The method card is in ./README.md."
+        "arpr_gb2: not implemented."
     )

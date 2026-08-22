@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``general_specific_selection`` -- METHOD-SELECTION card #124.
+"""Method wrapper ``general_specific_selection`` -- method card #124.
 
 #124 General-to-Specific (GETS) model selection + Indicator Saturation (IIS/SIS/TIS) for outliers &
     structural breaks
@@ -8,8 +8,8 @@ Category 01-preparation-prechecks; module ``general_specific_selection``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -26,15 +26,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "gts_arx",
-    "gts_getsm",
-    "gts_isat",
+    "gts_ar_x",
+    "gts_indicator_saturation",
+    "gts_model_selection",
     "NODE_META",
     "wire_model",
 ]
 
 
-def gts_arx(
+def gts_ar_x(
     *,
     y: pd.Series,
     mc: bool | None = None,
@@ -42,7 +42,7 @@ def gts_arx(
     exog_matrix: np.ndarray | None = None,
     vcov_type: Literal["ordinary", "white", "newey-west"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``gts_arx`` -- METHOD-SELECTION card #124.
+    """Node ``gts_ar_x`` -- method card #124.
 
     General-to-Specific (GETS) model selection + Indicator Saturation (IIS/SIS/TIS) for outliers &
     structural breaks.
@@ -65,11 +65,11 @@ def gts_arx(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gts_arx: not implemented. The method card is in ./README.md."
+        "gts_ar_x: not implemented."
     )
 
 
-def gts_getsm(
+def gts_model_selection(
     *,
     object: Any,
     t_pval: float | None = None,
@@ -77,7 +77,7 @@ def gts_getsm(
     vcov_type: Literal["ordinary", "white"] | None = None,
     info_method: Literal["sc", "aic", "aicc", "hq"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``gts_getsm`` -- METHOD-SELECTION card #124.
+    """Node ``gts_model_selection`` -- method card #124.
 
     General-to-Specific (GETS) model selection + Indicator Saturation (IIS/SIS/TIS) for outliers &
     structural breaks.
@@ -85,7 +85,7 @@ def gts_getsm(
     Category 01-preparation-prechecks; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to an 'arx' object (from gts_arx$model) = the GUM.
+        object: [raw_handle, required] Handle to an 'arx' object (from gts_ar_x.model) = the GUM.
         t_pval: [number, optional] Significance of the t-tests, strictly (0,1) (default 0.05).
             Default ``0.05``.
         wald_pval: [number, optional] Significance of the PET tests (default = t.pval).
@@ -97,11 +97,11 @@ def gts_getsm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gts_getsm: not implemented. The method card is in ./README.md."
+        "gts_model_selection: not implemented."
     )
 
 
-def gts_isat(
+def gts_indicator_saturation(
     *,
     y: pd.Series,
     mc: bool | None = None,
@@ -113,7 +113,7 @@ def gts_isat(
     t_pval: float | None = None,
     vcov_type: Literal["ordinary", "white", "newey-west"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``gts_isat`` -- METHOD-SELECTION card #124.
+    """Node ``gts_indicator_saturation`` -- method card #124.
 
     General-to-Specific (GETS) model selection + Indicator Saturation (IIS/SIS/TIS) for outliers &
     structural breaks.
@@ -143,5 +143,5 @@ def gts_isat(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gts_isat: not implemented. The method card is in ./README.md."
+        "gts_indicator_saturation: not implemented."
     )

@@ -1,17 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``affluence_richness_indices`` -- METHOD-SELECTION card #228.
+"""Method wrapper ``affluence_richness_indices`` -- method card #228.
 
 #228 affluence/richness indices (the top-tail mirror of poverty indices): the richness headcount
-    ratio (r.hc), the Chakravarty concave T1 index (r.cha), the FGT convex T2 index (r.fgt), the
-    Medeiros average affluence gap (r.med), the top income share (r.is), the Medeiros affluence line
-    (line.med) — weighted implementations
+    ratio, the Chakravarty concave T1 index, the FGT convex T2 index, the Medeiros average affluence
+    gap, the top income share, the Medeiros affluence line — weighted implementations
 
 Category 22-inequality; module ``affluence_richness_indices``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -43,12 +42,11 @@ def richness_index(
     beta: float | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``richness_index`` -- METHOD-SELECTION card #228.
+    """Node ``richness_index`` -- method card #228.
 
     affluence/richness indices (the top-tail mirror of poverty indices): the richness headcount
-    ratio (r.hc), the Chakravarty concave T1 index (r.cha), the FGT convex T2 index (r.fgt), the
-    Medeiros average affluence gap (r.med), the top income share (r.is), the Medeiros affluence line
-    (line.med) — weighted implementations.
+    ratio, the Chakravarty concave T1 index, the FGT convex T2 index, the Medeiros average affluence
+    gap, the top income share, the Medeiros affluence line — weighted implementations.
 
     Category 22-inequality; memory class ``light``.
 
@@ -68,7 +66,7 @@ def richness_index(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "richness_index: not implemented. The method card is in ./README.md."
+        "richness_index: not implemented."
     )
 
 
@@ -78,12 +76,11 @@ def income_share_top(
     weight: np.ndarray | None = None,
     p: float,
 ) -> dict[str, Any]:
-    """Node ``income_share_top`` -- METHOD-SELECTION card #228.
+    """Node ``income_share_top`` -- method card #228.
 
     affluence/richness indices (the top-tail mirror of poverty indices): the richness headcount
-    ratio (r.hc), the Chakravarty concave T1 index (r.cha), the FGT convex T2 index (r.fgt), the
-    Medeiros average affluence gap (r.med), the top income share (r.is), the Medeiros affluence line
-    (line.med) — weighted implementations.
+    ratio, the Chakravarty concave T1 index, the FGT convex T2 index, the Medeiros average affluence
+    gap, the top income share, the Medeiros affluence line — weighted implementations.
 
     Category 22-inequality; memory class ``light``.
 
@@ -98,7 +95,7 @@ def income_share_top(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "income_share_top: not implemented. The method card is in ./README.md."
+        "income_share_top: not implemented."
     )
 
 
@@ -108,12 +105,11 @@ def affluence_line(
     weight: np.ndarray | None = None,
     k: float,
 ) -> dict[str, Any]:
-    """Node ``affluence_line`` -- METHOD-SELECTION card #228.
+    """Node ``affluence_line`` -- method card #228.
 
     affluence/richness indices (the top-tail mirror of poverty indices): the richness headcount
-    ratio (r.hc), the Chakravarty concave T1 index (r.cha), the FGT convex T2 index (r.fgt), the
-    Medeiros average affluence gap (r.med), the top income share (r.is), the Medeiros affluence line
-    (line.med) — weighted implementations.
+    ratio, the Chakravarty concave T1 index, the FGT convex T2 index, the Medeiros average affluence
+    gap, the top income share, the Medeiros affluence line — weighted implementations.
 
     Category 22-inequality; memory class ``light``.
 
@@ -128,5 +124,5 @@ def affluence_line(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "affluence_line: not implemented. The method card is in ./README.md."
+        "affluence_line: not implemented."
     )

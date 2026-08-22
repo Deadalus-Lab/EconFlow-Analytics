@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``dynamic_time_warping`` -- METHOD-SELECTION card #243.
+"""Method wrapper ``dynamic_time_warping`` -- method card #243.
 
 #243 Dynamic Time Warping (DTW): a shape-based distance with NON-LINEAR alignment in time — a
     query/reference pair + a cross-distance matrix (`dist`) for downstream clustering
@@ -8,8 +8,8 @@ Category 29-unsupervised-clustering; module ``dynamic_time_warping``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,14 +25,14 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
+    "dw_align",
     "dw_dist_matrix",
-    "dw_dtw",
     "NODE_META",
     "wire_model",
 ]
 
 
-def dw_dtw(
+def dw_align(
     *,
     query: pd.Series,
     reference: pd.Series,
@@ -57,7 +57,7 @@ def dw_dtw(
     transform: Literal["none", "zscore"] | None = None,
     distance_only: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dw_dtw`` -- METHOD-SELECTION card #243.
+    """Node ``dw_align`` -- method card #243.
 
     Dynamic Time Warping (DTW): a shape-based distance with NON-LINEAR alignment in time — a
     query/reference pair + a cross-distance matrix (`dist`) for downstream clustering.
@@ -97,7 +97,7 @@ def dw_dtw(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dw_dtw: not implemented. The method card is in ./README.md."
+        "dw_align: not implemented."
     )
 
 
@@ -121,7 +121,7 @@ def dw_dist_matrix(
     normalize: bool | None = None,
     orientation: Literal["rows_are_objects", "columns_are_objects"],
 ) -> dict[str, Any]:
-    """Node ``dw_dist_matrix`` -- METHOD-SELECTION card #243.
+    """Node ``dw_dist_matrix`` -- method card #243.
 
     Dynamic Time Warping (DTW): a shape-based distance with NON-LINEAR alignment in time — a
     query/reference pair + a cross-distance matrix (`dist`) for downstream clustering.
@@ -163,5 +163,5 @@ def dw_dist_matrix(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dw_dist_matrix: not implemented. The method card is in ./README.md."
+        "dw_dist_matrix: not implemented."
     )

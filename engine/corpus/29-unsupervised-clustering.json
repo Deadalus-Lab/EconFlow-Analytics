@@ -1,0 +1,3505 @@
+{
+ "category": "29-unsupervised-clustering",
+ "cards": [
+  {
+   "id": 240,
+   "method": "DISTANCE / dissimilarity matrix between objects: the 6 classic metrics, correlation-based dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), 14 further shape/compositional/Mahalanobis metrics",
+   "wrapper_file": "c29_unsupervised_clustering/distance_dissimilarity_matrix.py",
+   "tool_fns": [
+    "dm_distance",
+    "dm_correlation_distance",
+    "dm_custom_distance"
+   ],
+   "when": "the FIRST node of every unsupervised flow: it produces the dissimilarity matrix between «objects» (countries, macro series, regimes) that is the MANDATORY input to hierarchical clustering (#242 hclust/agnes/diana), PAM/silhouette (#241) and MDS (#245); the ORIENTATION (objects in the rows vs in the columns) is an EXPLICIT required argument and is NEVER guessed",
+   "when_not": "sliding-window subsequences of a time series (the KEOGH GATE — a hard stop); shape-based similarity robust to time shifts -> DTW (#243); the cross-distance between TWO DIFFERENT sets (a cross or pairwise distance -> the DTW node #243); mixed-type (numeric + categorical) data (daisy/Gower — not exposed); testing the SIGNIFICANCE of a correlation (p-values/CI) -> #81 desc_cor_test (c00_data_utilities/descriptive_statistics); filtering collinear COLUMNS -> #252 cf_find_correlation (c00_data_utilities/correlation_filter_greedy); charts/heatmaps (the frontend, §5); a single series (n>=2 objects are required)",
+   "alternatives": [
+    {
+     "alt": "dm_distance (euclidean/maximum/manhattan/canberra/binary/minkowski)",
+     "criterion": "the objects are compared on the SAME magnitude scale (index levels): euclidean=L2 (default); manhattan=L1 (more robust to outliers); maximum=the sup norm; canberra ONLY for NON-negative counts; binary=an asymmetric Jaccard on on/off data; minkowski=Lp with an explicit p>0"
+    },
+    {
+     "alt": "dm_correlation_distance (transform='mantegna')",
+     "criterion": "you want a GENUINE metric from correlations — d=sqrt(2(1-r)) satisfies the triangle inequality (Mantegna 1999); PREFER it when ward.D2 (#242) or classical MDS (#245) follows, since both presuppose a euclidean/metric structure"
+    },
+    {
+     "alt": "dm_correlation_distance (transform='one_minus' | 'one_minus_abs')",
+     "criterion": "synchronisation of SHAPE (co-movement) rather than a distance between levels: one_minus (d=1-r, range [0,2]) when the DIRECTION matters (countercyclical series = FAR apart); one_minus_abs (d=1-|r|, range [0,1]) when the opposite phase counts as SIMILARITY"
+    },
+    {
+     "alt": "dm_correlation_distance (cor_method='spearman' | 'kendall')",
+     "criterion": "a non-linear monotone relation or extreme values/heavy tails: spearman (ranks); kendall (concordance, small samples); pearson ONLY for a linear relation"
+    },
+    {
+     "alt": "dm_custom_distance (cosine/angular/Chord/Geodesic)",
+     "criterion": "you want the ANGLE (the shape of the profile) and NOT the magnitude — two countries with the same mix but a different scale are «close»; it requires a NON-zero row norm"
+    },
+    {
+     "alt": "dm_custom_distance (Bray/Soergel/Whittaker/Hellinger/Kullback/divergence/Wave/Podani/eJaccard)",
+     "criterion": "compositional/abundance data (shares, basket compositions, trade weights): NON-negative AND with a non-zero row sum"
+    },
+    {
+     "alt": "dm_custom_distance (Mahalanobis)",
+     "criterion": "the variables are CORRELATED and you want a distance decorrelated/scaled by the covariance matrix; it requires n > p AND a non-singular cov (otherwise a hard gate)"
+    },
+    {
+     "alt": "#243 dynamic time warping",
+     "criterion": "the objects are TIME SERIES with a time shift/a different phase speed (leading/lagging cycles) — the lock-step euclidean distance would call them dissimilar"
+    }
+   ],
+   "output_key_fields": [
+    "distance_matrix: the full SYMMETRIC n×n double matrix with axis labels = the labels — the main chart-data (a distance map / heatmap in the frontend, §5)",
+    "lower_tri: the lower triangle BY COLUMN, of length n(n-1)/2 — the compact distance storage — plus labels, n_objects and n_features",
+    "min_distance / max_distance / mean_distance: a summary of the scale — if the range is ~0 there is no structure to cluster",
+    "n_zero_pairs: the number of pairs at distance EXACTLY 0 (DUPLICATE objects) — a value >0 WARNS of: isoMDS «zero or negative distance between objects i and j» (#245), all heights zero in hclust (#242), k <= the number of DISTINCT rows (#241)",
+    "dist_object: the compact distance object ITSELF -> registered as 'dist_object' by all three nodes; it is the PRODUCER of the category, and the handle #241/#242/#245 consume. SERIALIZATION: {lower_tri (the lower triangle by column), length, size, labels, method} — written explicitly, because the default path reported the shape as n×n for a vector of length n(n-1)/2, LOST the length, and filled in spurious names. The FULL symmetric matrix is NOT repeated there — it ALREADY exists as distance_matrix",
+    "method / orientation / family: exactly what was computed (the plain metric route, or the correlation-converted one); p is the Minkowski power ONLY when method='minkowski', and blank otherwise",
+    "dm_correlation_distance additionally: correlation_matrix (the n×n r matrix with axis labels — chart-data AND the interpretation of the sign) + cor_method + transform"
+   ],
+   "interpretation_traps": [
+    "NORMATIVE GATE 1 (KEOGH): a sliding-window subsequence input is REJECTED explicitly — the overlap of consecutive rows is detected at ANY fixed step k >= 1 (NOT only k=1: the «slide» is a free parameter of how the subsequences are built, so a step-2 window is covered by the result just as much), in both directions; k <= floor(m/2) so that the overlap stays >= 50%. The detection lives ONCE, in the shared gate_sliding_window_step helper used by #240, #241, #243 and #244. Clustering subsequences is PROVABLY meaningless: the output does NOT depend on the input (the centers degenerate into sine waves regardless of the data/k/algorithm; Keogh, Lin & Truppel). Whole-series clustering is NOT affected",
+    "NORMATIVE GATE 2 (do NOT impose detrending): the node NEVER transforms the input silently — no differencing, no seasonal adjustment, no standardization. The metric and the transform are an EXPLICIT gated choice from a closed enum; the macro clustering literature (arXiv:1807.04004) DELIBERATELY uses raw, non-seasonally-adjusted, non-detrended data, since detrending introduces artificial distortions (Hamilton on the HP filter)",
+    "ORIENTATION is required: 'rows_are_objects' (countries or units in the rows) against 'columns_are_objects' (series in the columns, time in the rows — the typical macro panel). The WRONG orientation does NOT error; it gives a completely different but apparently valid matrix, which is silently wrong — hence no default",
+    "SILENTLY WRONG, and documented: «Missing values are allowed, and are excluded from all computations involving the rows within which they occur... the sum is scaled up proportionally to the number of columns used» — so the distance does NOT error on a gap, it returns a rescaled value. We impose a HARD gate on gaps, NaN and infinities",
+    "SILENTLY WRONG: a zero-variance object in dm_correlation_distance makes the correlation WARN «the standard deviation is zero» and return a blank ⇒ a hard gate that names the offending objects; plus a gate of at least 3 observations per object, since with two points the correlation is ALWAYS ±1 and therefore degenerate",
+    "THE METRICS ARE NOT SCALE-INVARIANT: a variable in units (e.g. GDP in millions) dominates the euclidean distance over one in percentages. Standardization is an EXPLICIT DECISION upstream (or the transform in #241) — NEVER silent here",
+    "SILENTLY WRONG (the extended metric family, live-verified): a zero row norm makes the cosine SILENTLY return 1 while the angular, chord and geodesic metrics SILENTLY return NaN; negative values in the compositional metrics make Hellinger and Kullback only WARN «NaNs produced» while the rest return meaningless numbers; and a Mahalanobis distance with n<=p, or with collinear columns, reports «system is exactly singular». ALL THREE are hard gates per metric FAMILY, PLUS a universal post-check that no distance is non-finite or NEGATIVE",
+    "1-r vs 1-|r| vs Mantegna: ONLY sqrt(2(1-r)) is a GENUINE metric (it satisfies the triangle inequality) — ward.D2 (#242) and classical MDS (#245) assume a metric/euclidean structure; with 1-r or 1-|r| the results remain computable but the geometric interpretation (and the negative eigenvalues of cmdscale) change",
+    "canberra/binary CARRY SEMANTICS, AND THEY ARE HARD GATES (not a mere recommendation): binary = an asymmetric Jaccard over on/off data (the dist routine: «The vectors are regarded as binary bits, so non-zero elements are 'on'») ⇒ on CONTINUOUS macro data ALL the elements are 'on' and the metric SILENTLY returns a matrix FULL OF ZEROS («every country is identical»), which then feeds hclust/PAM/MDS — LIVE-VERIFIED silently wrong. The gate's rule is that EVERY element ∈ {0,1} and NOT «exactly two distinct values» (a {3,7} column passes the loose check and gives THE SAME zero matrix); the message points to the binning node (#251 bn_quantile_bins). canberra = sum |x_i-y_i|/(|x_i|+|y_i|) with the 0/0 terms OMITTED (the dist routine: «This is intended for non-negative values (e.g., counts)») ⇒ a hard gate on NEGATIVE values, on the same reasoning as the non-negativity gate of dm_custom_distance",
+    "DETERMINISM: pure arithmetic, no RNG, no seed; the 'call' attribute of the dist object is removed explicitly so that two calls written differently give an identical result (pinned in the tests)",
+    "a PRODUCER (register) node: dist_object travels downstream ONLY as a handle (an object-store pointer; CLAUDE.md §4); the input DATA travels as a matrix_handle — NEVER inline in the JSON schema"
+   ],
+   "sources": [
+    "the distance routine's documentation — the six methods and their exact formulas (canberra: «Terms with zero numerator and denominator are omitted»; binary is an asymmetric Jaccard); «Missing values are allowed, and are excluded from all computations involving the rows within which they occur... the sum is scaled up proportionally to the number of columns used», which is the documentation behind the silently-wrong gap gate; plus the size, labels, method and call attributes",
+    "the matrix-to-distance conversion (the lower triangle ONLY) and the correlation routine (computed PER COLUMN, warning-only on a zero standard deviation)",
+    "the extended metric registry — cosine, angular, chord, geodesic, Mahalanobis, Bray, Soergel, Whittaker, Hellinger, Kullback, divergence, Wave, Podani and extended Jaccard",
+    "Mantegna, R.N. (1999) «Hierarchical structure in financial markets», The European Physical Journal B 11(1):193-197 — d = sqrt(2(1-r)) as a GENUINE metric for the hierarchical clustering of correlated series",
+    "Keogh, Lin & Truppel «Clustering of Time Series Subsequences is Meaningless: Implications for Previous and Future Research», Proc. IEEE ICDM 2003 (extended in: Keogh & Lin, Knowledge and Information Systems 8(2):154-177, 2005) — the normative gate spec §3b normative gate 1",
+    "«Clustering Macroeconomic Time Series» arXiv:1807.04004 (the deliberate use of raw, non-seasonally-adjusted, non-detrended data) + Hamilton, J.D. (2018) «Why You Should Never Use the Hodrick-Prescott Filter», REStat 100(5) — the normative gate spec §3b normative gate 2",
+    "wrapper footer IMPLEMENTATION NOTE (c29_unsupervised_clustering/distance_dissimilarity_matrix) — the live-verified silently-wrong paths"
+   ],
+   "precondition_tools": [
+    "c00_data_utilities/fast_row_column.panel_col_stats # with stat='sd', check for ZERO VARIANCE before dm_correlation_distance: the correlation only WARNS «the standard deviation is zero» and returns a blank",
+    "c00_data_utilities/descriptive_statistics.desc_correlations # look at the r matrix BEFORE choosing a transform (one_minus if the DIRECTION matters; one_minus_abs if the opposite phase counts as «similar»)",
+    "dm_distance # run the euclidean distance first and look at n_zero_pairs: >0 means DUPLICATE objects -> a trap in isoMDS (#245) and the bound k<=distinct in #241"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 241,
+   "method": "Partitional (flat) clustering + RULE-BASED selection of k: k-means (Hartigan-Wong/Lloyd/Forgy/MacQueen), PAM/k-medoids (Kaufman-Rousseeuw), the silhouette diagnostic (Rousseeuw), the gap statistic (Tibshirani-Walther-Hastie) with the 5 maxSE rules",
+   "wrapper_file": "c29_unsupervised_clustering/partitional_clustering_rule.py",
+   "tool_fns": [
+    "km_fit",
+    "km_pam",
+    "km_silhouette",
+    "km_gap"
+   ],
+   "when": "FLAT clustering of objects (countries x macro indicators, series x features) into a KNOWN or TO-BE-CHOSEN number of groups k, over a NUMERIC observations×features matrix. The normal flow: km_gap (a rule-based k) -> km_fit (fast, centroids) OR km_pam (robust, medoids = ACTUAL observations) -> km_silhouette (a quality diagnostic for the chosen k)",
+   "when_not": "you do not even know whether a flat structure exists, or you want the WHOLE hierarchy and a dendrogram -> #242; you want a PROBABILISTIC model with k selected by BIC -> #244; the input is a READY distance object (this node takes an observations-by-features matrix; for a distance-based flow see #242/#245); sliding-window subsequences (the Keogh gate); time alignment or lead-lag -> #243; a two-dimensional map of similarity -> #245; charts (the frontend, §5); data with gaps (there is no imputation here)",
+   "alternatives": [
+    {
+     "alt": "km_fit (algorithm='Hartigan-Wong')",
+     "criterion": "spherical clusters of similar size, a LARGE n, minimisation of the SUM OF SQUARES; the default algorithm (it does the job better than Lloyd/Forgy/MacQueen — the kmeans routine)"
+    },
+    {
+     "alt": "km_pam",
+     "criterion": "OUTLIERS / non-spherical clusters / you want a REPRESENTATIVE that is an ACTUAL observation (the «typical country» of the group): it minimises the SUM OF DISSIMILARITIES (not of squares); metric='manhattan' is even more robust; DETERMINISTIC WITHOUT a seed (the build phase)"
+    },
+    {
+     "alt": "km_gap (method='Tibs2001SEmax')",
+     "criterion": "you want the ORIGINAL rule of Tibshirani et al. («the smallest k with f(k) >= f(k+1) - s_{k+1}»); CAUTION: it selects k=1 when all the SE exceed the differences — a VALID result («no clusters»)"
+    },
+    {
+     "alt": "km_gap (fun_cluster='pam', B=500)",
+     "criterion": "a robust gap loop and final (not exploratory) results — the clusGap routine recommends B=500 for precision; the default B=100 is exploratory"
+    },
+    {
+     "alt": "km_gap (d_power=2)",
+     "criterion": "you want EXACTLY the proposal of Tibshirani et al. (squared euclidean distances in W(k)); the default d_power=1 is the HISTORICAL implementation"
+    },
+    {
+     "alt": "transform='scale' (a z-score) or 'center' or 'log'",
+     "criterion": "an EXPLICIT choice, NEVER silent: 'scale' when the columns have incompatible units (otherwise the largest dominates the euclidean distance); 'log' for multiplicative magnitudes (it requires STRICTLY positive values); 'none' (default) when the scale IS MEANINGFUL"
+    },
+    {
+     "alt": "#242 hclust/agnes/diana",
+     "criterion": "you want the WHOLE hierarchy (a dendrogram) and NOT a single k; or the natural input is already a distance matrix"
+    },
+    {
+     "alt": "#244 model-based clustering",
+     "criterion": "you want PROBABILISTIC (model-based) clustering where k and the cluster shapes are selected by BIC/ICL rather than by a geometric heuristic"
+    }
+   ],
+   "output_key_fields": [
+    "km_fit: cluster (named integer, with CANONICALIZED ids) + centers (k×p, chart-data) + size + withinss + tot_withinss/betweenss/totss + between_ratio (= betweenss/totss, the «explained» share of dispersion) + iter/ifault + canonical_order",
+    "km_pam: cluster + medoids (k×p — ACTUAL observations) + medoid_ids/medoid_labels (WHICH country is the representative) + clusinfo (size/max_diss/av_diss/diameter/separation) + objective_build/objective_swap + isolation + silhouette (n×3) + avg_silhouette/clus_avg_silhouette",
+    "km_silhouette: silhouette (n×3: cluster/neighbor/sil_width) + sil_width per observation + avg_silhouette + clus_avg_silhouette + size + n_negative (observations with s(i)<0 = POSSIBLY in the wrong cluster)",
+    "km_gap: gap_table (k×5: k/logW/E.logW/gap/SE.sim — the chart-data of the gap curve with error bars) + gap/se_sim/logw/e_logw (named) + optimal_k + optimal_k_by_rule (ALL 5 maxSE rules for comparison) + method/se_factor/B/d_power/space_h0",
+    "ALL of them: k/n/p/n_distinct + transform + transform_center/transform_scale (§3b gate 6: fit/apply externalization as NUMBERS) + observations/variables + seed (kmeans/gap)"
+   ],
+   "interpretation_traps": [
+    "NORMATIVE GATE 1 (KEOGH): a sliding-window subsequence matrix (each row = the previous one shifted by a FIXED step k >= 1 — NOT only k=1; the shared gate_sliding_window_step detector) is REJECTED — the centers degenerate into sine waves INDEPENDENTLY of the data, i.e. the output does NOT depend on the input (Keogh, Lin & Truppel). Whole-series/cross-section clustering is NOT affected",
+    "NORMATIVE GATE 2 (no silent detrending or standardization): 'transform' is an EXPLICIT closed-enum option defaulting to 'none'; the node NEVER standardizes or detrends on its own (arXiv:1807.04004; Hamilton on the HP filter)",
+    "DETERMINISM (charter §5), three parts TOGETHER: (a) the seed is MANDATORY in km_fit/km_gap (random initialisation / a bootstrap); (b) nstart >= 2 is a HARD GATE (a single random start = a local minimum that depends on the initialisation); (c) CANONICALIZATION of the cluster ids — «The clusters are numbered in the returned object, but they are a set and no ordering is implied. (Their apparent ordering may differ by platform.)» (the kmeans routine Note) ⇒ they are renumbered by DECREASING SIZE with ties broken lexicographically ASCENDING on the centroid/medoid coordinates. The caller's RNG state is RESTORED (L1 purity)",
+    "k <= the number of DISTINCT rows, NOT k <= n: duplicate countries break k<n. kmeans throws «more cluster centers than distinct data points.»; pam does NOT ERROR AT ALL — it returns DUPLICATE medoids (silently wrong) ⇒ our own hard gate AND a post-check that the medoids are distinct",
+    "SILENTLY WRONG: with the Lloyd or Forgy algorithm k-means can return FEWER than k clusters — an empty cluster gives NaN centres — WITHOUT an error: «Except for the Lloyd-Forgy method, k clusters will always be returned». Hence a post-check for empty clusters; the fault code 4 marks non-convergence in the quick-transfer stage, which exists ONLY under Hartigan-Wong and is blank elsewhere; plus a post-check of the identity totss = tot_withinss + betweenss",
+    "SILENTLY WRONG: the silhouette is defined ONLY for 2 <= k <= n-1; with k=1 it returns a blank WITHOUT an error ⇒ a hard gate (and km_pam with k=1 returns no silhouette information at all, live-verified); the cluster ids must be CONTIGUOUS, 1 to k",
+    "SILENTLY WRONG (ROW ORDER): the silhouette returns its rows SORTED by cluster and decreasing width, NOT in the order of the observations ⇒ the wrapper restores the order of x through the row labels; without that, a join back to the countries would be silently wrong",
+    "gaps, NaN and infinities: k-means throws a cryptic low-level error while the distance path behind the silhouette does not error at all ⇒ a single hard gate on the input; no imputation happens here",
+    "stand=True in km_pam TOGETHER with transform='scale' is DOUBLE standardization — the mean absolute deviation AND a z-score ⇒ a hard stop; choose one. The stand option divides by the MEAN ABSOLUTE DEVIATION, not the standard deviation",
+    "the gap statistic: maxSE is not one rule but FIVE — firstSEmax (default, Maechler 2012), Tibs2001SEmax (the original), globalSEmax (Dudoit-Fridlyand), firstmax, globalmax; the node returns ALL 5 (optimal_k_by_rule) so that their disagreement is VISIBLE rather than hidden. The gap is a bootstrap ⇒ it DEPENDS on the seed; the clusGap routine recommends B=500 for final results",
+    "between_ratio (kmeans) ALWAYS increases with k — it is NOT a criterion for choosing k (the elbow is VISUAL, hence outside the rule-based contract); use km_gap (a rule) or km_silhouette (a quality measure)",
+    "the silhouette s(i): ~1 = very well classified; ~0 = between two clusters; NEGATIVE = probably in the WRONG cluster (the silhouette routine); n_negative is the direct diagnostic. A singleton cluster ⇒ s(i) := 0 by definition",
+    "the PAM variant is PINNED to 'original' (the build phase): variant='faster'/pamonce CHANGE the initialisation to RANDOM (medoids='random', nstart=1) ⇒ they would break determinism; that is why they are NOT exposed",
+    "TERMINAL nodes (no register/handle chaining): they return chart-ready numbers — cluster ids, centers/medoids, silhouette widths, the gap table. The data enters as a matrix_handle; the 'cluster' argument of km_silhouette as an int_array (the output of a previous node)"
+   ],
+   "sources": [
+    "the kmeans routine's documentation — the algorithm enum; «Except for the Lloyd-Forgy method, k clusters will always be returned»; ifault=4 (Quick-Transfer); the Note: «The clusters are numbered in the returned object, but they are a set and no ordering is implied. (Their apparent ordering may differ by platform.)» (the reason for the canonicalization)",
+    "Hartigan, J.A. & Wong, M.A. (1979) «Algorithm AS 136: A K-Means Clustering Algorithm», Applied Statistics 28(1):100-108 — the default algorithm; Lloyd (1982) IEEE Trans. Inf. Theory 28(2):129-137; Forgy (1965) Biometrics 21:768-769; MacQueen (1967) 5th Berkeley Symp. 281-297",
+    "Kaufman, L. & Rousseeuw, P.J. (1990) Finding Groups in Data: An Introduction to Cluster Analysis, Wiley — ch. 2 PAM (k-medoids); cluster 2.1.8.2 the pam routine (metric euclidean/manhattan; stand = division by the MEAN ABSOLUTE DEVIATION; variant/pamonce)",
+    "Rousseeuw, P.J. (1987) «Silhouettes: A graphical aid to the interpretation and validation of cluster analysis», J. Comput. Appl. Math. 20:53-65 — s(i) = (b(i)-a(i))/max(a(i),b(i)); cluster 2.1.8.2 the silhouette routine: «silhouette statistics are only defined if 2 <= k <= n-1», a singleton cluster => s(i):=0, a negative s(i) => «probably placed in the wrong cluster», the 'Ordered' attribute",
+    "Tibshirani, Walther & Hastie 2001 JRSS-B 63(2):411-423 (estimating the number of clusters via the gap statistic); the gap and standard-error-rule routines — a scaled-PCA or original null space, a distance power of 1 (the conventional historical choice) against 2 (Tibshirani's proposal), and the five selection rules (first-SE-max by default, Maechler 2012; Tibshirani 2001 SE-max; global SE-max, Dudoit & Fridlyand 2002 Genome Biology 3(7)); «using B = 500 gives quite precise results»",
+    "Keogh, Lin & Truppel «Clustering of Time Series Subsequences is Meaningless», Proc. IEEE ICDM 2003 (extended in: Keogh & Lin, KAIS 8(2):154-177, 2005) — the normative gate spec §3b normative gate 1",
+    "«Clustering Macroeconomic Time Series» arXiv:1807.04004 + Hamilton, J.D. (2018) «Why You Should Never Use the Hodrick-Prescott Filter», REStat 100(5) — the normative gate spec §3b normative gate 2 (no imposed detrending); the normative gate spec §3b gate 6 (fit/apply externalization; modelled on the KNIME Normalizer -> «Normalize Model»)",
+    "wrapper footer IMPLEMENTATION NOTE (c29_unsupervised_clustering/partitional_clustering_rule) — the live-verified gate messages («more cluster centers than distinct data points»; the silent duplicate medoids), and the canonicalization rule"
+   ],
+   "precondition_tools": [
+    "km_gap # FIRST a rule-based choice of k (the gap statistic + maxSE) — NEVER a visual elbow",
+    "km_silhouette # AFTER the fit: avg_silhouette + n_negative (observations possibly in the WRONG cluster)",
+    "c00_data_utilities/fast_row_column.panel_col_stats # (stat='sd') a zero column variance before transform='scale' (division by 0 -> NaN)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 242,
+   "method": "Hierarchical clustering on a distance matrix: agglomerative linkage (the 8 classic methods) + agglomerative nesting (with an agglomerative coefficient), divisive analysis (with a divisive coefficient), and tree cutting (k OR h) -> dendrogram chart-data (merge/height/order) + memberships",
+   "wrapper_file": "c29_unsupervised_clustering/hierarchical_clustering_distance.py",
+   "tool_fns": [
+    "hc_linkage",
+    "hc_cut_tree",
+    "hc_agnes",
+    "hc_diana"
+   ],
+   "when": "you want the WHOLE similarity hierarchy (not a single k): clustering countries/macro series with a DENDROGRAM, so that the number of groups is chosen AFTERWARDS (a cut at k or at a height h). The input is ALWAYS a 'dist' object (typically a handle from node #240). The flow: hc_linkage|hc_agnes|hc_diana -> register(tree) -> hc_cut_tree for further cuts of THE SAME tree without recomputation",
+   "when_not": "you have ALREADY decided k and you want a flat solution with centroids -> #241; you want a probabilistic k from BIC -> #244; the input is a BARE data matrix (pass it through #240 FIRST — the linkage on a bare matrix fails with a cryptic type error); a two-dimensional similarity map -> #245; sliding-window subsequences (the Keogh gate); drawing the dendrogram (the frontend, §5 — we supply merge, height and order); SEVERAL k at once (one cut per call; the frontend fans out)",
+   "alternatives": [
+    {
+     "alt": "hc_linkage(method='ward.D2')",
+     "criterion": "you want COMPACT, spherical clusters of similar size (minimising the increase in variance); THE ONLY one that implements Ward's (1963) criterion — 'ward.D' does NOT (the hclust routine; Murtagh & Legendre 2014); it presupposes a METRIC distance (e.g. euclidean or cor-mantegna, #240)"
+    },
+    {
+     "alt": "hc_linkage(method='complete')",
+     "criterion": "the default of hclust; «furthest neighbour» -> clusters of a small DIAMETER, robust to chaining, a safe general rule when the metric is not euclidean"
+    },
+    {
+     "alt": "hc_linkage(method='average'/'mcquitty')",
+     "criterion": "a middle course between single and complete (UPGMA/WPGMA); good when the clusters have dissimilar sizes and you want neither chaining nor a strict diameter"
+    },
+    {
+     "alt": "hc_linkage(method='single')",
+     "criterion": "you are looking for CHAIN-LIKE/elongated structures or outlier detection (nearest neighbour, a relative of the minimum spanning tree); BEWARE the chaining effect"
+    },
+    {
+     "alt": "hc_linkage(method='median'/'centroid')",
+     "criterion": "ONLY if you ask for them explicitly: they do NOT give a monotone distance, so they produce INVERSIONS «which are hard to interpret»; the node returns monotone=False and BLOCKS a cut at a height"
+    },
+    {
+     "alt": "hc_agnes",
+     "criterion": "you ALSO want the agglomerative coefficient ac (how much clustering structure was found, 0.1) or the Lance-Williams generalisations 'flexible'/'gaverage'; NOTE: agnes(method='ward') == hclust(method='ward.D2')"
+    },
+    {
+     "alt": "hc_diana",
+     "criterion": "you want a DIVISIVE (top-down) hierarchy: it starts from ONE cluster and splits by DIAMETER (a splinter group) — it finds the LARGE structures better, whereas agglomerative methods optimise the small ones; it returns the divisive coefficient dc"
+    },
+    {
+     "alt": "hc_cut_tree(tree=<handle>, k | h)",
+     "criterion": "you cut the SAME tree AGAIN, at another k or height, WITHOUT recomputing it — it also accepts the AGNES and DIANA trees, converted to the same form"
+    },
+    {
+     "alt": "#241 km_fit / km_pam",
+     "criterion": "k is ALREADY decided and you want centroids/medoids + within/between SS instead of a hierarchy"
+    }
+   ],
+   "output_key_fields": [
+    "merge: an (n-1)×2 INTEGER matrix — a negative j is the merger of the SINGLE observation |j|, a positive j a merger with the cluster formed at step j (with no dimension labels)",
+    "height: the n-1 merge heights (non-decreasing in an ultrametric tree); order: a PERMUTATION of 1.n giving a leaf ordering WITHOUT crossing branches; order_labels/labels — TOGETHER they are EXACTLY the dendrogram payload of the frontend (§5)",
+    "monotone: False means INVERSIONS (the median and centroid linkages) — cutting at a height is BLOCKED",
+    "cluster (a named integer per object) + cluster_sizes + n_clusters: the result of the cut, absent when neither k nor h was supplied — this is what colours the leaves in the frontend",
+    "hc_linkage: method + dist_method, the metric that created the distance object, or blank when that attribute is missing",
+    "hc_agnes: ac (the agglomerative coefficient, 0.1) + par_method (Lance-Williams, only for flexible/gaverage); hc_diana: dc (the divisive coefficient, 0.1)",
+    "tree: the CANONICALIZED hclust object -> register(field='tree') in hc_linkage/hc_agnes/hc_diana; the producer node for hc_cut_tree (which is TERMINAL)"
+   ],
+   "interpretation_traps": [
+    "ward.D != ward.D2 (DOCUMENTED, the hclust routine): 'ward.D' (= the old 'ward' in the reference <= 3.0.3) does NOT implement Ward's (1963) criterion; 'ward.D2' does (Murtagh & Legendre 2014) by SQUARING the dissimilarities before the Lance-Williams update. They are not equivalent — the heights differ (pinned in the tests). Also documented: agnes(*, method='ward') == hclust(*, 'ward.D2')",
+    "SILENT PRECEDENCE: cutree documents «At least one of k or h must be specified, k overrides h if both are given» ⇒ if both are supplied, h is ignored SILENTLY. Our gate: EXACTLY ONE of the two (mandatory in hc_cut_tree; in hc_linkage/hc_agnes/hc_diana neither is also allowed = dendrogram data only)",
+    "CUTTING AT A HEIGHT ONLY ON AN ULTRAMETRIC TREE: «Cutting trees at a given height is only possible for ultrametric trees (with monotone clustering heights)» (the cutree routine); the median/centroid methods do NOT give a monotone distance («inversions or reversals which are hard to interpret», the hclust routine) ⇒ the node exposes monotone and BLOCKS a cut at h with a clean message, in place of the raw «the 'height' component of 'tree' is not sorted (increasingly)»",
+    "THE INPUT MUST BE A DISTANCE OBJECT: a bare matrix or frame fails with a cryptic type error deep in the linkage (live-verified) ⇒ a hard gate with an educational message pointing at #240",
+    "SILENTLY WRONG: NEGATIVE dissimilarities are ACCEPTED by the linkage and AGNES routines and still produce a «result» (live: an agglomerative coefficient of 0.63 on a distance containing -3) ⇒ a hard gate; gaps, NaN and infinities are refused deeper down with a cryptic message — we catch them first, since #240 does NOT error when it produces such values",
+    "SILENTLY WRONG (a DEGENERATE INPUT): identical objects (all distances 0) -> hclust does NOT error, it returns an ARBITRARY tree with ALL heights 0; agnes/diana return ac/dc = NaN SILENTLY ⇒ explicit post-checks (a finite scalar ac/dc BEFORE anything else; a stop when all(height==0)); the upstream warning sign is n_zero_pairs>0 in #240",
+    "the agglomerative and divisive coefficients ARE NOT COMPARABLE ACROSS SAMPLES OF DIFFERENT SIZE: «Because ac grows with the number of observations, this measure should not be used to compare datasets of very different sizes», and the same wording applies to the divisive coefficient. It measures HOW MUCH structure was found WITHIN one dataset",
+    "par_method (hc_agnes): it is REQUIRED for method='flexible', where it has no default at all; it has a default ONLY for 'gaverage' (-0.1, Belbin et al. 1992); under EVERY other method it is IGNORED SILENTLY (live: the same coefficient with and without) ⇒ a hard gate; it must be numeric of length 1, 3 or 4 — the Lance-Williams a1, a2, beta and gamma",
+    "the AGNES and DIANA trees ARE CANONICALIZED into the standard linkage form BEFORE merge, height and order are emitted: the DIANA heights are NOT sorted, since they are the DIAMETERS of the clusters before splitting — without the canonicalization the frontend's dendrogram would be invalid. hc_cut_tree accepts the same converted form",
+    "diana is DIVISIVE: it starts from ONE cluster, each time picks the one with the LARGEST DIAMETER and splits it through a 'splinter group' (the most distant observation); row i of merge describes the split at step n-i (the diana routine) — DIFFERENT semantics from the agglomerative methods",
+    "the KEOGH GATE (normative §3b #1): the node EXPLICITLY honours the 'sliding_window_subsequences' marker attribute of the dist object and stops. THE MARKER'S CONTRACT (explicitly documented): from a `dist` the ORIGINAL observations×features matrix is NOT recoverable, so the detector gate_sliding_window_step CANNOT be re-run here; and OUR OWN producers (#240 dm_*, #243 dw_dist_matrix) stop AT THE SOURCE, so they NEVER set the marker (they produce no output at all). The attribute is therefore an ACCEPTED-INPUT CONTRACT for EXTERNAL producers of a `dist` (a user matrix converted to a distance, or a raw handle from another flow) that wish to declare their provenance — defence in depth, NOT the primary defence",
+    "DO NOT IMPOSE DETRENDING (normative §3b #2): the node NEVER transforms the input — it takes the dist AS IT IS; every transformation is an explicit gated option of the upstream distance node (#240)",
+    "DETERMINISM: the linkage, the cut, AGNES and DIANA are FULLY deterministic (Lance-Williams updates, or splinter-group splitting; there is no random initialisation, unlike k-means) -> NO seed, and two identical runs are pinned. Keeping the dissimilarities and the data is PINNED off: the documented default of keeping them for n below 100 CHANGES the SHAPE and size of the output exactly at n = 100"
+   ],
+   "sources": [
+    "the linkage routine's documentation — the eight methods; 'ward.D' does not implement Ward's (1963) criterion while 'ward.D2' does (Murtagh & Legendre 2014), squaring the dissimilarities before the cluster update; the AGNES 'ward' method corresponds to 'ward.D2'; «methods median and centroid are not leading to a monotone distance measure, or equivalently the resulting dendrograms can have so called inversions or reversals which are hard to interpret»; and the returned merge, height, order, labels, method and dist_method",
+    "the tree-cut routine's documentation — «At least one of k or h must be specified, k overrides h if both are given»; «Cutting trees at a given height is only possible for ultrametric trees (with monotone clustering heights)»; plus the conversion of an AGNES or DIANA tree into the standard linkage form",
+    "Ward, J.H. Jr. (1963) «Hierarchical Grouping to Optimize an Objective Function», JASA 58(301):236-244; Murtagh, F. & Legendre, P. (2014) «Ward's Hierarchical Agglomerative Clustering Method: Which Algorithms Implement Ward's Criterion?», Journal of Classification 31(3):274-295",
+    "the AGNES routine and its result object — the method enum (average by default, single, complete, ward, weighted, flexible, gaverage); the Lance-Williams par_method, of length 1, 3 or 4, defaulting to -0.1 ONLY for gaverage; the agglomerative coefficient: «For each observation i, denote by m(i) its dissimilarity to the first cluster it is merged with, divided by the dissimilarity of the merger in the final step... The ac is the average of all 1 - m(i)... Because ac grows with the number of observations, this measure should not be used to compare datasets of very different sizes»; and the documented default of keeping the dissimilarities below n = 100",
+    "the DIANA routine — the divisive algorithm, choosing the cluster of MAXIMUM diameter and forming the splinter group; the divisive coefficient carries the SAME size-comparison warning; a non-default stopping level is not yet implemented; the heights are the DIAMETERS before the split; and row i of merge is the split at step n-i",
+    "Kaufman, L. & Rousseeuw, P.J. (1990) Finding Groups in Data, Wiley — ch. 5 (AGNES) & ch. 6 (DIANA); Lance, G.N. & Williams, W.T. (1966) «A General Theory of Classificatory Sorting Strategies, I. Hierarchical Systems», Computer J. 9:373-380; Belbin, Faith & Milligan (1992) «A Comparison of Two Approaches to Beta-Flexible Clustering», Multivariate Behavioral Research 27:417-433 (gaverage/flexible beta, the default -0.1)",
+    "Keogh, Lin & Truppel «Clustering of Time Series Subsequences is Meaningless», Proc. IEEE ICDM 2003 (extended in: Keogh & Lin, KAIS 8(2):154-177, 2005) — the normative gate spec §3b normative gate 1; «Clustering Macroeconomic Time Series» arXiv:1807.04004 + Hamilton (2018) REStat 100(5) — normative gate 2",
+    "wrapper footer IMPLEMENTATION NOTE (c29_unsupervised_clustering/hierarchical_clustering_distance) — live-verified: a bare matrix gives a cryptic type error; negative dissimilarities are silently accepted (an agglomerative coefficient of 0.63); zero distances make both coefficients NaN; and par_method is silently ignored outside 'flexible' and 'gaverage'"
+   ],
+   "precondition_tools": [
+    "c29_unsupervised_clustering/distance_dissimilarity_matrix.dm_distance (or dm_correlation_distance/dm_custom_distance) # the MANDATORY producer of the 'dist' object (#240); look ALSO at n_zero_pairs: >0 => identical objects -> ac/dc = NaN & heights of 0",
+    "c29_unsupervised_clustering/partitional_clustering_rule.km_silhouette # AFTER the cut: evaluating the chosen k on the SAME data (#241)",
+    "hc_linkage (without k/h) # look first at height/monotone: a non-monotone tree (median/centroid) FORBIDS a cut at a height"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 243,
+   "method": "Dynamic Time Warping (DTW): a shape-based distance with NON-LINEAR alignment in time — a query/reference pair + a cross-distance matrix (`dist`) for downstream clustering",
+   "wrapper_file": "c29_unsupervised_clustering/dynamic_time_warping.py",
+   "tool_fns": [
+    "dw_align",
+    "dw_dist_matrix"
+   ],
+   "when": "SHAPE SIMILARITY between macro series when the TIMING differs (leads/lags around a recession, a different cycle duration, series of UNEQUAL LENGTH): dw_align for ONE pair (distance + normalizedDistance + the warping path as chart-data); dw_dist_matrix for a SET of series -> a `dist` object that feeds hclust/cutree (#242), PAM/silhouette (#241) and MDS (#245) through a handle",
+   "when_not": "series that are ALREADY aligned in time & of EQUAL LENGTH, where a euclidean/Manhattan/Minkowski distance suffices -> #240 dm_distance (far cheaper); similarity of CO-MOVEMENT/covariance -> #240 dm_correlation_distance (1-cor); subsequence matching with a sliding window -> FORBIDDEN (the Keogh gate); the clustering itself (#241/#242) or the embedding (#245) — this node produces ONLY distances; a cross-section observations×features with no time dimension (no warping freedom -> #240); charts (the frontend, §5); forecasting/lead-lag TESTS (CCF, cat 00/02)",
+   "alternatives": [
+    {
+     "alt": "#240 dm_distance (dist)",
+     "criterion": "the series are of EQUAL LENGTH and ALIGNED in time (the same dates, no phase shift) — then DTW is a pointless O(N*M) cost per pair"
+    },
+    {
+     "alt": "#240 dm_correlation_distance (1 minus the correlation, as a distance)",
+     "criterion": "you care about CONTEMPORANEOUS linear co-movement, not non-linear alignment in time"
+    },
+    {
+     "alt": "window_type='slantedband'",
+     "criterion": "series of UNEQUAL LENGTH: the band is defined around the SLANTED diagonal [1,1]->[N,M]; 'sakoechiba', a band around the MAIN diagonal, requires window_size >= |N-M|, and 'itakura' requires 0.5 <= M/N < 2"
+    },
+    {
+     "alt": "window_type='none'",
+     "criterion": "an EXPLICIT choice of unconstrained warping; it allows PATHOLOGICAL alignments, one point matching dozens — it is never chosen silently, and an unset window_type stops"
+    },
+    {
+     "alt": "transform='zscore'",
+     "criterion": "you care about SHAPE independently of level/scale (the standard of the DTW literature); the default 'none' = RAW data, with no silent detrending (normative gate 2)"
+    },
+    {
+     "alt": "normalize=True (dw_dist_matrix)",
+     "criterion": "ESSENTIAL when the distances are compared across pairs of different total length: it uses the normalized distance, which divides by N+M for the symmetric2 family; with step_pattern='symmetric1', where no normalization is defined, it is a hard stop"
+    }
+   ],
+   "output_key_fields": [
+    "dw_align: distance, explicitly NOT normalized, plus normalized_distance, normalized_defined, and normalization ('N+M', 'N', or none)",
+    "dw_align: index1 and index2 are THE WARPING PATH, as numeric chart data (absent when distance_only=True), plus path_length, jmin, and N and M, the lengths of the query and the reference",
+    "dw_align: an echo of the settings — window_type, window_size (blank when it does not apply), step_pattern, transform and distance_only",
+    "dw_dist_matrix: distance_matrix (the full symmetric n×n double matrix with axis labels = labels; the chart-data «distance map») + lower_tri (the lower triangle by column)",
+    "dw_dist_matrix: labels/n_objects/series_length + min_distance/max_distance/mean_distance (the scale for a heatmap)",
+    "dw_dist_matrix: n_zero_pairs — THE NUMBER OF ZERO DISTANCES; >0 ⇒ #245 mds_nonmetric/mds_sammon WILL BLOCK («zero or negative distance between objects i and j»)",
+    "dw_dist_matrix: dist_object -> a registry handle (register field='dist_object') = THE CHAINING CONTRACT towards #242 hclust/cutree, #241 PAM/silhouette, #245 MDS — the SAME as in #240"
+   ],
+   "interpretation_traps": [
+    "NORMATIVE GATE 1 (Keogh): the input preparation explicitly REJECTS a sliding-window subsequence input — consecutive rows that are shifted copies at ANY fixed step k >= 1, not only k=1, detected in BOTH directions by the shared sliding-window detector. Clustering subsequences is PROVABLY meaningless, since the output does NOT depend on the input (Keogh, Lin & Truppel 2005). Whole-series objects are NOT affected",
+    "NORMATIVE GATE 2 (no imposed detrending): transform is an EXPLICIT closed-enum option defaulting to 'none', i.e. RAW data — no silent differencing or detrending (arXiv:1807.04004, «Clustering Macroeconomic Time Series», DELIBERATELY used raw, non-seasonally-adjusted, non-detrended series)",
+    "SILENTLY WRONG (dw_dist_matrix): dist fills ONLY the lower triangle; with an ASYMMETRIC step pattern d(a,b) != d(b,a) holds (live: asymmetric -> 18.67 vs 22.98) ⇒ the «symmetric» matrix would be SILENTLY wrong. A hard gate: only symmetric2/symmetric1/symmetricP0/P05/P1/P2",
+    "SILENTLY WRONG: normalize=True with step_pattern='symmetric1', for which no normalization is defined, returns a blank normalized distance SILENTLY -> a hard gate. 'symmetric2', the default, normalizes by N+M; the asymmetric patterns normalize by N but are not allowed in the matrix",
+    "SILENTLY WRONG: gaps, NaN and infinities do NOT give a clean message — they surface as a cryptic 'no warping path exists' error; a series of LENGTH 1 is accepted SILENTLY and returns a degenerate number; transform='zscore' on a CONSTANT series divides zero by zero and yields NaN SILENTLY. All three are hard gates",
+    "WINDOWS (mathematical limits, not taste): 'sakoechiba' requires window_size >= |N-M| — «If the window size is too small... warping becomes impossible»; 'itakura' takes NO window_size and requires 0.5 <= M/N < 2, a slope within [1/2, 2] (Itakura 1975), which follows from the corner condition; a window_size supplied with 'none' or 'itakura' would be IGNORED SILENTLY -> a hard gate. The remaining 'no warping path exists' case, from the slope-constrained patterns, is translated into a structured blocked-by-gate message carrying N, M, the window and the step, plus a remediation instruction",
+    "EQUAL LENGTH IN THE MATRIX: dw_align accepts series of UNEQUAL LENGTH (that is the point of DTW), BUT dw_dist_matrix takes a RECTANGULAR matrix/data_frame ⇒ ALL the series have the same length m (N=M=m in the window gate: |N-M|=0 and M/N=1 always pass). For unequal-length sets -> pairwise dw_align calls",
+    "ORIENTATION: `orientation` is MANDATORY (missing -> stop) — 'rows_are_objects' (one series per ROW) vs 'columns_are_objects' (the typical macro panel: time in the rows); it is NEVER guessed. The same vocabulary as in #240",
+    "DETERMINISM (§5): pure dynamic programming, NO RNG -> NO seed; the 'call' attribute is removed from the `dist` object so that identical holds regardless of how the call was written (pinned over 2 runs in the tests)",
+    "OMITTED: the pointwise distance choice (the documentation itself warns that it «does not usually make a difference with single-variate timeseries», and live the Euclidean and Manhattan variants gave an IDENTICAL 13.12938); the open-begin and open-end modes (subsequence matching — the Keogh gate); the internal cost and direction matrices (heavy N×M internals, while the frontend draws from index1 and index2); ALL the plotting helpers (§5); the Rabiner-Juang type I-IV patterns (the same mathematics under other names); and the open-end and rigid variants"
+   ],
+   "sources": [
+    "Giorgino 2009 JSS 31(7):1-24 (computing and visualizing dynamic time warping alignments — the step patterns and the windowing functions)",
+    "the warping routine's documentation: «the minimum global distance computed, _not_ normalized»; «normalized for path length, if normalization is known for chosen step pattern»; the window types none, itakura, sakoechiba and slantedband; the step-pattern normalization attribute; and «If the window size is too small... warping becomes impossible»",
+    "Sakoe, H. & Chiba, S. (1978) «Dynamic Programming Algorithm Optimization for Spoken Word Recognition», IEEE Trans. ASSP 26(1), 43-49 — the sakoechiba band and the slope-constrained *P0/P05/P1/P2 transitions",
+    "Itakura, F. (1975) «Minimum Prediction Residual Principle Applied to Speech Recognition», IEEE Trans. ASSP 23(1), 67-72 — the Itakura parallelogram (a slope constrained to [1/2, 2] ⇒ 0.5 <= M/N < 2)",
+    "the normative gate spec §3b normative gate 1 — Keogh, Lin & Truppel (2005) «Clustering of Time Series Subsequences is Meaningless», Knowledge and Information Systems 8(2): the output does NOT depend on the input",
+    "the normative gate spec §3b normative gate 2 — «Clustering Macroeconomic Time Series» (arXiv:1807.04004): DELIBERATELY raw/non-seasonally-adjusted/non-detrended data; Hamilton (2018) REStat 100(5) on why detrending introduces artificial distortions",
+    "Rakthanmanon et al. (2012) «Searching and Mining Trillions of Time Series Subsequences under Dynamic Time Warping», KDD '12 — z-normalization as the standard of the DTW literature (transform='zscore')",
+    "the extended distance interface — the metric passed as a FUNCTION (a documented API); a cross-distance over a LIST of series; and a compact distance object carrying its labels",
+    "wrapper footer IMPLEMENTATION NOTE (c29_unsupervised_clustering/dynamic_time_warping) — all the gates and the live messages"
+   ],
+   "precondition_tools": [
+    "dw_align # run ONE pair FIRST with the same window_type, window_size and step_pattern: if no valid path exists, you find out before the O(n²) cross-distance matrix",
+    "c29_unsupervised_clustering/distance_dissimilarity_matrix.dm_distance # a euclidean-distance baseline — if DTW does not change the ranking, the cheap #240 suffices"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 244,
+   "method": "Model-based clustering (a finite gaussian mixture): a RULE-BASED choice of BOTH the number of groups G AND the geometric covariance shape through BIC/ICL + out-of-sample assignment",
+   "wrapper_file": "c29_unsupervised_clustering/clustering_rule_choice.py",
+   "tool_fns": [
+    "mb_fit",
+    "mb_bic",
+    "mb_icl",
+    "mb_predict"
+   ],
+   "when": "a CROSS-SECTION observations×features matrix (e.g. countries × macro indicators) where you do NOT know how many groups exist: (modelName, G) is chosen by an INFORMATION CRITERION over a model × G grid — NO visual knee/elbow selection; you want a PROBABILISTIC assignment (a posterior z + an uncertainty per observation) rather than a hard geometric one; you want NON-SPHERICAL/unequal-volume clusters (the 14 volume-shape-orientation shapes)",
+   "when_not": "n <= p (the component covariances are undefined — a hard gate; REDUCE the dimensions with #117 pca_composite, or by variable selection); geometric or robust partitioning at a GIVEN k -> #241; a hierarchical structure or dendrogram -> #242; a DISTANCE MATRIX as input (this node wants RAW data) -> #241 or #242; SHAPE similarity of time series -> #243; latent DYNAMIC factors of time series -> #15/#144 (category 03); supervised classification, dimension reduction or density estimation — NOT exposed; sliding-window subsequences (the Keogh gate); charts (the frontend, §5)",
+   "alternatives": [
+    {
+     "alt": "mb_bic (top-k)",
+     "criterion": "you want the model-selection DIAGNOSTIC step (the WHOLE table as chart-data, a «BIC plot») without committing to a fit"
+    },
+    {
+     "alt": "mb_icl",
+     "criterion": "you suspect OVERLAPPING components: the ICL penalises the entropy of the classification ⇒ it prefers DISTINCT groups (Biernacki, Celeux & Govaert 2000); it typically selects a SMALLER G than the BIC"
+    },
+    {
+     "alt": "mb_predict",
+     "criterion": "you want an out-of-sample assignment of new observations (a posterior z + uncertainty) with the SAME fit — the same transform is applied with the fitted center/scale of x"
+    },
+    {
+     "alt": "model_names = c('EII','VII')",
+     "criterion": "a small n, or the failure of ALL the models (no fit at all, or an entirely blank table): the spherical shapes are the most parsimonious in parameters"
+    },
+    {
+     "alt": "#241 km_fit / km_pam",
+     "criterion": "you want geometric partitioning at a GIVEN k, or medoids and robustness to outliers; this card requires n > p and assumes gaussian components"
+    },
+    {
+     "alt": "#242 hc_linkage / hc_cut_tree",
+     "criterion": "you want a HIERARCHY (a dendrogram) or your input is a DISTANCE MATRIX rather than a raw data matrix"
+    },
+    {
+     "alt": "transform = 'scale' | 'center' | 'log'",
+     "criterion": "an EXPLICIT gated choice; the default 'none' = NO silent standardization. 'scale' when the variables have incompatible units (the shapes EEI/VVI etc. DEPEND on the scale); 'log' only on STRICTLY positive data"
+    }
+   ],
+   "output_key_fields": [
+    "mb_fit: model_name + G (the SELECTED ones) + cluster (a named integer, CANONICALIZED) + size + uncertainty (named numeric, chart-data) + z (the n×G posterior matrix, chart-data)",
+    "mb_fit: pro (the mixture weights) + mean (a p×G matrix) + sigma (a p×p×G array) + loglik/df/bic/icl + bic_table (G×models — the chart-data of the «BIC plot») + top_bic (a data_frame {model,G,value,label})",
+    "mb_fit: avg_uncertainty + g_at_upper_bound (a DIAGNOSTIC: the selected G = max(G) ⇒ the search was truncated, widen the range) + G_tried/models_tried + n/p/n_distinct",
+    "mb_bic / mb_icl: criterion + bic_table | icl_table (G×models, chart-data) + top (a data_frame {model,G,value,label}) + best_model/best_G/best_value + n_failed (how many (model,G) combinations failed)",
+    "mb_predict: classification (a named integer, with the SAME canonicalization) + z (n_new×G) + uncertainty + n_new/new_observations + train_cluster/train_size (for reference) + pro/mean/loglik/bic",
+    "ALL of them: transform + transform_center + transform_scale (§3b gate 6 — fit/apply externalization: they are returned as NUMBERS and reused VERBATIM on the newdata) + observations/variables + seed + subset_init + canonical_order"
+   ],
+   "interpretation_traps": [
+    "DETERMINISM — THE CRITICAL POINT: below the subset threshold (2000 by default) the initialisation is model-based hierarchical clustering on an SVD basis ⇒ DETERMINISTIC with no seed (two runs identical, live-verified and asserted). ABOVE it the search draws a random initialisation subset ⇒ NON-DETERMINISTIC (live, two unseeded runs gave a DIFFERENT log-likelihood and classification) ⇒ every node takes a seed (default 1234) and runs inside a helper that RESTORES the caller's generator state, keeping the layer pure; the subset_init field states EXPLICITLY whether that path was taken",
+    "SILENTLY WRONG (p > n): Mclust with 3 observations × 4 variables does NOT error — it returns a fit (G=2, EEI). The component covariances are singular ⇒ OUR OWN hard gate p < n (live-verified)",
+    "SILENTLY WRONG: the fit does NOT error on a gap — it SILENTLY DROPS the row (n 40 becomes 39) ⇒ the classification no longer lines up with the input rows (live-verified); an infinity throws a cryptic low-level error. A hard gate covers both",
+    "SILENTLY WRONG (max(G) > n): G = 1:20 with n = 10 does NOT error — it SILENTLY truncates the range and returns G = 9 (live-verified); G = 0 throws the cryptic «No classification with the specified number of clusters» from hclass. A hard gate: positive integers, max(G) <= n",
+    "SILENTLY WRONG (total failure): when ALL the candidate (model, G) combinations fail, the fit RETURNS NOTHING rather than erroring (live-verified) ⇒ a hard gate; an entirely blank BIC or ICL table is blocked the same way, with an educational message — reduce G, or restrict model_names to 'EII' and 'VII'",
+    "SILENTLY WRONG (mb_predict): predict.Mclust checks ONLY ncol («newdata must match ncol of object data») ⇒ a SHUFFLED COLUMN ORDER gives WRONG assignments WITHOUT an error. A hard gate: the SAME number AND the SAME names/order of columns as in x",
+    "LABEL SWITCHING: the component ids of a mixture are a SET with no ordering ⇒ CANONICALIZATION: renumbering by DECREASING SIZE with ties broken lexicographically ASCENDING on the coordinates of the mean; the SAME permutation is applied to cluster/z/pro/mean/sigma/size AND in mb_predict (canonical_map). Without it the labels are NOT reproducible",
+    "THE BIC CONVENTION HERE CARRIES THE OPPOSITE SIGN: BIC = 2*loglik - df*log(n) ⇒ THE LARGER THE BETTER (verified numerically: loglik=-182.0873, df=8, n=40 gives -393.686, matching the reported value). Because the convention is reversed, do NOT compare it against a BIC computed elsewhere; the top table is sorted DESCENDING",
+    "NORMATIVE GATE 1 (Keogh): a sliding-window subsequence matrix (each row = the previous one shifted by a FIXED step k >= 1 — NOT only k=1; the shared gate_sliding_window_step detector) is REJECTED explicitly — clustering subsequences is provably meaningless (Keogh, Lin & Truppel 2005). Whole-series/cross-section matrices are NOT affected",
+    "NORMATIVE GATES 2 + 6: transform is an EXPLICIT closed-enum option (none, center, scale, log; default 'none') — NO silent standardization or detrending; transform_center and transform_scale are EXTERNALIZED as numbers and applied VERBATIM to the new data, modelled on the KNIME «Normalize Model»; 'scale' on a zero-variance column is a hard stop, since it would divide by 0; and 'log' requires STRICTLY positive data",
+    "THE 14 SHAPES (multivariate, read LIVE from the model-name option — NEVER from memory): EII VII EEI VEI EVI VVI EEE VEE EVE VVE EEV VEV EVV VVV (volume, shape, orientation; E = equal, V = variable, I = identity); for p=1 only 'E' and 'V'. An unknown name gives a cryptic «invalid model name» ⇒ an allowlist gate. THE SHAPES DEPEND ON THE SCALE — which is why the transform is an explicit decision",
+    "g_at_upper_bound: a DIAGNOSTIC, NOT a gate — if the selected G equals max(G) of the grid, the search was truncated and you must widen the range; it is not an invalid result, so it is NOT blocked",
+    "L2 SAFETY: the BIC and ICL results carry an initialisation attribute holding a live call object ⇒ they are STRIPPED to a bare numeric matrix before leaving the wrapper. The top table is returned as a FRAME, because a named numeric vector serialises to an ANONYMOUS array and the «model, G» labels would be lost",
+    "TERMINAL nodes: no register/handle chaining — they return chart-ready numbers (cluster ids, z, bic_table/icl_table, mean/sigma), not a fitted object. mb_predict REFITS on x (the same deterministic path) so that the node is stateless (§4)",
+    "POST-CHECKS (independent recomputations, not trust in the routine): the mixing proportions sum to 1; each row of the responsibility matrix sums to 1; the uncertainty equals 1 minus the row maximum; the mean is p×G and sigma p×p×G; the classification has length n; and the selected G lies inside the requested range"
+   ],
+   "sources": [
+    "Scrucca, Fraley, Murphy & Raftery 2023, Model-Based Clustering, Classification, and Density Estimation, Chapman and Hall/CRC, ISBN 978-1032234953",
+    "Fraley, C. & Raftery, A.E. (2002) «Model-Based Clustering, Discriminant Analysis, and Density Estimation», JASA 97(458), 611-631 — the framework for selecting (modelName, G) with BIC",
+    "Banfield, J.D. & Raftery, A.E. (1993) «Model-Based Gaussian and Non-Gaussian Clustering», Biometrics 49(3), 803-821 — the volume-shape-orientation parameterisation of the covariances (EII…VVV)",
+    "Biernacki, C., Celeux, G. & Govaert, G. (2000) «Assessing a Mixture Model for Clustering with the Integrated Completed Likelihood», IEEE TPAMI 22(7), 719-725 — the ICL (BIC minus the entropy of the classification)",
+    "Schwarz 1978, The Annals of Statistics 6(2):461-464 (estimating the dimension of a model) — the BIC, which this card reports with the OPPOSITE sign",
+    "the normative gate spec §3b normative gate 1 — Keogh, Lin & Truppel (2005) «Clustering of Time Series Subsequences is Meaningless», KAIS 8(2)",
+    "the normative gate spec §3b, gates 2 and 6 (no imposed detrending; the fit/apply externalization modelled on the KNIME Normalizer) + the live-verified determinism note — the default initialisation is model-based hierarchical, hence deterministic WITHOUT a seed — and the silently-wrong note that a fit with p>n does NOT error",
+    "wrapper footer IMPLEMENTATION NOTE (c29_unsupervised_clustering/clustering_rule_choice) — all the gates and post-checks, plus the numerical verification of the BIC convention"
+   ],
+   "precondition_tools": [
+    "mb_bic # FIRST the WHOLE BIC table per (model, G) + the top 3: see whether the peak is CLEAR or whether several models tie",
+    "mb_icl # the same grid under the ICL criterion (BIC minus the entropy): if BIC and ICL DISAGREE, the components overlap",
+    "c01_preparation_prechecks/profiling_quality_report.dp_column_profile # the scale/variance/constant columns PER COLUMN before deciding on a transform (NEVER a silent standardization) AND before establishing whether n > p holds"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 245,
+   "method": "Multidimensional Scaling: CLASSICAL/metric (principal coordinates analysis + the Cailliez constant) · NON-METRIC after Kruskal · the NON-LINEAR Sammon mapping",
+   "wrapper_file": "c29_unsupervised_clustering/multidimensional_scaling_classical.py",
+   "tool_fns": [
+    "mds_classical",
+    "mds_nonmetric",
+    "mds_sammon"
+   ],
+   "when": "a SIMILARITY MAP in a few dimensions (typically 2D) FROM A `dist` DISTANCE MATRIX — «which countries/indicators are close to which» as a 2D scatter + a scree plot + quality measures. The typical producer of the `dist`: #240 dm_distance/dm_correlation_distance/dm_custom_distance or #243 dw_dist_matrix (DTW). The node is VISUALIZATION/EMBEDDING, NOT clustering",
+   "when_not": "ASSIGNMENT to groups (labels) -> #241, #242 or #244; a RAW data matrix with no preceding distance node (the input MUST be a distance object); dimension reduction of the VARIABLES with loadings and a biplot -> #117 pca_composite / pca_biplot_coords, since MDS maps OBJECTS from dissimilarities; MIXED I(0)/I(1) time series -> #256; subsequence embedding (the Keogh gate); charts (the frontend, §5 — only the coordinates are returned here)",
+   "alternatives": [
+    {
+     "alt": "mds_classical with add=True",
+     "criterion": "n_eig_negative > 0 or gof_abs < gof_pos ⇒ NON-Euclidean dissimilarities; the Cailliez (1983) additive constant makes them Euclidean (the `ac` field). Useless when there are no negative eigenvalues"
+    },
+    {
+     "alt": "mds_nonmetric",
+     "criterion": "the dissimilarities are ORDINAL / their ABSOLUTE scale is not trustworthy: non-metric MDS allows a MONOTONE transformation and keeps only the ORDER (Kruskal); it REQUIRES STRICTLY POSITIVE distances"
+    },
+    {
+     "alt": "mds_sammon",
+     "criterion": "you want the SMALL (local) distances preserved better: the stress is weighted by 1/d ⇒ it gives weight to the nearby pairs; it REQUIRES STRICTLY POSITIVE distances"
+    },
+    {
+     "alt": "a smaller k",
+     "criterion": "the solution returns FEWER columns than k (the POSITIVE eigenvalues are < k; the live warning «only 7 of the first 9 eigenvalues are > 0») ⇒ the node blocks; k MUST lie in {1,., n-1}"
+    },
+    {
+     "alt": "#117 pca_composite / pca_biplot_coords",
+     "criterion": "you want dimension reduction of the VARIABLES with loadings/a biplot from a RAW data matrix; MDS starts from DISSIMILARITIES (and cmdscale on a euclidean distance COINCIDES with PCA on the scores)"
+    }
+   ],
+   "output_key_fields": [
+    "points: an n × k NUMERIC matrix with row labels = the labels and column labels = Dim1.Dimk — THE MAIN chart-data (the 2D scatter «similarity map»); common to all 3 methods (the SAME dimensions/labels)",
+    "labels / n / k + method ('cmdscale' | 'isoMDS' | 'sammon')",
+    "mds_classical: eig (ALL n eigenvalues — the scree data) + eig_retained + n_eig_positive + n_eig_negative (above 0 means NON-Euclidean dissimilarities) + var_explained_abs and var_explained_pos (the TWO definitions the classical scaling reports) + gof / gof_abs / gof_pos + ac, the Cailliez constant, which is 0 when add=False, + add",
+    "mds_nonmetric: stress AS A PERCENTAGE (the isoMDS routine «The final stress achieved (in percent)») + stress_fraction + maxit/tol/p + init_method='cmdscale'",
+    "mds_sammon: stress (Sammon — NOT a percentage, NOT comparable with the isoMDS one) + niter/magic/tol + init_method='cmdscale'",
+    "COMMON DIAGNOSTICS (ours, computed IDENTICALLY ⇒ COMPARABLE across the 3): stress_raw = sqrt(sum((d-dhat)^2)/sum(d^2)) (Kruskal stress-1 WITHOUT a monotone transformation, 0 = perfect) + fit_correlation = cor(d, dhat) (NA_real_ when either side is constant, e.g. an equilateral configuration) + dist_fitted = the distances of the configuration (Shepard chart-data)"
+   ],
+   "interpretation_traps": [
+    "THE CENTRAL GATE — the input MUST be a `dist` object: cmdscale ALSO accepts a matrix/data_frame («a full symmetric matrix») BUT it also SILENTLY accepts a NON-SYMMETRIC matrix (live: with m[1,2]=99 it returned a GOF of 0.577/0.99 WITHOUT a warning) ⇒ silently wrong. A `dist` is by definition symmetric with a zero diagonal; that is why the spec uses a raw_handle (the object is returned AS IS and the wrapper decides)",
+    "ZERO OR DUPLICATE DISTANCES — THE MAIN TRAP OF THIS NODE: mds_nonmetric AND mds_sammon require STRICTLY POSITIVE distances («Data are assumed to be dissimilarities... but must be positive except for self-distance») and they error with «zero or negative distance between objects i and j» on DUPLICATE ROWS (live-verified). The node blocks BEFORE the call and NAMES the offending objects, where the underlying routine gives only indices; mds_classical has no such restriction. The upstream signal is a non-zero n_zero_pairs from #243 dw_dist_matrix",
+    "SILENTLY WRONG (classical scaling): NEGATIVE dissimilarities are accepted SILENTLY and produce an invalid map (live: a goodness of fit of 0.668/0.818 with no error); all-zero distances give a NaN goodness of fit SILENTLY, since there is nothing to map. Both are hard gates; and because #240 does NOT error when it produces gaps (the normative gate spec §3b), there is an explicit gap, NaN and infinity check here",
+    "SILENTLY WRONG (the iteration arguments): maxit=0 or niter=0 are accepted SILENTLY and return the UNOPTIMISED INITIAL configuration; a non-positive tolerance is accepted silently and stops early (live: a stress of 0.44 instead of 0.0069); a non-positive step-size constant is accepted silently and does NOT optimise AT ALL, giving the same stress as niter=0; p=0 HANGS and never terminates, since the Minkowski distance is a metric only for p >= 1. ALL are hard gates",
+    "A DIMENSION POST-CHECK: cmdscale returns FEWER columns than k when the POSITIVE eigenvalues number fewer than k (live: k=9 -> 7 columns with the warning «only 7 of the first 9 eigenvalues are > 0») and isoMDS/sammon then fail with the cryptic «invalid initial configuration» ⇒ the node requires EXACTLY n × k and gives a clean message («ask for a smaller k»). The documented bound: k in {1, 2,., n-1} (the cmdscale routine)",
+    "THE STRESS VALUES ARE NOT COMPARABLE: the isoMDS stress is A PERCENTAGE and allows a MONOTONE transformation of the distances; the Sammon stress is WEIGHTED by 1/d and is NOT a percentage. That is why the node also computes OUR OWN stress_raw IDENTICALLY across all 3 methods — THAT is the comparable quantity",
+    "THE TWO GOF VALUES OF cmdscale: g_i = (sum_{j<=k} lambda_j) / (sum_j T_i(lambda_j)) with T_1 = |.| and T_2 = max(., 0) (the cmdscale routine) ⇒ gof_abs != gof_pos ONLY when NEGATIVE eigenvalues exist; var_explained_abs/var_explained_pos use the SAME two denominators (a post-check: the sum of var_explained_* == gof_abs/gof_pos)",
+    "NEVER INTERPRET THE SIGN OF AN AXIS: the configuration is determined ONLY up to translation/rotation/reflection (the cmdscale routine: «the reflection chosen may differ between the reference platforms»; the isoMDS routine/the sammon routine: «the result can vary considerably from machine to machine»). Inside the container the versions are pinned (the lockfile) ⇒ a stable result, but the INTERPRETATION must rest on the DISTANCES between points, not on signs/directions",
+    "DETERMINISM (§5): all 3 methods are FULLY deterministic (a spectral decomposition / an iterative descent from a CLASSICAL initialisation) ⇒ NO seed; the initialisation of isoMDS/sammon is passed EXPLICITLY (y = the cmdscale solution = the DOCUMENTED default; an IDENTICAL result, live-verified) so that the determinism does not depend on a future change of default; identical over 2 runs is pinned in the tests",
+    "NORMATIVE GATE 1 (Keogh): if the distance object carries the sliding_window_subsequences marker, the node REJECTS it explicitly — mapping subsequences is as meaningless as clustering them (Keogh, Lin & Truppel 2005). THE MARKER'S CONTRACT: from a distance object the original observations-by-features matrix is NOT recoverable, so the sliding-window detector cannot be re-run here, and the producers #240 and #243 stop AT THE SOURCE — no producer in the engine ever sets the attribute. It is an ACCEPTED-INPUT CONTRACT for EXTERNAL producers of a distance object (a raw handle, or a user matrix converted to a distance) — defence in depth, NOT the primary defence",
+    "NORMATIVE GATE 2 (NO imposed detrending): the node NEVER transforms the input — it takes the `dist` AS IT IS. The transform/distance choices are EXPLICIT gated options of the UPSTREAM distance node (#240/#243)",
+    "OMITTED: returning the heavy n×n doubly centred matrix; the eigenvalue and list switches are PINNED on, since the eigenvalues and the goodness of fit are always needed as chart data; the trace switch is PINNED off, as it only prints progress (§5); the initial configuration y is n×k DATA and never travels inline in the schema — the wrapper fills it EXPLICITLY; the Shepard diagram is unnecessary, since the same numbers arrive as dist_fitted, stress_raw and fit_correlation; and the majorization alternative was REJECTED in the normative gate spec §3b, the classical and non-metric routes being sufficient, live-verified on the goodness of fit. These are TERMINAL nodes: nothing is registered and nothing chains onward"
+   ],
+   "sources": [
+    "the cmdscale routine's documentation (stats): «Classical multidimensional scaling (MDS) of a data matrix. Also known as principal coordinates analysis (Gower 1966)»; k «must be in {1, 2,.., n-1}»; GOF = «a numeric vector of length 2.. g_i = (sum_{j=1.k} lambda_j)/(sum_{j=1.n} T_i(lambda_j)), T_1(v) = |v|, T_2(v) = max(v, 0)»; «The representation is only determined up to location, rotations and reflections.. the reflection chosen may differ between the reference platforms»",
+    "Gower, J.C. (1966) «Some Distance Properties of Latent Root and Vector Methods Used in Multivariate Analysis», Biometrika 53(3/4), 325 — principal coordinates analysis (cited by the cmdscale routine)",
+    "Mardia, K.V. (1978) «Some Properties of Classical Multi-dimensional Scaling», Communications in Statistics - Theory and Methods 7(13), 1233-1241 — the analysis that cmdscale follows (cited by the cmdscale routine)",
+    "Cailliez 1983, Psychometrika 48(2):305-308 (the analytical solution of the additive constant problem) — the constant behind add=True, and the analytic solution the classical scaling uses",
+    "the non-metric scaling routine's documentation: «Kruskal's Non-metric Multidimensional Scaling»; «Data are assumed to be dissimilarities or relative distances, but must be positive except for self-distance»; «the input distances are allowed a monotonic transformation»; the stress is «The final stress achieved (in percent)»; and the default starting configuration is the classical solution",
+    "the Sammon routine's documentation: the stress is «the sum of squared differences between the input distances and those of the configuration, weighted by the distances, the whole sum being divided by the sum of input distances to make the stress scale-free»; and the step-size constant is the «initial value of the step size constant in diagonal Newton method»",
+    "Sammon, J.W. (1969) «A Non-Linear Mapping for Data Structure Analysis», IEEE Transactions on Computers C-18, 401-409 (cited by the sammon routine)",
+    "Kruskal, J.B. (1964) «Multidimensional Scaling by Optimizing Goodness of Fit to a Nonmetric Hypothesis», Psychometrika 29(1), 1-27 — the non-metric MDS that isoMDS implements",
+    "Cox, T.F. & Cox, M.A.A. (2001) Multidimensional Scaling, 2nd ed., Chapman & Hall; Venables, W.N. & Ripley, B.D. (2002) Modern Applied Statistics with S, 4th ed., Springer (cited by the cmdscale routine/the isoMDS routine/the sammon routine)",
+    "the normative gate spec §3b, live-verified: k must lie in {1, 2, ..., n-1} for both the cut and the classical scaling; a zero or negative distance between two objects means a gate on DUPLICATE ROWS; a distance computed over gaps does NOT error; gates 1 (Keogh) and 2 (no imposed detrending); and the majorization alternative was rejected",
+    "wrapper footer IMPLEMENTATION NOTE (c29_unsupervised_clustering/multidimensional_scaling_classical) — all the gates and post-checks, and the live silently-wrong findings"
+   ],
+   "precondition_tools": [
+    "c29_unsupervised_clustering/distance_dissimilarity_matrix.dm_distance # the TYPICAL producer of the `dist` handle (or dm_correlation_distance / dm_custom_distance)",
+    "c29_unsupervised_clustering/dynamic_time_warping.dw_dist_matrix # DTW distances; READ the n_zero_pairs field: >0 ⇒ mds_nonmetric/mds_sammon WILL BLOCK (only mds_classical works)",
+    "mds_classical # ALWAYS first: it gives n_eig_negative & gof_abs/gof_pos (how non-Euclidean the dissimilarities are) and it is the INITIALISATION of the other two"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 598,
+   "method": "Density-based clustering: DBSCAN, HDBSCAN and OPTICS",
+   "wrapper_file": "c29_unsupervised_clustering/density_clustering.py",
+   "tool_fns": [
+    "uc_density_clustering"
+   ],
+   "when": "clusters have irregular shapes and the data contain noise that should not be forced into any cluster",
+   "when_not": "the clusters are spherical and every point belongs somewhere; the dimension is high enough that density is meaningless",
+   "alternatives": [
+    {
+     "alt": "k-means",
+     "criterion": "spherical clusters, every point assigned"
+    },
+    {
+     "alt": "DBSCAN",
+     "criterion": "arbitrary shapes, explicit noise, one density scale"
+    },
+    {
+     "alt": "HDBSCAN",
+     "criterion": "clusters at varying densities, fewer parameters"
+    }
+   ],
+   "output_key_fields": [
+    "labels: cluster assignment, with noise labelled separately",
+    "n_clusters: how many were found",
+    "noise_share: proportion labelled noise",
+    "persistence: cluster stability, where HDBSCAN is used"
+   ],
+   "interpretation_traps": [
+    "DBSCAN ASSUMES A SINGLE DENSITY SCALE; with clusters of different densities it either merges the dense ones or labels the sparse ones as noise, which is what HDBSCAN was built to fix",
+    "the noise label is a real output, not a failure -- forcing every point into a cluster is what these methods exist to avoid",
+    "density-based methods degrade badly in high dimensions as all distances converge"
+   ],
+   "sources": [
+    "Ester, Kriegel, Sander & Xu 1996, DBSCAN (KDD 1996:226-231)",
+    "Campello, Moulavi & Sander 2013, HDBSCAN (PAKDD 2013:160)",
+    "scikit-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 599,
+   "method": "Internal validation indices and bootstrap stability",
+   "wrapper_file": "c29_unsupervised_clustering/cluster_validation.py",
+   "tool_fns": [
+    "uc_cluster_validation"
+   ],
+   "when": "clustering always returns clusters, and whether they are real is a separate question that must be asked",
+   "when_not": "the number of clusters is fixed by theory; the data are too few for resampling",
+   "alternatives": [
+    {
+     "alt": "internal indices",
+     "criterion": "silhouette, Calinski-Harabasz, Davies-Bouldin"
+    },
+    {
+     "alt": "bootstrap stability",
+     "criterion": "do clusters survive resampling"
+    },
+    {
+     "alt": "gap statistic",
+     "criterion": "compare against a null of no clustering"
+    }
+   ],
+   "output_key_fields": [
+    "indices: internal validation measures per candidate k",
+    "stability: Jaccard similarity of clusters across resamples",
+    "gap: the gap statistic against a uniform null",
+    "recommended_k: what each criterion selects"
+   ],
+   "interpretation_traps": [
+    "CLUSTERING ALGORITHMS PARTITION RANDOM DATA HAPPILY; the gap statistic is one of the few instruments that tests against a no-cluster null, and it should be run before any interpretation",
+    "internal indices routinely disagree about the number of clusters, and picking the one that gives the answer you want is a common and invisible error",
+    "a cluster with a bootstrap Jaccard similarity below about 0.6 is not a stable finding"
+   ],
+   "sources": [
+    "Tibshirani, Walther & Hastie 2001 (JRSS-B 63:411-423)",
+    "Hennig 2007 (Computational Statistics and Data Analysis 52:258)",
+    "Rousseeuw 1987 (Journal of Computational and Applied Mathematics 20:53)",
+    "scikit-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 600,
+   "method": "Exploratory factor analysis with rotation and independent components",
+   "wrapper_file": "c29_unsupervised_clustering/factor_analysis.py",
+   "tool_fns": [
+    "uc_factor_analysis",
+    "uc_ica"
+   ],
+   "when": "many correlated measured variables are believed to reflect a few latent constructs, and you want those constructs",
+   "when_not": "you want components maximising variance rather than latent factors (-> PCA); the sample is too small for the factor solution to be stable",
+   "alternatives": [
+    {
+     "alt": "principal components",
+     "criterion": "variance reduction, not a latent model"
+    },
+    {
+     "alt": "exploratory factor analysis",
+     "criterion": "a latent-variable model with unique variances"
+    },
+    {
+     "alt": "independent component analysis",
+     "criterion": "you want statistically independent rather than uncorrelated sources"
+    }
+   ],
+   "output_key_fields": [
+    "loadings: factor loadings after rotation",
+    "communalities, uniquenesses: variance explained and specific per variable",
+    "n_factors: chosen and the criterion that chose it",
+    "adequacy: KMO and Bartlett tests of whether factoring is appropriate"
+   ],
+   "interpretation_traps": [
+    "FACTOR ANALYSIS AND PRINCIPAL COMPONENTS ARE DIFFERENT MODELS: PCA has no unique variances and its components are not latent factors, and the two are conflated constantly",
+    "the rotation is not identified by the data -- varimax, promax and oblimin give different loadings from the same fit, and the choice is interpretive",
+    "the KMO and Bartlett tests should be run first; factoring data that are nearly uncorrelated produces meaningless factors"
+   ],
+   "sources": [
+    "Fabrigar, Wegener, MacCallum & Strahan 1999 (Psychological Methods 4:272-299)",
+    "Hyvarinen & Oja 2000 (Neural Networks 13:411)",
+    "factor-analyzer"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 601,
+   "method": "Correspondence analysis, MCA and FAMD for mixed data",
+   "wrapper_file": "c29_unsupervised_clustering/correspondence_analysis.py",
+   "tool_fns": [
+    "uc_correspondence_analysis"
+   ],
+   "when": "the variables are categorical or mixed, where ordinary component methods assume continuous input",
+   "when_not": "every variable is continuous (-> PCA); the contingency table is too sparse",
+   "alternatives": [
+    {
+     "alt": "correspondence analysis",
+     "criterion": "a two-way contingency table"
+    },
+    {
+     "alt": "multiple correspondence analysis",
+     "criterion": "several categorical variables"
+    },
+    {
+     "alt": "factor analysis of mixed data",
+     "criterion": "continuous and categorical together"
+    }
+   ],
+   "output_key_fields": [
+    "coordinates: row and column coordinates",
+    "inertia: explained inertia per dimension",
+    "contributions: which categories drive each dimension",
+    "quality: representation quality per point"
+   ],
+   "interpretation_traps": [
+    "MULTIPLE CORRESPONDENCE ANALYSIS UNDERSTATES EXPLAINED INERTIA severely because of how the indicator matrix is built; the Benzecri or Greenacre adjustment is needed before the percentages are reported",
+    "rare categories exert disproportionate influence on the solution and often create dimensions of their own",
+    "row and column coordinates are in different spaces and may only be compared under a stated scaling"
+   ],
+   "sources": [
+    "Greenacre 2017, Correspondence Analysis in Practice, 3rd ed.",
+    "Pages 2014, Multiple Factor Analysis by Example",
+    "prince"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 602,
+   "method": "Time-series clustering: DTW k-means, k-Shape and kernel k-means",
+   "wrapper_file": "c29_unsupervised_clustering/timeseries_clustering.py",
+   "tool_fns": [
+    "uc_timeseries_clustering"
+   ],
+   "when": "series must be grouped by shape rather than by point-in-time level, which euclidean clustering cannot do",
+   "when_not": "the series are aligned and euclidean distance is adequate; the series are too long for the distance computation",
+   "alternatives": [
+    {
+     "alt": "euclidean k-means",
+     "criterion": "series are aligned and same length"
+    },
+    {
+     "alt": "DTW k-means with barycentre averaging",
+     "criterion": "shapes are similar but shifted or warped"
+    },
+    {
+     "alt": "k-Shape",
+     "criterion": "shape-based with normalised cross-correlation"
+    }
+   ],
+   "output_key_fields": [
+    "labels: cluster assignment",
+    "centroids: cluster centroids, which are averaged series",
+    "inertia: within-cluster distance",
+    "distance: the distance measure used"
+   ],
+   "interpretation_traps": [
+    "AVERAGING SERIES UNDER DYNAMIC TIME WARPING IS NOT THE ARITHMETIC MEAN; naive averaging destroys the shape the warping was meant to preserve, which is why barycentre averaging exists",
+    "DTW without a warping-window constraint is both slow and prone to pathological alignments; the Sakoe-Chiba band is the usual fix",
+    "series must be normalised before shape clustering or the clusters reflect scale rather than shape"
+   ],
+   "sources": [
+    "Petitjean, Ketterlin & Gancarski 2011 (Pattern Recognition 44:678-693)",
+    "Paparrizos & Gravano 2015, k-Shape (SIGMOD 2015:1855)",
+    "tslearn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 603,
+   "method": "Elastic distance measures at scale",
+   "wrapper_file": "c29_unsupervised_clustering/elastic_distances.py",
+   "tool_fns": [
+    "uc_elastic_distance"
+   ],
+   "when": "computing shape-aware distances between many series efficiently, which every shape-based method needs underneath",
+   "when_not": "euclidean distance is adequate; the number of pairs makes any elastic measure infeasible even with lower bounds",
+   "alternatives": [
+    {
+     "alt": "euclidean distance",
+     "criterion": "aligned, equal-length series"
+    },
+    {
+     "alt": "dynamic time warping",
+     "criterion": "warped alignment, the standard elastic measure"
+    },
+    {
+     "alt": "LCSS or ERP",
+     "criterion": "the series contain outliers or gaps DTW handles poorly"
+    }
+   ],
+   "output_key_fields": [
+    "distance_matrix: the pairwise distances",
+    "alignment: the warping path for a queried pair",
+    "measure: which distance was used",
+    "lower_bound_pruning: how many computations were avoided"
+   ],
+   "interpretation_traps": [
+    "DYNAMIC TIME WARPING IS NOT A METRIC -- it violates the triangle inequality, so methods requiring a metric space (some clustering and indexing schemes) are not valid on it",
+    "an unconstrained warping window allows pathological alignments that match a whole series to one point; constraining it is standard practice",
+    "the distance is not scale invariant unless the series are normalised first"
+   ],
+   "sources": [
+    "Sakoe & Chiba 1978 (IEEE Transactions on Acoustics, Speech and Signal Processing 26:43-49)",
+    "Keogh & Ratanamahatana 2005 (Knowledge and Information Systems 7:358)",
+    "dtaidistance"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 604,
+   "method": "Nonlinear embeddings: UMAP, t-SNE, Isomap and kernel PCA",
+   "wrapper_file": "c29_unsupervised_clustering/nonlinear_embedding.py",
+   "tool_fns": [
+    "uc_nonlinear_embedding"
+   ],
+   "when": "high-dimensional structure that linear projection cannot reveal, for visualisation or as features",
+   "when_not": "linear structure suffices (-> PCA); the embedding will be used for distances, which these methods do not preserve",
+   "alternatives": [
+    {
+     "alt": "PCA",
+     "criterion": "linear, preserves global structure, invertible"
+    },
+    {
+     "alt": "UMAP",
+     "criterion": "preserves more global structure than t-SNE, faster"
+    },
+    {
+     "alt": "t-SNE",
+     "criterion": "excellent local structure, unreliable global structure"
+    }
+   ],
+   "output_key_fields": [
+    "embedding: the low-dimensional coordinates",
+    "trustworthiness: how well local neighbourhoods are preserved",
+    "parameters: the neighbourhood and distance parameters used",
+    "n_components: the embedding dimension"
+   ],
+   "interpretation_traps": [
+    "DISTANCES AND CLUSTER SIZES IN A t-SNE PLOT ARE NOT MEANINGFUL: the gap between two clusters says nothing about their dissimilarity, and this is the most misread output in applied machine learning",
+    "the perplexity or neighbour parameter changes the picture completely, and a structure visible at one setting can vanish at another",
+    "these embeddings are not stable across seeds and must not be used as reproducible features without fixing one"
+   ],
+   "sources": [
+    "van der Maaten & Hinton 2008 (Journal of Machine Learning Research 9:2579-2605)",
+    "McInnes, Healy & Melville 2018, UMAP (arXiv:1802.03426)",
+    "Wattenberg, Viegas & Johnson 2016 (Distill)",
+    "umap-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 605,
+   "method": "Biclustering and co-clustering",
+   "wrapper_file": "c29_unsupervised_clustering/biclustering.py",
+   "tool_fns": [
+    "uc_biclustering"
+   ],
+   "when": "rows and columns should be grouped together, because a subset of variables defines a subset of observations",
+   "when_not": "only rows or only columns need grouping; the matrix is too sparse for coherent blocks",
+   "alternatives": [
+    {
+     "alt": "standard clustering",
+     "criterion": "rows only"
+    },
+    {
+     "alt": "spectral co-clustering",
+     "criterion": "a checkerboard block structure"
+    },
+    {
+     "alt": "spectral biclustering",
+     "criterion": "rows and columns cluster with different counts"
+    }
+   ],
+   "output_key_fields": [
+    "row_labels, column_labels: the two partitions",
+    "biclusters: the identified blocks",
+    "consensus_score: agreement against a reference where available",
+    "n_clusters: the counts used"
+   ],
+   "interpretation_traps": [
+    "BICLUSTERING ASSUMES A SPECIFIC BLOCK STRUCTURE -- checkerboard for co-clustering -- and data without that structure will still be partitioned into apparent blocks",
+    "the method is sensitive to row and column normalisation, and the normalisation choice determines what counts as a block",
+    "biclusters generally cannot overlap in these algorithms, which is restrictive for real data"
+   ],
+   "sources": [
+    "Dhillon 2001, Co-clustering documents and words (KDD 2001:269-274)",
+    "Kluger, Basri, Chang & Gerstein 2003 (Genome Research 13:703)",
+    "scikit-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "dm_correlation_distance",
+   "card_id": 240,
+   "register": {
+    "field": "dist_object"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "orientation": "rows_are_objects"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC matrix/DataFrame. NO NA/NaN/Inf (the distance routine does NOT error — it silently returns values with pairwise deletion)· >= 2 objects· unique row names. sliding-window subsequence is explicitly rejected input (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cor_method",
+     "kind": "enum",
+     "required": false,
+     "description": "Correlation coefficient (default 'pearson'): pearson (linear)· spearman (monotone, on ranks)· kendall (concordance, robust to outliers/small samples).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "pearson",
+      "spearman",
+      "kendall"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "Transformation r -> distance (default 'one_minus'): one_minus d=1-r (the DIRECTION matters· range [0,2])· one_minus_abs d=1-|r| (opposite phase = 'similar'· range [0,1])· mantegna d=sqrt(2(1-r)) = a True metric (Mantegna 1999) — prefer it for ward.D2/MDS.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "one_minus",
+      "one_minus_abs",
+      "mantegna"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "orientation",
+     "kind": "enum",
+     "required": true,
+     "description": "REQUIRED, never guessed: which dimension holds the objects to be clustered. 'rows_are_objects' = objects (countries/units) in the ROWS, features in the columns· 'columns_are_objects' = series in the COLUMNS, time in the rows (typical macro panel).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "rows_are_objects",
+      "columns_are_objects"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dm_distance",
+   "card_id": 240,
+   "register": {
+    "field": "dist_object"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "p": 2,
+    "orientation": "rows_are_objects"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC matrix/DataFrame. NO NA/NaN/Inf (the distance routine does NOT error — it silently returns values with pairwise deletion)· >= 2 objects· unique row names. sliding-window subsequence is explicitly rejected input (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Metric of the distance routine (default 'euclidean'): euclidean (L2)· maximum (sup-norm)· manhattan (L1)· canberra (sum |x-y|/(|x|+|y|)) — HARD GATE: NO negative value (the dist documentation: \"intended for non-negative values (e.g., counts)»)· binary (asymmetric Jaccard over on/off) — HARD GATE: EVERY element ∈ {0,1}· on CONTINUOUS data everything is 'on' and the matrix comes out SILENTLY FULL OF ZEROS (discretize first with bn_quantile_bins)· minkowski (Lp, with 'p'). CAUTION: the metrics are NOT scale-invariant — standardize first if the units differ.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "euclidean",
+      "maximum",
+      "manhattan",
+      "canberra",
+      "binary",
+      "minkowski"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "p",
+     "kind": "number",
+     "required": false,
+     "description": "Minkowski power (positive· default 2). Used ONLY when method='minkowski'· p<=0 -> hard gate («distance: invalid p»).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "orientation",
+     "kind": "enum",
+     "required": true,
+     "description": "REQUIRED, never guessed: which dimension holds the objects to be clustered. 'rows_are_objects' = objects (countries/units) in the ROWS, features in the columns· 'columns_are_objects' = series in the COLUMNS, time in the rows (typical macro panel).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "rows_are_objects",
+      "columns_are_objects"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dm_custom_distance",
+   "card_id": 240,
+   "register": {
+    "field": "dist_object"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "orientation": "rows_are_objects"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC matrix/DataFrame. NO NA/NaN/Inf (the distance routine does NOT error — it silently returns values with pairwise deletion)· >= 2 objects· unique row names. sliding-window subsequence is explicitly rejected input (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Metric of the extended distance routine (default 'cosine'). SHAPE/norm-based (NO zero row norm): cosine, angular, Chord, Geodesic. SCALE-aware: Mahalanobis (requires n > p AND a non-singular cov). COMPOSITIONAL/shares (require NON-negative & non-zero row sum): Bray, Soergel, Whittaker, Hellinger, Kullback, divergence, Wave, Podani, eJaccard. Euclidean/Manhattan/supremum/Minkowski/Canberra live in dm_distance· correlation in dm_correlation_distance.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "cosine",
+      "angular",
+      "Chord",
+      "Geodesic",
+      "Mahalanobis",
+      "Bray",
+      "Soergel",
+      "Whittaker",
+      "Hellinger",
+      "Kullback",
+      "divergence",
+      "Wave",
+      "Podani",
+      "eJaccard"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "orientation",
+     "kind": "enum",
+     "required": true,
+     "description": "REQUIRED, never guessed: which dimension holds the objects to be clustered. 'rows_are_objects' = objects (countries/units) in the ROWS, features in the columns· 'columns_are_objects' = series in the COLUMNS, time in the rows (typical macro panel).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "rows_are_objects",
+      "columns_are_objects"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dw_dist_matrix",
+   "card_id": 243,
+   "register": {
+    "field": "dist_object"
+   },
+   "input_example": {
+    "x": "<matrix_handle>",
+    "window_type": "none",
+    "orientation": "rows_are_objects"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC matrix/DataFrame with ONE series per object (country/indicator). NO NA/NaN/Inf· >= 2 series· >= 2 observations· UNIQUE names. sliding-window subsequence input is explicitly rejected (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "window_type",
+     "kind": "enum",
+     "required": true,
+     "description": "REQUIRED, never guessed: global constraint on the warping path. 'none' = no band (allows PATHOLOGICAL alignments — one point matching dozens)· 'sakoechiba' = band ±window.size around the MAIN diagonal (requires window.size >= |N-M|)· 'slantedband' = band around the SLANTED diagonal [1,1]->[N,M] (correct choice for UNEQUAL-LENGTH series)· 'itakura' = Itakura parallelogram (slope [1/2,2] => requires 0.5 <= M/N < 2, WITHOUT window.size).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "sakoechiba",
+      "slantedband",
+      "itakura"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "window_size",
+     "kind": "integer",
+     "required": false,
+     "description": "Band width in cells (NON-negative integer). REQUIRED for window.type='sakoechiba'/'slantedband'· FORBIDDEN for 'none'/'itakura' (would be ignored silently -> hard gate). For 'sakoechiba' requires window.size >= |query_length - ref_length| otherwise \"No warping path exists that is allowed by costraints\".",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "step_pattern",
+     "kind": "enum",
+     "required": false,
+     "description": "ONLY SYMMETRIC patterns (default 'symmetric2'): the cross-distance matrix is computed on the LOWER triangle, so an asymmetric pattern (asymmetric*) would SILENTLY give a wrong 'symmetric' matrix -> hard gate. 'symmetric1' is NOT normalized (incompatible with normalize=True).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "symmetric2",
+      "symmetric1",
+      "symmetricP0",
+      "symmetricP05",
+      "symmetricP1",
+      "symmetricP2"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT (gated) transformation per series — default 'none' = RAW data· NO silent detrending/differencing (normative gate). 'zscore' = (x-mean)/sd: comparison of SHAPE independent of level/scale (the standard of the DTW literature)· on a CONSTANT series (sd=0) -> hard gate (would give NaN silently).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "zscore"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "normalize",
+     "kind": "boolean",
+     "required": false,
+     "description": "True = use normalizedDistance (distance / length constant, e.g. N+M) instead of the raw one — NECESSARY when comparing series of different length. Default False. With step.pattern='symmetric1' (norm = NA) -> hard gate.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "orientation",
+     "kind": "enum",
+     "required": true,
+     "description": "REQUIRED, never guessed: which dimension holds the SERIES. 'rows_are_objects' = one series per ROW (time in the columns)· 'columns_are_objects' = series in the COLUMNS, time in the rows (typical macro panel).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "rows_are_objects",
+      "columns_are_objects"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dw_align",
+   "card_id": 243,
+   "register": null,
+   "input_example": {
+    "query": "<series_handle>",
+    "reference": "<series_handle>",
+    "window_type": "none"
+   },
+   "arguments": [
+    {
+     "name": "query",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to the QUERY SERIES (numeric/ts, >= 2 observations, WITHOUT NA/NaN/Inf). It may have a DIFFERENT length from the reference — that is the point of DTW.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "reference",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to the REFERENCE SERIES (numeric/ts, >= 2 observations, WITHOUT NA/NaN/Inf).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "window_type",
+     "kind": "enum",
+     "required": true,
+     "description": "REQUIRED, never guessed: global constraint on the warping path. 'none' = no band (allows PATHOLOGICAL alignments — one point matching dozens)· 'sakoechiba' = band ±window.size around the MAIN diagonal (requires window.size >= |N-M|)· 'slantedband' = band around the SLANTED diagonal [1,1]->[N,M] (correct choice for UNEQUAL-LENGTH series)· 'itakura' = Itakura parallelogram (slope [1/2,2] => requires 0.5 <= M/N < 2, WITHOUT window.size).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "sakoechiba",
+      "slantedband",
+      "itakura"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "window_size",
+     "kind": "integer",
+     "required": false,
+     "description": "Band width in cells (NON-negative integer). REQUIRED for window.type='sakoechiba'/'slantedband'· FORBIDDEN for 'none'/'itakura' (would be ignored silently -> hard gate). For 'sakoechiba' requires window.size >= |query_length - ref_length| otherwise \"No warping path exists that is allowed by costraints\".",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "step_pattern",
+     "kind": "enum",
+     "required": false,
+     "description": "Local transition rules (default 'symmetric2' = the default of dtw· normalizable by N+M). 'symmetric1' is NOT normalized (normalizedDistance = NA)· 'asymmetric*' match every point of the query EXACTLY ONCE (norm = N) but d(a,b) != d(b,a)· '*P0/P05/P1/P2' = increasing slope constraints Sakoe-Chiba (P2 = strictest· a path may not exist for series of very unequal length).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "symmetric2",
+      "symmetric1",
+      "asymmetric",
+      "symmetricP0",
+      "symmetricP05",
+      "symmetricP1",
+      "symmetricP2",
+      "asymmetricP0",
+      "asymmetricP05",
+      "asymmetricP1",
+      "asymmetricP2"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT (gated) transformation per series — default 'none' = RAW data· NO silent detrending/differencing (normative gate). 'zscore' = (x-mean)/sd: comparison of SHAPE independent of level/scale (the standard of the DTW literature)· on a CONSTANT series (sd=0) -> hard gate (would give NaN silently).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "zscore"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distance_only",
+     "kind": "boolean",
+     "required": false,
+     "description": "True = distance only (faster, WITHOUT backtrack => index1/index2 = null). False (default) = also returns the warping path as numeric chart-data for drawing in the frontend.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hc_agnes",
+   "card_id": 242,
+   "register": {
+    "field": "tree"
+   },
+   "input_example": {
+    "d": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "d",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a 'dist' object (distance matrix· typically from the distance-matrix node). NO matrix/DataFrame — NO NA/Inf, NO negative dissimilarities, n >= 2.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Agglomeration method (default 'average' = the documented default of the agglomerative-clustering routine). method='ward' is equivalent to hclust(method='ward.D2').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "average",
+      "single",
+      "complete",
+      "ward",
+      "weighted",
+      "flexible",
+      "gaverage"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "par_method",
+     "kind": "num_array",
+     "required": false,
+     "description": "Lance-Williams coefficients of length 1, 3 or 4 — ONLY for method='flexible' (REQUIRED, without default) or 'gaverage' (default -0.1). In other methods it is blocked (it would be ignored silently).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of groups for cutting the tree (1..n). Give EXACTLY one of 'k' or 'h' (or neither = dendrogram data only).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "number",
+     "required": false,
+     "description": "Cut height of the tree (>= 0· only on a monotone tree). Give EXACTLY one of 'k' or 'h'.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hc_cut_tree",
+   "card_id": 242,
+   "register": null,
+   "input_example": {
+    "tree": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "tree",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an hclust or agnes/diana ('twins') tree — from the register of hc_linkage/hc_agnes/hc_diana.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of groups (1..n). EXACTLY one of 'k'/'h' (required).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "number",
+     "required": false,
+     "description": "Cut height (>= 0· only on a monotone tree). EXACTLY one of 'k'/'h' (required).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hc_diana",
+   "card_id": 242,
+   "register": {
+    "field": "tree"
+   },
+   "input_example": {
+    "d": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "d",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a 'dist' object (distance matrix· typically from the distance-matrix node). NO matrix/DataFrame — NO NA/Inf, NO negative dissimilarities, n >= 2.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of groups for cutting the tree (1..n). Give EXACTLY one of 'k' or 'h' (or neither = dendrogram data only).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "number",
+     "required": false,
+     "description": "Cut height of the tree (>= 0· only on a monotone tree). Give EXACTLY one of 'k' or 'h'.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "hc_linkage",
+   "card_id": 242,
+   "register": {
+    "field": "tree"
+   },
+   "input_example": {
+    "d": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "d",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a 'dist' object (distance matrix· typically from the distance-matrix node). NO matrix/DataFrame — NO NA/Inf, NO negative dissimilarities, n >= 2.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Agglomeration method (default 'complete' = the documented default of the hierarchical-clustering routine). CAUTION: 'ward.D2' implements the Ward (1963) criterion (Murtagh & Legendre 2014)· 'ward.D' does NOT implement it — they are not equivalent. 'median'/'centroid' can produce inversions.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "complete",
+      "ward.D2",
+      "ward.D",
+      "single",
+      "average",
+      "mcquitty",
+      "median",
+      "centroid"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of groups for cutting the tree (1..n). Give EXACTLY one of 'k' or 'h' (or neither = dendrogram data only).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "number",
+     "required": false,
+     "description": "Cut height of the tree (>= 0· only on a monotone tree). Give EXACTLY one of 'k' or 'h'.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "km_gap",
+   "card_id": 241,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "k_max": 8,
+    "B": 100,
+    "d_power": 1,
+    "se_factor": 1,
+    "nstart": 25,
+    "iter_max": 50,
+    "seed": 1234
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC observations×features matrix (rows = observations/countries, columns = variables). NO NA/NaN/Inf. sliding-window subsequence IS REJECTED matrix (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k_max",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum k to examine (default 8)· >= 2 AND <= min(n-1, DISTINCT rows).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 8,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "fun_cluster",
+     "kind": "enum",
+     "required": false,
+     "description": "Algorithm inside the gap loop (default kmeans· pam = robust).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "kmeans",
+      "pam"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "B",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of Monte-Carlo (bootstrap) reference samples (default 100· B=500 for final results).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "d_power",
+     "kind": "integer",
+     "required": false,
+     "description": "Power of the euclidean distances in W(k): 1 = the conventional implementation (default)· 2 = proposal Tibshirani et al.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "space_h0",
+     "kind": "enum",
+     "required": false,
+     "description": "Space of the H0 distribution of \"no cluster\" (default scaledPCA = uniform over a PCA-rotated hypercube).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "scaledPCA",
+      "original"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "maxSE rule for the optimal k (default firstSEmax = first local maximum within 1 SE)· Tibs2001SEmax = the original Tibshirani rule.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "firstSEmax",
+      "Tibs2001SEmax",
+      "globalSEmax",
+      "firstmax",
+      "globalmax"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "se_factor",
+     "kind": "number",
+     "required": false,
+     "description": "Multiplier of the \"1-SE\" rule (positive· default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "nstart",
+     "kind": "integer",
+     "required": false,
+     "description": "nstart of the inner kmeans (>= 2· default 25).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 25,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "iter_max",
+     "kind": "integer",
+     "required": false,
+     "description": "iter.max of the inner kmeans (default 50).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 50,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "metric",
+     "kind": "enum",
+     "required": false,
+     "description": "Dissimilarity metric (default euclidean· manhattan = more robust).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "euclidean",
+      "manhattan"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT transformation BEFORE the clustering (default 'none' — NO silent standardization/detrending): center (mean removal per column)· scale (z-score· forbidden on a zero-variance column)· log (requires > 0). The fitted params are returned (transform_center/transform_scale).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "center",
+      "scale",
+      "log"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "REQUIRED seed — clusGap is bootstrap (default 1234).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1234,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "km_fit",
+   "card_id": 241,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "k": 1,
+    "nstart": 25,
+    "iter_max": 50,
+    "seed": 1234
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC observations×features matrix (rows = observations/countries, columns = variables). NO NA/NaN/Inf. sliding-window subsequence IS REJECTED matrix (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": true,
+     "description": "Number of clusters. MUST be 1 <= k <= number of DISTINCT rows (NOT n: duplicate rows break k<n).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT transformation BEFORE the clustering (default 'none' — NO silent standardization/detrending): center (mean removal per column)· scale (z-score· forbidden on a zero-variance column)· log (requires > 0). The fitted params are returned (transform_center/transform_scale).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "center",
+      "scale",
+      "log"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "algorithm",
+     "kind": "enum",
+     "required": false,
+     "description": "Algorithm (default Hartigan-Wong, the best)· Lloyd/Forgy = the same algorithm· Lloyd/Forgy can leave an EMPTY cluster -> hard gate.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "Hartigan-Wong",
+      "Lloyd",
+      "Forgy",
+      "MacQueen"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nstart",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of random initializations (default 25). REQUIRED >= 2 (determinism).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 25,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "iter_max",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum iterations per start (kmeans iter.max· default 50).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 50,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "REQUIRED seed — kmeans has random initialization (default 1234). Same seed => identical result.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1234,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "km_pam",
+   "card_id": 241,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "k": 1,
+    "stand": false
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC observations×features matrix (rows = observations/countries, columns = variables). NO NA/NaN/Inf. sliding-window subsequence IS REJECTED matrix (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": true,
+     "description": "Number of clusters· 1 <= k <= n-1 AND k <= number of DISTINCT rows (pam does NOT error on a larger k: it returns duplicate medoids).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "metric",
+     "kind": "enum",
+     "required": false,
+     "description": "Dissimilarity metric (default euclidean· manhattan = more robust).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "euclidean",
+      "manhattan"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "stand",
+     "kind": "boolean",
+     "required": false,
+     "description": "pam standardization (mean-absolute-deviation per column· default False). FORBIDDEN together with transform='scale' (double standardization).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT transformation BEFORE the clustering (default 'none' — NO silent standardization/detrending): center (mean removal per column)· scale (z-score· forbidden on a zero-variance column)· log (requires > 0). The fitted params are returned (transform_center/transform_scale).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "center",
+      "scale",
+      "log"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "km_silhouette",
+   "card_id": 241,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "cluster": [
+     1,
+     1
+    ]
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC observations×features matrix (rows = observations/countries, columns = variables). NO NA/NaN/Inf. sliding-window subsequence IS REJECTED matrix (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cluster",
+     "kind": "int_array",
+     "required": true,
+     "description": "Integer assignment vector of length n with CONTIGUOUS ids 1..k (e.g. the 'cluster' field of a km_fit/km_pam node). Required: 2 <= k <= n-1: with k=1 silhouette returns NA WITHOUT an error.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "metric",
+     "kind": "enum",
+     "required": false,
+     "description": "Dissimilarity metric (default euclidean· manhattan = more robust).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "euclidean",
+      "manhattan"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT transformation BEFORE the clustering (default 'none' — NO silent standardization/detrending): center (mean removal per column)· scale (z-score· forbidden on a zero-variance column)· log (requires > 0). The fitted params are returned (transform_center/transform_scale).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "center",
+      "scale",
+      "log"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mb_bic",
+   "card_id": 244,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "top": 3,
+    "seed": 1234
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC observations×features matrix (rows = observations/countries, columns = variables). NO NA/NaN/Inf (the model-based clusterer SILENTLY DROPS rows with NA). n > p IS REQUIRED (p >= n => singular covariances, the model-based clusterer does NOT error). sliding-window IS REJECTED subsequence matrix (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "G",
+     "kind": "int_array",
+     "required": false,
+     "description": "Range of the number of components to examine (default 1:9). Positive integers with max(G) <= n — the model-based clusterer does NOT error on a larger G: it SILENTLY truncates the range.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model_names",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Geometric covariance shapes to try (default None = all the allowed ones). Multivariate (p>1): EII VII EEI VEI EVI VVI EEE VEE EVE VVE EEV VEV EVV VVV (volume-shape-orientation: E=equal, V=variable, I=identity). Univariate (p=1): E (equal variance) / V (unequal).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT transformation BEFORE the clustering (default 'none' — NO silent standardization/detrending): center (mean removal per column)· scale (z-score· forbidden on a zero-variance column)· log (requires > 0). The fitted params are returned (transform_center/transform_scale) and are applied VERBATIM to mb_predict's newdata.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "center",
+      "scale",
+      "log"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "top",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of top candidates (model, G) returned (default 3).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed (default 1234). For n <= the initialisation threshold (=2000) the initialization is deterministic (model-based hierarchical)· ABOVE that the model-based clusterer initialises on a RANDOM subset => the seed DETERMINES the result (field 'subset_init').",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1234,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "mb_icl",
+   "card_id": 244,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "top": 3,
+    "seed": 1234
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC observations×features matrix (rows = observations/countries, columns = variables). NO NA/NaN/Inf (the model-based clusterer SILENTLY DROPS rows with NA). n > p IS REQUIRED (p >= n => singular covariances, the model-based clusterer does NOT error). sliding-window IS REJECTED subsequence matrix (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "G",
+     "kind": "int_array",
+     "required": false,
+     "description": "Range of the number of components to examine (default 1:9). Positive integers with max(G) <= n — the model-based clusterer does NOT error on a larger G: it SILENTLY truncates the range.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model_names",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Geometric covariance shapes to try (default None = all the allowed ones). Multivariate (p>1): EII VII EEI VEI EVI VVI EEE VEE EVE VVE EEV VEV EVV VVV (volume-shape-orientation: E=equal, V=variable, I=identity). Univariate (p=1): E (equal variance) / V (unequal).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT transformation BEFORE the clustering (default 'none' — NO silent standardization/detrending): center (mean removal per column)· scale (z-score· forbidden on a zero-variance column)· log (requires > 0). The fitted params are returned (transform_center/transform_scale) and are applied VERBATIM to mb_predict's newdata.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "center",
+      "scale",
+      "log"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "top",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of top candidates (model, G) returned (default 3).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed (default 1234). For n <= the initialisation threshold (=2000) the initialization is deterministic (model-based hierarchical)· ABOVE that the model-based clusterer initialises on a RANDOM subset => the seed DETERMINES the result (field 'subset_init').",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1234,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "mb_fit",
+   "card_id": 244,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "seed": 1234
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC observations×features matrix (rows = observations/countries, columns = variables). NO NA/NaN/Inf (the model-based clusterer SILENTLY DROPS rows with NA). n > p IS REQUIRED (p >= n => singular covariances, the model-based clusterer does NOT error). sliding-window IS REJECTED subsequence matrix (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "G",
+     "kind": "int_array",
+     "required": false,
+     "description": "Range of the number of components to examine (default 1:9). Positive integers with max(G) <= n — the model-based clusterer does NOT error on a larger G: it SILENTLY truncates the range.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model_names",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Geometric covariance shapes to try (default None = all the allowed ones). Multivariate (p>1): EII VII EEI VEI EVI VVI EEE VEE EVE VVE EEV VEV EVV VVV (volume-shape-orientation: E=equal, V=variable, I=identity). Univariate (p=1): E (equal variance) / V (unequal).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT transformation BEFORE the clustering (default 'none' — NO silent standardization/detrending): center (mean removal per column)· scale (z-score· forbidden on a zero-variance column)· log (requires > 0). The fitted params are returned (transform_center/transform_scale) and are applied VERBATIM to mb_predict's newdata.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "center",
+      "scale",
+      "log"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed (default 1234). For n <= the initialisation threshold (=2000) the initialization is deterministic (model-based hierarchical)· ABOVE that the model-based clusterer initialises on a RANDOM subset => the seed DETERMINES the result (field 'subset_init').",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1234,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "mb_predict",
+   "card_id": 244,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "newdata": "<matrix_handle>",
+    "seed": 1234
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC observations×features matrix (rows = observations/countries, columns = variables). NO NA/NaN/Inf (the model-based clusterer SILENTLY DROPS rows with NA). n > p IS REQUIRED (p >= n => singular covariances, the model-based clusterer does NOT error). sliding-window IS REJECTED subsequence matrix (Keogh gate).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "newdata",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a NUMERIC matrix of new observations with EXACTLY the same columns (same count AND same names/order) as 'x'. predict.Mclust checks ONLY ncol => a shuffled column order would give WRONG assignments (silent-wrong) — it is blocked by a hard gate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "G",
+     "kind": "int_array",
+     "required": false,
+     "description": "Range of the number of components to examine (default 1:9). Positive integers with max(G) <= n — the model-based clusterer does NOT error on a larger G: it SILENTLY truncates the range.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model_names",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Geometric covariance shapes to try (default None = all the allowed ones). Multivariate (p>1): EII VII EEI VEI EVI VVI EEE VEE EVE VVE EEV VEV EVV VVV (volume-shape-orientation: E=equal, V=variable, I=identity). Univariate (p=1): E (equal variance) / V (unequal).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "EXPLICIT transformation BEFORE the clustering (default 'none' — NO silent standardization/detrending): center (mean removal per column)· scale (z-score· forbidden on a zero-variance column)· log (requires > 0). The fitted params are returned (transform_center/transform_scale) and are applied VERBATIM to mb_predict's newdata.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "center",
+      "scale",
+      "log"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed (default 1234). For n <= the initialisation threshold (=2000) the initialization is deterministic (model-based hierarchical)· ABOVE that the model-based clusterer initialises on a RANDOM subset => the seed DETERMINES the result (field 'subset_init').",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1234,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "mds_classical",
+   "card_id": 245,
+   "register": null,
+   "input_example": {
+    "d": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "d",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a 'dist' object (distance matrix· typically from the distance-matrix node). NO matrix/DataFrame (they are silently accepted even when they are NOT symmetric) — NO NA/Inf, NO negative dissimilarities, NOT all zero, n >= 2.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of dimensions of the map (default 2 = the documented default). MUST be in {1, 2,.. n-1}· in addition the POSITIVE eigenvalues must be >= k (otherwise the solution has fewer columns -> the node blocks).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "add",
+     "kind": "boolean",
+     "required": false,
+     "description": "True = compute the Cailliez additive constant (1983) so that the dissimilarities become EUCLIDEAN (default False). Useful ONLY when there are negative eigenvalues (n_eig_negative > 0 / gof_abs < gof_pos).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mds_nonmetric",
+   "card_id": 245,
+   "register": null,
+   "input_example": {
+    "d": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "d",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a 'dist' object (distance matrix· typically from the distance-matrix node). NO matrix/DataFrame (they are silently accepted even when they are NOT symmetric) — NO NA/Inf, NO negative dissimilarities, NOT all zero, n >= 2.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of dimensions of the map (default 2 = the documented default). MUST be in {1, 2,.. n-1}· in addition the POSITIVE eigenvalues must be >= k (otherwise the solution has fewer columns -> the node blocks).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "maxit",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum iterations (default 50· typically converges in ~10). Positive integer — 0 is SILENTLY accepted by MASS and returns a NON-optimized configuration.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tol",
+     "kind": "number",
+     "required": false,
+     "description": "Convergence tolerance (default 0.001). MUST be > 0 — non-positive is silently accepted and it stops prematurely with much worse stress.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "p",
+     "kind": "number",
+     "required": false,
+     "description": "Minkowski power in the configuration space (default 2 = Euclidean). MUST be >= 1 (the Minkowski is a metric only for p >= 1· p = 0 does NOT terminate).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mds_sammon",
+   "card_id": 245,
+   "register": null,
+   "input_example": {
+    "d": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "d",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a 'dist' object (distance matrix· typically from the distance-matrix node). NO matrix/DataFrame (they are silently accepted even when they are NOT symmetric) — NO NA/Inf, NO negative dissimilarities, NOT all zero, n >= 2.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of dimensions of the map (default 2 = the documented default). MUST be in {1, 2,.. n-1}· in addition the POSITIVE eigenvalues must be >= k (otherwise the solution has fewer columns -> the node blocks).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "niter",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum iterations (default 100· typically converges in ~50). Positive integer — 0 is SILENTLY accepted (no optimization).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "magic",
+     "kind": "number",
+     "required": false,
+     "description": "Initial step of the diagonal-Newton (default 0.2). MUST be > 0 — magic <= 0 is SILENTLY accepted and does NOT optimize at all.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tol",
+     "kind": "number",
+     "required": false,
+     "description": "Termination tolerance in stress units (default 0.0001· > 0).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uc_density_clustering",
+   "card_id": 598,
+   "register": null,
+   "input_example": {
+    "x": "<df_handle>",
+    "method": "hdbscan",
+    "min_cluster_size": 5,
+    "metric": "euclidean"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data to cluster.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Algorithm.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "dbscan",
+      "hdbscan",
+      "optics"
+     ],
+     "allowed_vars": null,
+     "default": "hdbscan",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "min_cluster_size",
+     "kind": "integer",
+     "required": false,
+     "description": "Minimum cluster size.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "min_samples",
+     "kind": "integer",
+     "required": false,
+     "description": "Core-point threshold.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "eps",
+     "kind": "number",
+     "required": false,
+     "description": "Neighbourhood radius for DBSCAN.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "metric",
+     "kind": "enum",
+     "required": false,
+     "description": "Distance metric.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "euclidean",
+      "manhattan",
+      "cosine",
+      "correlation"
+     ],
+     "allowed_vars": null,
+     "default": "euclidean",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "uc_cluster_validation",
+   "card_id": 599,
+   "register": null,
+   "input_example": {
+    "x": "<df_handle>",
+    "k_range": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8
+    ],
+    "algorithm": "kmeans",
+    "nboot": 100,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data to cluster.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k_range",
+     "kind": "int_array",
+     "required": false,
+     "description": "Candidate cluster counts.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "algorithm",
+     "kind": "enum",
+     "required": false,
+     "description": "Clustering algorithm assessed.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "kmeans",
+      "hierarchical",
+      "gaussian_mixture",
+      "hdbscan"
+     ],
+     "allowed_vars": null,
+     "default": "kmeans",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "indices",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Indices to compute.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uc_factor_analysis",
+   "card_id": 600,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "x": "<df_handle>",
+    "rotation": "promax",
+    "method": "minres",
+    "criterion": "parallel"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observed variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of factors; omitted = selected by criterion.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "rotation",
+     "kind": "enum",
+     "required": false,
+     "description": "Rotation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "varimax",
+      "promax",
+      "oblimin",
+      "quartimax"
+     ],
+     "allowed_vars": null,
+     "default": "promax",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Extraction method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "minres",
+      "ml",
+      "principal"
+     ],
+     "allowed_vars": null,
+     "default": "minres",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "criterion",
+     "kind": "enum",
+     "required": false,
+     "description": "Factor-count criterion.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "kaiser",
+      "scree",
+      "parallel",
+      "mean_eigenvalue"
+     ],
+     "allowed_vars": null,
+     "default": "parallel",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "uc_ica",
+   "card_id": 600,
+   "register": null,
+   "input_example": {
+    "x": "<df_handle>",
+    "algorithm": "parallel",
+    "whiten": true,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observed variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_components",
+     "kind": "integer",
+     "required": false,
+     "description": "Components to extract.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "algorithm",
+     "kind": "enum",
+     "required": false,
+     "description": "Algorithm.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "parallel",
+      "deflation"
+     ],
+     "allowed_vars": null,
+     "default": "parallel",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "whiten",
+     "kind": "boolean",
+     "required": false,
+     "description": "Whiten the data first.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uc_correspondence_analysis",
+   "card_id": 601,
+   "register": null,
+   "input_example": {
+    "x": "<df_handle>",
+    "method": "mca",
+    "n_components": 2,
+    "correction": "benzecri"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Categorical or mixed data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "ca",
+      "mca",
+      "famd",
+      "mfa"
+     ],
+     "allowed_vars": null,
+     "default": "mca",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_components",
+     "kind": "integer",
+     "required": false,
+     "description": "Dimensions retained.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "correction",
+     "kind": "enum",
+     "required": false,
+     "description": "Inertia correction for MCA.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "benzecri",
+      "greenacre"
+     ],
+     "allowed_vars": null,
+     "default": "benzecri",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "uc_timeseries_clustering",
+   "card_id": 602,
+   "register": null,
+   "input_example": {
+    "series": "<df_handle>",
+    "n_clusters": 1,
+    "method": "dtw_kmeans",
+    "warping_window": 0.1,
+    "normalise": true,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "series",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Series panel, one row per series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_clusters",
+     "kind": "integer",
+     "required": true,
+     "description": "Number of clusters.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Algorithm.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "euclidean_kmeans",
+      "dtw_kmeans",
+      "kshape",
+      "kernel_kmeans"
+     ],
+     "allowed_vars": null,
+     "default": "dtw_kmeans",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "warping_window",
+     "kind": "number",
+     "required": false,
+     "description": "Sakoe-Chiba band as a fraction of length.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "normalise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Normalise each series before clustering.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uc_elastic_distance",
+   "card_id": 603,
+   "register": null,
+   "input_example": {
+    "series": "<df_handle>",
+    "measure": "dtw",
+    "warping_window": 0.1,
+    "normalise": true,
+    "use_pruning": true
+   },
+   "arguments": [
+    {
+     "name": "series",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Series panel, one row per series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "measure",
+     "kind": "enum",
+     "required": false,
+     "description": "Distance measure.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "dtw",
+      "ddtw",
+      "wdtw",
+      "lcss",
+      "erp",
+      "msm",
+      "twe",
+      "euclidean"
+     ],
+     "allowed_vars": null,
+     "default": "dtw",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "warping_window",
+     "kind": "number",
+     "required": false,
+     "description": "Warping band as a fraction of length.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "normalise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Normalise series before comparison.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "use_pruning",
+     "kind": "boolean",
+     "required": false,
+     "description": "Use lower bounds to prune computations.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "uc_nonlinear_embedding",
+   "card_id": 604,
+   "register": null,
+   "input_example": {
+    "x": "<df_handle>",
+    "method": "umap",
+    "n_components": 2,
+    "n_neighbors": 15,
+    "min_dist": 0.1,
+    "perplexity": 30.0,
+    "metric": "euclidean",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "High-dimensional data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "umap",
+      "tsne",
+      "isomap",
+      "kernel_pca",
+      "spectral",
+      "mds"
+     ],
+     "allowed_vars": null,
+     "default": "umap",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_components",
+     "kind": "integer",
+     "required": false,
+     "description": "Embedding dimension.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "n_neighbors",
+     "kind": "integer",
+     "required": false,
+     "description": "Neighbourhood size.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 15,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "min_dist",
+     "kind": "number",
+     "required": false,
+     "description": "Minimum distance for UMAP.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "perplexity",
+     "kind": "number",
+     "required": false,
+     "description": "Perplexity for t-SNE.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 30.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "metric",
+     "kind": "enum",
+     "required": false,
+     "description": "Distance metric.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "euclidean",
+      "manhattan",
+      "cosine",
+      "correlation"
+     ],
+     "allowed_vars": null,
+     "default": "euclidean",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uc_biclustering",
+   "card_id": 605,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>",
+    "method": "cocluster",
+    "n_clusters": 3,
+    "normalise": "log",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Data matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "cocluster",
+      "bicluster"
+     ],
+     "allowed_vars": null,
+     "default": "cocluster",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_clusters",
+     "kind": "integer",
+     "required": false,
+     "description": "Cluster count.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "n_row_clusters",
+     "kind": "integer",
+     "required": false,
+     "description": "Row clusters for biclustering.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_column_clusters",
+     "kind": "integer",
+     "required": false,
+     "description": "Column clusters for biclustering.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "normalise",
+     "kind": "enum",
+     "required": false,
+     "description": "Normalisation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "log",
+      "scale",
+      "bistochastic"
+     ],
+     "allowed_vars": null,
+     "default": "log",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``small_area_estimation`` -- METHOD-SELECTION card #233.
+"""Method wrapper ``small_area_estimation`` -- method card #233.
 
 #233 Small-area estimation (SAE): the Fay-Herriot area-level EBLUP (+ the analytic Prasad-Rao MSE) &
     the Battese-Harter-Fuller unit-level EBLUP
@@ -8,8 +8,8 @@ Category 25-expectations-surveys; module ``small_area_estimation``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def sae_eblup_fh(
     B: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sae_eblup_fh`` -- METHOD-SELECTION card #233.
+    """Node ``sae_eblup_fh`` -- method card #233.
 
     Small-area estimation (SAE): the Fay-Herriot area-level EBLUP (+ the analytic Prasad-Rao MSE) &
     the Battese-Harter-Fuller unit-level EBLUP.
@@ -72,7 +72,7 @@ def sae_eblup_fh(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sae_eblup_fh: not implemented. The method card is in ./README.md."
+        "sae_eblup_fh: not implemented."
     )
 
 
@@ -87,7 +87,7 @@ def sae_mse_fh(
     B: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sae_mse_fh`` -- METHOD-SELECTION card #233.
+    """Node ``sae_mse_fh`` -- method card #233.
 
     Small-area estimation (SAE): the Fay-Herriot area-level EBLUP (+ the analytic Prasad-Rao MSE) &
     the Battese-Harter-Fuller unit-level EBLUP.
@@ -116,7 +116,7 @@ def sae_mse_fh(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sae_mse_fh: not implemented. The method card is in ./README.md."
+        "sae_mse_fh: not implemented."
     )
 
 
@@ -130,7 +130,7 @@ def sae_eblup_bhf(
     selectdom: Any | None = None,
     method: Literal["REML", "ML"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``sae_eblup_bhf`` -- METHOD-SELECTION card #233.
+    """Node ``sae_eblup_bhf`` -- method card #233.
 
     Small-area estimation (SAE): the Fay-Herriot area-level EBLUP (+ the analytic Prasad-Rao MSE) &
     the Battese-Harter-Fuller unit-level EBLUP.
@@ -156,5 +156,5 @@ def sae_eblup_bhf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sae_eblup_bhf: not implemented. The method card is in ./README.md."
+        "sae_eblup_bhf: not implemented."
     )

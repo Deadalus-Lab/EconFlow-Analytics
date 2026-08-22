@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``sde_scenario_generation`` -- METHOD-SELECTION card #199.
+"""Method wrapper ``sde_scenario_generation`` -- method card #199.
 
 #199 SDE scenario generation (short-rate/asset diffusion paths) + a martingale no-arbitrage check
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``sde_scenario_generation``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -21,13 +21,13 @@ from econflow_engine.generated.args.c12_distribution_risk import NODE_META, wire
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
     "esg_martingale_test",
-    "esg_simdiff",
+    "esg_simulate_diffusion",
     "NODE_META",
     "wire_model",
 ]
 
 
-def esg_simdiff(
+def esg_simulate_diffusion(
     *,
     model: Literal["vasicek", "cir", "ou", "gbm"] | None = None,
     params: Any,
@@ -36,7 +36,7 @@ def esg_simdiff(
     n_paths: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``esg_simdiff`` -- METHOD-SELECTION card #199.
+    """Node ``esg_simulate_diffusion`` -- method card #199.
 
     SDE scenario generation (short-rate/asset diffusion paths) + a martingale no-arbitrage check.
 
@@ -63,7 +63,7 @@ def esg_simdiff(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "esg_simdiff: not implemented. The method card is in ./README.md."
+        "esg_simulate_diffusion: not implemented."
     )
 
 
@@ -72,14 +72,14 @@ def esg_martingale_test(
     object: Any,
     conf_level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``esg_martingale_test`` -- METHOD-SELECTION card #199.
+    """Node ``esg_martingale_test`` -- method card #199.
 
     SDE scenario generation (short-rate/asset diffusion paths) + a martingale no-arbitrage check.
 
     Category 12-distribution-risk; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to esg_simdiff$object (list
+        object: [raw_handle, required] Handle to esg_simulate_diffusion.object (list
             model/params/T/time/paths). Gate: model ∈ {vasicek,cir} (only these have a closed-form
             bond price).
         conf_level: [number, optional] Confidence level of the MC interval for the within_ci check,
@@ -89,5 +89,5 @@ def esg_martingale_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "esg_martingale_test: not implemented. The method card is in ./README.md."
+        "esg_martingale_test: not implemented."
     )

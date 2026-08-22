@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``synthetic_control`` -- METHOD-SELECTION card #40.
+"""Method wrapper ``synthetic_control`` -- method card #40.
 
 #40 Synthetic Control (classic, Abadie)
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``synthetic_control``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,15 +24,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_dataprep",
-    "wrap_synth",
-    "wrap_synth_tab",
+    "sc_fit",
+    "sc_prepare_data",
+    "sc_tables",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_dataprep(
+def sc_prepare_data(
     *,
     foo: pd.DataFrame,
     predictors: Sequence[str] | None = None,
@@ -46,7 +46,7 @@ def wrap_dataprep(
     time_optimize_ssr: Any | None = None,
     time_plot: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_dataprep`` -- METHOD-SELECTION card #40.
+    """Node ``sc_prepare_data`` -- method card #40.
 
     Synthetic Control (classic, Abadie).
 
@@ -75,17 +75,17 @@ def wrap_dataprep(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_dataprep: not implemented. The method card is in ./README.md."
+        "sc_prepare_data: not implemented."
     )
 
 
-def wrap_synth(
+def sc_fit(
     *,
     dataprep_object: Any,
     optimxmethod: Literal["Nelder-Mead", "BFGS"] | None = None,
     genoud: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_synth`` -- METHOD-SELECTION card #40.
+    """Node ``sc_fit`` -- method card #40.
 
     Synthetic Control (classic, Abadie).
 
@@ -94,7 +94,7 @@ def wrap_synth(
     Registers its result under ``object``, so a later node can consume it as a handle.
 
     Args:
-        dataprep_object: [raw_handle, required] Handle to a dataprep object (from wrap_dataprep).
+        dataprep_object: [raw_handle, required] Handle to a dataprep object (from sc_prepare_data).
         optimxmethod: [enum, optional] Optimizer for the weights (default Nelder-Mead).
         genoud: [boolean, optional] Genetic optimization (slower/more stable, default False).
             Default ``False``.
@@ -103,30 +103,30 @@ def wrap_synth(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_synth: not implemented. The method card is in ./README.md."
+        "sc_fit: not implemented."
     )
 
 
-def wrap_synth_tab(
+def sc_tables(
     *,
     synth_object: Any,
     dataprep_object: Any,
     round_digit: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_synth_tab`` -- METHOD-SELECTION card #40.
+    """Node ``sc_tables`` -- method card #40.
 
     Synthetic Control (classic, Abadie).
 
     Category 07-causality-policy; memory class ``light``.
 
     Args:
-        synth_object: [raw_handle, required] Handle to a synth object (from wrap_synth).
-        dataprep_object: [raw_handle, required] Handle to a dataprep object (from wrap_dataprep).
+        synth_object: [raw_handle, required] Handle to a synth object (from sc_fit).
+        dataprep_object: [raw_handle, required] Handle to a dataprep object (from sc_prepare_data).
         round_digit: [integer, optional] Rounding decimals (default 3). Default ``3``.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_synth_tab: not implemented. The method card is in ./README.md."
+        "sc_tables: not implemented."
     )

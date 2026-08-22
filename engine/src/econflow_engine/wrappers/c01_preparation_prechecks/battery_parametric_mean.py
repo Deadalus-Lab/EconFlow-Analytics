@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``battery_parametric_mean`` -- METHOD-SELECTION card #250.
+"""Method wrapper ``battery_parametric_mean`` -- method card #250.
 
 #250 Battery of PARAMETRIC MEAN tests on CROSS-SECTION data: t-test (one sample / two samples Welch
     or Student pooled / paired) · one-way ANOVA (equal variances, a full ANOVA table) · the one-way
@@ -9,8 +9,8 @@ Category 01-preparation-prechecks; module ``battery_parametric_mean``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -50,7 +50,7 @@ def tp_t_test(
     gate_alpha: float | None = None,
     ordered: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tp_t_test`` -- METHOD-SELECTION card #250.
+    """Node ``tp_t_test`` -- method card #250.
 
     Battery of PARAMETRIC MEAN tests on CROSS-SECTION data: t-test (one sample / two samples Welch
     or Student pooled / paired) · one-way ANOVA (equal variances, a full ANOVA table) · the one-way
@@ -111,7 +111,7 @@ def tp_t_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tp_t_test: not implemented. The method card is in ./README.md."
+        "tp_t_test: not implemented."
     )
 
 
@@ -126,7 +126,7 @@ def tp_anova(
     gate_alpha: float | None = None,
     ordered: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tp_anova`` -- METHOD-SELECTION card #250.
+    """Node ``tp_anova`` -- method card #250.
 
     Battery of PARAMETRIC MEAN tests on CROSS-SECTION data: t-test (one sample / two samples Welch
     or Student pooled / paired) · one-way ANOVA (equal variances, a full ANOVA table) · the one-way
@@ -138,7 +138,7 @@ def tp_anova(
         data: [df_handle, required] Handle to a CROSS-SECTION DataFrame (rows = units:
             countries/firms/households) with ONE numeric response column and ONE grouping column
             (categorical/string). ⚠️ CROSS-SECTION ONLY: each group passes a Ljung-Box whiteness
-            precheck; time series ARE REJECTED (see the HAC path, package sandwich, category
+            precheck; time series ARE REJECTED (see the HAC path, the HAC path, category
             07-causality-policy).
         response: [string, required] NAME of the NUMERIC response-variable column in 'data' (NOT
             data). Must exist in the DataFrame; used ONLY as an index — NEVER in formula/parse.
@@ -174,7 +174,7 @@ def tp_anova(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tp_anova: not implemented. The method card is in ./README.md."
+        "tp_anova: not implemented."
     )
 
 
@@ -190,7 +190,7 @@ def tp_welch(
     gate_alpha: float | None = None,
     ordered: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``tp_welch`` -- METHOD-SELECTION card #250.
+    """Node ``tp_welch`` -- method card #250.
 
     Battery of PARAMETRIC MEAN tests on CROSS-SECTION data: t-test (one sample / two samples Welch
     or Student pooled / paired) · one-way ANOVA (equal variances, a full ANOVA table) · the one-way
@@ -202,7 +202,7 @@ def tp_welch(
         data: [df_handle, required] Handle to a CROSS-SECTION DataFrame (rows = units:
             countries/firms/households) with ONE numeric response column and ONE grouping column
             (categorical/string). ⚠️ CROSS-SECTION ONLY: each group passes a Ljung-Box whiteness
-            precheck; time series ARE REJECTED (see the HAC path, package sandwich, category
+            precheck; time series ARE REJECTED (see the HAC path, the HAC path, category
             07-causality-policy).
         response: [string, required] NAME of the NUMERIC response-variable column in 'data' (NOT
             data). Must exist in the DataFrame; used ONLY as an index — NEVER in formula/parse.
@@ -241,5 +241,5 @@ def tp_welch(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tp_welch: not implemented. The method card is in ./README.md."
+        "tp_welch: not implemented."
     )

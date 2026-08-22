@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_global_var`` -- METHOD-SELECTION card #176.
+"""Method wrapper ``bayesian_global_var`` -- method card #176.
 
 #176 Bayesian Global VAR (multi-country shrinkage + SV): estimation + generalized-FEVD
     spillovers/GIRF + a posterior-predictive forecast
@@ -8,8 +8,8 @@ Category 09-cross-section-networks; module ``bayesian_global_var``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def bgvar_fit(
     trend: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``bgvar_fit`` -- METHOD-SELECTION card #176.
+    """Node ``bgvar_fit`` -- method card #176.
 
     Bayesian Global VAR (multi-country shrinkage + SV): estimation + generalized-FEVD
     spillovers/GIRF + a posterior-predictive forecast.
@@ -68,7 +68,7 @@ def bgvar_fit(
         burnin: [integer, optional] Number of burn-in draws. Default 200. Default ``200``.
         prior: [enum, optional] Shrinkage prior: MN (Minnesota, default/fast) · SSVS · NG
             (Normal-Gamma). Default ``'MN'``.
-        SV: [boolean, optional] Stochastic volatility (stochvol). Default False. Default ``False``.
+        SV: [boolean, optional] Stochastic volatility. Default False. Default ``False``.
         hold_out: [integer, optional] Hold-out sample (>0 required for LPS/RMSE in bgvar_predict).
             Default 0. Default ``0``.
         thin: [integer, optional] Thinning interval of the MCMC. Default 1. Default ``1``.
@@ -81,7 +81,7 @@ def bgvar_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bgvar_fit: not implemented. The method card is in ./README.md."
+        "bgvar_fit: not implemented."
     )
 
 
@@ -93,7 +93,7 @@ def bgvar_spillover(
     shock: str | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``bgvar_spillover`` -- METHOD-SELECTION card #176.
+    """Node ``bgvar_spillover`` -- method card #176.
 
     Bayesian Global VAR (multi-country shrinkage + SV): estimation + generalized-FEVD
     spillovers/GIRF + a posterior-predictive forecast.
@@ -113,7 +113,7 @@ def bgvar_spillover(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bgvar_spillover: not implemented. The method card is in ./README.md."
+        "bgvar_spillover: not implemented."
     )
 
 
@@ -124,7 +124,7 @@ def bgvar_predict(
     quantiles: Sequence[float] | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``bgvar_predict`` -- METHOD-SELECTION card #176.
+    """Node ``bgvar_predict`` -- method card #176.
 
     Bayesian Global VAR (multi-country shrinkage + SV): estimation + generalized-FEVD
     spillovers/GIRF + a posterior-predictive forecast.
@@ -143,5 +143,5 @@ def bgvar_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bgvar_predict: not implemented. The method card is in ./README.md."
+        "bgvar_predict: not implemented."
     )

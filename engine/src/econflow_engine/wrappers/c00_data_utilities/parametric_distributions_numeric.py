@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``parametric_distributions_numeric`` -- METHOD-SELECTION card #118.
+"""Method wrapper ``parametric_distributions_numeric`` -- method card #118.
 
 #118 Parametric distributions (normal/student_t) as a numeric grid: quantile bands / cdf / density /
     moments (fan-chart data)
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``parametric_distributions_numeric``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def dist_fan_quantiles(
     df: Sequence[float] | None = None,
     probs: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dist_fan_quantiles`` -- METHOD-SELECTION card #118.
+    """Node ``dist_fan_quantiles`` -- method card #118.
 
     Parametric distributions (normal/student_t) as a numeric grid: quantile bands / cdf / density /
     moments (fan-chart data).
@@ -62,7 +62,7 @@ def dist_fan_quantiles(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dist_fan_quantiles: not implemented. The method card is in ./README.md."
+        "dist_fan_quantiles: not implemented."
     )
 
 
@@ -74,7 +74,7 @@ def dist_prob_cdf(
     df: Sequence[float] | None = None,
     at: Sequence[float],
 ) -> dict[str, Any]:
-    """Node ``dist_prob_cdf`` -- METHOD-SELECTION card #118.
+    """Node ``dist_prob_cdf`` -- method card #118.
 
     Parametric distributions (normal/student_t) as a numeric grid: quantile bands / cdf / density /
     moments (fan-chart data).
@@ -92,7 +92,7 @@ def dist_prob_cdf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dist_prob_cdf: not implemented. The method card is in ./README.md."
+        "dist_prob_cdf: not implemented."
     )
 
 
@@ -104,7 +104,7 @@ def dist_density_grid(
     df: Sequence[float] | None = None,
     at: Sequence[float],
 ) -> dict[str, Any]:
-    """Node ``dist_density_grid`` -- METHOD-SELECTION card #118.
+    """Node ``dist_density_grid`` -- method card #118.
 
     Parametric distributions (normal/student_t) as a numeric grid: quantile bands / cdf / density /
     moments (fan-chart data).
@@ -122,7 +122,7 @@ def dist_density_grid(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dist_density_grid: not implemented. The method card is in ./README.md."
+        "dist_density_grid: not implemented."
     )
 
 
@@ -133,7 +133,7 @@ def dist_moments(
     sigma: Sequence[float],
     df: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dist_moments`` -- METHOD-SELECTION card #118.
+    """Node ``dist_moments`` -- method card #118.
 
     Parametric distributions (normal/student_t) as a numeric grid: quantile bands / cdf / density /
     moments (fan-chart data).
@@ -150,5 +150,5 @@ def dist_moments(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dist_moments: not implemented. The method card is in ./README.md."
+        "dist_moments: not implemented."
     )

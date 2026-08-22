@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``parametric_yield_curve`` -- METHOD-SELECTION card #210.
+"""Method wrapper ``parametric_yield_curve`` -- method card #210.
 
 #210 Parametric yield-curve factor models (Nelson-Siegel / Svensson / cubic spline, Diebold-Li
     dynamics on a panel) + curve transforms (spot/forward/discount/PCA)
@@ -8,8 +8,8 @@ Category 18-yield-curve; module ``parametric_yield_curve``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def yc_fit(
     weights: Sequence[float] | None = None,
     dates: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``yc_fit`` -- METHOD-SELECTION card #210.
+    """Node ``yc_fit`` -- method card #210.
 
     Parametric yield-curve factor models (Nelson-Siegel / Svensson / cubic spline, Diebold-Li
     dynamics on a panel) + curve transforms (spot/forward/discount/PCA).
@@ -79,7 +79,7 @@ def yc_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "yc_fit: not implemented. The method card is in ./README.md."
+        "yc_fit: not implemented."
     )
 
 
@@ -93,7 +93,7 @@ def yc_transform(
     n_components: int | None = None,
     scale: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``yc_transform`` -- METHOD-SELECTION card #210.
+    """Node ``yc_transform`` -- method card #210.
 
     Parametric yield-curve factor models (Nelson-Siegel / Svensson / cubic spline, Diebold-Li
     dynamics on a panel) + curve transforms (spot/forward/discount/PCA).
@@ -101,7 +101,7 @@ def yc_transform(
     Category 18-yield-curve; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to yc_fit$object: fitted yc_curve
+        object: [raw_handle, required] Handle to yc_fit.object: fitted yc_curve
             (spot/forward/discount) or panel matrix (pca).
         transform: [enum, optional] Transformation (default spot); spot/forward/discount require
             yc_curve; pca requires a panel matrix.
@@ -120,5 +120,5 @@ def yc_transform(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "yc_transform: not implemented. The method card is in ./README.md."
+        "yc_transform: not implemented."
     )

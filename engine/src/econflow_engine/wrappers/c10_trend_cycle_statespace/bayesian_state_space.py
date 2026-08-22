@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_state_space`` -- METHOD-SELECTION card #60.
+"""Method wrapper ``bayesian_state_space`` -- method card #60.
 
 #60 Bayesian state space
 
@@ -7,8 +7,8 @@ Category 10-trend-cycle-statespace; module ``bayesian_state_space``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,16 +23,16 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "bs_ar1_lg",
-    "bs_bsm_lg",
-    "bs_prior_spec",
-    "bs_run_mcmc",
+    "bsp_ar1",
+    "bsp_basic_structural",
+    "bsp_prior",
+    "bsp_run_mcmc",
     "NODE_META",
     "wire_model",
 ]
 
 
-def bs_prior_spec(
+def bsp_prior(
     *,
     distribution: Literal["halfnormal", "normal", "tnormal", "uniform", "gamma"] | None = None,
     init: float,
@@ -43,7 +43,7 @@ def bs_prior_spec(
     shape: float | None = None,
     rate: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bs_prior_spec`` -- METHOD-SELECTION card #60.
+    """Node ``bsp_prior`` -- method card #60.
 
     Bayesian state space.
 
@@ -63,11 +63,11 @@ def bs_prior_spec(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bs_prior_spec: not implemented. The method card is in ./README.md."
+        "bsp_prior: not implemented."
     )
 
 
-def bs_bsm_lg(
+def bsp_basic_structural(
     *,
     y: pd.Series,
     sd_y: Any,
@@ -76,7 +76,7 @@ def bs_bsm_lg(
     sd_seasonal: Any | None = None,
     period: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``bs_bsm_lg`` -- METHOD-SELECTION card #60.
+    """Node ``bsp_basic_structural`` -- method card #60.
 
     Bayesian state space.
 
@@ -87,8 +87,7 @@ def bs_bsm_lg(
     Args:
         y: [series_handle, required] Handle to a univariate ts· basic structural (level + optional
             slope/seasonal).
-        sd_y: [raw_handle, required] Handle to a prior (bs_prior_spec) for the obs standard
-            deviation.
+        sd_y: [raw_handle, required] Handle to a prior (bsp_prior) for the obs standard deviation.
         sd_level: [raw_handle, required] Handle to a prior for the level standard deviation.
         sd_slope: [raw_handle, optional] Handle to a prior for the slope (None -> without a slope
             term).
@@ -100,11 +99,11 @@ def bs_bsm_lg(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bs_bsm_lg: not implemented. The method card is in ./README.md."
+        "bsp_basic_structural: not implemented."
     )
 
 
-def bs_ar1_lg(
+def bsp_ar1(
     *,
     y: pd.Series,
     rho: Any,
@@ -112,7 +111,7 @@ def bs_ar1_lg(
     mu: Any,
     sd_y: Any,
 ) -> dict[str, Any]:
-    """Node ``bs_ar1_lg`` -- METHOD-SELECTION card #60.
+    """Node ``bsp_ar1`` -- method card #60.
 
     Bayesian state space.
 
@@ -132,11 +131,11 @@ def bs_ar1_lg(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bs_ar1_lg: not implemented. The method card is in ./README.md."
+        "bsp_ar1: not implemented."
     )
 
 
-def bs_run_mcmc(
+def bsp_run_mcmc(
     *,
     model: Any,
     iter: int,
@@ -145,14 +144,15 @@ def bs_run_mcmc(
     thin: int | None = None,
     output_type: Literal["full", "summary", "theta"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bs_run_mcmc`` -- METHOD-SELECTION card #60.
+    """Node ``bsp_run_mcmc`` -- method card #60.
 
     Bayesian state space.
 
     Category 10-trend-cycle-statespace; memory class ``mcmc``.
 
     Args:
-        model: [raw_handle, required] Handle to a lineargaussian model (from bs_bsm_lg/bs_ar1_lg).
+        model: [raw_handle, required] Handle to a lineargaussian model (from
+            bsp_basic_structural/bsp_ar1).
         iter: [integer, required] Number of MCMC iterations.
         seed: [integer, required] Seed REQUIRED (determinism -- the bssm default is random).
         burnin: [integer, optional] Iterations burn-in ∈ [0, iter)· default floor(iter/2).
@@ -163,5 +163,5 @@ def bs_run_mcmc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bs_run_mcmc: not implemented. The method card is in ./README.md."
+        "bsp_run_mcmc: not implemented."
     )

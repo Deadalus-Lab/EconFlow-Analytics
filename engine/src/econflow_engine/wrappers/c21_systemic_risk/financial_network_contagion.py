@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``financial_network_contagion`` -- METHOD-SELECTION card #222.
+"""Method wrapper ``financial_network_contagion`` -- method card #222.
 
 #222 Financial-network contagion: DebtRank + Furfine cascades + interbank exposure-matrix
     reconstruction (Maximum Entropy / Minimum Density)
@@ -8,8 +8,8 @@ Category 21-systemic-risk; module ``financial_network_contagion``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def nrm_reconstruct_matrix(
     md_theta: float | None = None,
     md_remove_prob: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``nrm_reconstruct_matrix`` -- METHOD-SELECTION card #222.
+    """Node ``nrm_reconstruct_matrix`` -- method card #222.
 
     Financial-network contagion: DebtRank + Furfine cascades + interbank exposure-matrix
     reconstruction (Maximum Entropy / Minimum Density).
@@ -77,7 +77,7 @@ def nrm_reconstruct_matrix(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nrm_reconstruct_matrix: not implemented. The method card is in ./README.md."
+        "nrm_reconstruct_matrix: not implemented."
     )
 
 
@@ -92,7 +92,7 @@ def nrm_contagion(
     max_it: int | None = None,
     single_hit: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``nrm_contagion`` -- METHOD-SELECTION card #222.
+    """Node ``nrm_contagion`` -- method card #222.
 
     Financial-network contagion: DebtRank + Furfine cascades + interbank exposure-matrix
     reconstruction (Maximum Entropy / Minimum Density).
@@ -121,5 +121,5 @@ def nrm_contagion(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nrm_contagion: not implemented. The method card is in ./README.md."
+        "nrm_contagion: not implemented."
     )

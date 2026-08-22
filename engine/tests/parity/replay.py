@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """Replay every frozen verdict through the wire models.
 
-The corpus (``artifacts/parity-fixtures.v1.json``) is NOT hand-written: every
+The corpus (``artifacts/parity-fixtures.json``) is NOT hand-written: every
 verdict was produced by the frozen argument adapter
 (the frozen corpus) with ``resolve_handle`` stubbed at
 the "handle = non-empty string" gate only, INSIDE the exporter's environment.
@@ -47,7 +47,7 @@ class Row:
     py_reason: str | None
 
     @property
-    def r_accepts(self) -> bool:
+    def frozen_accepts(self) -> bool:
         return bool(self.case["verdict"]["verdict"] == "accept")
 
     @property
@@ -104,8 +104,7 @@ def materialise(case: dict[str, Any], base: dict[str, Any]) -> dict[str, Any]:
     body = dict(base)
     for key in case.get("drop") or []:
         body.pop(key, None)
-    for key, value in (case.get("patch") or {}).items():
-        body[key] = value
+    body.update(case.get("patch") or {})
     for key in case.get("set_null") or []:
         body[key] = None
     return body
@@ -157,8 +156,8 @@ def divergence_key(case: dict[str, Any]) -> str:
 
 
 def build_rows() -> tuple[list[Row], dict[str, Any], dict[str, Any], dict[str, Any]]:
-    specs = _read("node-specs.v1.json")
-    fixtures = _read("parity-fixtures.v1.json")
+    specs = _read("node-specs.json")
+    fixtures = _read("parity-fixtures.json")
     divergences = _read("intentional-divergences.json")
     node_by_fn = {n["fn"]: n for n in specs["nodes"]}
 

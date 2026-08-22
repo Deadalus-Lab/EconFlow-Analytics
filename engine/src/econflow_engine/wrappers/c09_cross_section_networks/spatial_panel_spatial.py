@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``spatial_panel_spatial`` -- METHOD-SELECTION card #177.
+"""Method wrapper ``spatial_panel_spatial`` -- method card #177.
 
 #177 Spatial panel models (SAR/SEM/SDM · FE/RE/pooling) — ML & GM + spatial LM tests
 
@@ -7,8 +7,8 @@ Category 09-cross-section-networks; module ``spatial_panel_spatial``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
     "sp_panel_gm",
-    "sp_panel_lmtest",
+    "sp_panel_lm_tests",
     "sp_panel_ml",
     "NODE_META",
     "wire_model",
@@ -45,7 +45,7 @@ def sp_panel_ml(
     style: Literal["W", "B", "C", "U", "minmax", "S"] | None = None,
     index: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_panel_ml`` -- METHOD-SELECTION card #177.
+    """Node ``sp_panel_ml`` -- method card #177.
 
     Spatial panel models (SAR/SEM/SDM · FE/RE/pooling) — ML & GM + spatial LM tests.
 
@@ -59,7 +59,7 @@ def sp_panel_ml(
         data: [df_handle, required] Balanced panel DataFrame· the first 2 columns = index
             (individual, time) unless index is given.
         W: [matrix_handle, required] Spatial weights matrix n x n (n = #spatial units)· converted to
-            listw via a spatial weights list.
+            spatial weights via a spatial weights list.
         model: [enum, optional] Panel effects: within=FE, random=RE, pooling=OLS (default within).
         effect: [enum, optional] Effects dimension (default individual).
         lag: [boolean, optional] Spatially lagged dependent Wy (SAR term) (default True). Default
@@ -74,7 +74,7 @@ def sp_panel_ml(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_panel_ml: not implemented. The method card is in ./README.md."
+        "sp_panel_ml: not implemented."
     )
 
 
@@ -91,7 +91,7 @@ def sp_panel_gm(
     style: Literal["W", "B", "C", "U", "minmax", "S"] | None = None,
     index: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_panel_gm`` -- METHOD-SELECTION card #177.
+    """Node ``sp_panel_gm`` -- method card #177.
 
     Spatial panel models (SAR/SEM/SDM · FE/RE/pooling) — ML & GM + spatial LM tests.
 
@@ -103,8 +103,8 @@ def sp_panel_gm(
         formula: [formula, required] Spatial panel formula, e.g. 'y ~ x1 + x2'.
         data: [df_handle, required] Balanced panel DataFrame (first 2 columns = index unless index
             is given).
-        W: [matrix_handle, required] Spatial weights matrix n x n· -> listw via a spatial weights
-            list.
+        W: [matrix_handle, required] Spatial weights matrix n x n· -> spatial weights via a spatial
+            weights list.
         model: [enum, optional] Panel effects: within=FE or random=RE (default within).
         lag: [boolean, optional] Spatially lagged dependent Wy (SAR term) (default True). Default
             ``True``.
@@ -120,11 +120,11 @@ def sp_panel_gm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_panel_gm: not implemented. The method card is in ./README.md."
+        "sp_panel_gm: not implemented."
     )
 
 
-def sp_panel_lmtest(
+def sp_panel_lm_tests(
     *,
     formula: str,
     data: pd.DataFrame,
@@ -134,7 +134,7 @@ def sp_panel_lmtest(
     style: Literal["W", "B", "C", "U", "minmax", "S"] | None = None,
     index: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_panel_lmtest`` -- METHOD-SELECTION card #177.
+    """Node ``sp_panel_lm_tests`` -- method card #177.
 
     Spatial panel models (SAR/SEM/SDM · FE/RE/pooling) — ML & GM + spatial LM tests.
 
@@ -143,8 +143,8 @@ def sp_panel_lmtest(
     Args:
         formula: [formula, required] Spatial panel formula, e.g. 'y ~ x1 + x2'.
         data: [df_handle, required] Panel DataFrame (first 2 columns = index unless index is given).
-        W: [matrix_handle, required] Spatial weights matrix n x n· -> listw via a spatial weights
-            list.
+        W: [matrix_handle, required] Spatial weights matrix n x n· -> spatial weights via a spatial
+            weights list.
         test: [enum, optional] LM test: lme=error, lml=lag, rlme/rlml=robust respectively (default
             lme).
         model: [string, optional] Baseline estimation for the LM test (default 'pooling'). Default
@@ -157,5 +157,5 @@ def sp_panel_lmtest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_panel_lmtest: not implemented. The method card is in ./README.md."
+        "sp_panel_lm_tests: not implemented."
     )

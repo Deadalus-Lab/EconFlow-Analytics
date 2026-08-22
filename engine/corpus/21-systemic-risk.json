@@ -1,0 +1,1508 @@
+{
+ "category": "21-systemic-risk",
+ "cards": [
+  {
+   "id": 221,
+   "method": "Market-based systemic risk: CoVaR / Delta-CoVaR (Adrian-Brunnermeier) + correlation-network measures",
+   "wrapper_file": "c21_systemic_risk/market_systemic_risk.py",
+   "tool_fns": [
+    "sys_covar_delta_covar",
+    "sys_covar_delta_covar_t",
+    "sys_correlation_network_measures",
+    "sys_scale"
+   ],
+   "when": "a matrix of market returns (column 1 = the market/system index, columns 2. = the institutions); you want the contribution of each institution to systemic risk (CoVaR/Delta-CoVaR in the sense of Adrian-Brunnermeier, static or time-varying with state variables) or monthly correlation-network measures (degree/closeness/eigenvector centrality) + a system-wide index",
+   "when_not": "there is no market index in column 1; fewer than two institutions; you want the VaR or ES of a portfolio (-> #65), or a conditional Growth-at-Risk (-> #64); you want Diebold-Yilmaz spillover or FEVD connectedness (-> #51/#52, category 09); a quantile level other than 95%, which is hardcoded",
+   "alternatives": [
+    {
+     "alt": "sys_covar_delta_covar (static)",
+     "criterion": "you want an unconditional CoVaR/Delta-CoVaR per institution — a single cross-sectional picture, without state variables"
+    },
+    {
+     "alt": "sys_covar_delta_covar_t (time-varying)",
+     "criterion": "you want a conditional CoVaR/Delta-CoVaR that evolves with lagged macro-financial state variables (VIX/spreads) + the system-wide index Delta_CoVaR_t"
+    },
+    {
+     "alt": "sys_correlation_network_measures",
+     "criterion": "you want the topology of the correlation network (centrality) + a systemic risk index (SR) per month, not a tail CoVaR"
+    },
+    {
+     "alt": "#51/#52 Diebold-Yilmaz connectedness (category 09)",
+     "criterion": "you want directional spillovers from an FEVD (to/from/net) rather than correlation-network centrality or a quantile CoVaR"
+    },
+    {
+     "alt": "#65 VaR / Expected Shortfall",
+     "criterion": "you want the tail risk of ONE portfolio/series, not a cross-system contribution"
+    }
+   ],
+   "output_key_fields": [
+    "CoVaR_95 / CoVaR_50: the VaR of the system when institution i is at its VaR@95 / median (per institution)",
+    "Delta_CoVaR: the systemic contribution of institution i = CoVaR_95 - CoVaR_50 (an identity); loss-signed",
+    "CoVaR_i_q_t / Delta_CoVaR_i_q_t: time-varying matrices, (n-1) × institutions + dates",
+    "Delta_CoVaR_t: the system-wide index (the cross-sectional mean Delta-CoVaR times 100, where positive means higher risk); the first element is blank, an off-by-one",
+    "Degree/Closeness_Centrality/Eigenvector_Centrality: monthly network measures, min-max scaled to [0,1]",
+    "SR: the systemic risk index (a correlation-corrected realized portfolio volatility), min-max scaled to [0,1]",
+    "q=0.95, a hardcoded constant; n_institutions/n_state_variables/n_months/seed as the audit trail",
+    "network: it requires n_months>=3 (a post-gate, blocked-by-gate); ~>=100 daily rows — 90 rows give only 2 months, where the monthly min-max degenerates every measure to {0,1}"
+   ],
+   "interpretation_traps": [
+    "q=0.95 and q_50=0.5 ARE HARDCODED — the quantile level is NOT parameterisable (tau=0.05)",
+    "Delta_CoVaR = CoVaR_95 - CoVaR_50 EXACTLY; its sign follows the slope of the quantile regression (a positive co-movement with the market ⇒ Delta-CoVaR<0, a loss)",
+    "column 1 = the market/system index (the LHS), columns 2. = the institutions (the RHS) — NOT the other way round; the wrong order ⇒ a wrong CoVaR",
+    "the first Delta_CoVaR_t is structurally blank, an off-by-one at the first period — do not interpret it as 0",
+    "the network is fragile with few months, since the monthly sequence leaves gaps in the index; the gate requires at least 90 observations",
+    "the eigenvector centrality is non-deterministic at the 1e-18 level (the iterative eigensolver); the wrapper stabilises it by seeding the generator",
+    "a degenerate input (a constant column) gives a 'singular design matrix' error inside the quantile fit — a hard error, not a silent result",
+    "the VaR is computed parametrically (qnorm, assuming normality of the institution) — not as a historical/empirical quantile"
+   ],
+   "sources": [
+    "Adrian & Brunnermeier 2016 'CoVaR' American Economic Review 106(7) 1705-1741 (the definition of CoVaR/Delta-CoVaR)",
+    "Billio, Getmansky, Lo, Pelizzon 2012 'Econometric measures of connectedness and systemic risk' JFE 104(3) 535-559 (the correlation-network measures)",
+    "live introspection in the engine (an independent quantile-regression recomputation) — wrapper footer IMPLEMENTATION NOTE (c21_systemic_risk/market_systemic_risk)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 222,
+   "method": "Financial-network contagion: DebtRank + Furfine cascades + interbank exposure-matrix reconstruction (Maximum Entropy / Minimum Density)",
+   "wrapper_file": "c21_systemic_risk/financial_network_contagion.py",
+   "tool_fns": [
+    "nrm_reconstruct_matrix",
+    "nrm_contagion"
+   ],
+   "when": "a bilateral network of financial exposures (interbank/counterparty): (a) only the MARGINS are KNOWN (assets per node + liabilities per node) → reconstruct the n×n exposure matrix with Maximum Entropy (dense) or Minimum Density (sparse, realistic); (b) the exposure matrix + capital buffers are KNOWN → measure systemic risk/contagion with DebtRank (continuous stress) or traditional default cascades (a Furfine threshold), identifying the most systemic nodes (too-central-to-fail)",
+   "when_not": "non-financial networks, or general centrality and community work (-> #55); spillover or connectedness from a VAR and its FEVD of returns (-> #51/#52); you want the tail risk of one series (VaR and ES, #65; Growth-at-Risk, #64); you have only indicators and no network; Bayesian Erdős-Rényi sampling of a network from its margins (-> #223)",
+   "alternatives": [
+    {
+     "alt": "method='me' (Maximum Entropy)",
+     "criterion": "you want a fully connected (dense) matrix that maximises entropy subject to the margins; deterministic; it understates concentration/contagion (a known issue: much denser than real interbank networks)"
+    },
+    {
+     "alt": "method='md' (Minimum Density)",
+     "criterion": "you want a SPARSE, more realistic matrix (few large exposures, Anand et al. 2015); STOCHASTIC → a seed is mandatory for reproducibility"
+    },
+    {
+     "alt": "method='debtrank' (contagion)",
+     "criterion": "you want a CONTINUOUS measure of systemic importance — how much stress the failure of each node transmits (Bardoscia et al. 2015); single_hit=True selects the older Battiston 2012 variant"
+    },
+    {
+     "alt": "method='threshold' (contagion / Furfine)",
+     "criterion": "you want discrete default cascades (which nodes default in a chain when the losses exceed the buffer), not continuous stress"
+    },
+    {
+     "alt": "#223 Bayesian interbank-network reconstruction",
+     "criterion": "you want a Bayesian posterior distribution of networks consistent with the margins (ER/Gibbs), not a single ME/MD point estimate"
+    },
+    {
+     "alt": "#55 network analysis",
+     "criterion": "you want general centrality/community/connectivity, not contagion-specific DebtRank/cascade dynamics"
+    }
+   ],
+   "output_key_fields": [
+    "exposure_matrix (nrm_reconstruct_matrix): the reconstructed n×n exposure matrix (rows are lenders and assets, columns borrowers and liabilities; a registered handle for chaining into nrm_contagion)",
+    "density/n_links (nrm_reconstruct_matrix): the sparsity of the network (minimum density far below maximum entropy); total_exposure: the total volume",
+    "max_rowsum_resid/max_colsum_resid (nrm_reconstruct_matrix): how well the requested margins were honoured — the fit quality",
+    "seed (nrm_reconstruct_matrix): the seed that was used, critical for the minimum-density route",
+    "results (nrm_contagion): a frame per scenario — scenario/original_stress/additional_stress/original_losses/additional_losses/additional_defaults",
+    "additional_stress (nrm_contagion): the unweighted DebtRank of each node when every node is shocked; most_systemic_scenario names the most systemic node",
+    "total_additional_defaults (nrm_contagion): the total number of chain defaults beyond the initial shock",
+    "weights_defaulted (nrm_contagion): True when equal weights were used, the fallback when none were supplied",
+    "user weights in nrm_contagion: a hard gate requires their sum to be strictly positive; a zero sum would divide by zero and give a NaN systemic stress (blocked by the gate)"
+   ],
+   "interpretation_traps": [
+    "MATRIX ORIENTATION: rowsums=ASSETS (the creditor/lender per row), colsums=LIABILITIES (the debtor/borrower per column); M[i,j]>0 means an «assets network»: i holds a claim/asset on j (i lent to j). exposure_type='liabilities' REVERSES the convention — state correctly which one describes your matrix",
+    "BALANCE is mandatory: sum(rowsums)==sum(colsums) (total assets = total liabilities in a closed system); otherwise ME silently rescales the rowsums → a hard gate",
+    "MD (min_dens) is STOCHASTIC: a different seed → a different matrix/results; always record/pin the seed; ME/DebtRank/threshold are deterministic",
+    "additional_stress is NON-NEGATIVE additional stress (systemic amplification), NOT a z-score; ME understates transmission (too dense a network) — prefer MD for realistic exposures",
+    "shock: 'all' = one default scenario per node (a per-node DebtRank); a numeric vector = ONE scenario of a uniform proportional shock in [0,1]; values outside [0,1] are rejected (otherwise contagion silently returns a meaningless 0)",
+    "leaving the weights unset trips a bug in the raw routine; the wrapper works around it with equal weights (weights_defaulted=True) — supply total assets as weights for an economic weighting",
+    "single_hit=True (the older Battiston 2012 single-hit DebtRank) applies ONLY to method='debtrank'; with 'threshold' it is rejected"
+   ],
+   "sources": [
+    "Battiston, Puliga, Kaushik, Tasca & Caldarelli 2012 'DebtRank: Too Central to Fail?' Scientific Reports 2:541",
+    "Bardoscia, Battiston, Caccioli & Caldarelli 2015 'DebtRank: A Microscopic Foundation for Shock Propagation' PLoS ONE 10(6)",
+    "Upper & Worm 2004 'Estimating bilateral exposures in the German interbank market' European Economic Review 48, 827-849 (Maximum Entropy)",
+    "Anand, Craig & von Peter 2015 'Filling in the blanks: network structure and interbank contagion' Quantitative Finance 15(4), 625-636 (Minimum Density)",
+    "Furfine 2003 'Interbank Exposures: Quantifying the Risk of Contagion' JMCB 35(1) (threshold default cascades)",
+    "wrapper footer IMPLEMENTATION NOTE (c21_systemic_risk/financial_network_contagion)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 223,
+   "method": "Bayesian interbank-network reconstruction (the Gandy-Veraart Gibbs sampler, an Erdős-Rényi hierarchical model)",
+   "wrapper_file": "c21_systemic_risk/bayesian_interbank_network.py",
+   "tool_fns": [
+    "build_er_model",
+    "sample_interbank_network"
+   ],
+   "when": "you know only the MARGINS of an interbank network — the row sums l (the total liabilities of each bank) & the column sums a (the total claims) — and you want to reconstruct the UNKNOWN n×n matrix of bilateral exposures L; Bayesian sampling of all the matrices consistent with the margins -> a posterior mean matrix, the probability of an edge per cell, the network density (an input for contagion/stress tests)",
+   "when_not": "you ALREADY have the full exposure matrix (go straight to contagion or centrality, category 09, #55/#51); you want network centrality or connectedness rather than reconstruction; non-square margins, or known cells (scoped out); a deterministic maximum-entropy or RAS reconstruction rather than a Bayesian posterior; margins that do not balance (a gate)",
+   "alternatives": [
+    {
+     "alt": "build_er_model (calibrate_ER)",
+     "criterion": "you need a valid calibrated model BEFORE the sampler; you tune targetdensity (the expected share of existing edges)"
+    },
+    {
+     "alt": "a larger targetdensity",
+     "criterion": "you believe in a dense/interconnected network (a fully connected core); a smaller one -> a sparse network (few large exposures)"
+    },
+    {
+     "alt": "a deterministic max-entropy / RAS reconstruction",
+     "criterion": "you want ONE point estimate (no posterior/uncertainty); it typically overstates interconnection (a fully connected bias) — Gandy-Veraart corrects that with sparsity"
+    },
+    {
+     "alt": "#55/#51 network connectedness and centrality (category 09)",
+     "criterion": "the exposure matrix is KNOWN and you want diffusion/centrality metrics, not a reconstruction"
+    }
+   ],
+   "output_key_fields": [
+    "mean_matrix: the n×n posterior MEAN exposure matrix (rowSums==l, colSums==a, a zero diagonal — guaranteed)",
+    "prob_link: the n×n posterior probability that an edge EXISTS, P(L[i,j]>0) ∈ [0,1]",
+    "sd_matrix / lower_matrix / upper_matrix: the uncertainty per cell (the standard deviation + the quantiles probs)",
+    "density: the mean network density (the share of positive off-diagonal edges)",
+    "out_degree / in_degree: the expected degree per bank (the sums of prob_link)",
+    "row_sum_max_dev / col_sum_max_dev: the maximum deviation from the margins (~0 = a sound reconstruction)",
+    "n_moving_cells: the cells that moved in the MCMC (the rest are deterministic/forced)",
+    "achieved_density (build_er_model): the REALIZED margin-conditional density (the mean off-diagonal link proportion over seeded sample_HierarchicalModel draws; the same quantity as the density of sample_interbank_network) — NOT the unconditional prior density of genL; directly comparable with targetdensity",
+    "model / samples: the raw handles (systemicrisk_er_model / systemicrisk_gv_samples) -> a to_mcp stub, registered for chaining",
+    "seed: the reproducibility seed (every stochastic path is seeded)"
+   ],
+   "interpretation_traps": [
+    "ORIENTATION: l = the row sums = the LIABILITIES (what bank i owes, row i), a = the column sums = the CLAIMS (what is owed to it, column j); L[i,j] = the exposure of i to j — do not transpose l/a; the post-gate rowSums==l & colSums==a catches it",
+    "sum(l) MUST equal sum(a) (total liabilities == total claims); a mismatch -> a hard gate 'they do not balance', NOT a silent adjustment",
+    "achieved_density can EXCEED targetdensity when the margins force a minimum number of edges (forced links); too LOW a targetdensity -> calibrate_ER ERRORS with 'Could not find feasible matrix', not a warning",
+    "both functions are STOCHASTIC (the calibration samples; the Gibbs sampler is MCMC); ALWAYS pass a seed for reproducibility — the same seed -> an identical posterior",
+    "the diagonal is always zero (no self-exposure); the diagonal of prob_link == 0",
+    "a small nsamples/thin -> a noisy estimate (the MCMC has not converged); raise them for production; the defaults (100/100) are conservative for small networks",
+    "mean_matrix is NOT the 'true' matrix — it is the posterior mean; the uncertainty lives in sd_matrix/lower/upper; use prob_link for the structure, not only the mean"
+   ],
+   "sources": [
+    "Gandy & Veraart 2017 'A Bayesian Methodology for Systemic Risk Assessment in Financial Networks' Management Science 63(12) 4428-4446",
+    "Gandy & Veraart 2019 'Adjustable Network Reconstruction with Applications to CDS Exposures' J. Multivariate Analysis 172 193-209",
+    "wrapper footer IMPLEMENTATION NOTE (c21_systemic_risk/market_systemic_riskisk)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 553,
+   "method": "Marginal expected shortfall, SES and SRISK",
+   "wrapper_file": "c21_systemic_risk/mes_srisk.py",
+   "tool_fns": [
+    "sr_mes_srisk"
+   ],
+   "when": "measuring how much an institution contributes to system-wide distress, and what capital it would need in a crisis",
+   "when_not": "the institution is unlisted so there is no equity series; the sample contains no stress episode to calibrate against",
+   "alternatives": [
+    {
+     "alt": "CoVaR",
+     "criterion": "the system's risk conditional on the institution"
+    },
+    {
+     "alt": "MES and SRISK",
+     "criterion": "the institution's loss conditional on the system"
+    },
+    {
+     "alt": "network contagion measures",
+     "criterion": "the mechanism rather than the correlation"
+    }
+   ],
+   "output_key_fields": [
+    "mes: marginal expected shortfall in system tail events",
+    "srisk: expected capital shortfall in a crisis scenario",
+    "lrmes: long-run MES from the simulated dynamics",
+    "ranking: institutions ordered by contribution"
+   ],
+   "interpretation_traps": [
+    "SRISK IS DOMINATED BY SIZE AND LEVERAGE; ranking institutions by it largely reproduces a ranking by liabilities, which is informative but not the same as a risk measure",
+    "MES and CoVaR answer opposite conditional questions and routinely produce different rankings of the same institutions",
+    "the crisis scenario is an assumption (a market decline of a stated size), and the estimate scales with it"
+   ],
+   "sources": [
+    "Acharya, Pedersen, Philippon & Richardson 2017 (Review of Financial Studies 30:2-47)",
+    "Brownlees & Engle 2017 (Review of Financial Studies 30:48)",
+    "arch"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 554,
+   "method": "Absorption ratio and principal-component systemic indicators",
+   "wrapper_file": "c21_systemic_risk/absorption_ratio.py",
+   "tool_fns": [
+    "sr_absorption_ratio"
+   ],
+   "when": "a market-wide fragility indicator: when returns are explained by few factors, shocks propagate rather than diversify",
+   "when_not": "the cross-section is too small for the eigenvalue structure to be estimated; the panel is unbalanced",
+   "alternatives": [
+    {
+     "alt": "absorption ratio",
+     "criterion": "the share of variance in the leading components"
+    },
+    {
+     "alt": "eigenvalue dispersion",
+     "criterion": "the whole spectrum rather than a share"
+    },
+    {
+     "alt": "correlation-based indicators",
+     "criterion": "you want a simpler summary"
+    }
+   ],
+   "output_key_fields": [
+    "absorption_ratio: variance share in the leading components",
+    "delta_ar: the standardised change, which is the signal",
+    "eigenvalues: the spectrum",
+    "centrality: institution contributions to the leading components"
+   ],
+   "interpretation_traps": [
+    "THE LEVEL OF THE ABSORPTION RATIO IS NOT COMPARABLE across different asset universes; only its CHANGE within one universe carries information",
+    "a rising ratio indicates fragility, not an imminent event -- it has led major drawdowns but also many non-events",
+    "the window length determines how fast the indicator moves and is a substantive choice"
+   ],
+   "sources": [
+    "Kritzman, Li, Page & Rigobon 2011 (Journal of Portfolio Management 37:112-126)",
+    "Billio, Getmansky, Lo & Pelizzon 2012 (Journal of Financial Economics 104:535)",
+    "scikit-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 555,
+   "method": "Granger-causality networks and topology measures",
+   "wrapper_file": "c21_systemic_risk/granger_networks.py",
+   "tool_fns": [
+    "sr_granger_network",
+    "sr_network_topology"
+   ],
+   "when": "mapping which institutions lead which, and summarising the resulting directed network as a systemic indicator",
+   "when_not": "the cross-section is large relative to the sample, where pairwise tests are dominated by multiple testing",
+   "alternatives": [
+    {
+     "alt": "pairwise Granger causality",
+     "criterion": "simple, but a severe multiplicity problem"
+    },
+    {
+     "alt": "regularised network estimation",
+     "criterion": "many nodes, sparsity assumed"
+    },
+    {
+     "alt": "connectedness (Diebold-Yilmaz)",
+     "criterion": "variance decompositions rather than tests"
+    }
+   ],
+   "output_key_fields": [
+    "adjacency: the estimated directed network",
+    "density: share of significant links, the headline indicator",
+    "centrality: in, out and eigenvector centrality per node",
+    "n_tests: the multiplicity the adjustment had to handle"
+   ],
+   "interpretation_traps": [
+    "PAIRWISE GRANGER TESTS ACROSS N INSTITUTIONS ARE N(N-1) HYPOTHESES; without multiplicity adjustment the network density is mostly false positives",
+    "Granger causality in returns is predictive lead-lag, not a causal or contagion mechanism, and the naming misleads readers persistently",
+    "network density rises mechanically with sample size because tests gain power, so time series of density must hold the window fixed"
+   ],
+   "sources": [
+    "Billio, Getmansky, Lo & Pelizzon 2012 (Journal of Financial Economics 104:535-559)",
+    "Diebold & Yilmaz 2014 (Journal of Econometrics 182:119)",
+    "networkx"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 556,
+   "method": "Composite financial-stress index",
+   "wrapper_file": "c21_systemic_risk/financial_stress_index.py",
+   "tool_fns": [
+    "sr_stress_index"
+   ],
+   "when": "aggregating many market indicators into one stress measure, with time-varying correlation so the index rises when stress becomes systemic",
+   "when_not": "the component set is too narrow for an index to mean anything; the components are not available at a common frequency",
+   "alternatives": [
+    {
+     "alt": "simple average of standardised components",
+     "criterion": "transparent, ignores correlation"
+    },
+    {
+     "alt": "CISS-type aggregation",
+     "criterion": "correlation-weighted, rises when stress is broad"
+    },
+    {
+     "alt": "principal-component index",
+     "criterion": "the leading factor across indicators"
+    }
+   ],
+   "output_key_fields": [
+    "index: the composite stress index",
+    "subindices: stress per market segment",
+    "correlation_contribution: how much time-varying correlation adds",
+    "components: the standardised inputs"
+   ],
+   "interpretation_traps": [
+    "CORRELATION-WEIGHTED AGGREGATION IS THE POINT: simultaneous stress across segments is systemic in a way that the same stress in one segment is not, and a simple average cannot express that",
+    "the transformation of raw indicators to a common scale -- cumulative distribution or standardisation -- changes the index level and its history",
+    "recursive standardisation avoids look-ahead bias but makes early values noisy; full-sample standardisation is look-ahead and is the more common error"
+   ],
+   "sources": [
+    "Hollo, Kremer & Lo Duca 2012, CISS: a composite indicator of systemic stress (ECB Working Paper 1426)",
+    "Kliesen, Owyang & Vermann 2012 (Federal Reserve Bank of St. Louis Review 94:369)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 557,
+   "method": "Correlation-network filtering: minimum spanning tree and planar graphs",
+   "wrapper_file": "c21_systemic_risk/correlation_filtering.py",
+   "tool_fns": [
+    "sr_correlation_filter"
+   ],
+   "when": "a correlation matrix has too many edges to read; filtering to a sparse graph exposes the structure that matters",
+   "when_not": "the matrix is small enough to read directly; the correlations are estimated on too little data to be stable",
+   "alternatives": [
+    {
+     "alt": "minimum spanning tree",
+     "criterion": "the sparsest connected representation"
+    },
+    {
+     "alt": "planar maximally filtered graph",
+     "criterion": "keeps more edges while staying readable"
+    },
+    {
+     "alt": "thresholding",
+     "criterion": "simplest, but threshold-dependent and can disconnect the graph"
+    }
+   ],
+   "output_key_fields": [
+    "graph: the filtered network",
+    "tree_length: total edge length, a market-state indicator",
+    "centrality: node importance in the filtered graph",
+    "stability: edge persistence across rolling windows"
+   ],
+   "interpretation_traps": [
+    "FILTERING DISCARDS INFORMATION BY DESIGN; the minimum spanning tree keeps only N-1 edges and the discarded ones are not noise by assumption",
+    "the tree is unstable when correlations are close together, so edges flip between windows without any economic change",
+    "correlation is not distance; the metric transformation used affects which edges survive"
+   ],
+   "sources": [
+    "Mantegna 1999 (European Physical Journal B 11:193-197)",
+    "Tumminello, Aste, Di Matteo & Mantegna 2005 (Proceedings of the National Academy of Sciences 102:10421)",
+    "networkx"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "build_er_model",
+   "card_id": 223,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "l": "<matrix_handle>",
+    "a": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "l",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric vector of row sums (total LIABILITIES of each bank), length >= 2, non-negative, without NA/Inf; sum(l)==sum(a) is required.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "a",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric vector of column sums (total ASSETS of each bank), same length as l, non-negative.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "targetdensity",
+     "kind": "number",
+     "required": false,
+     "description": "Target network density ∈ (0,1] (default 0.5).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed of the calibration (positive integer; default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nsamples_calib",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of matrices in the calibration (positive integer; default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "thin_calib",
+     "kind": "integer",
+     "required": false,
+     "description": "Thinning during the calibration (positive integer; default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tol",
+     "kind": "number",
+     "required": false,
+     "description": "Relative tolerance of the sum(l)==sum(a) balance check (default 1e-6).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "nrm_contagion",
+   "card_id": 222,
+   "register": null,
+   "input_example": {
+    "exposures": "<matrix_handle>",
+    "buffer": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "exposures",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a SQUARE (n x n) non-negative matrix of bilateral exposures (assets network: A->B => A has an asset in B); e.g. the exposure_matrix from nrm_reconstruct_matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "buffer",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric non-negative vector of capital buffer per node (length n).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "matrix_handle",
+     "required": false,
+     "description": "Handle to a non-negative vector of weights per node (e.g. total assets; length n, positive sum >0). Default: equal weights rep(1,n) — unweighted.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "shock",
+     "kind": "raw",
+     "required": false,
+     "description": "\"all\" (default; one default scenario per node) or a JSON array of n percentage shocks in [0,1] (a single scenario).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "'debtrank' (Bardoscia et al. 2015 continuous stress propagation) or 'threshold' (traditional Furfine default cascades). Default 'debtrank'.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "debtrank",
+      "threshold"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exposure_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Matrix interpretation: 'assets' (A->B: A has an asset in B; default) or 'liabilities' (A->B: A owes B).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "assets",
+      "liabilities"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "max_it",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum propagation iterations (default 1000).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "single_hit",
+     "kind": "boolean",
+     "required": false,
+     "description": "Only for method='debtrank': True => old single-hit DebtRank (Battiston et al. 2012). Default False.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "nrm_reconstruct_matrix",
+   "card_id": 222,
+   "register": {
+    "field": "exposure_matrix"
+   },
+   "input_example": {
+    "rowsums": "<matrix_handle>",
+    "colsums": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "rowsums",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric vector of ASSETS per node (row sums; length >= 2, non-negative); sum(rowsums) MUST == sum(colsums).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "colsums",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric vector of LIABILITIES per node (column sums; same length as rowsums, non-negative, equal total sum).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Reconstruction method: 'me' Maximum Entropy (Upper & Worm 2004; dense, deterministic); 'md' Minimum Density (Anand et al. 2015; sparse, STOCHASTIC -> seed). Default 'me'.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "me",
+      "md"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Positive integer seed for reproducibility of 'md' (default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "max_it",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum iterations (default 100000).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "abs_tol",
+     "kind": "number",
+     "required": false,
+     "description": "Convergence tolerance (default 0.001).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "md_c",
+     "kind": "number",
+     "required": false,
+     "description": "md: cost of an additional link (Anand et al.; default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "md_lambda",
+     "kind": "number",
+     "required": false,
+     "description": "md: low-density fraction for the first md_k rounds, in [0,1] (default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "md_k",
+     "kind": "integer",
+     "required": false,
+     "description": "md: low-density allocation rounds (default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "md_theta",
+     "kind": "number",
+     "required": false,
+     "description": "md: scaling parameter prior (default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "md_remove_prob",
+     "kind": "number",
+     "required": false,
+     "description": "md: probability of randomly removing a link, in [0,1) (default 0.01).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "sample_interbank_network",
+   "card_id": 223,
+   "register": {
+    "field": "samples"
+   },
+   "input_example": {
+    "l": "<matrix_handle>",
+    "a": "<matrix_handle>",
+    "model": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "l",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to row sums (liabilities); same as build_er_model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "a",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to col sums (assets); same length as l, sum(l)==sum(a).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a systemicrisk model (build_er_model.model).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nsamples",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of posterior samples of matrix L (positive integer; default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "thin",
+     "kind": "integer",
+     "required": false,
+     "description": "Thinning: theta updates per sample (positive integer; default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed of the MCMC (positive integer; default 1). REQUIRED determinism.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "matrpertheta",
+     "kind": "integer",
+     "required": false,
+     "description": "Matrix updates per theta update (positive integer; default length(l)^2).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "burnin",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of burn-in iterations (positive integer; default auto).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "probs",
+     "kind": "num_array",
+     "required": false,
+     "description": "2 increasing quantiles ∈ (0,1) for lower/upper matrices per cell (default [0.05, 0.95]).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tol",
+     "kind": "number",
+     "required": false,
+     "description": "Relative tolerance of the sum(l)==sum(a) balance check (default 1e-6).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "sys_correlation_network_measures",
+   "card_id": 221,
+   "register": null,
+   "input_example": {
+    "returns": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric matrix of daily returns; >= 3 columns; >= 90 rows (coarse pre-gate) AND >= 3 full calendar months (~>= 100 rows; post-gate n_months>=3, otherwise blocked-by-gate: with < 3 months the monthly min-max degenerates to {0,1}); without NA/NaN/Inf. All columns become network nodes.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed (default 123) — stabilizes the eigenvector-centrality routine (ARPACK) for determinism.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "sys_covar_delta_covar",
+   "card_id": 221,
+   "register": null,
+   "input_example": {
+    "returns": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric matrix of returns; column 1 = the system/market index, columns 2..p = institutions (>= 2 institutions, i.e. >= 3 columns); >= 30 rows; without NA/NaN/Inf. q=0.95 is hardcoded in the package.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "sys_covar_delta_covar_t",
+   "card_id": 221,
+   "register": null,
+   "input_example": {
+    "returns": "<matrix_handle>",
+    "state_variables": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric matrix of returns; column 1 = the system, columns 2..p = institutions (>= 3 columns); >= 50 rows; without NA/NaN/Inf.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "state_variables",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric matrix of state variables (e.g. VIX, spreads); >= 2 columns (NSV=1 breaks the package); same number of rows as returns; without NA/NaN/Inf.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "sys_scale",
+   "card_id": 221,
+   "register": null,
+   "input_example": {
+    "x": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a numeric vector (>= 2 elements, non-constant, without NA/NaN/Inf); min-max into [0,1].",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "sr_mes_srisk",
+   "card_id": 553,
+   "register": null,
+   "input_example": {
+    "returns": "<df_handle>",
+    "market": "<series_handle>",
+    "crisis_decline": 0.4,
+    "prudential_ratio": 0.08,
+    "horizon": 126,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Institution return panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Market return.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "liabilities",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Book liabilities per institution.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market_cap",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Market capitalisation per institution.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "crisis_decline",
+     "kind": "number",
+     "required": false,
+     "description": "Assumed market decline defining the crisis.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.4,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "prudential_ratio",
+     "kind": "number",
+     "required": false,
+     "description": "Required capital ratio.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.08,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Crisis horizon in days.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 126,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "sr_absorption_ratio",
+   "card_id": 554,
+   "register": null,
+   "input_example": {
+    "returns": "<df_handle>",
+    "window": 500,
+    "short_window": 15
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Asset or institution return panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_components",
+     "kind": "integer",
+     "required": false,
+     "description": "Leading components counted; omitted = a fifth of the assets.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "window",
+     "kind": "integer",
+     "required": false,
+     "description": "Rolling window in periods.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 500,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "short_window",
+     "kind": "integer",
+     "required": false,
+     "description": "Short window for the standardised change.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 15,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "sr_granger_network",
+   "card_id": 555,
+   "register": null,
+   "input_example": {
+    "returns": "<df_handle>",
+    "lags": 1,
+    "adjust": "fdr",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "returns",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Institution return panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": false,
+     "description": "Lag order for the pairwise tests.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "adjust",
+     "kind": "enum",
+     "required": false,
+     "description": "Multiplicity adjustment.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "bonferroni",
+      "holm",
+      "fdr"
+     ],
+     "allowed_vars": null,
+     "default": "fdr",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "window",
+     "kind": "integer",
+     "required": false,
+     "description": "Rolling window; omitted = full sample.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "sr_network_topology",
+   "card_id": 555,
+   "register": null,
+   "input_example": {
+    "adjacency": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "adjacency",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Directed adjacency matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "measures",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Measures to compute; omitted = the standard set.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "sr_stress_index",
+   "card_id": 556,
+   "register": null,
+   "input_example": {
+    "indicators": "<df_handle>",
+    "transform": "empirical_cdf",
+    "recursive": true,
+    "correlation_window": 250
+   },
+   "arguments": [
+    {
+     "name": "indicators",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Stress indicators, one column each.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "segments",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Segment label per indicator.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "Transformation to a common scale.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "empirical_cdf",
+      "standardise",
+      "rank"
+     ],
+     "allowed_vars": null,
+     "default": "empirical_cdf",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "recursive",
+     "kind": "boolean",
+     "required": false,
+     "description": "Use recursive rather than full-sample transformation.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "correlation_window",
+     "kind": "integer",
+     "required": false,
+     "description": "Window for the time-varying correlation.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 250,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "sr_correlation_filter",
+   "card_id": 557,
+   "register": null,
+   "input_example": {
+    "correlation": "<matrix_handle>",
+    "method": "mst",
+    "threshold": 0.5,
+    "metric": "sqrt_2_1_minus_rho"
+   },
+   "arguments": [
+    {
+     "name": "correlation",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Correlation matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Filtering method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mst",
+      "pmfg",
+      "threshold",
+      "knn"
+     ],
+     "allowed_vars": null,
+     "default": "mst",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "threshold",
+     "kind": "number",
+     "required": false,
+     "description": "Correlation threshold when thresholding.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "metric",
+     "kind": "enum",
+     "required": false,
+     "description": "Correlation-to-distance transform.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "sqrt_2_1_minus_rho",
+      "one_minus_abs",
+      "angular"
+     ],
+     "allowed_vars": null,
+     "default": "sqrt_2_1_minus_rho",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  }
+ ]
+}

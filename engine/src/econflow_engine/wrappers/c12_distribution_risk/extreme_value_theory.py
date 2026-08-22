@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``extreme_value_theory`` -- METHOD-SELECTION card #191.
+"""Method wrapper ``extreme_value_theory`` -- method card #191.
 
 #191 Extreme Value Theory — GEV block maxima & GP/PP/Gumbel/Exponential threshold exceedances +
     return levels
@@ -8,8 +8,8 @@ Category 12-distribution-risk; module ``extreme_value_theory``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from econflow_engine.generated.args.c12_distribution_risk import NODE_META, wire
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "evt_fevd",
+    "evt_fit",
     "evt_return_level",
     "evt_threshold_diag",
     "NODE_META",
@@ -30,7 +30,7 @@ __all__ = [
 ]
 
 
-def evt_fevd(
+def evt_fit(
     *,
     x: Sequence[float],
     type: Literal["GEV", "GP", "PP", "Gumbel", "Exponential"] | None = None,
@@ -39,7 +39,7 @@ def evt_fevd(
     time_units: str | None = None,
     period_basis: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``evt_fevd`` -- METHOD-SELECTION card #191.
+    """Node ``evt_fit`` -- method card #191.
 
     Extreme Value Theory — GEV block maxima & GP/PP/Gumbel/Exponential threshold exceedances +
     return levels.
@@ -66,7 +66,7 @@ def evt_fevd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "evt_fevd: not implemented. The method card is in ./README.md."
+        "evt_fit: not implemented."
     )
 
 
@@ -77,7 +77,7 @@ def evt_return_level(
     do_ci: bool | None = None,
     conf_level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``evt_return_level`` -- METHOD-SELECTION card #191.
+    """Node ``evt_return_level`` -- method card #191.
 
     Extreme Value Theory — GEV block maxima & GP/PP/Gumbel/Exponential threshold exceedances +
     return levels.
@@ -85,7 +85,7 @@ def evt_return_level(
     Category 12-distribution-risk; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to an fevd fit (from evt_fevd$object).
+        object: [raw_handle, required] Handle to an fevd fit (from evt_fit.object).
         return_periods: [num_array, optional] Vector of return periods in period_basis units· each
             value > 1 (default [10,50,100]).
         do_ci: [boolean, optional] True (default) -> normal-approx (delta) CIs· False -> only point
@@ -97,7 +97,7 @@ def evt_return_level(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "evt_return_level: not implemented. The method card is in ./README.md."
+        "evt_return_level: not implemented."
     )
 
 
@@ -109,7 +109,7 @@ def evt_threshold_diag(
     alpha: float | None = None,
     r: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``evt_threshold_diag`` -- METHOD-SELECTION card #191.
+    """Node ``evt_threshold_diag`` -- method card #191.
 
     Extreme Value Theory — GEV block maxima & GP/PP/Gumbel/Exponential threshold exceedances +
     return levels.
@@ -132,5 +132,5 @@ def evt_threshold_diag(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "evt_threshold_diag: not implemented. The method card is in ./README.md."
+        "evt_threshold_diag: not implemented."
     )

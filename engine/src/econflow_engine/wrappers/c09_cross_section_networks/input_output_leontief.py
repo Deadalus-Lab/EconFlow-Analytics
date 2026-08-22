@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``input_output_leontief`` -- METHOD-SELECTION card #48.
+"""Method wrapper ``input_output_leontief`` -- method card #48.
 
 #48 Input-Output / Leontief analysis (full)
 
@@ -7,8 +7,8 @@ Category 09-cross-section-networks; module ``input_output_leontief``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def io_build(
     V: np.ndarray | None = None,
     V_label: np.ndarray | None = None,
 ) -> dict[str, Any]:
-    """Node ``io_build`` -- METHOD-SELECTION card #48.
+    """Node ``io_build`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -71,7 +71,7 @@ def io_build(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_build: not implemented. The method card is in ./README.md."
+        "io_build: not implemented."
     )
 
 
@@ -79,7 +79,7 @@ def io_leontief_inverse(
     *,
     Z: Any,
 ) -> dict[str, Any]:
-    """Node ``io_leontief_inverse`` -- METHOD-SELECTION card #48.
+    """Node ``io_leontief_inverse`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -93,7 +93,7 @@ def io_leontief_inverse(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_leontief_inverse: not implemented. The method card is in ./README.md."
+        "io_leontief_inverse: not implemented."
     )
 
 
@@ -101,7 +101,7 @@ def io_ghosh_inverse(
     *,
     Z: Any,
 ) -> dict[str, Any]:
-    """Node ``io_ghosh_inverse`` -- METHOD-SELECTION card #48.
+    """Node ``io_ghosh_inverse`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -115,7 +115,7 @@ def io_ghosh_inverse(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_ghosh_inverse: not implemented. The method card is in ./README.md."
+        "io_ghosh_inverse: not implemented."
     )
 
 
@@ -124,7 +124,7 @@ def io_multipliers(
     io: Any,
     multipliers: Sequence[str],
 ) -> dict[str, Any]:
-    """Node ``io_multipliers`` -- METHOD-SELECTION card #48.
+    """Node ``io_multipliers`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -139,7 +139,7 @@ def io_multipliers(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_multipliers: not implemented. The method card is in ./README.md."
+        "io_multipliers: not implemented."
     )
 
 
@@ -149,7 +149,7 @@ def io_linkages(
     type: Sequence[str] | None = None,
     normalize: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``io_linkages`` -- METHOD-SELECTION card #48.
+    """Node ``io_linkages`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -164,7 +164,7 @@ def io_linkages(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_linkages: not implemented. The method card is in ./README.md."
+        "io_linkages: not implemented."
     )
 
 
@@ -174,7 +174,7 @@ def io_key_sector(
     crit: float | None = None,
     type: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``io_key_sector`` -- METHOD-SELECTION card #48.
+    """Node ``io_key_sector`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -190,7 +190,7 @@ def io_key_sector(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_key_sector: not implemented. The method card is in ./README.md."
+        "io_key_sector: not implemented."
     )
 
 
@@ -200,7 +200,7 @@ def io_field_of_influence(
     i: int,
     j: int,
 ) -> dict[str, Any]:
-    """Node ``io_field_of_influence`` -- METHOD-SELECTION card #48.
+    """Node ``io_field_of_influence`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -215,7 +215,7 @@ def io_field_of_influence(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_field_of_influence: not implemented. The method card is in ./README.md."
+        "io_field_of_influence: not implemented."
     )
 
 
@@ -223,7 +223,7 @@ def io_field_of_influence_total(
     *,
     io: Any,
 ) -> dict[str, Any]:
-    """Node ``io_field_of_influence_total`` -- METHOD-SELECTION card #48.
+    """Node ``io_field_of_influence_total`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -236,7 +236,7 @@ def io_field_of_influence_total(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_field_of_influence_total: not implemented. The method card is in ./README.md."
+        "io_field_of_influence_total: not implemented."
     )
 
 
@@ -245,7 +245,7 @@ def io_extraction(
     io: Any,
     type: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``io_extraction`` -- METHOD-SELECTION card #48.
+    """Node ``io_extraction`` -- method card #48.
 
     Input-Output / Leontief analysis (full).
 
@@ -260,5 +260,5 @@ def io_extraction(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "io_extraction: not implemented. The method card is in ./README.md."
+        "io_extraction: not implemented."
     )

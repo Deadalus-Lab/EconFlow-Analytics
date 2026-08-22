@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``structural_change`` -- METHOD-SELECTION card #3.
+"""Method wrapper ``structural_change`` -- method card #3.
 
 #3 Structural change (Bai-Perron multiple breaks / Chow-F / CUSUM)
 
@@ -7,8 +7,8 @@ Category 01-preparation-prechecks; module ``structural_change``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,10 +23,10 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "run_Fstats",
     "run_breakpoints",
-    "run_efp",
-    "run_sctest",
+    "run_chow_fstats",
+    "run_fluctuation_process",
+    "run_structural_change_test",
     "NODE_META",
     "wire_model",
 ]
@@ -41,7 +41,7 @@ def run_breakpoints(
     ci_level: float | None = None,
     n_breaks_extract: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_breakpoints`` -- METHOD-SELECTION card #3.
+    """Node ``run_breakpoints`` -- method card #3.
 
     Structural change (Bai-Perron multiple breaks / Chow-F / CUSUM).
 
@@ -61,17 +61,17 @@ def run_breakpoints(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_breakpoints: not implemented. The method card is in ./README.md."
+        "run_breakpoints: not implemented."
     )
 
 
-def run_Fstats(
+def run_chow_fstats(
     *,
     formula: str,
     data: pd.DataFrame | None = None,
     from_: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_Fstats`` -- METHOD-SELECTION card #3.
+    """Node ``run_chow_fstats`` -- method card #3.
 
     Structural change (Bai-Perron multiple breaks / Chow-F / CUSUM).
 
@@ -89,11 +89,11 @@ def run_Fstats(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_Fstats: not implemented. The method card is in ./README.md."
+        "run_chow_fstats: not implemented."
     )
 
 
-def run_efp(
+def run_fluctuation_process(
     *,
     formula: str,
     data: pd.DataFrame | None = None,
@@ -113,7 +113,7 @@ def run_efp(
     h: float | None = None,
     dynamic: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_efp`` -- METHOD-SELECTION card #3.
+    """Node ``run_fluctuation_process`` -- method card #3.
 
     Structural change (Bai-Perron multiple breaks / Chow-F / CUSUM).
 
@@ -133,25 +133,25 @@ def run_efp(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_efp: not implemented. The method card is in ./README.md."
+        "run_fluctuation_process: not implemented."
     )
 
 
-def run_sctest(
+def run_structural_change_test(
     *,
     x: Any,
     type: Literal["supF", "aveF", "expF"] | None = None,
     asymptotic: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_sctest`` -- METHOD-SELECTION card #3.
+    """Node ``run_structural_change_test`` -- method card #3.
 
     Structural change (Bai-Perron multiple breaks / Chow-F / CUSUM).
 
     Category 01-preparation-prechecks; memory class ``light``.
 
     Args:
-        x: [raw_handle, required] Handle to an 'Fstats' (from run_Fstats) or an 'efp' (from
-            run_efp).
+        x: [raw_handle, required] Handle to an 'Fstats' (from run_chow_fstats) or an 'efp' (from
+            run_fluctuation_process).
         type: [enum, optional] Aggregation of the Fstats test (default supF· ignored for efp).
         asymptotic: [boolean, optional] Asymptotic distribution (single-F supF/aveF, default False).
             Default ``False``.
@@ -160,5 +160,5 @@ def run_sctest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_sctest: not implemented. The method card is in ./README.md."
+        "run_structural_change_test: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``generalized_synthetic_control`` -- METHOD-SELECTION card #43.
+"""Method wrapper ``generalized_synthetic_control`` -- method card #43.
 
 #43 Generalized Synthetic Control (interactive FE)
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``generalized_synthetic_control``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,13 +24,13 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_gsynth",
+    "gsc_fit",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_gsynth(
+def gsc_fit(
     *,
     formula: str | None = None,
     data: pd.DataFrame,
@@ -46,7 +46,7 @@ def wrap_gsynth(
     se: bool | None = None,
     nboots: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_gsynth`` -- METHOD-SELECTION card #43.
+    """Node ``gsc_fit`` -- method card #43.
 
     Generalized Synthetic Control (interactive FE).
 
@@ -74,5 +74,5 @@ def wrap_gsynth(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_gsynth: not implemented. The method card is in ./README.md."
+        "gsc_fit: not implemented."
     )

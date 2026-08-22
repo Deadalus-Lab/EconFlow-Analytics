@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``canonical_disk_format`` -- METHOD-SELECTION card #98.
+"""Method wrapper ``canonical_disk_format`` -- method card #98.
 
 #98 Canonical on-disk data-format layer: Parquet/Feather/CSV readers + a Parquet writer + a lazy
     (hive-)partitioned Dataset
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``canonical_disk_format``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def arw_read_parquet(
     file: str,
     col_select: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``arw_read_parquet`` -- METHOD-SELECTION card #98.
+    """Node ``arw_read_parquet`` -- method card #98.
 
     Canonical on-disk data-format layer: Parquet/Feather/CSV readers + a Parquet writer + a lazy
     (hive-)partitioned Dataset.
@@ -57,7 +57,7 @@ def arw_read_parquet(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "arw_read_parquet: not implemented. The method card is in ./README.md."
+        "arw_read_parquet: not implemented."
     )
 
 
@@ -66,7 +66,7 @@ def arw_read_feather(
     file: str,
     col_select: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``arw_read_feather`` -- METHOD-SELECTION card #98.
+    """Node ``arw_read_feather`` -- method card #98.
 
     Canonical on-disk data-format layer: Parquet/Feather/CSV readers + a Parquet writer + a lazy
     (hive-)partitioned Dataset.
@@ -83,7 +83,7 @@ def arw_read_feather(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "arw_read_feather: not implemented. The method card is in ./README.md."
+        "arw_read_feather: not implemented."
     )
 
 
@@ -92,7 +92,7 @@ def arw_read_csv(
     file: str,
     col_select: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``arw_read_csv`` -- METHOD-SELECTION card #98.
+    """Node ``arw_read_csv`` -- method card #98.
 
     Canonical on-disk data-format layer: Parquet/Feather/CSV readers + a Parquet writer + a lazy
     (hive-)partitioned Dataset.
@@ -109,7 +109,7 @@ def arw_read_csv(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "arw_read_csv: not implemented. The method card is in ./README.md."
+        "arw_read_csv: not implemented."
     )
 
 
@@ -118,7 +118,7 @@ def arw_write_parquet(
     x: pd.DataFrame,
     compression: Literal["snappy", "gzip", "zstd", "uncompressed"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``arw_write_parquet`` -- METHOD-SELECTION card #98.
+    """Node ``arw_write_parquet`` -- method card #98.
 
     Canonical on-disk data-format layer: Parquet/Feather/CSV readers + a Parquet writer + a lazy
     (hive-)partitioned Dataset.
@@ -134,7 +134,7 @@ def arw_write_parquet(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "arw_write_parquet: not implemented. The method card is in ./README.md."
+        "arw_write_parquet: not implemented."
     )
 
 
@@ -145,7 +145,7 @@ def arw_open_dataset(
     format: Literal["parquet", "arrow", "feather", "csv", "tsv", "text", "json"] | None = None,
     n_preview: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``arw_open_dataset`` -- METHOD-SELECTION card #98.
+    """Node ``arw_open_dataset`` -- method card #98.
 
     Canonical on-disk data-format layer: Parquet/Feather/CSV readers + a Parquet writer + a lazy
     (hive-)partitioned Dataset.
@@ -165,5 +165,5 @@ def arw_open_dataset(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "arw_open_dataset: not implemented. The method card is in ./README.md."
+        "arw_open_dataset: not implemented."
     )

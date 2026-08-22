@@ -1,0 +1,2286 @@
+{
+ "category": "28-trade-gravity",
+ "cards": [
+  {
+   "id": 237,
+   "method": "Gravity models of bilateral trade (OLS / PPML / importer-exporter fixed effects / Bonus vetus OLS / Head-Mayer-Ries tetrads)",
+   "wrapper_file": "c28_trade_gravity/gravity_bilateral_trade.py",
+   "tool_fns": [
+    "gr_ppml",
+    "gr_ols",
+    "gr_fixed_effects",
+    "gr_bvu",
+    "gr_tetrads"
+   ],
+   "when": "a bilateral (dyadic) trade panel/cross-section {origin, destination, flow, distance, (GDPs), (dummies)} and you want to estimate the elasticity of trade with respect to distance/income/trade-cost proxies -> choose the estimator according to how you handle the Multilateral Resistance (MR) terms and the zero flows",
+   "when_not": "a univariate time series with no dyadic structure; input-output or network work (-> #48-#55); a plain panel OLS or fixed-effects fit with no gravity structure (-> #46/#47); censored or tobit trade (separate cards); data ingestion (a file upload — a frontend route, not a node)",
+   "alternatives": [
+    {
+     "alt": "gr_ppml (Poisson PML, Santos Silva & Tenreyro 2006)",
+     "criterion": "the flow contains ZEROS and/or heteroskedasticity; you want consistent estimates in the multiplicative form (the log-of-gravity critique) — the default-safe estimator; supply the incomes ALREADY logged as additional_regressors"
+    },
+    {
+     "alt": "gr_ols (log-log OLS, no MR terms)",
+     "criterion": "you want the traditional log-log gravity with explicit income regressors; ONLY if flow>0 everywhere (no zeros) and you do not care about the MR bias (Anderson-van Wincoop) — a baseline/comparison"
+    },
+    {
+     "alt": "gr_fixed_effects (importer + exporter FE, Feenstra 2002)",
+     "criterion": "you want to absorb ALL the monadic/MR terms with country dummies (theoretically consistent in a cross-section); the unilateral GDPs are no longer estimated — for a clean estimate of dyadic trade-cost elasticities"
+    },
+    {
+     "alt": "gr_bvu (Bonus vetus OLS, Baier & Bergstrand 2009/2010)",
+     "criterion": "you want MR-consistent estimates WITH comparative statics preserved (a first-order log-linear Taylor MR approximation through simple averages) — when you need counterfactuals that FE do not allow"
+    },
+    {
+     "alt": "gr_tetrads (Head-Mayer-Ries 2010, the ratio of ratios)",
+     "criterion": "you want to eliminate the monadic effects without dummies, through a reference exporter and importer (a ratio of ratios); it needs at least one dyadic regressor; multiway=True gives multi-way clustered standard errors (Cameron, Gelbach & Miller 2011)"
+    }
+   ],
+   "output_key_fields": [
+    "coefficients: a long-format frame {term, estimate, std_error, statistic, p_value} (the robust route leaves the p-value blank; the multi-way clustered test returns four columns including it)",
+    "distance_term / distance_coef: the name and value of the elasticity with respect to (logged) distance — the central gravity result",
+    "fitstats: a named record {n_obs, r_squared, adj_r_squared, sigma, log_lik, aic, bic, deviance, null_deviance, pseudo_r2, df_residual}, blank where undefined; pseudo_r2 = 1 - deviance/null deviance, and only for the GLM and PPML routes",
+    "method / fit_class / robust + method-specific flags (family, accepts_zeros, uie, mr_terms, fixed_effects, method_family, multiway, filter_origin, filter_destination)",
+    "fit: the raw fitted object (glm/lm/rlm/coeftest; to_mcp -> a stub)"
+   ],
+   "interpretation_traps": [
+    "distance & (for OLS/FE/BVU/tetrads) the dependent variable and the incomes are logged AUTOMATICALLY -> they must be STRICTLY POSITIVE; non-positive values are dropped SILENTLY (log=NaN/-Inf, verified: gravity_zeros 500->355 observations with no warning) -> hard gates; for zero flows use gr_ppml (>=0)",
+    "gr_ols with uie=True (unitary income elasticities) is BROKEN upstream: the formula refers to log-income columns that the unitary path never creates, so it fails with 'object not found' (verified live) -> HARD-GATED; the only working value is uie=False, with explicit income regressors",
+    "robust=True selects the M-estimator, whose summary gives three columns (value, standard error, t) with NO p-value -> the p_value stays blank in coefficients (expected, not an error)",
+    "gr_tetrads requires at least one additional dyadic regressor (a trade agreement, contiguity); leaving it unset gives a cryptic join error (verified) -> a gate; filter_origin and filter_destination must EXIST as codes in the code columns",
+    "gr_ppml: a quasi-Poisson family with a log link leaves AIC and the log-likelihood blank, since it is a quasi-likelihood; use pseudo_r2, not r_squared",
+    "gr_fixed_effects: the unilateral GDPs are absorbed by the country FE and are NOT estimated -> do not ask for them as coefficients; only the dyadic terms (distance + additional_regressors) are interpretable",
+    "the estimators are DETERMINISTIC given the data (least squares, IRLS, the M-estimator, the clustered covariance) -> NO seed is needed; two runs were confirmed identical"
+   ],
+   "sources": [
+    "Wölwer, Burgard & Kunst — the PPML, OLS, fixed-effects, BVU and tetrads estimators, with their references",
+    "Silva JMCS & Tenreyro S (2006) 'The Log of Gravity' Review of Economics and Statistics 88(4) 641-658 doi:10.1162/rest.88.4.641 (PPML)",
+    "Feenstra RC (2002) 'Border effects and the gravity equation: consistent methods for estimation' Scottish Journal of Political Economy 49(5) 491-506 (fixed effects)",
+    "Baier SL & Bergstrand JH (2009) 'Bonus vetus OLS: a simple method for approximating international trade-cost effects using the gravity equation' Journal of International Economics 77(1) 77-85 doi:10.1016/j.jinteco.2008.10.004; Baier & Bergstrand (2010) Cambridge University Press ch.4 (BVU)",
+    "Head K, Mayer T & Ries J (2010) 'The erosion of colonial trade linkages after independence' Journal of International Economics 81(1) 1-14 doi:10.1016/j.jinteco.2010.01.002 (tetrads)",
+    "Head K & Mayer T (2014) 'Gravity Equations: Workhorse, Toolkit, and Cookbook' Handbook of International Economics vol 4, 131-195 (a survey); Anderson JE & van Wincoop E (2003) 'Gravity with Gravitas' (the MR terms)",
+    "wrapper footer IMPLEMENTATION NOTE (c28_trade_gravity/gravity_bilateral_trade) — the live-verified traps: the unitary-income bug, the silent row drop, and the tetrads join"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 238,
+   "method": "Penalized Poisson PML gravity with high-dimensional fixed effects (an HDFE PPML baseline; a single-lambda lasso/ridge/plugin; a lasso/ridge path + a BIC-selected lambda)",
+   "wrapper_file": "c28_trade_gravity/penalized_poisson_pml.py",
+   "tool_fns": [
+    "pp_hdfe",
+    "pp_penalized_hdfe",
+    "pp_ml_fit"
+   ],
+   "when": "structural gravity on ONE long bilateral-trade panel (exporter x importer x [time]): PPML estimation with several HDFE (exporter-time, importer-time, pair) and MANY dummy regressors (e.g. trade-agreement provisions) -> baseline coefficients (pp_hdfe); penalized selection of a relevant subset (pp_penalized_hdfe at a single lambda; pp_ml_fit over a path + BIC, or a plugin lasso)",
+   "when_not": "log-OLS gravity on positive flows only (Santos Silva-Tenreyro: biased under heteroskedasticity/zeros); few regressors with no need for variable selection (use fepois/feglm, #33); economic complexity/ECI-PCI (#237); a non-count/negative dependent variable; time-series gravity without a dyadic panel; data ingestion (a file upload — a frontend route, not a node)",
+   "alternatives": [
+    {
+     "alt": "pp_hdfe",
+     "criterion": "you want the (unpenalized) HDFE PPML gravity baseline: coefficients + robust/cluster SE + deviance/BIC, with no variable selection"
+    },
+    {
+     "alt": "pp_penalized_hdfe (penalty=lasso/ridge, lambda)",
+     "criterion": "you want a penalized fit at ONE known lambda: lasso (L1, it zeroes out/selects) or ridge (L2, shrinkage without zeroing)"
+    },
+    {
+     "alt": "pp_penalized_hdfe (plugin=True, clustered)",
+     "criterion": "you want a plugin lasso with data-driven coefficient-specific penalty loadings (Breinlich et al. 2021); it REQUIRES a cluster"
+    },
+    {
+     "alt": "pp_ml_fit (lambdas, penalty)",
+     "criterion": "you want the WHOLE penalization path over a vector of lambdas and automatic selection of the lambda that MINIMISES the BIC (+ optional post-lasso de-biasing)"
+    },
+    {
+     "alt": "pp_ml_fit (plugin=True, clustered)",
+     "criterion": "you want the plugin lasso through the path API (it ignores lambdas and returns the plugin-selected fit); it REQUIRES a cluster"
+    }
+   ],
+   "output_key_fields": [
+    "pp_hdfe: coefficients (named per regressor) + se + deviance + bic + n_obs/n_coef + fixed_effects (the labels) + penalty='none'",
+    "pp_penalized_hdfe: coefficients (named) + deviance + bic + lambda + penalty + plugin + n_selected, the non-zero ones, + phi, the plugin penalty loadings, where they apply",
+    "pp_ml_fit: beta_path (a regressors-by-lambdas matrix, with row labels) + lambdas + bic_path (a lambda-and-BIC matrix) + selected_lambda + selected_bic + selected_coefficients, the column at the minimum BIC, + n_selected + deviance (blank along the path) + phi for the plugin route + seed"
+   ],
+   "interpretation_traps": [
+    "PPML models E[y]=exp(x*beta) in LEVELS rather than logs, so it handles zero flows and heteroskedasticity; the dependent variable MUST be non-negative, since a negative or missing value gives NaN and then a cryptic crash — blocked by a gate",
+    "the fixed effects MUST arrive as a LIST (a list of names means an interaction effect); the wrapper normalises that, converting a plain vector of names into a list — otherwise the routine fails cryptically",
+    "the lasso zeroes coefficients out (n_selected = the number of non-zero ones); ridge NEVER zeroes any (n_selected is usually all of them)",
+    "the information-criterion selection takes the minimum finite BIC along bic_path and is DETERMINISTIC; a degenerate, entirely blank BIC — for instance too large a lambda, giving an all-zero fit — returns the first lambda with a blank BIC",
+    "plugin=True, in pp_penalized_hdfe and pp_ml_fit, REQUIRES a cluster for the cluster-robust penalty loadings -> a gate; it returns phi, the per-coefficient loadings",
+    "a non-numeric regressor is coerced SILENTLY into a meaningless coefficient -> a hard gate: the regressors must all be numeric, with no gaps",
+    "the IRLS and elastic-net routines are deterministic and identical when seeded; the seed is exposed as defence in depth; the raw fit is NOT returned, since its per-observation internals are heavy, so it serialises to a stub; the internal, cross-validation, observation-selection, bootstrap and iceberg helpers were omitted as outside the estimator surface"
+   ],
+   "sources": [
+    "Santos Silva & Tenreyro 2006 'The Log of Gravity' Review of Economics and Statistics 88(4) 641-658 (the PPML gravity estimator)",
+    "Correia, Guimaraes & Zylkin 2020 'Fast Poisson estimation with high-dimensional fixed effects' The Stata Journal 20(1) 95-115 (ppmlhdfe / the fast HDFE PPML backbone)",
+    "Breinlich, Corradi, Rocha, Ruta, Santos Silva & Zylkin 2021 'Machine Learning in International Trade Research: Evaluating the Impact of Trade Agreements' World Bank Policy Research WP 9629 (penalized/plugin PPML provision selection)",
+    "Belloni, Chernozhukov, Hansen & Kozbur 2016 'Inference in High-Dimensional Panel Models With an Application to Gun Control' JBES 34(4) 590-605 (the plugin lasso penalty loadings)",
+    "wrapper footer IMPLEMENTATION NOTE (c28_trade_gravity/penalized_poisson_pml)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 239,
+   "method": "Economic complexity: RCA (the Balassa index), ECI/PCI (fitness/reflections/eigenvalues), product-space proximity",
+   "wrapper_file": "c28_trade_gravity/economic_complexity_rca.py",
+   "tool_fns": [
+    "ec_balassa",
+    "ec_complexity",
+    "ec_proximity"
+   ],
+   "when": "a bipartite country×product export panel -> the Revealed Comparative Advantage (Balassa), the Economic/Product Complexity Index (ECI/PCI), and product-space proximity (country×country / product×product similarity) for analysing specialisation, diversification & productive capabilities",
+   "when_not": "gravity/PPML trade-flow models (#237/#238 in the same category); a time series of one variable (no bipartite structure); input-output/network centrality (#48-55); downstream product-space diffusion (outlook/density/distance/projections — a separate card); data ingestion (a file upload — a frontend route, not a node)",
+   "alternatives": [
+    {
+     "alt": "ec_balassa (discrete=True gives 0/1 specialization; False a continuous RCA)",
+     "criterion": "you want the country×product Revealed Comparative Advantage matrix + diversification (rowSums) & ubiquity (colSums)"
+    },
+    {
+     "alt": "ec_complexity (method=fitness/reflections/eigenvalues)",
+     "criterion": "you want the ECI per country + the PCI per product; fitness=non-linear iterative (Tacchella); reflections=iterated averaging (Hidalgo-Hausmann); eigenvalues=the 2nd eigenvector"
+    },
+    {
+     "alt": "ec_proximity (compute=both/country/product)",
+     "criterion": "you want product-space similarity matrices: country×country AND/OR product×product (Hausmann-Hidalgo)"
+    }
+   ],
+   "output_key_fields": [
+    "ec_balassa: balassa_index (a country×product matrix with axis labels; discrete => 0/1) + diversification (named numeric per country, rowSums) + ubiquity (per product, colSums) + n_countries/n_products/discrete/cutoff",
+    "ec_complexity: eci (named numeric per country) + pci (named numeric per product) + method/iterations/extremality/discrete/cutoff + countries/products",
+    "ec_proximity: proximity_country (a country-by-country matrix, when requested) + proximity_product (a product-by-product matrix, when requested) + compute + n_countries/n_products, blank for a side that was not requested"
+   ],
+   "interpretation_traps": [
+    "balassa_index silently ACCEPTS negative values & returns a plausible-but-wrong RCA -> a hard non-negativity gate (the Balassa index is defined only on non-negative exports)",
+    "a single country OR a single product -> a degenerate all-1 RCA (silently wrong) -> a hard gate requiring >=2 countries AND >=2 products",
+    "discrete=True (a 0/1 RCA at or above the cutoff) is the classic input for the complexity indices and the proximities; a continuous RCA changes the meaning of every downstream metric",
+    "extremality affects ONLY method='fitness' (it is inert for reflections/eigenvalues but is still passed); eigenvalues prints a cosmetic sign-correction message (suppressMessages, not a warning)",
+    "deterministic (linear algebra / iterated reflections); no RNG -> no seed; identical over 2 runs is pinned in the tests",
+    "a TERMINAL node: no register/handle chaining; it returns chart-ready numbers (matrices + the ECI/PCI vectors), not a fitted model"
+   ],
+   "sources": [
+    "Balassa 1965 'Trade Liberalisation and Revealed Comparative Advantage' The Manchester School 33(2) 99-123 (the Balassa/RCA index)",
+    "Hidalgo & Hausmann 2009 'The building blocks of economic complexity' PNAS 106(26) 10570-10575 (ECI/PCI, the method of reflections)",
+    "Hausmann, Hidalgo et al. 2014 'The Atlas of Economic Complexity' MIT Press (ECI/PCI, the product space, proximity)",
+    "Hidalgo, Klinger, Barabasi, Hausmann 2007 'The Product Space Conditions the Development of Nations' Science 317(5837) 482-487 (proximity / the product space)",
+    "Tacchella, Cristelli, Caldarelli, Gabrielli, Pietronero 2012 'A New Metrics for Countries Fitness and Products Complexity' Scientific Reports 2:723 (the fitness method)",
+    "wrapper footer IMPLEMENTATION NOTE (c28_trade_gravity/economic_complexity_rca)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 593,
+   "method": "General-equilibrium structural gravity counterfactuals",
+   "wrapper_file": "c28_trade_gravity/ge_gravity.py",
+   "tool_fns": [
+    "tg_ge_gravity"
+   ],
+   "when": "trade policy changes bilateral flows and also relative prices everywhere, and a partial-equilibrium estimate misses the second effect entirely",
+   "when_not": "you only need the partial elasticity; the required expenditure and production data are unavailable",
+   "alternatives": [
+    {
+     "alt": "partial-equilibrium PPML",
+     "criterion": "the direct trade elasticity only"
+    },
+    {
+     "alt": "GEPPML",
+     "criterion": "general equilibrium with multilateral resistance"
+    },
+    {
+     "alt": "full computable general equilibrium",
+     "criterion": "production structure matters"
+    }
+   ],
+   "output_key_fields": [
+    "counterfactual_trade: bilateral flows under the counterfactual",
+    "multilateral_resistance: inward and outward terms, before and after",
+    "welfare: real income change per country",
+    "convergence: whether the equilibrium solved"
+   ],
+   "interpretation_traps": [
+    "MULTILATERAL RESISTANCE IS THE WHOLE POINT: a bilateral tariff change alters every country's price index, and a partial-equilibrium calculation misses effects that are frequently larger than the direct one",
+    "the counterfactual is conditional on the estimated trade elasticity, and welfare results scale directly with it",
+    "the equilibrium is solved up to a normalisation; welfare changes are relative to the chosen numeraire"
+   ],
+   "sources": [
+    "Anderson & van Wincoop 2003 (American Economic Review 93:170-192)",
+    "Yotov, Piermartini, Monteiro & Larch 2016, An Advanced Guide to Trade Policy Analysis",
+    "Larch & Yotov 2016 (WTO Working Paper ERSD-2016-08)",
+    "gegravity"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 594,
+   "method": "Gravity data assembly and estimation workflow",
+   "wrapper_file": "c28_trade_gravity/gravity_workflow.py",
+   "tool_fns": [
+    "tg_gravity_panel"
+   ],
+   "when": "assembling the bilateral panel a gravity estimation needs, with the fixed effects and zero flows handled correctly",
+   "when_not": "the panel is already assembled; the country coverage changes so much that fixed effects are not identified",
+   "alternatives": [
+    {
+     "alt": "PPML with three-way fixed effects",
+     "criterion": "the modern standard"
+    },
+    {
+     "alt": "OLS on log trade",
+     "criterion": "wrong whenever there are zero flows"
+    },
+    {
+     "alt": "Heckman gravity",
+     "criterion": "you want to model selection into trading"
+    }
+   ],
+   "output_key_fields": [
+    "panel: the assembled bilateral panel",
+    "estimates: gravity coefficients",
+    "zeros: how many flows are zero, and how they were handled",
+    "fixed_effects: the effects absorbed"
+   ],
+   "interpretation_traps": [
+    "DROPPING ZERO FLOWS BY LOGGING BIASES EVERY COEFFICIENT: zeros are a large share of bilateral pairs and are informative, which is the single strongest argument for PPML",
+    "exporter-time and importer-time fixed effects are what control multilateral resistance; omitting them is the classic gold-medal mistake",
+    "intra-national trade must be included for many policy questions or the estimates are not comparable to theory"
+   ],
+   "sources": [
+    "Head & Mayer 2014, Gravity equations: workhorse, toolkit, and cookbook (Handbook of International Economics 4)",
+    "Yotov, Piermartini, Monteiro & Larch 2016, An Advanced Guide to Trade Policy Analysis",
+    "gme"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 595,
+   "method": "Trade in value added and global value-chain participation",
+   "wrapper_file": "c28_trade_gravity/trade_value_added.py",
+   "tool_fns": [
+    "tg_trade_value_added",
+    "tg_gvc_participation"
+   ],
+   "when": "gross bilateral trade double-counts intermediates, and value-added measures are what map to income and employment",
+   "when_not": "the analysis is about gross flows such as tariff revenue; no input-output table covers the countries needed",
+   "alternatives": [
+    {
+     "alt": "gross trade",
+     "criterion": "tariffs and logistics"
+    },
+    {
+     "alt": "trade in value added",
+     "criterion": "income and employment implications"
+    },
+    {
+     "alt": "GVC participation indices",
+     "criterion": "position in the supply chain"
+    }
+   ],
+   "output_key_fields": [
+    "value_added_exports: domestic value added embodied in exports",
+    "double_counting: the gross-minus-value-added wedge",
+    "gvc_participation: backward and forward participation indices",
+    "position: upstreamness of each country-sector"
+   ],
+   "interpretation_traps": [
+    "GROSS EXPORTS DOUBLE-COUNT INTERMEDIATES that cross borders repeatedly; for highly integrated supply chains the gross figure can exceed value added by a large multiple",
+    "the decomposition depends entirely on the input-output table used, and different databases disagree materially",
+    "backward and forward participation measure different things and a country can be high in one and low in the other"
+   ],
+   "sources": [
+    "Koopman, Wang & Wei 2014 (American Economic Review 104:459-494)",
+    "Borin & Mancini 2019 (World Bank Policy Research Working Paper 8804)",
+    "pymrio"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 596,
+   "method": "Trade indices: revealed comparative advantage, Lafay and Grubel-Lloyd",
+   "wrapper_file": "c28_trade_gravity/trade_indices.py",
+   "tool_fns": [
+    "tg_trade_indices"
+   ],
+   "when": "summarising a country's specialisation and the nature of its trade, which raw flows cannot show",
+   "when_not": "the product classification changes over the period; the country's trade is too concentrated for indices to be informative",
+   "alternatives": [
+    {
+     "alt": "revealed comparative advantage",
+     "criterion": "export specialisation against the world"
+    },
+    {
+     "alt": "normalised RCA",
+     "criterion": "symmetric and bounded, unlike the raw index"
+    },
+    {
+     "alt": "Grubel-Lloyd",
+     "criterion": "how much trade is intra-industry"
+    }
+   ],
+   "output_key_fields": [
+    "rca: revealed comparative advantage per product",
+    "normalised_rca: the symmetric version, bounded in minus one to one",
+    "grubel_lloyd: intra-industry trade share",
+    "lafay: the contribution-to-trade-balance index"
+   ],
+   "interpretation_traps": [
+    "THE RAW BALASSA INDEX IS ASYMMETRIC -- bounded below by zero and unbounded above -- so it cannot be averaged or used in a regression without transformation; the normalised version exists for that",
+    "the Grubel-Lloyd index rises mechanically with the level of product aggregation, so cross-study comparisons need the same classification level",
+    "these indices reflect trade policy and transport costs as much as comparative advantage, despite the name"
+   ],
+   "sources": [
+    "Balassa 1965 (Manchester School 33:99-123)",
+    "Grubel & Lloyd 1975, Intra-Industry Trade",
+    "Lafay 1992, The measurement of revealed comparative advantages (International Trade Modelling)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 597,
+   "method": "PPML with high-dimensional fixed effects and multiway clustering",
+   "wrapper_file": "c28_trade_gravity/ppml_hdfe.py",
+   "tool_fns": [
+    "tg_ppml_hdfe"
+   ],
+   "when": "the gravity workhorse: a Poisson estimator that handles zeros, heteroskedasticity and three-way fixed effects at once",
+   "when_not": "the outcome is not a non-negative flow; the fixed-effect structure leaves no variation in the policy variable",
+   "alternatives": [
+    {
+     "alt": "PPML with three-way fixed effects",
+     "criterion": "the standard"
+    },
+    {
+     "alt": "OLS on log trade",
+     "criterion": "invalid with zeros and biased under heteroskedasticity"
+    },
+    {
+     "alt": "gamma PML",
+     "criterion": "an alternative if the conditional variance is proportional to the square of the mean"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients as semi-elasticities",
+    "absorbed: fixed effects removed and their level counts",
+    "separation: observations dropped by perfect separation",
+    "cluster: the clustering applied"
+   ],
+   "interpretation_traps": [
+    "THE LOG-LINEAR MODEL IS BIASED UNDER HETEROSKEDASTICITY EVEN WITHOUT ZEROS, because the expectation of the log is not the log of the expectation -- this is the Silva-Tenreyro result and it is the reason PPML replaced OLS",
+    "perfect separation silently drops observations and whole fixed-effect groups, changing the estimation sample without warning",
+    "clustering on pairs is standard because bilateral flows are correlated over time within a pair"
+   ],
+   "sources": [
+    "Silva & Tenreyro 2006 (Review of Economics and Statistics 88:641-658)",
+    "Correia, Guimaraes & Zylkin 2020 (Stata Journal 20:95)",
+    "Weidner & Zylkin 2021 (Journal of International Economics 132:103513)",
+    "pyfixest"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "ec_balassa",
+   "card_id": 239,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "discrete": true,
+    "cutoff": 1
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long trade DataFrame {country, product, value(>=0)}· >= 2 countries & >= 2 products.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "discrete",
+     "kind": "boolean",
+     "required": false,
+     "description": "discrete=True => 0/1 specialization (Balassa >= cutoff)· False => continuous RCA (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "cutoff",
+     "kind": "number",
+     "required": false,
+     "description": "Balassa discretization threshold (positive· default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "country",
+     "kind": "string",
+     "required": false,
+     "description": "Country column name (default 'country').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "product",
+     "kind": "string",
+     "required": false,
+     "description": "Product column name (default 'product').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "value",
+     "kind": "string",
+     "required": false,
+     "description": "Export value column name (default 'value'· NON-negative).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "ec_complexity",
+   "card_id": 239,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "iterations": 20,
+    "extremality": 1,
+    "discrete": true,
+    "cutoff": 1
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long trade DataFrame {country, product, value(>=0)}.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Complexity method (default fitness): fitness (non-linear iterative)· reflections (Hidalgo-Hausmann iterated averaging)· eigenvalues (2nd eigenvector).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "fitness",
+      "reflections",
+      "eigenvalues"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "iterations",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of iterations for fitness/reflections (positive· default 20).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "extremality",
+     "kind": "number",
+     "required": false,
+     "description": "Extremality parameter ONLY for method='fitness' (positive· default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "discrete",
+     "kind": "boolean",
+     "required": false,
+     "description": "discrete=True => 0/1 specialization (Balassa >= cutoff)· False => continuous RCA (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "cutoff",
+     "kind": "number",
+     "required": false,
+     "description": "Balassa discretization threshold (positive· default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "country",
+     "kind": "string",
+     "required": false,
+     "description": "Country column name (default 'country').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "product",
+     "kind": "string",
+     "required": false,
+     "description": "Product column name (default 'product').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "value",
+     "kind": "string",
+     "required": false,
+     "description": "Export value column name (default 'value'· NON-negative).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "ec_proximity",
+   "card_id": 239,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "discrete": true,
+    "cutoff": 1
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long trade DataFrame {country, product, value(>=0)}.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "compute",
+     "kind": "enum",
+     "required": false,
+     "description": "Which proximity matrices (default both): both / country (country×country) / product (product×product, product space).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "both",
+      "country",
+      "product"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "discrete",
+     "kind": "boolean",
+     "required": false,
+     "description": "discrete=True => 0/1 specialization (Balassa >= cutoff)· False => continuous RCA (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "cutoff",
+     "kind": "number",
+     "required": false,
+     "description": "Balassa discretization threshold (positive· default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "country",
+     "kind": "string",
+     "required": false,
+     "description": "Country column name (default 'country').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "product",
+     "kind": "string",
+     "required": false,
+     "description": "Product column name (default 'product').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "value",
+     "kind": "string",
+     "required": false,
+     "description": "Export value column name (default 'value'· NON-negative).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "gr_bvu",
+   "card_id": 237,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "dependent_variable": "...",
+    "distance": "...",
+    "income_origin": "...",
+    "income_destination": "...",
+    "code_origin": "...",
+    "code_destination": "...",
+    "robust": false
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a bilateral trade DataFrame {origin, destination, flow, distance, (incomes), (dummies)}· >= 3 rows (bilateral pairs). The data NEVER inline — only column names.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dependent_variable",
+     "kind": "string",
+     "required": true,
+     "description": "Column name of the trade flow (dependent). Log-transformed => STRICTLY POSITIVE (>0· zeros/negatives are dropped silently => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distance",
+     "kind": "string",
+     "required": true,
+     "description": "Distance column name (distance). Log-transformed automatically => STRICTLY POSITIVE (>0· non-positive => silent row-drop => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "income_origin",
+     "kind": "string",
+     "required": true,
+     "description": "Origin income column name (exporter GDP)· log-transformed => >0.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "income_destination",
+     "kind": "string",
+     "required": true,
+     "description": "Destination income column name (importer GDP)· log-transformed => >0.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "code_origin",
+     "kind": "string",
+     "required": true,
+     "description": "Origin country code column name (exporter id, e.g. iso_o).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "code_destination",
+     "kind": "string",
+     "required": true,
+     "description": "Destination country code column name (importer id, e.g. iso_d).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "additional_regressors",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Array of names of ADDITIONAL dyadic regressors (e.g. rta, contig, comlang)· for PPML pass the incomes ALREADY log-transformed here. Optional.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "robust",
+     "kind": "boolean",
+     "required": false,
+     "description": "robust=True => a robust linear fit robust SEs (without p-value)· False => lm/glm (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "gr_fixed_effects",
+   "card_id": 237,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "dependent_variable": "...",
+    "distance": "...",
+    "code_origin": "...",
+    "code_destination": "...",
+    "robust": false
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a bilateral trade DataFrame {origin, destination, flow, distance, (incomes), (dummies)}· >= 3 rows (bilateral pairs). The data NEVER inline — only column names.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dependent_variable",
+     "kind": "string",
+     "required": true,
+     "description": "Column name of the trade flow (dependent). Log-transformed => STRICTLY POSITIVE (>0· zeros/negatives are dropped silently => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distance",
+     "kind": "string",
+     "required": true,
+     "description": "Distance column name (distance). Log-transformed automatically => STRICTLY POSITIVE (>0· non-positive => silent row-drop => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "code_origin",
+     "kind": "string",
+     "required": true,
+     "description": "Origin country code column name (exporter id, e.g. iso_o).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "code_destination",
+     "kind": "string",
+     "required": true,
+     "description": "Destination country code column name (importer id, e.g. iso_d).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "additional_regressors",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Array of names of ADDITIONAL dyadic regressors (e.g. rta, contig, comlang)· for PPML pass the incomes ALREADY log-transformed here. Optional.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "robust",
+     "kind": "boolean",
+     "required": false,
+     "description": "robust=True => a robust linear fit robust SEs (without p-value)· False => lm/glm (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "gr_ols",
+   "card_id": 237,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "dependent_variable": "...",
+    "distance": "...",
+    "income_origin": "...",
+    "income_destination": "...",
+    "code_origin": "...",
+    "code_destination": "...",
+    "uie": false,
+    "robust": false
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a bilateral trade DataFrame {origin, destination, flow, distance, (incomes), (dummies)}· >= 3 rows (bilateral pairs). The data NEVER inline — only column names.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dependent_variable",
+     "kind": "string",
+     "required": true,
+     "description": "Column name of the trade flow (dependent). Log-transformed => STRICTLY POSITIVE (>0· zeros/negatives are dropped silently => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distance",
+     "kind": "string",
+     "required": true,
+     "description": "Distance column name (distance). Log-transformed automatically => STRICTLY POSITIVE (>0· non-positive => silent row-drop => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "income_origin",
+     "kind": "string",
+     "required": true,
+     "description": "Origin income column name (exporter GDP)· log-transformed => >0.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "income_destination",
+     "kind": "string",
+     "required": true,
+     "description": "Destination income column name (importer GDP)· log-transformed => >0.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "code_origin",
+     "kind": "string",
+     "required": true,
+     "description": "Origin country code column name (exporter id, e.g. iso_o).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "code_destination",
+     "kind": "string",
+     "required": true,
+     "description": "Destination country code column name (importer id, e.g. iso_d).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "additional_regressors",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Array of names of ADDITIONAL dyadic regressors (e.g. rta, contig, comlang)· for PPML pass the incomes ALREADY log-transformed here. Optional.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "uie",
+     "kind": "boolean",
+     "required": false,
+     "description": "uie=True => unitary income elasticities (dependent/(inc_o*inc_d) before the log)· False => incomes explicit regressors (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "robust",
+     "kind": "boolean",
+     "required": false,
+     "description": "robust=True => a robust linear fit robust SEs (without p-value)· False => lm/glm (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "gr_ppml",
+   "card_id": 237,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "dependent_variable": "...",
+    "distance": "...",
+    "robust": false
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a bilateral trade DataFrame {origin, destination, flow, distance, (incomes), (dummies)}· >= 3 rows (bilateral pairs). The data NEVER inline — only column names.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dependent_variable",
+     "kind": "string",
+     "required": true,
+     "description": "Column name of the trade flow (dependent). Poisson PML => NON-NEGATIVE (>=0· accepts zeros).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distance",
+     "kind": "string",
+     "required": true,
+     "description": "Distance column name (distance). Log-transformed automatically => STRICTLY POSITIVE (>0· non-positive => silent row-drop => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "additional_regressors",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Array of names of ADDITIONAL dyadic regressors (e.g. rta, contig, comlang)· for PPML pass the incomes ALREADY log-transformed here. Optional.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "robust",
+     "kind": "boolean",
+     "required": false,
+     "description": "robust=True => a robust linear fit robust SEs (without p-value)· False => lm/glm (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "gr_tetrads",
+   "card_id": 237,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "dependent_variable": "...",
+    "distance": "...",
+    "code_origin": "...",
+    "code_destination": "...",
+    "filter_origin": "...",
+    "filter_destination": "...",
+    "additional_regressors": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "multiway": false
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a bilateral trade DataFrame {origin, destination, flow, distance, (incomes), (dummies)}· >= 3 rows (bilateral pairs). The data NEVER inline — only column names.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dependent_variable",
+     "kind": "string",
+     "required": true,
+     "description": "Column name of the trade flow (dependent). Log-transformed => STRICTLY POSITIVE (>0· zeros/negatives are dropped silently => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distance",
+     "kind": "string",
+     "required": true,
+     "description": "Distance column name (distance). Log-transformed automatically => STRICTLY POSITIVE (>0· non-positive => silent row-drop => gate).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "code_origin",
+     "kind": "string",
+     "required": true,
+     "description": "Origin country code column name (exporter id, e.g. iso_o).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "code_destination",
+     "kind": "string",
+     "required": true,
+     "description": "Destination country code column name (importer id, e.g. iso_d).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "filter_origin",
+     "kind": "string",
+     "required": true,
+     "description": "Reference exporter code (must EXIST in the column code_origin)· eliminates monadic exporter effects.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "filter_destination",
+     "kind": "string",
+     "required": true,
+     "description": "Reference importer code (must EXIST in the column code_destination)· eliminates monadic importer effects.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "additional_regressors",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Array of names of ADDITIONAL dyadic regressors (e.g. rta, contig, comlang)· for PPML pass the incomes ALREADY log-transformed here. REQUIRED for tetrads (>=1).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "multiway",
+     "kind": "boolean",
+     "required": false,
+     "description": "multiway=True => multi-way clustered SEs (Cameron-Gelbach-Miller 2011· returns a coeftest matrix)· False => plain lm (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "pp_hdfe",
+   "card_id": 238,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "dep": "...",
+    "indep": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "fixed": "...",
+    "tol": 1e-08,
+    "hdfetol": 0.0001
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to ONE long gravity DataFrame: one row per (exporter, importer, [time]) with a flow column (dep >= 0), regressors (indep) and fixed-effect factor columns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dep",
+     "kind": "string",
+     "required": true,
+     "description": "Column name of the dependent flow/count (bilateral trade flow, non-negative)· PPML models E[y]=exp(xbeta).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "indep",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Names of numeric regressor columns (>= 1): e.g. dummies of trade provisions / policies· ALL numeric, WITHOUT NA.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "fixed",
+     "kind": "raw",
+     "required": true,
+     "description": "High-dimensional fixed effects: either a character vector of simple FE (e.g. [\"exp\",\"imp\"]) or array-of-arrays for interaction FE (e.g. [[\"exp\",\"time\"],[\"imp\",\"time\"],[\"exp\",\"imp\"]] = exporter-time, importer-time, pair FE).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cluster",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Column names for cluster-robust SE / penalty loadings (optional)· REQUIRED when plugin=True.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tol",
+     "kind": "number",
+     "required": false,
+     "description": "Convergence tolerance of the IRLS (positive· default 1e-8).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1e-08,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "hdfetol",
+     "kind": "number",
+     "required": false,
+     "description": "Convergence tolerance of the HDFE partialling-out (positive· default 1e-4).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.0001,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "pp_ml_fit",
+   "card_id": 238,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "dep": "...",
+    "indep": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "fixed": "...",
+    "plugin": false,
+    "post": false,
+    "seed": 1,
+    "hdfetol": 0.0001
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to ONE long gravity DataFrame: one row per (exporter, importer, [time]) with a flow column (dep >= 0), regressors (indep) and fixed-effect factor columns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dep",
+     "kind": "string",
+     "required": true,
+     "description": "Column name of the dependent flow/count (bilateral trade flow, non-negative)· PPML models E[y]=exp(xbeta).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "indep",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Names of numeric regressor columns (>= 1): e.g. dummies of trade provisions / policies· ALL numeric, WITHOUT NA.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "fixed",
+     "kind": "raw",
+     "required": true,
+     "description": "High-dimensional fixed effects: either a character vector of simple FE (e.g. [\"exp\",\"imp\"]) or array-of-arrays for interaction FE (e.g. [[\"exp\",\"time\"],[\"imp\",\"time\"],[\"exp\",\"imp\"]] = exporter-time, importer-time, pair FE).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lambdas",
+     "kind": "num_array",
+     "required": false,
+     "description": "Vector of non-negative lambda of the penalization path (REQUIRED when plugin=False)· the lambda that MINIMIZES the BIC is selected.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "penalty",
+     "kind": "enum",
+     "required": false,
+     "description": "Penalty type (default lasso): lasso=L1 selection· ridge=L2.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lasso",
+      "ridge"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "plugin",
+     "kind": "boolean",
+     "required": false,
+     "description": "plugin lasso (default False): ignores lambdas & uses data-driven penalty loadings· REQUIRES cluster.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "post",
+     "kind": "boolean",
+     "required": false,
+     "description": "post-lasso: re-estimation (unpenalized PPML) on the selected regressors for de-biased coefficients (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "cluster",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Column names for cluster-robust SE / penalty loadings (optional)· REQUIRED when plugin=True.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed before the fit (determinism· default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "hdfetol",
+     "kind": "number",
+     "required": false,
+     "description": "Convergence tolerance of the HDFE partialling-out (positive· default 1e-4).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.0001,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "pp_penalized_hdfe",
+   "card_id": 238,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "dep": "...",
+    "indep": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "fixed": "...",
+    "lambda": 0.5,
+    "plugin": false,
+    "hdfetol": 0.0001
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to ONE long gravity DataFrame: one row per (exporter, importer, [time]) with a flow column (dep >= 0), regressors (indep) and fixed-effect factor columns.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dep",
+     "kind": "string",
+     "required": true,
+     "description": "Column name of the dependent flow/count (bilateral trade flow, non-negative)· PPML models E[y]=exp(xbeta).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "indep",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Names of numeric regressor columns (>= 1): e.g. dummies of trade provisions / policies· ALL numeric, WITHOUT NA.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "fixed",
+     "kind": "raw",
+     "required": true,
+     "description": "High-dimensional fixed effects: either a character vector of simple FE (e.g. [\"exp\",\"imp\"]) or array-of-arrays for interaction FE (e.g. [[\"exp\",\"time\"],[\"imp\",\"time\"],[\"exp\",\"imp\"]] = exporter-time, importer-time, pair FE).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lambda",
+     "kind": "number",
+     "required": true,
+     "description": "Non-negative penalization parameter (lambda=0 => unpenalized)· larger lambda => stronger shrinkage (lasso: more zeros).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "penalty",
+     "kind": "enum",
+     "required": false,
+     "description": "Penalty type (default lasso): lasso=L1 (variable selection, zeroes coefficients)· ridge=L2 (shrinkage without zeroing).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lasso",
+      "ridge"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "plugin",
+     "kind": "boolean",
+     "required": false,
+     "description": "plugin lasso (Breinlich et al. 2021): coefficient-specific data-driven penalty loadings (default False)· REQUIRES cluster.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "cluster",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Column names for cluster-robust SE / penalty loadings (optional)· REQUIRED when plugin=True.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "hdfetol",
+     "kind": "number",
+     "required": false,
+     "description": "Convergence tolerance of the HDFE partialling-out (positive· default 1e-4).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.0001,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "tg_ge_gravity",
+   "card_id": 593,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "exporter": "...",
+    "importer": "...",
+    "trade": "...",
+    "counterfactual": "<df_handle>",
+    "elasticity": 1.0,
+    "tol": 1e-10
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Bilateral trade panel with expenditure and production.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exporter",
+     "kind": "string",
+     "required": true,
+     "description": "Exporter identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "importer",
+     "kind": "string",
+     "required": true,
+     "description": "Importer identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "trade",
+     "kind": "string",
+     "required": true,
+     "description": "Trade flow column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "counterfactual",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Counterfactual policy variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "elasticity",
+     "kind": "number",
+     "required": true,
+     "description": "Trade elasticity.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tol",
+     "kind": "number",
+     "required": false,
+     "description": "Equilibrium tolerance.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1e-10,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "tg_gravity_panel",
+   "card_id": 594,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "trade": "<df_handle>",
+    "exporter": "...",
+    "importer": "...",
+    "time": "...",
+    "estimator": "ppml",
+    "fixed_effects": "three_way",
+    "include_intranational": false,
+    "cluster": "pair",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "trade",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Bilateral trade flows.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Bilateral covariates such as distance and borders.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exporter",
+     "kind": "string",
+     "required": true,
+     "description": "Exporter identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "importer",
+     "kind": "string",
+     "required": true,
+     "description": "Importer identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Time identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "estimator",
+     "kind": "enum",
+     "required": false,
+     "description": "Estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "ppml",
+      "ols_log",
+      "gpml",
+      "heckman"
+     ],
+     "allowed_vars": null,
+     "default": "ppml",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "fixed_effects",
+     "kind": "enum",
+     "required": false,
+     "description": "Fixed-effect structure.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "exporter_importer",
+      "three_way"
+     ],
+     "allowed_vars": null,
+     "default": "three_way",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "include_intranational",
+     "kind": "boolean",
+     "required": false,
+     "description": "Include intra-national trade.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "cluster",
+     "kind": "enum",
+     "required": false,
+     "description": "Clustering.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "pair",
+      "exporter",
+      "importer",
+      "none"
+     ],
+     "allowed_vars": null,
+     "default": "pair",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "tg_trade_value_added",
+   "card_id": 595,
+   "register": null,
+   "input_example": {
+    "io_table": "<raw_handle>",
+    "decomposition": "koopman_wang_wei"
+   },
+   "arguments": [
+    {
+     "name": "io_table",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a multi-regional input-output system.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "decomposition",
+     "kind": "enum",
+     "required": false,
+     "description": "Decomposition.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "koopman_wang_wei",
+      "borin_mancini",
+      "wang_wei_zhu"
+     ],
+     "allowed_vars": null,
+     "default": "koopman_wang_wei",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "country",
+     "kind": "string",
+     "required": false,
+     "description": "Country to report for; omitted = all.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tg_gvc_participation",
+   "card_id": 595,
+   "register": null,
+   "input_example": {
+    "io_table": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "io_table",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a multi-regional input-output system.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "measures",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Measures to compute.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tg_trade_indices",
+   "card_id": 596,
+   "register": null,
+   "input_example": {
+    "trade": "<df_handle>",
+    "country": "...",
+    "product": "...",
+    "exports": "..."
+   },
+   "arguments": [
+    {
+     "name": "trade",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Trade flows by country and product.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "country",
+     "kind": "string",
+     "required": true,
+     "description": "Country identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "product",
+     "kind": "string",
+     "required": true,
+     "description": "Product identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exports",
+     "kind": "string",
+     "required": true,
+     "description": "Export value column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "imports",
+     "kind": "string",
+     "required": false,
+     "description": "Import value column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "indices",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Indices to compute; omitted = the standard set.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tg_ppml_hdfe",
+   "card_id": 597,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "formula": "y ~ x",
+    "absorb": [
+     "a",
+     "b"
+    ],
+    "check_separation": true,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Bilateral panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": true,
+     "description": "Model formula.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "absorb",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Columns whose fixed effects are absorbed.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cluster",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Clustering variables.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "check_separation",
+     "kind": "boolean",
+     "required": false,
+     "description": "Detect and report perfect separation.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  }
+ ]
+}

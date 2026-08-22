@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``global_var`` -- METHOD-SELECTION card #50.
+"""Method wrapper ``global_var`` -- method card #50.
 
 #50 Global VAR (GVAR)
 
@@ -7,8 +7,8 @@ Category 09-cross-section-networks; module ``global_var``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def gv_fit(
     type: Literal["const", "none", "trend", "both"] | None = None,
     ic: Literal["AIC", "HQ", "SC", "FPE"],
 ) -> dict[str, Any]:
-    """Node ``gv_fit`` -- METHOD-SELECTION card #50.
+    """Node ``gv_fit`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -66,7 +66,7 @@ def gv_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_fit: not implemented. The method card is in ./README.md."
+        "gv_fit: not implemented."
     )
 
 
@@ -75,7 +75,7 @@ def gv_foreign_variables(
     data: pd.DataFrame,
     weight_matrix: np.ndarray,
 ) -> dict[str, Any]:
-    """Node ``gv_foreign_variables`` -- METHOD-SELECTION card #50.
+    """Node ``gv_foreign_variables`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -89,7 +89,7 @@ def gv_foreign_variables(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_foreign_variables: not implemented. The method card is in ./README.md."
+        "gv_foreign_variables: not implemented."
     )
 
 
@@ -101,7 +101,7 @@ def gv_structural(
     type: Literal["const", "none", "trend", "both"] | None = None,
     ic: Literal["AIC", "HQ", "SC", "FPE"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``gv_structural`` -- METHOD-SELECTION card #50.
+    """Node ``gv_structural`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -118,7 +118,7 @@ def gv_structural(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_structural: not implemented. The method card is in ./README.md."
+        "gv_structural: not implemented."
     )
 
 
@@ -126,7 +126,7 @@ def gv_residual_correlation(
     *,
     out: Any,
 ) -> dict[str, Any]:
-    """Node ``gv_residual_correlation`` -- METHOD-SELECTION card #50.
+    """Node ``gv_residual_correlation`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -139,7 +139,7 @@ def gv_residual_correlation(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_residual_correlation: not implemented. The method card is in ./README.md."
+        "gv_residual_correlation: not implemented."
     )
 
 
@@ -148,7 +148,7 @@ def gv_coef(
     out: Any,
     sheet: int,
 ) -> dict[str, Any]:
-    """Node ``gv_coef`` -- METHOD-SELECTION card #50.
+    """Node ``gv_coef`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -162,7 +162,7 @@ def gv_coef(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_coef: not implemented. The method card is in ./README.md."
+        "gv_coef: not implemented."
     )
 
 
@@ -171,7 +171,7 @@ def gv_coef_nw(
     out: Any,
     sheet: int,
 ) -> dict[str, Any]:
-    """Node ``gv_coef_nw`` -- METHOD-SELECTION card #50.
+    """Node ``gv_coef_nw`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -185,7 +185,7 @@ def gv_coef_nw(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_coef_nw: not implemented. The method card is in ./README.md."
+        "gv_coef_nw: not implemented."
     )
 
 
@@ -194,7 +194,7 @@ def gv_coef_white(
     out: Any,
     sheet: int,
 ) -> dict[str, Any]:
-    """Node ``gv_coef_white`` -- METHOD-SELECTION card #50.
+    """Node ``gv_coef_white`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -208,7 +208,7 @@ def gv_coef_white(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_coef_white: not implemented. The method card is in ./README.md."
+        "gv_coef_white: not implemented."
     )
 
 
@@ -216,7 +216,7 @@ def gv_coef_exo(
     *,
     out: Any,
 ) -> dict[str, Any]:
-    """Node ``gv_coef_exo`` -- METHOD-SELECTION card #50.
+    """Node ``gv_coef_exo`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -229,7 +229,7 @@ def gv_coef_exo(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_coef_exo: not implemented. The method card is in ./README.md."
+        "gv_coef_exo: not implemented."
     )
 
 
@@ -237,7 +237,7 @@ def gv_coef_exo_nw(
     *,
     out: Any,
 ) -> dict[str, Any]:
-    """Node ``gv_coef_exo_nw`` -- METHOD-SELECTION card #50.
+    """Node ``gv_coef_exo_nw`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -250,7 +250,7 @@ def gv_coef_exo_nw(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_coef_exo_nw: not implemented. The method card is in ./README.md."
+        "gv_coef_exo_nw: not implemented."
     )
 
 
@@ -258,7 +258,7 @@ def gv_coef_exo_white(
     *,
     out: Any,
 ) -> dict[str, Any]:
-    """Node ``gv_coef_exo_white`` -- METHOD-SELECTION card #50.
+    """Node ``gv_coef_exo_white`` -- method card #50.
 
     Global VAR (GVAR).
 
@@ -271,5 +271,5 @@ def gv_coef_exo_white(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gv_coef_exo_white: not implemented. The method card is in ./README.md."
+        "gv_coef_exo_white: not implemented."
     )

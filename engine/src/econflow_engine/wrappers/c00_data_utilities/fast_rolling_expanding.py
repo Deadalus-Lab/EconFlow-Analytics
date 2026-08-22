@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``fast_rolling_expanding`` -- METHOD-SELECTION card #109.
+"""Method wrapper ``fast_rolling_expanding`` -- method card #109.
 
 #109 Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression)
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``fast_rolling_expanding``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ def rll_mean(
     min_obs: int | None = None,
     online: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rll_mean`` -- METHOD-SELECTION card #109.
+    """Node ``rll_mean`` -- method card #109.
 
     Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression).
@@ -65,7 +65,7 @@ def rll_mean(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rll_mean: not implemented. The method card is in ./README.md."
+        "rll_mean: not implemented."
     )
 
 
@@ -78,7 +78,7 @@ def rll_sd(
     min_obs: int | None = None,
     online: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rll_sd`` -- METHOD-SELECTION card #109.
+    """Node ``rll_sd`` -- method card #109.
 
     Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression).
@@ -97,7 +97,7 @@ def rll_sd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rll_sd: not implemented. The method card is in ./README.md."
+        "rll_sd: not implemented."
     )
 
 
@@ -110,7 +110,7 @@ def rll_var(
     min_obs: int | None = None,
     online: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rll_var`` -- METHOD-SELECTION card #109.
+    """Node ``rll_var`` -- method card #109.
 
     Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression).
@@ -130,7 +130,7 @@ def rll_var(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rll_var: not implemented. The method card is in ./README.md."
+        "rll_var: not implemented."
     )
 
 
@@ -145,7 +145,7 @@ def rll_cor(
     min_obs: int | None = None,
     online: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rll_cor`` -- METHOD-SELECTION card #109.
+    """Node ``rll_cor`` -- method card #109.
 
     Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression).
@@ -168,7 +168,7 @@ def rll_cor(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rll_cor: not implemented. The method card is in ./README.md."
+        "rll_cor: not implemented."
     )
 
 
@@ -183,7 +183,7 @@ def rll_cov(
     min_obs: int | None = None,
     online: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rll_cov`` -- METHOD-SELECTION card #109.
+    """Node ``rll_cov`` -- method card #109.
 
     Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression).
@@ -206,7 +206,7 @@ def rll_cov(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rll_cov: not implemented. The method card is in ./README.md."
+        "rll_cov: not implemented."
     )
 
 
@@ -220,7 +220,7 @@ def rll_lm(
     min_obs: int | None = None,
     online: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rll_lm`` -- METHOD-SELECTION card #109.
+    """Node ``rll_lm`` -- method card #109.
 
     Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression).
@@ -241,7 +241,7 @@ def rll_lm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rll_lm: not implemented. The method card is in ./README.md."
+        "rll_lm: not implemented."
     )
 
 
@@ -255,7 +255,7 @@ def rll_scale(
     min_obs: int | None = None,
     online: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rll_scale`` -- METHOD-SELECTION card #109.
+    """Node ``rll_scale`` -- method card #109.
 
     Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression).
@@ -275,7 +275,7 @@ def rll_scale(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rll_scale: not implemented. The method card is in ./README.md."
+        "rll_scale: not implemented."
     )
 
 
@@ -288,7 +288,7 @@ def rll_quantile(
     min_obs: int | None = None,
     online: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rll_quantile`` -- METHOD-SELECTION card #109.
+    """Node ``rll_quantile`` -- method card #109.
 
     Fast rolling & expanding window statistics on vector/matrix (mean/sd/var, cor/cov, z-score,
     quantile, rolling regression).
@@ -307,5 +307,5 @@ def rll_quantile(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rll_quantile: not implemented. The method card is in ./README.md."
+        "rll_quantile: not implemented."
     )

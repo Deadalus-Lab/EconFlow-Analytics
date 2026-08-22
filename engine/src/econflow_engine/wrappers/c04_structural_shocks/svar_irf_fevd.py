@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``svar_irf_fevd`` -- METHOD-SELECTION card #19.
+"""Method wrapper ``svar_irf_fevd`` -- method card #19.
 
 #19 SVAR / IRF / FEVD / Blanchard-Quah (theory-based identification)
 
@@ -7,8 +7,8 @@ Category 04-structural-shocks; module ``svar_irf_fevd``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def vr_svar(
     Bmat: np.ndarray | None = None,
     lrtest: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_svar`` -- METHOD-SELECTION card #19.
+    """Node ``vr_svar`` -- method card #19.
 
     SVAR / IRF / FEVD / Blanchard-Quah (theory-based identification).
 
@@ -49,7 +49,7 @@ def vr_svar(
     Registers its result under ``model``, so a later node can consume it as a handle.
 
     Args:
-        model: [raw_handle, required] Handle to a reduced-form 'varest' (from vr_var, button #11).
+        model: [raw_handle, required] Handle to a reduced-form 'varest' (from vr_fit, button #11).
         estmethod: [enum, optional] Estimation method (default scoring).
         Amat: [matrix_handle, optional] Handle to a K x K A-model matrix (NA = free parameter).
         Bmat: [matrix_handle, optional] Handle to a K x K B-model matrix (NA = free parameter).
@@ -60,7 +60,7 @@ def vr_svar(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_svar: not implemented. The method card is in ./README.md."
+        "vr_svar: not implemented."
     )
 
 
@@ -68,7 +68,7 @@ def vr_bq(
     *,
     model: Any,
 ) -> dict[str, Any]:
-    """Node ``vr_bq`` -- METHOD-SELECTION card #19.
+    """Node ``vr_bq`` -- method card #19.
 
     SVAR / IRF / FEVD / Blanchard-Quah (theory-based identification).
 
@@ -83,7 +83,7 @@ def vr_bq(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_bq: not implemented. The method card is in ./README.md."
+        "vr_bq: not implemented."
     )
 
 
@@ -99,7 +99,7 @@ def vr_irf(
     ci: float | None = None,
     runs: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_irf`` -- METHOD-SELECTION card #19.
+    """Node ``vr_irf`` -- method card #19.
 
     SVAR / IRF / FEVD / Blanchard-Quah (theory-based identification).
 
@@ -121,7 +121,7 @@ def vr_irf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_irf: not implemented. The method card is in ./README.md."
+        "vr_irf: not implemented."
     )
 
 
@@ -130,7 +130,7 @@ def vr_fevd(
     model: Any,
     n_ahead: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``vr_fevd`` -- METHOD-SELECTION card #19.
+    """Node ``vr_fevd`` -- method card #19.
 
     SVAR / IRF / FEVD / Blanchard-Quah (theory-based identification).
 
@@ -144,5 +144,5 @@ def vr_fevd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vr_fevd: not implemented. The method card is in ./README.md."
+        "vr_fevd: not implemented."
     )

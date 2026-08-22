@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_regression_time`` -- METHOD-SELECTION card #184.
+"""Method wrapper ``bayesian_regression_time`` -- method card #184.
 
 #184 Bayesian regression with time-varying (random-walk) coefficients — HMC (Stan)
 
@@ -7,8 +7,8 @@ Category 10-trend-cycle-statespace; module ``bayesian_regression_time``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,14 +24,14 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "walker_coef",
-    "walker_fit",
+    "tvreg_coef",
+    "tvreg_fit",
     "NODE_META",
     "wire_model",
 ]
 
 
-def walker_fit(
+def tvreg_fit(
     *,
     formula: str,
     data: pd.DataFrame,
@@ -46,7 +46,7 @@ def walker_fit(
     iter: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``walker_fit`` -- METHOD-SELECTION card #184.
+    """Node ``tvreg_fit`` -- method card #184.
 
     Bayesian regression with time-varying (random-walk) coefficients — HMC (Stan).
 
@@ -76,31 +76,31 @@ def walker_fit(
         chains: [integer, optional] Number of HMC chains (SMALL· default 1). Default ``1``.
         iter: [integer, optional] Iterations per chain (SMALL· default 400, warmup=iter/2). Default
             ``400``.
-        seed: [integer, optional] Reproducibility seed (set.seed + Stan sampler seed). Default
+        seed: [integer, optional] Reproducibility seed (seeded + Stan sampler seed). Default
             ``2025``.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "walker_fit: not implemented. The method card is in ./README.md."
+        "tvreg_fit: not implemented."
     )
 
 
-def walker_coef(
+def tvreg_coef(
     *,
     object: Any,
     exponentiate: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``walker_coef`` -- METHOD-SELECTION card #184.
+    """Node ``tvreg_coef`` -- method card #184.
 
     Bayesian regression with time-varying (random-walk) coefficients — HMC (Stan).
 
     Category 10-trend-cycle-statespace; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to a fitted 'walker_fit' object (from
-            walker_fit$object).
+        object: [raw_handle, required] Handle to a fitted 'tvreg_fit' object (from
+            tvreg_fit.object).
         exponentiate: [boolean, optional] exp on the coefficients (link-scale -> multiplicative·
             useful for poisson/binomial). Default ``False``.
 
@@ -108,5 +108,5 @@ def walker_coef(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "walker_coef: not implemented. The method card is in ./README.md."
+        "tvreg_coef: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``breusch_godfrey_breusch`` -- METHOD-SELECTION card #76.
+"""Method wrapper ``breusch_godfrey_breusch`` -- method card #76.
 
 #76 Breusch-Godfrey / Breusch-Pagan / Ramsey RESET
 
@@ -7,8 +7,8 @@ Category 15-model-evaluation; module ``breusch_godfrey_breusch``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def run_bg_test(
     type: Literal["Chisq", "F"] | None = None,
     data: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_bg_test`` -- METHOD-SELECTION card #76.
+    """Node ``run_bg_test`` -- method card #76.
 
     Breusch-Godfrey / Breusch-Pagan / Ramsey RESET.
 
@@ -56,7 +56,7 @@ def run_bg_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_bg_test: not implemented. The method card is in ./README.md."
+        "run_bg_test: not implemented."
     )
 
 
@@ -66,7 +66,7 @@ def run_bp_test(
     studentize: bool | None = None,
     data: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_bp_test`` -- METHOD-SELECTION card #76.
+    """Node ``run_bp_test`` -- method card #76.
 
     Breusch-Godfrey / Breusch-Pagan / Ramsey RESET.
 
@@ -82,7 +82,7 @@ def run_bp_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_bp_test: not implemented. The method card is in ./README.md."
+        "run_bp_test: not implemented."
     )
 
 
@@ -93,7 +93,7 @@ def run_reset_test(
     type: Literal["fitted", "regressor", "princomp"] | None = None,
     data: pd.DataFrame | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_reset_test`` -- METHOD-SELECTION card #76.
+    """Node ``run_reset_test`` -- method card #76.
 
     Breusch-Godfrey / Breusch-Pagan / Ramsey RESET.
 
@@ -111,5 +111,5 @@ def run_reset_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_reset_test: not implemented. The method card is in ./README.md."
+        "run_reset_test: not implemented."
     )

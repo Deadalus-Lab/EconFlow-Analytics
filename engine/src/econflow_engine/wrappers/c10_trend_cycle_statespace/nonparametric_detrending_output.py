@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``nonparametric_detrending_output`` -- METHOD-SELECTION card #189.
+"""Method wrapper ``nonparametric_detrending_output`` -- method card #189.
 
 #189 Nonparametric detrending & output gap (loess / smoothing spline / Friedman super-smoother)
 
@@ -7,8 +7,8 @@ Category 10-trend-cycle-statespace; module ``nonparametric_detrending_output``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def np_detrend(
     spar: float | None = None,
     cv: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``np_detrend`` -- METHOD-SELECTION card #189.
+    """Node ``np_detrend`` -- method card #189.
 
     Nonparametric detrending & output gap (loess / smoothing spline / Friedman super-smoother).
 
@@ -61,7 +61,7 @@ def np_detrend(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "np_detrend: not implemented. The method card is in ./README.md."
+        "np_detrend: not implemented."
     )
 
 
@@ -76,7 +76,7 @@ def np_output_gap(
     spar: float | None = None,
     cv: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``np_output_gap`` -- METHOD-SELECTION card #189.
+    """Node ``np_output_gap`` -- method card #189.
 
     Nonparametric detrending & output gap (loess / smoothing spline / Friedman super-smoother).
 
@@ -100,5 +100,5 @@ def np_output_gap(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "np_output_gap: not implemented. The method card is in ./README.md."
+        "np_output_gap: not implemented."
     )

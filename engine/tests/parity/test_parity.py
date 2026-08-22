@@ -14,13 +14,29 @@ P3 -- ENUMERATED DIVERGENCE
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 from tests.parity.replay import Row, build_rows, divergence_key
 
 ROWS, SPECS, FIXTURES, DIVERGENCES = build_rows()
 DECLARED: set[str] = {m for d in DIVERGENCES["divergences"] for m in d["members"]}
-N_NODES: int = SPECS["engine"]["n_nodes"]
+
+# THE FIXTURES COVER A SUBSET, AND THE PER-NODE FAMILIES ARE SIZED BY IT.
+# The frozen corpus was produced against the retired contract, which described 913
+# of today's 1456 nodes. A node added since has no frozen verdict to be compared
+# against, so it is not in any per-node family. Sizing these assertions from the
+# LIVE catalogue instead would fail on the first node ever added -- and whoever hit
+# that would edit the number rather than ask why it moved.
+_ARTIFACTS = Path(__file__).resolve().parents[2] / "artifacts"
+COVERED: frozenset[str] = frozenset(
+    json.loads((_ARTIFACTS / "legacy-inventory.json").read_bytes().decode("utf-8"))[
+        "contract_hashes"
+    ]
+)
+N_NODES: int = len(COVERED)
 
 
 def _family(name: str) -> list[Row]:
@@ -38,7 +54,9 @@ class TestCorpusHygiene:
     def test_family_sizes_are_the_expected_ones(self) -> None:
         sizes = {f: len(_family(f)) for f in FIXTURES["families"]}
         with_required = sum(
-            1 for n in SPECS["nodes"] if any(a["required"] for a in n["arguments"])
+            1
+            for n in SPECS["nodes"]
+            if n["fn"] in COVERED and any(a["required"] for a in n["arguments"])
         )
         assert sizes["spec-accept"] == N_NODES
         assert sizes["optional-omitted"] == N_NODES
@@ -63,9 +81,9 @@ class TestCorpusHygiene:
 
 
 class TestP1Soundness:
-    VIOLATIONS = [r for r in ROWS if r.py_ok and not r.r_accepts]
+    VIOLATIONS = [r for r in ROWS if r.py_ok and not r.frozen_accepts]
 
-    def test_no_python_accept_is_an_r_reject(self) -> None:
+    def test_no_python_accept_is_a_frozen_reject(self) -> None:
         assert _report(self.VIOLATIONS) == []
 
     def test_not_even_on_required_arguments(self) -> None:
@@ -78,7 +96,7 @@ class TestP1Soundness:
 
 
 class TestP2Completeness:
-    REJECTS = [r for r in ROWS if not r.r_accepts]
+    REJECTS = [r for r in ROWS if not r.frozen_accepts]
 
     def test_every_r_reject_is_a_python_reject(self) -> None:
         assert _report([r for r in self.REJECTS if r.py_ok]) == []
@@ -107,7 +125,7 @@ class TestP2Completeness:
 
 
 class TestP3EnumeratedDivergence:
-    DIVERGING = [r for r in ROWS if not r.py_ok and r.r_accepts]
+    DIVERGING = [r for r in ROWS if not r.py_ok and r.frozen_accepts]
     OBSERVED = {divergence_key(r.case) for r in DIVERGING}
 
     def test_the_divergence_file_is_well_formed(self) -> None:
@@ -138,7 +156,7 @@ class TestP3EnumeratedDivergence:
         unsafe = [
             r
             for r in ROWS
-            if r.py_ok and not r.r_accepts and divergence_key(r.case) in DECLARED
+            if r.py_ok and not r.frozen_accepts and divergence_key(r.case) in DECLARED
         ]
         assert _report(unsafe) == []
 

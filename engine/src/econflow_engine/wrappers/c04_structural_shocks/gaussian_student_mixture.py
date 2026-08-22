@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``gaussian_student_mixture`` -- METHOD-SELECTION card #151.
+"""Method wrapper ``gaussian_student_mixture`` -- method card #151.
 
 #151 Gaussian / Student's-t Mixture VAR (regime switching through mixture-density weights) +
-    GIRF/GFEVD/linear IRF — gmvarkit
+    GIRF/GFEVD/linear IRF
 
 Category 04-structural-shocks; module ``gaussian_student_mixture``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -50,10 +50,10 @@ def gmv_fit(
     seed: int,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``gmv_fit`` -- METHOD-SELECTION card #151.
+    """Node ``gmv_fit`` -- method card #151.
 
     Gaussian / Student's-t Mixture VAR (regime switching through mixture-density weights) +
-    GIRF/GFEVD/linear IRF — gmvarkit.
+    GIRF/GFEVD/linear IRF.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -78,7 +78,7 @@ def gmv_fit(
         ncores: [integer, optional] CPU cores (default 1· use_parallel only when >1). Default ``1``.
         maxit: [integer, optional] Maximum variable-metric optim iterations per round (default 100).
             Default ``100``.
-        seed: [integer, required] MANDATORY seed (integer) — stochastic GA· set.seed + reproducible
+        seed: [integer, required] MANDATORY seed (integer) — stochastic GA· seeded + reproducible
             seeds vector.
         allow_nonconvergence: [boolean, optional] True to bypass the convergence gate (degenerate
             estimates· the IRF/FEVD will be UNRELIABLE· default False). Default ``False``.
@@ -87,7 +87,7 @@ def gmv_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gmv_fit: not implemented. The method card is in ./README.md."
+        "gmv_fit: not implemented."
     )
 
 
@@ -104,10 +104,10 @@ def gmv_girf(
     ncores: int | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``gmv_girf`` -- METHOD-SELECTION card #151.
+    """Node ``gmv_girf`` -- method card #151.
 
     Gaussian / Student's-t Mixture VAR (regime switching through mixture-density weights) +
-    GIRF/GFEVD/linear IRF — gmvarkit.
+    GIRF/GFEVD/linear IRF.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -125,13 +125,13 @@ def gmv_girf(
         include_mixweights: [boolean, optional] GIRF for the mixing weights as well (default False).
             Default ``False``.
         ncores: [integer, optional] CPU cores (default 1). Default ``1``.
-        seed: [integer, required] MANDATORY seed — simulation-based· set.seed for reproducibility.
+        seed: [integer, required] MANDATORY seed — simulation-based· seeded for reproducibility.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gmv_girf: not implemented. The method card is in ./README.md."
+        "gmv_girf: not implemented."
     )
 
 
@@ -147,10 +147,10 @@ def gmv_gfevd(
     ncores: int | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``gmv_gfevd`` -- METHOD-SELECTION card #151.
+    """Node ``gmv_gfevd`` -- method card #151.
 
     Gaussian / Student's-t Mixture VAR (regime switching through mixture-density weights) +
-    GIRF/GFEVD/linear IRF — gmvarkit.
+    GIRF/GFEVD/linear IRF.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -167,13 +167,13 @@ def gmv_gfevd(
         include_mixweights: [boolean, optional] GFEVD for the mixing weights as well (default
             False). Default ``False``.
         ncores: [integer, optional] CPU cores (default 1). Default ``1``.
-        seed: [integer, required] MANDATORY seed — simulation-based· set.seed for reproducibility.
+        seed: [integer, required] MANDATORY seed — simulation-based· seeded for reproducibility.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gmv_gfevd: not implemented. The method card is in ./README.md."
+        "gmv_gfevd: not implemented."
     )
 
 
@@ -187,10 +187,10 @@ def gmv_linear_irf(
     ncores: int | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``gmv_linear_irf`` -- METHOD-SELECTION card #151.
+    """Node ``gmv_linear_irf`` -- method card #151.
 
     Gaussian / Student's-t Mixture VAR (regime switching through mixture-density weights) +
-    GIRF/GFEVD/linear IRF — gmvarkit.
+    GIRF/GFEVD/linear IRF.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -205,12 +205,11 @@ def gmv_linear_irf(
         bootstrap_reps: [integer, optional] Bootstrap replications when ci != None (default 100).
             Default ``100``.
         ncores: [integer, optional] CPU cores (default 1). Default ``1``.
-        seed: [integer, required] MANDATORY seed — stochastic bootstrap· set.seed for
-            reproducibility.
+        seed: [integer, required] MANDATORY seed — stochastic bootstrap· seeded for reproducibility.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gmv_linear_irf: not implemented. The method card is in ./README.md."
+        "gmv_linear_irf: not implemented."
     )

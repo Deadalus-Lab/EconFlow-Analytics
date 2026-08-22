@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``wavelet_time_frequency`` -- METHOD-SELECTION card #235.
+"""Method wrapper ``wavelet_time_frequency`` -- method card #235.
 
 #235 Wavelet time-frequency analysis (the Morlet CWT: power spectrum, cross-wavelet, wavelet
     coherence, phase difference — numeric grids)
@@ -8,8 +8,8 @@ Category 27-frequency-domain; module ``wavelet_time_frequency``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
     "wv_coherency",
-    "wv_wavelet",
+    "wv_transform",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wv_wavelet(
+def wv_transform(
     *,
     df: pd.DataFrame,
     series: str | None = None,
@@ -45,7 +45,7 @@ def wv_wavelet(
     n_sim: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``wv_wavelet`` -- METHOD-SELECTION card #235.
+    """Node ``wv_transform`` -- method card #235.
 
     Wavelet time-frequency analysis (the Morlet CWT: power spectrum, cross-wavelet, wavelet
     coherence, phase difference — numeric grids).
@@ -79,7 +79,7 @@ def wv_wavelet(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wv_wavelet: not implemented. The method card is in ./README.md."
+        "wv_transform: not implemented."
     )
 
 
@@ -100,7 +100,7 @@ def wv_coherency(
     n_sim: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``wv_coherency`` -- METHOD-SELECTION card #235.
+    """Node ``wv_coherency`` -- method card #235.
 
     Wavelet time-frequency analysis (the Morlet CWT: power spectrum, cross-wavelet, wavelet
     coherence, phase difference — numeric grids).
@@ -124,7 +124,7 @@ def wv_coherency(
             1/4). Default ``0.25``.
         make_pval: [boolean, optional] Surrogate p-values for cross-power & coherence (default
             True). Default ``True``.
-        method: [enum, optional] Null model surrogate (default white.noise· see wv_wavelet).
+        method: [enum, optional] Null model surrogate (default white.noise· see wv_transform).
         n_sim: [integer, optional] Number of surrogate simulations (>= 1 if make_pval=True· default
             10). Default ``10``.
         seed: [integer, optional] Seed before the surrogate simulation (default 1). Default ``1``.
@@ -133,5 +133,5 @@ def wv_coherency(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wv_coherency: not implemented. The method card is in ./README.md."
+        "wv_coherency: not implemented."
     )

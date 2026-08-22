@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``seasonal_unit_roots`` -- METHOD-SELECTION card #89.
+"""Method wrapper ``seasonal_unit_roots`` -- method card #89.
 
 #89 Seasonal unit roots & seasonal stability (HEGY / Canova-Hansen)
 
@@ -7,8 +7,8 @@ Category 01-preparation-prechecks; module ``seasonal_unit_roots``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def run_hegy_test(
     boot_nb: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_hegy_test`` -- METHOD-SELECTION card #89.
+    """Node ``run_hegy_test`` -- method card #89.
 
     Seasonal unit roots & seasonal stability (HEGY / Canova-Hansen).
 
@@ -61,7 +61,7 @@ def run_hegy_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_hegy_test: not implemented. The method card is in ./README.md."
+        "run_hegy_test: not implemented."
     )
 
 
@@ -72,7 +72,7 @@ def run_ch_test(
     lag1: bool | None = None,
     pvalue: Literal["RS", "raw"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_ch_test`` -- METHOD-SELECTION card #89.
+    """Node ``run_ch_test`` -- method card #89.
 
     Seasonal unit roots & seasonal stability (HEGY / Canova-Hansen).
 
@@ -88,5 +88,5 @@ def run_ch_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_ch_test: not implemented. The method card is in ./README.md."
+        "run_ch_test: not implemented."
     )

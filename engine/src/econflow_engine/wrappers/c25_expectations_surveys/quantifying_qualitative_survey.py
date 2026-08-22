@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``quantifying_qualitative_survey`` -- METHOD-SELECTION card #231.
+"""Method wrapper ``quantifying_qualitative_survey`` -- method card #231.
 
 #231 Quantifying QUALITATIVE survey expectations (up/same/down shares -> a numeric expectations
     series): the balance approach, Carlson-Parkin (+limen/distribution extensions), the regression
@@ -9,8 +9,8 @@ Category 25-expectations-surveys; module ``quantifying_qualitative_survey``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def qn_balance(
     growth_limit: float | None = None,
     suppress_warnings: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``qn_balance`` -- METHOD-SELECTION card #231.
+    """Node ``qn_balance`` -- method card #231.
 
     Quantifying QUALITATIVE survey expectations (up/same/down shares -> a numeric expectations
     series): the balance approach, Carlson-Parkin (+limen/distribution extensions), the regression
@@ -72,7 +72,7 @@ def qn_balance(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qn_balance: not implemented. The method card is in ./README.md."
+        "qn_balance: not implemented."
     )
 
 
@@ -107,7 +107,7 @@ def qn_carlson_parkin(
     distrib_t_df: float | None = None,
     suppress_warnings: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``qn_carlson_parkin`` -- METHOD-SELECTION card #231.
+    """Node ``qn_carlson_parkin`` -- method card #231.
 
     Quantifying QUALITATIVE survey expectations (up/same/down shares -> a numeric expectations
     series): the balance approach, Carlson-Parkin (+limen/distribution extensions), the regression
@@ -159,7 +159,7 @@ def qn_carlson_parkin(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qn_carlson_parkin: not implemented. The method card is in ./README.md."
+        "qn_carlson_parkin: not implemented."
     )
 
 
@@ -179,7 +179,7 @@ def qn_regression(
     symmetry_error: Literal["white", "small.sample"] | None = None,
     suppress_warnings: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``qn_regression`` -- METHOD-SELECTION card #231.
+    """Node ``qn_regression`` -- method card #231.
 
     Quantifying QUALITATIVE survey expectations (up/same/down shares -> a numeric expectations
     series): the balance approach, Carlson-Parkin (+limen/distribution extensions), the regression
@@ -219,7 +219,7 @@ def qn_regression(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qn_regression: not implemented. The method card is in ./README.md."
+        "qn_regression: not implemented."
     )
 
 
@@ -236,7 +236,7 @@ def qn_conditional_expectations(
     distrib_param: Literal["mean", "median"] | None = None,
     suppress_warnings: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``qn_conditional_expectations`` -- METHOD-SELECTION card #231.
+    """Node ``qn_conditional_expectations`` -- method card #231.
 
     Quantifying QUALITATIVE survey expectations (up/same/down shares -> a numeric expectations
     series): the balance approach, Carlson-Parkin (+limen/distribution extensions), the regression
@@ -273,5 +273,5 @@ def qn_conditional_expectations(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qn_conditional_expectations: not implemented. The method card is in ./README.md."
+        "qn_conditional_expectations: not implemented."
     )

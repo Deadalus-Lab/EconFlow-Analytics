@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``ardl_uecm_estimation`` -- METHOD-SELECTION card #25.
+"""Method wrapper ``ardl_uecm_estimation`` -- method card #25.
 
 #25 ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq
 
@@ -7,8 +7,8 @@ Category 05-cointegration; module ``ardl_uecm_estimation``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def ardl_fit(
     data: pd.DataFrame,
     order: int,
 ) -> dict[str, Any]:
-    """Node ``ardl_fit`` -- METHOD-SELECTION card #25.
+    """Node ``ardl_fit`` -- method card #25.
 
     ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq.
 
@@ -60,7 +60,7 @@ def ardl_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ardl_fit: not implemented. The method card is in ./README.md."
+        "ardl_fit: not implemented."
     )
 
 
@@ -73,7 +73,7 @@ def ardl_auto(
     selection_minmax: Literal["min", "max"] | None = None,
     grid: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ardl_auto`` -- METHOD-SELECTION card #25.
+    """Node ``ardl_auto`` -- method card #25.
 
     ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq.
 
@@ -95,7 +95,7 @@ def ardl_auto(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ardl_auto: not implemented. The method card is in ./README.md."
+        "ardl_auto: not implemented."
     )
 
 
@@ -106,7 +106,7 @@ def ardl_bounds_f(
     test: Literal["F", "Chisq"] | None = None,
     n_replications: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ardl_bounds_f`` -- METHOD-SELECTION card #25.
+    """Node ``ardl_bounds_f`` -- method card #25.
 
     ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq.
 
@@ -123,7 +123,7 @@ def ardl_bounds_f(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ardl_bounds_f: not implemented. The method card is in ./README.md."
+        "ardl_bounds_f: not implemented."
     )
 
 
@@ -133,7 +133,7 @@ def ardl_bounds_t(
     case: int,
     n_replications: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ardl_bounds_t`` -- METHOD-SELECTION card #25.
+    """Node ``ardl_bounds_t`` -- method card #25.
 
     ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq.
 
@@ -149,7 +149,7 @@ def ardl_bounds_t(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ardl_bounds_t: not implemented. The method card is in ./README.md."
+        "ardl_bounds_t: not implemented."
     )
 
 
@@ -158,7 +158,7 @@ def ardl_recm(
     object: Any,
     case: int,
 ) -> dict[str, Any]:
-    """Node ``ardl_recm`` -- METHOD-SELECTION card #25.
+    """Node ``ardl_recm`` -- method card #25.
 
     ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq.
 
@@ -172,7 +172,7 @@ def ardl_recm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ardl_recm: not implemented. The method card is in ./README.md."
+        "ardl_recm: not implemented."
     )
 
 
@@ -182,7 +182,7 @@ def ardl_multipliers(
     type: str | None = None,
     se: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ardl_multipliers`` -- METHOD-SELECTION card #25.
+    """Node ``ardl_multipliers`` -- method card #25.
 
     ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq.
 
@@ -198,7 +198,7 @@ def ardl_multipliers(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ardl_multipliers: not implemented. The method card is in ./README.md."
+        "ardl_multipliers: not implemented."
     )
 
 
@@ -207,7 +207,7 @@ def ardl_coint_eq(
     object: Any,
     case: int,
 ) -> dict[str, Any]:
-    """Node ``ardl_coint_eq`` -- METHOD-SELECTION card #25.
+    """Node ``ardl_coint_eq`` -- method card #25.
 
     ARDL / UECM estimation + PSS bounds F/t-test + RECM + multipliers + coint_eq.
 
@@ -221,5 +221,5 @@ def ardl_coint_eq(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ardl_coint_eq: not implemented. The method card is in ./README.md."
+        "ardl_coint_eq: not implemented."
     )

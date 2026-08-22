@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``sided_hp_filter`` -- METHOD-SELECTION card #92.
+"""Method wrapper ``sided_hp_filter`` -- method card #92.
 
 #92 One-sided HP filter (Basel III credit gap)
 
@@ -7,8 +7,8 @@ Category 10-trend-cycle-statespace; module ``sided_hp_filter``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ def hp_one_sided(
     x: pd.Series,
     lambda_: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``hp_one_sided`` -- METHOD-SELECTION card #92.
+    """Node ``hp_one_sided`` -- method card #92.
 
     One-sided HP filter (Basel III credit gap).
 
@@ -50,5 +50,5 @@ def hp_one_sided(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hp_one_sided: not implemented. The method card is in ./README.md."
+        "hp_one_sided: not implemented."
     )

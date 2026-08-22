@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``spatial_regression`` -- METHOD-SELECTION card #53.
+"""Method wrapper ``spatial_regression`` -- method card #53.
 
 #53 Spatial regression (lag/error)
 
@@ -7,8 +7,8 @@ Category 09-cross-section-networks; module ``spatial_regression``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def spr_fit_lag(
     *,
     formula: str,
     data: pd.DataFrame,
-    listw: Any,
+    spatial_weights: Any,
     Durbin: bool | None = None,
     method: (
         Literal[
@@ -60,7 +60,7 @@ def spr_fit_lag(
     ) = None,
     zero_policy: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``spr_fit_lag`` -- METHOD-SELECTION card #53.
+    """Node ``spr_fit_lag`` -- method card #53.
 
     Spatial regression (lag/error).
 
@@ -70,8 +70,10 @@ def spr_fit_lag(
 
     Args:
         formula: [formula, required] Spatial lag (SAR) model formula, e.g. 'y ~ x1 + x2'.
-        data: [df_handle, required] DataFrame with the variables (same order as the listw).
-        listw: [raw_handle, required] 'listw' spatial weights (spw_listw $handle).
+        data: [df_handle, required] DataFrame with the variables (same order as the spatial
+            weights).
+        spatial_weights: [raw_handle, required] spatial-weights object spatial weights (spw_weights
+            $handle).
         Durbin: [boolean, optional] True -> Durbin (SDM) lagged X terms (default False).
         method: [enum, optional] Log-determinant method (default eigen).
         zero_policy: [boolean, optional] Allow zones with no neighbours (default False).
@@ -80,7 +82,7 @@ def spr_fit_lag(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "spr_fit_lag: not implemented. The method card is in ./README.md."
+        "spr_fit_lag: not implemented."
     )
 
 
@@ -88,7 +90,7 @@ def spr_fit_error(
     *,
     formula: str,
     data: pd.DataFrame,
-    listw: Any,
+    spatial_weights: Any,
     Durbin: bool | None = None,
     method: (
         Literal[
@@ -108,7 +110,7 @@ def spr_fit_error(
     ) = None,
     zero_policy: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``spr_fit_error`` -- METHOD-SELECTION card #53.
+    """Node ``spr_fit_error`` -- method card #53.
 
     Spatial regression (lag/error).
 
@@ -119,7 +121,8 @@ def spr_fit_error(
     Args:
         formula: [formula, required] Spatial error (SEM) model formula.
         data: [df_handle, required] DataFrame with the variables.
-        listw: [raw_handle, required] 'listw' spatial weights (spw_listw $handle).
+        spatial_weights: [raw_handle, required] spatial-weights object spatial weights (spw_weights
+            $handle).
         Durbin: [boolean, optional] True -> spatial Durbin error (SDEM) (default False).
         method: [enum, optional] Log-determinant method (default eigen).
         zero_policy: [boolean, optional] Allow zones with no neighbours (default False).
@@ -128,7 +131,7 @@ def spr_fit_error(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "spr_fit_error: not implemented. The method card is in ./README.md."
+        "spr_fit_error: not implemented."
     )
 
 
@@ -136,8 +139,8 @@ def spr_fit_sac(
     *,
     formula: str,
     data: pd.DataFrame,
-    listw: Any,
-    listw2: Any | None = None,
+    spatial_weights: Any,
+    spatial_weights2: Any | None = None,
     Durbin: bool | None = None,
     method: (
         Literal[
@@ -157,7 +160,7 @@ def spr_fit_sac(
     ) = None,
     zero_policy: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``spr_fit_sac`` -- METHOD-SELECTION card #53.
+    """Node ``spr_fit_sac`` -- method card #53.
 
     Spatial regression (lag/error).
 
@@ -168,8 +171,10 @@ def spr_fit_sac(
     Args:
         formula: [formula, required] SAC/SARAR (lag + error) model formula.
         data: [df_handle, required] DataFrame with the variables.
-        listw: [raw_handle, required] 'listw' spatial weights (spw_listw $handle).
-        listw2: [raw_handle, optional] 2nd 'listw' (default same as listw).
+        spatial_weights: [raw_handle, required] spatial-weights object spatial weights (spw_weights
+            $handle).
+        spatial_weights2: [raw_handle, optional] 2nd spatial-weights object (default same as spatial
+            weights).
         Durbin: [boolean, optional] True -> Durbin terms (default False).
         method: [enum, optional] Log-determinant method (default eigen).
         zero_policy: [boolean, optional] Allow zones with no neighbours (default False).
@@ -178,17 +183,17 @@ def spr_fit_sac(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "spr_fit_sac: not implemented. The method card is in ./README.md."
+        "spr_fit_sac: not implemented."
     )
 
 
 def spr_impacts(
     *,
     obj: Any,
-    listw: Any | None = None,
+    spatial_weights: Any | None = None,
     n_simulations: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``spr_impacts`` -- METHOD-SELECTION card #53.
+    """Node ``spr_impacts`` -- method card #53.
 
     Spatial regression (lag/error).
 
@@ -196,7 +201,8 @@ def spr_impacts(
 
     Args:
         obj: [raw_handle, required] 'Sarlm' object (spr_fit_* $handle).
-        listw: [raw_handle, optional] 'listw' spatial weights (required if tr is not given).
+        spatial_weights: [raw_handle, optional] spatial-weights object spatial weights (required if
+            tr is not given).
         n_simulations: [integer, optional] Number of simulations (mvrnorm) for
             distributions/z-stats.
 
@@ -204,7 +210,7 @@ def spr_impacts(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "spr_impacts: not implemented. The method card is in ./README.md."
+        "spr_impacts: not implemented."
     )
 
 
@@ -215,7 +221,7 @@ def spr_summary(
     Nagelkerke: bool | None = None,
     Hausman: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``spr_summary`` -- METHOD-SELECTION card #53.
+    """Node ``spr_summary`` -- method card #53.
 
     Spatial regression (lag/error).
 
@@ -231,7 +237,7 @@ def spr_summary(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "spr_summary: not implemented. The method card is in ./README.md."
+        "spr_summary: not implemented."
     )
 
 
@@ -240,7 +246,7 @@ def spr_lr_test(
     x: Any,
     y: Any,
 ) -> dict[str, Any]:
-    """Node ``spr_lr_test`` -- METHOD-SELECTION card #53.
+    """Node ``spr_lr_test`` -- method card #53.
 
     Spatial regression (lag/error).
 
@@ -254,7 +260,7 @@ def spr_lr_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "spr_lr_test: not implemented. The method card is in ./README.md."
+        "spr_lr_test: not implemented."
     )
 
 
@@ -263,7 +269,7 @@ def spr_hausman_test(
     object: Any,
     tol: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``spr_hausman_test`` -- METHOD-SELECTION card #53.
+    """Node ``spr_hausman_test`` -- method card #53.
 
     Spatial regression (lag/error).
 
@@ -277,7 +283,7 @@ def spr_hausman_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "spr_hausman_test: not implemented. The method card is in ./README.md."
+        "spr_hausman_test: not implemented."
     )
 
 
@@ -286,7 +292,7 @@ def spr_bptest(
     object: Any,
     studentize: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``spr_bptest`` -- METHOD-SELECTION card #53.
+    """Node ``spr_bptest`` -- method card #53.
 
     Spatial regression (lag/error).
 
@@ -300,5 +306,5 @@ def spr_bptest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "spr_bptest: not implemented. The method card is in ./README.md."
+        "spr_bptest: not implemented."
     )

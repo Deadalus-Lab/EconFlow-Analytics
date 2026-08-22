@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``unit_root_normality`` -- METHOD-SELECTION card #1.
+"""Method wrapper ``unit_root_normality`` -- method card #1.
 
 #1 Unit-root & normality prechecks (ADF/KPSS/PP/Jarque-Bera)
 
@@ -7,8 +7,8 @@ Category 01-preparation-prechecks; module ``unit_root_normality``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def run_adf_test(
     k: int | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_adf_test`` -- METHOD-SELECTION card #1.
+    """Node ``run_adf_test`` -- method card #1.
 
     Unit-root & normality prechecks (ADF/KPSS/PP/Jarque-Bera).
 
@@ -55,7 +55,7 @@ def run_adf_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_adf_test: not implemented. The method card is in ./README.md."
+        "run_adf_test: not implemented."
     )
 
 
@@ -66,7 +66,7 @@ def run_kpss_test(
     lshort: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_kpss_test`` -- METHOD-SELECTION card #1.
+    """Node ``run_kpss_test`` -- method card #1.
 
     Unit-root & normality prechecks (ADF/KPSS/PP/Jarque-Bera).
 
@@ -82,7 +82,7 @@ def run_kpss_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_kpss_test: not implemented. The method card is in ./README.md."
+        "run_kpss_test: not implemented."
     )
 
 
@@ -94,7 +94,7 @@ def run_pp_test(
     lshort: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_pp_test`` -- METHOD-SELECTION card #1.
+    """Node ``run_pp_test`` -- method card #1.
 
     Unit-root & normality prechecks (ADF/KPSS/PP/Jarque-Bera).
 
@@ -111,7 +111,7 @@ def run_pp_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_pp_test: not implemented. The method card is in ./README.md."
+        "run_pp_test: not implemented."
     )
 
 
@@ -120,7 +120,7 @@ def run_jarque_bera_test(
     x: pd.Series,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_jarque_bera_test`` -- METHOD-SELECTION card #1.
+    """Node ``run_jarque_bera_test`` -- method card #1.
 
     Unit-root & normality prechecks (ADF/KPSS/PP/Jarque-Bera).
 
@@ -134,5 +134,5 @@ def run_jarque_bera_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_jarque_bera_test: not implemented. The method card is in ./README.md."
+        "run_jarque_bera_test: not implemented."
     )

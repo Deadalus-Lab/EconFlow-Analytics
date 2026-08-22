@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``consistent_monitoring_stationarity`` -- METHOD-SELECTION card #141.
+"""Method wrapper ``consistent_monitoring_stationarity`` -- method card #141.
 
 #141 Consistent monitoring of stationarity & cointegration (Wagner-Wied): calibration-period
     estimation + a sequential detector (FM/D/IM-OLS)
@@ -8,8 +8,8 @@ Category 05-cointegration; module ``consistent_monitoring_stationarity``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def cmo_stationarity(
     bandwidth: Literal["and", "nw"] | None = None,
     signif_level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``cmo_stationarity`` -- METHOD-SELECTION card #141.
+    """Node ``cmo_stationarity`` -- method card #141.
 
     Consistent monitoring of stationarity & cointegration (Wagner-Wied): calibration-period
     estimation + a sequential detector (FM/D/IM-OLS).
@@ -64,7 +64,7 @@ def cmo_stationarity(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cmo_stationarity: not implemented. The method card is in ./README.md."
+        "cmo_stationarity: not implemented."
     )
 
 
@@ -80,7 +80,7 @@ def cmo_cointegration(
     signif_level: float | None = None,
     D_options: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``cmo_cointegration`` -- METHOD-SELECTION card #141.
+    """Node ``cmo_cointegration`` -- method card #141.
 
     Consistent monitoring of stationarity & cointegration (Wagner-Wied): calibration-period
     estimation + a sequential detector (FM/D/IM-OLS).
@@ -108,5 +108,5 @@ def cmo_cointegration(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cmo_cointegration: not implemented. The method card is in ./README.md."
+        "cmo_cointegration: not implemented."
     )

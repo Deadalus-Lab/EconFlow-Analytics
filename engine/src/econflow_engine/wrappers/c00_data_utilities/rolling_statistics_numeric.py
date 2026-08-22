@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``rolling_statistics_numeric`` -- METHOD-SELECTION card #110.
+"""Method wrapper ``rolling_statistics_numeric`` -- method card #110.
 
 #110 Rolling O(n) statistics (mean/sd/min/max/quantile/mad) on a numeric vector/matrix
 
@@ -7,8 +7,8 @@ Category 00-data-utilities; module ``rolling_statistics_numeric``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,25 +24,25 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "run_mad",
-    "run_max",
-    "run_mean",
-    "run_min",
-    "run_quantile",
-    "run_sd",
+    "roll_mad",
+    "roll_max",
+    "roll_mean",
+    "roll_min",
+    "roll_quantile",
+    "roll_sd",
     "NODE_META",
     "wire_model",
 ]
 
 
-def run_mean(
+def roll_mean(
     *,
     x: np.ndarray,
     k: int,
     endrule: Literal["mean", "NA", "trim", "keep", "constant"] | None = None,
     align: Literal["center", "left", "right"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_mean`` -- METHOD-SELECTION card #110.
+    """Node ``roll_mean`` -- method card #110.
 
     Rolling O(n) statistics (mean/sd/min/max/quantile/mad) on a numeric vector/matrix.
 
@@ -61,11 +61,11 @@ def run_mean(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_mean: not implemented. The method card is in ./README.md."
+        "roll_mean: not implemented."
     )
 
 
-def run_sd(
+def roll_sd(
     *,
     x: np.ndarray,
     k: int,
@@ -73,7 +73,7 @@ def run_sd(
     endrule: Literal["sd", "NA", "trim", "keep", "constant"] | None = None,
     align: Literal["center", "left", "right"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_sd`` -- METHOD-SELECTION card #110.
+    """Node ``roll_sd`` -- method card #110.
 
     Rolling O(n) statistics (mean/sd/min/max/quantile/mad) on a numeric vector/matrix.
 
@@ -91,18 +91,18 @@ def run_sd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_sd: not implemented. The method card is in ./README.md."
+        "roll_sd: not implemented."
     )
 
 
-def run_min(
+def roll_min(
     *,
     x: np.ndarray,
     k: int,
     endrule: Literal["min", "NA", "trim", "keep", "constant"] | None = None,
     align: Literal["center", "left", "right"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_min`` -- METHOD-SELECTION card #110.
+    """Node ``roll_min`` -- method card #110.
 
     Rolling O(n) statistics (mean/sd/min/max/quantile/mad) on a numeric vector/matrix.
 
@@ -118,18 +118,18 @@ def run_min(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_min: not implemented. The method card is in ./README.md."
+        "roll_min: not implemented."
     )
 
 
-def run_max(
+def roll_max(
     *,
     x: np.ndarray,
     k: int,
     endrule: Literal["max", "NA", "trim", "keep", "constant"] | None = None,
     align: Literal["center", "left", "right"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_max`` -- METHOD-SELECTION card #110.
+    """Node ``roll_max`` -- method card #110.
 
     Rolling O(n) statistics (mean/sd/min/max/quantile/mad) on a numeric vector/matrix.
 
@@ -145,11 +145,11 @@ def run_max(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_max: not implemented. The method card is in ./README.md."
+        "roll_max: not implemented."
     )
 
 
-def run_quantile(
+def roll_quantile(
     *,
     x: np.ndarray,
     k: int,
@@ -158,7 +158,7 @@ def run_quantile(
     endrule: Literal["quantile", "NA", "trim", "keep", "constant"] | None = None,
     align: Literal["center", "left", "right"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_quantile`` -- METHOD-SELECTION card #110.
+    """Node ``roll_quantile`` -- method card #110.
 
     Rolling O(n) statistics (mean/sd/min/max/quantile/mad) on a numeric vector/matrix.
 
@@ -167,8 +167,8 @@ def run_quantile(
     Args:
         x: [matrix_handle, required] Handle to a numeric vector/matrix.
         k: [integer, required] Rolling window width in [1, nobs]; align='center' => odd k.
-        probs: [num_array, required] Non-empty vector of probabilities in [0,1] (passed WHOLE, not
-            match.arg).
+        probs: [num_array, required] Non-empty vector of probabilities in [0,1] (passed WHOLE, not a
+            single-choice match).
         type: [integer, optional] Quantile algorithm, integer in [1,9] (as the quantile estimator;
             default 7). Default ``7``.
         endrule: [enum, optional] Edge handling (default quantile).
@@ -178,11 +178,11 @@ def run_quantile(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_quantile: not implemented. The method card is in ./README.md."
+        "roll_quantile: not implemented."
     )
 
 
-def run_mad(
+def roll_mad(
     *,
     x: np.ndarray,
     k: int,
@@ -191,7 +191,7 @@ def run_mad(
     endrule: Literal["mad", "NA", "trim", "keep", "constant"] | None = None,
     align: Literal["center", "left", "right"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_mad`` -- METHOD-SELECTION card #110.
+    """Node ``roll_mad`` -- method card #110.
 
     Rolling O(n) statistics (mean/sd/min/max/quantile/mad) on a numeric vector/matrix.
 
@@ -211,5 +211,5 @@ def run_mad(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_mad: not implemented. The method card is in ./README.md."
+        "roll_mad: not implemented."
     )

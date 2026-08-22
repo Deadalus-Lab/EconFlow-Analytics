@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``economic_complexity_rca`` -- METHOD-SELECTION card #239.
+"""Method wrapper ``economic_complexity_rca`` -- method card #239.
 
 #239 Economic complexity: RCA (the Balassa index), ECI/PCI (fitness/reflections/eigenvalues),
     product-space proximity
@@ -8,8 +8,8 @@ Category 28-trade-gravity; module ``economic_complexity_rca``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def ec_balassa(
     product: str | None = None,
     value: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``ec_balassa`` -- METHOD-SELECTION card #239.
+    """Node ``ec_balassa`` -- method card #239.
 
     Economic complexity: RCA (the Balassa index), ECI/PCI (fitness/reflections/eigenvalues),
     product-space proximity.
@@ -63,7 +63,7 @@ def ec_balassa(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ec_balassa: not implemented. The method card is in ./README.md."
+        "ec_balassa: not implemented."
     )
 
 
@@ -79,7 +79,7 @@ def ec_complexity(
     product: str | None = None,
     value: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``ec_complexity`` -- METHOD-SELECTION card #239.
+    """Node ``ec_complexity`` -- method card #239.
 
     Economic complexity: RCA (the Balassa index), ECI/PCI (fitness/reflections/eigenvalues),
     product-space proximity.
@@ -107,7 +107,7 @@ def ec_complexity(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ec_complexity: not implemented. The method card is in ./README.md."
+        "ec_complexity: not implemented."
     )
 
 
@@ -121,7 +121,7 @@ def ec_proximity(
     product: str | None = None,
     value: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``ec_proximity`` -- METHOD-SELECTION card #239.
+    """Node ``ec_proximity`` -- method card #239.
 
     Economic complexity: RCA (the Balassa index), ECI/PCI (fitness/reflections/eigenvalues),
     product-space proximity.
@@ -144,5 +144,5 @@ def ec_proximity(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ec_proximity: not implemented. The method card is in ./README.md."
+        "ec_proximity: not implemented."
     )

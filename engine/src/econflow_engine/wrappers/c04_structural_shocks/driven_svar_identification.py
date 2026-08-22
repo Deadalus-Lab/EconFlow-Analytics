@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``driven_svar_identification`` -- METHOD-SELECTION card #20.
+"""Method wrapper ``driven_svar_identification`` -- method card #20.
 
 #20 Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap
@@ -8,8 +8,8 @@ Category 04-structural-shocks; module ``driven_svar_identification``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,10 +24,10 @@ __all__ = [
     "svar_cf",
     "svar_fevd",
     "svar_hd",
-    "svar_id_chol",
-    "svar_id_cv",
-    "svar_id_dc",
-    "svar_id_ngml",
+    "svar_id_cholesky",
+    "svar_id_distance_covariance",
+    "svar_id_non_gaussian_ml",
+    "svar_id_volatility_change",
     "svar_irf",
     "svar_mb_boot",
     "svar_wild_boot",
@@ -36,11 +36,11 @@ __all__ = [
 ]
 
 
-def svar_id_chol(
+def svar_id_cholesky(
     *,
     model: Any,
 ) -> dict[str, Any]:
-    """Node ``svar_id_chol`` -- METHOD-SELECTION card #20.
+    """Node ``svar_id_cholesky`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -56,18 +56,18 @@ def svar_id_chol(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_id_chol: not implemented. The method card is in ./README.md."
+        "svar_id_cholesky: not implemented."
     )
 
 
-def svar_id_cv(
+def svar_id_volatility_change(
     *,
     model: Any,
     SB: int,
     max_iter: int | None = None,
     crit: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_id_cv`` -- METHOD-SELECTION card #20.
+    """Node ``svar_id_volatility_change`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -87,17 +87,17 @@ def svar_id_cv(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_id_cv: not implemented. The method card is in ./README.md."
+        "svar_id_volatility_change: not implemented."
     )
 
 
-def svar_id_dc(
+def svar_id_distance_covariance(
     *,
     model: Any,
     PIT: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_id_dc`` -- METHOD-SELECTION card #20.
+    """Node ``svar_id_distance_covariance`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -117,17 +117,17 @@ def svar_id_dc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_id_dc: not implemented. The method card is in ./README.md."
+        "svar_id_distance_covariance: not implemented."
     )
 
 
-def svar_id_ngml(
+def svar_id_non_gaussian_ml(
     *,
     model: Any,
     stage3: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_id_ngml`` -- METHOD-SELECTION card #20.
+    """Node ``svar_id_non_gaussian_ml`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -146,7 +146,7 @@ def svar_id_ngml(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_id_ngml: not implemented. The method card is in ./README.md."
+        "svar_id_non_gaussian_ml: not implemented."
     )
 
 
@@ -155,7 +155,7 @@ def svar_irf(
     x: Any,
     n_ahead: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_irf`` -- METHOD-SELECTION card #20.
+    """Node ``svar_irf`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -170,7 +170,7 @@ def svar_irf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_irf: not implemented. The method card is in ./README.md."
+        "svar_irf: not implemented."
     )
 
 
@@ -179,7 +179,7 @@ def svar_fevd(
     x: Any,
     n_ahead: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_fevd`` -- METHOD-SELECTION card #20.
+    """Node ``svar_fevd`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -194,7 +194,7 @@ def svar_fevd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_fevd: not implemented. The method card is in ./README.md."
+        "svar_fevd: not implemented."
     )
 
 
@@ -204,7 +204,7 @@ def svar_hd(
     series: int | None = None,
     transition: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_hd`` -- METHOD-SELECTION card #20.
+    """Node ``svar_hd`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -220,7 +220,7 @@ def svar_hd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_hd: not implemented. The method card is in ./README.md."
+        "svar_hd: not implemented."
     )
 
 
@@ -230,7 +230,7 @@ def svar_cf(
     series: int | None = None,
     transition: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_cf`` -- METHOD-SELECTION card #20.
+    """Node ``svar_cf`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -246,7 +246,7 @@ def svar_cf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_cf: not implemented. The method card is in ./README.md."
+        "svar_cf: not implemented."
     )
 
 
@@ -260,7 +260,7 @@ def svar_wild_boot(
     lower_q: float | None = None,
     upper_q: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_wild_boot`` -- METHOD-SELECTION card #20.
+    """Node ``svar_wild_boot`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -281,7 +281,7 @@ def svar_wild_boot(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_wild_boot: not implemented. The method card is in ./README.md."
+        "svar_wild_boot: not implemented."
     )
 
 
@@ -295,7 +295,7 @@ def svar_mb_boot(
     lower_q: float | None = None,
     upper_q: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``svar_mb_boot`` -- METHOD-SELECTION card #20.
+    """Node ``svar_mb_boot`` -- method card #20.
 
     Data-driven SVAR identification (Cholesky / changes-in-vol / distance-cov / non-Gaussian ML) +
     HD + counterfactual + wild/mb bootstrap.
@@ -316,5 +316,5 @@ def svar_mb_boot(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svar_mb_boot: not implemented. The method card is in ./README.md."
+        "svar_mb_boot: not implemented."
     )

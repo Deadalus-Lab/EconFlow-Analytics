@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``ensemble_forecast_combination`` -- METHOD-SELECTION card #85.
+"""Method wrapper ``ensemble_forecast_combination`` -- method card #85.
 
 #85 Ensemble forecast combination (equal / in-sample / CV weights)
 
@@ -7,8 +7,8 @@ Category 17-forecast-combination; module ``ensemble_forecast_combination``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def run_hybrid(
     windowSize: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_hybrid`` -- METHOD-SELECTION card #85.
+    """Node ``run_hybrid`` -- method card #85.
 
     Ensemble forecast combination (equal / in-sample / CV weights).
 
@@ -49,8 +49,8 @@ def run_hybrid(
 
     Args:
         y: [series_handle, required] Handle to a univariate ts/numeric series to forecast.
-        models: [string, optional] String of component-model letters (>=2 distinct): a=auto.arima
-            e=ets f=thetam n=nnetar s=stlm t=tbats z=snaive (default 'aefnst'). Default
+        models: [string, optional] String of component-model letters (>=2 distinct): a=auto-ARIMA
+            e=ETS f=theta n=neural-net s=STL t=TBATS z=seasonal-naive (default 'aefnst'). Default
             ``'aefnst'``.
         weights: [enum, optional] Combination weighting method (default equal).
         errorMethod: [enum, optional] Error metric for the weights (when weights != equal; default
@@ -62,12 +62,12 @@ def run_hybrid(
         cvHorizon: [integer, optional] CV horizon (only weights='cv.errors'; default frequency(y)).
         windowSize: [integer, optional] CV window length (only weights='cv.errors'; default 84).
             Default ``84``.
-        seed: [integer, optional] Seed for DETERMINISM (nnetar's 'n' is stochastic; default 42).
+        seed: [integer, optional] Seed for DETERMINISM (neural-net's 'n' is stochastic; default 42).
             Default ``42``.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_hybrid: not implemented. The method card is in ./README.md."
+        "run_hybrid: not implemented."
     )

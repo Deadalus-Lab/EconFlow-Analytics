@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``complex_survey_aware`` -- METHOD-SELECTION card #226.
+"""Method wrapper ``complex_survey_aware`` -- method card #226.
 
 #226 Complex-survey-aware inequality & poverty with design-based linearized SE (Gini/QSR/Zenga +
     FGT/ARPR)
@@ -8,8 +8,8 @@ Category 22-inequality; module ``complex_survey_aware``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def svy_inequality(
     alpha1: float | None = None,
     alpha2: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``svy_inequality`` -- METHOD-SELECTION card #226.
+    """Node ``svy_inequality`` -- method card #226.
 
     Complex-survey-aware inequality & poverty with design-based linearized SE (Gini/QSR/Zenga +
     FGT/ARPR).
@@ -57,7 +57,7 @@ def svy_inequality(
 
     Args:
         data: [df_handle, required] Handle to a MICRODATA DataFrame; contains the
-            income/weights/design columns. svydesign is built internally.
+            income/weights/design columns. the survey design is built internally.
         income: [string, required] Income column name (numeric, non-negative).
         ids: [string, required] PSU/cluster ID column name; give "1" for no clustering (ids=~1).
         weights: [string, required] Sampling weights column name (positive, > 0).
@@ -76,7 +76,7 @@ def svy_inequality(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svy_inequality: not implemented. The method card is in ./README.md."
+        "svy_inequality: not implemented."
     )
 
 
@@ -100,7 +100,7 @@ def svy_poverty(
     percent: float | None = None,
     quantiles: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``svy_poverty`` -- METHOD-SELECTION card #226.
+    """Node ``svy_poverty`` -- method card #226.
 
     Complex-survey-aware inequality & poverty with design-based linearized SE (Gini/QSR/Zenga +
     FGT/ARPR).
@@ -109,7 +109,7 @@ def svy_poverty(
 
     Args:
         data: [df_handle, required] Handle to a MICRODATA DataFrame; contains the
-            income/weights/design columns. svydesign is built internally.
+            income/weights/design columns. the survey design is built internally.
         income: [string, required] Income column name (numeric, non-negative).
         ids: [string, required] PSU/cluster ID column name; give "1" for no clustering (ids=~1).
         weights: [string, required] Sampling weights column name (positive, > 0).
@@ -132,5 +132,5 @@ def svy_poverty(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "svy_poverty: not implemented. The method card is in ./README.md."
+        "svy_poverty: not implemented."
     )

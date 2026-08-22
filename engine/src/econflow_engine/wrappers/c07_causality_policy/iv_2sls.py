@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``iv_2sls`` -- METHOD-SELECTION card #34.
+"""Method wrapper ``iv_2sls`` -- method card #34.
 
 #34 IV / 2SLS (classic)
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``iv_2sls``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,19 +23,19 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_ivreg",
+    "iv_2sls",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_ivreg(
+def iv_2sls(
     *,
     formula: str,
     data: pd.DataFrame,
     conf_level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_ivreg`` -- METHOD-SELECTION card #34.
+    """Node ``iv_2sls`` -- method card #34.
 
     IV / 2SLS (classic).
 
@@ -51,5 +51,5 @@ def wrap_ivreg(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_ivreg: not implemented. The method card is in ./README.md."
+        "iv_2sls: not implemented."
     )

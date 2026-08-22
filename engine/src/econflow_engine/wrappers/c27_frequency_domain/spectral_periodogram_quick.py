@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``spectral_periodogram_quick`` -- METHOD-SELECTION card #236.
+"""Method wrapper ``spectral_periodogram_quick`` -- method card #236.
 
 #236 Spectral / periodogram quick look (a smoothed periodogram, the high-level spectrum pgram|AR, a
     numeric cumulative periodogram + KS white-noise bands)
@@ -8,8 +8,8 @@ Category 27-frequency-domain; module ``spectral_periodogram_quick``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,15 +25,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "sp_cumulative_periodogram",
-    "sp_periodogram",
-    "sp_spectrum",
+    "spec_cumulative_periodogram",
+    "spec_periodogram",
+    "spec_spectrum",
     "NODE_META",
     "wire_model",
 ]
 
 
-def sp_periodogram(
+def spec_periodogram(
     *,
     x: pd.Series,
     spans: Sequence[int] | None = None,
@@ -43,7 +43,7 @@ def sp_periodogram(
     demean: bool | None = None,
     detrend: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_periodogram`` -- METHOD-SELECTION card #236.
+    """Node ``spec_periodogram`` -- method card #236.
 
     Spectral / periodogram quick look (a smoothed periodogram, the high-level spectrum pgram|AR, a
     numeric cumulative periodogram + KS white-noise bands).
@@ -71,11 +71,11 @@ def sp_periodogram(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_periodogram: not implemented. The method card is in ./README.md."
+        "spec_periodogram: not implemented."
     )
 
 
-def sp_spectrum(
+def spec_spectrum(
     *,
     x: pd.Series,
     method: Literal["pgram", "ar"] | None = None,
@@ -84,7 +84,7 @@ def sp_spectrum(
     order: int | None = None,
     n_freq: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_spectrum`` -- METHOD-SELECTION card #236.
+    """Node ``spec_spectrum`` -- method card #236.
 
     Spectral / periodogram quick look (a smoothed periodogram, the high-level spectrum pgram|AR, a
     numeric cumulative periodogram + KS white-noise bands).
@@ -109,16 +109,16 @@ def sp_spectrum(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_spectrum: not implemented. The method card is in ./README.md."
+        "spec_spectrum: not implemented."
     )
 
 
-def sp_cumulative_periodogram(
+def spec_cumulative_periodogram(
     *,
     x: pd.Series,
     taper: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_cumulative_periodogram`` -- METHOD-SELECTION card #236.
+    """Node ``spec_cumulative_periodogram`` -- method card #236.
 
     Spectral / periodogram quick look (a smoothed periodogram, the high-level spectrum pgram|AR, a
     numeric cumulative periodogram + KS white-noise bands).
@@ -135,5 +135,5 @@ def sp_cumulative_periodogram(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_cumulative_periodogram: not implemented. The method card is in ./README.md."
+        "spec_cumulative_periodogram: not implemented."
     )

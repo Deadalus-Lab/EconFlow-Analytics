@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_univariate_stochastic`` -- METHOD-SELECTION card #162.
+"""Method wrapper ``bayesian_univariate_stochastic`` -- method card #162.
 
 #162 Bayesian univariate Stochastic Volatility (vanilla / Student-t / leverage) via MCMC
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``bayesian_univariate_stochastic``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def sv_sample(
     thin: int | None = None,
     ess_min: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_sample`` -- METHOD-SELECTION card #162.
+    """Node ``sv_sample`` -- method card #162.
 
     Bayesian univariate Stochastic Volatility (vanilla / Student-t / leverage) via MCMC.
 
@@ -76,7 +76,7 @@ def sv_sample(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_sample: not implemented. The method card is in ./README.md."
+        "sv_sample: not implemented."
     )
 
 
@@ -85,7 +85,7 @@ def sv_predict(
     object: Any,
     steps: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_predict`` -- METHOD-SELECTION card #162.
+    """Node ``sv_predict`` -- method card #162.
 
     Bayesian univariate Stochastic Volatility (vanilla / Student-t / leverage) via MCMC.
 
@@ -100,7 +100,7 @@ def sv_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_predict: not implemented. The method card is in ./README.md."
+        "sv_predict: not implemented."
     )
 
 
@@ -113,7 +113,7 @@ def sv_simulate(
     nu: float | None = None,
     rho: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_simulate`` -- METHOD-SELECTION card #162.
+    """Node ``sv_simulate`` -- method card #162.
 
     Bayesian univariate Stochastic Volatility (vanilla / Student-t / leverage) via MCMC.
 
@@ -132,5 +132,5 @@ def sv_simulate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_simulate: not implemented. The method card is in ./README.md."
+        "sv_simulate: not implemented."
     )

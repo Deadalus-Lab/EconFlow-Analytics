@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``instrumental_variables_2sls`` -- METHOD-SELECTION card #165.
+"""Method wrapper ``instrumental_variables_2sls`` -- method card #165.
 
-#165 Instrumental variables / 2SLS (the modern standalone ivreg, a three-part formula) +
-    weak-instruments / Wu-Hausman / Sargan diagnostics
+#165 Instrumental variables / 2SLS (a three-part formula) + weak-instruments / Wu-Hausman / Sargan
+    diagnostics
 
 Category 07-causality-policy; module ``instrumental_variables_2sls``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -37,10 +37,10 @@ def iv_fit(
     method: Literal["OLS", "M", "MM"] | None = None,
     conf_level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``iv_fit`` -- METHOD-SELECTION card #165.
+    """Node ``iv_fit`` -- method card #165.
 
-    Instrumental variables / 2SLS (the modern standalone ivreg, a three-part formula) +
-    weak-instruments / Wu-Hausman / Sargan diagnostics.
+    Instrumental variables / 2SLS (a three-part formula) + weak-instruments / Wu-Hausman / Sargan
+    diagnostics.
 
     Category 07-causality-policy; memory class ``light``.
 
@@ -60,5 +60,5 @@ def iv_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "iv_fit: not implemented. The method card is in ./README.md."
+        "iv_fit: not implemented."
     )

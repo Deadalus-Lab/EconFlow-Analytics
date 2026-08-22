@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``macro_arithmetic`` -- METHOD-SELECTION card #82.
+"""Method wrapper ``macro_arithmetic`` -- method card #82.
 
 #82 Macro arithmetic (growth/annualize/deflate/rebase/per-capita/contributions)
 
@@ -7,8 +7,8 @@ Category 00-data-utilities; module ``macro_arithmetic``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def macro_growth(
     frequency: int | None = None,
     log: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``macro_growth`` -- METHOD-SELECTION card #82.
+    """Node ``macro_growth`` -- method card #82.
 
     Macro arithmetic (growth/annualize/deflate/rebase/per-capita/contributions).
 
@@ -61,7 +61,7 @@ def macro_growth(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "macro_growth: not implemented. The method card is in ./README.md."
+        "macro_growth: not implemented."
     )
 
 
@@ -71,7 +71,7 @@ def macro_deflate(
     deflator: pd.Series,
     base: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``macro_deflate`` -- METHOD-SELECTION card #82.
+    """Node ``macro_deflate`` -- method card #82.
 
     Macro arithmetic (growth/annualize/deflate/rebase/per-capita/contributions).
 
@@ -86,7 +86,7 @@ def macro_deflate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "macro_deflate: not implemented. The method card is in ./README.md."
+        "macro_deflate: not implemented."
     )
 
 
@@ -96,7 +96,7 @@ def macro_rebase(
     base_period: int,
     base_value: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``macro_rebase`` -- METHOD-SELECTION card #82.
+    """Node ``macro_rebase`` -- method card #82.
 
     Macro arithmetic (growth/annualize/deflate/rebase/per-capita/contributions).
 
@@ -111,7 +111,7 @@ def macro_rebase(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "macro_rebase: not implemented. The method card is in ./README.md."
+        "macro_rebase: not implemented."
     )
 
 
@@ -121,7 +121,7 @@ def macro_per_capita(
     population: pd.Series,
     scale: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``macro_per_capita`` -- METHOD-SELECTION card #82.
+    """Node ``macro_per_capita`` -- method card #82.
 
     Macro arithmetic (growth/annualize/deflate/rebase/per-capita/contributions).
 
@@ -136,7 +136,7 @@ def macro_per_capita(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "macro_per_capita: not implemented. The method card is in ./README.md."
+        "macro_per_capita: not implemented."
     )
 
 
@@ -147,7 +147,7 @@ def macro_contributions(
     aggregate_growth: pd.Series | None = None,
     tol: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``macro_contributions`` -- METHOD-SELECTION card #82.
+    """Node ``macro_contributions`` -- method card #82.
 
     Macro arithmetic (growth/annualize/deflate/rebase/per-capita/contributions).
 
@@ -166,5 +166,5 @@ def macro_contributions(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "macro_contributions: not implemented. The method card is in ./README.md."
+        "macro_contributions: not implemented."
     )

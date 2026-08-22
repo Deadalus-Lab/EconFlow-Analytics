@@ -1,0 +1,1624 @@
+{
+ "category": "34-gmm-mestimation-partial-id",
+ "cards": [
+  {
+   "id": 292,
+   "method": "General nonlinear GMM: one-step, two-step, iterated and continuously-updated",
+   "wrapper_file": "c34_gmm_mestimation_partial_id/gmm_nonlinear.py",
+   "tool_fns": [
+    "gme_fit",
+    "gme_j_test"
+   ],
+   "when": "the model is defined by moment conditions rather than a likelihood -- Euler equations, rational-expectations restrictions, any orthogonality the theory implies",
+   "when_not": "a likelihood is available and correctly specified (use it, it is efficient); the moments are linear in parameters and a 2SLS closed form exists",
+   "alternatives": [
+    {
+     "alt": "two-step GMM",
+     "criterion": "the standard default once a weighting matrix can be estimated"
+    },
+    {
+     "alt": "continuously-updated GMM",
+     "criterion": "better small-sample behaviour, at the cost of a harder optimisation"
+    },
+    {
+     "alt": "maximum likelihood",
+     "criterion": "the full distribution is known and you want efficiency"
+    }
+   ],
+   "output_key_fields": [
+    "params, bse: the estimate and its asymptotic standard errors",
+    "j_statistic, j_pvalue, df: the overidentification test",
+    "weighting_matrix: the matrix actually used, which determines efficiency",
+    "converged, gradient_norm: whether the optimisation actually solved"
+   ],
+   "interpretation_traps": [
+    "the J statistic tests the OVERIDENTIFYING restrictions only; an exactly identified model has J identically zero and tests nothing",
+    "two-step GMM has poor small-sample properties and the standard errors are biased downward -- use the Windmeijer correction or the continuously-updated estimator",
+    "a non-converged optimisation still returns parameters; read gradient_norm, not just the numbers"
+   ],
+   "sources": [
+    "Hansen 1982 (Econometrica 50:1029-1054)",
+    "Hansen, Heaton & Yaron 1996 (Journal of Business and Economic Statistics 14:262)",
+    "statsmodels.sandbox.regression.gmm"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 293,
+   "method": "Optimal weighting matrices: HAC, cluster and kernel choices",
+   "wrapper_file": "c34_gmm_mestimation_partial_id/gmm_weighting.py",
+   "tool_fns": [
+    "gme_weighting_matrix"
+   ],
+   "when": "the efficiency and the standard errors of a GMM estimate are entirely determined by the weighting matrix, and the default is rarely the right one for dependent data",
+   "when_not": "the moments are independent and homoskedastic, where the identity matrix is already optimal",
+   "alternatives": [
+    {
+     "alt": "HAC (Newey-West)",
+     "criterion": "serial correlation of unknown form"
+    },
+    {
+     "alt": "cluster",
+     "criterion": "dependence within known groups"
+    },
+    {
+     "alt": "kernel choice and bandwidth",
+     "criterion": "the HAC estimate is sensitive and you must state the rule"
+    }
+   ],
+   "output_key_fields": [
+    "weighting_matrix: the estimated optimal matrix",
+    "bandwidth: the lag truncation used and the rule that chose it",
+    "condition_number: how close to singular the matrix is -- the practical failure mode",
+    "kernel: which kernel was applied"
+   ],
+   "interpretation_traps": [
+    "an ill-conditioned weighting matrix produces enormous, meaningless efficiency gains; check the condition number before trusting a two-step gain",
+    "with many moments relative to n the estimated optimal matrix is badly estimated and two-step GMM is WORSE than one-step",
+    "the automatic bandwidth rules disagree materially with each other; the choice must be reported, not left implicit"
+   ],
+   "sources": [
+    "Newey & West 1987 (Econometrica 55:703-708)",
+    "Andrews 1991 (Econometrica 59:817)",
+    "Windmeijer 2005 (Journal of Econometrics 126:25)",
+    "linearmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 294,
+   "method": "Overidentification and moment-selection tests",
+   "wrapper_file": "c34_gmm_mestimation_partial_id/moment_selection.py",
+   "tool_fns": [
+    "gme_c_test",
+    "gme_moment_selection"
+   ],
+   "when": "deciding which moment conditions to believe when the overidentification test rejects, rather than dropping instruments until it stops rejecting",
+   "when_not": "the model is exactly identified so no test exists; you have no candidate subset in mind",
+   "alternatives": [
+    {
+     "alt": "Hansen J",
+     "criterion": "an omnibus test of all overidentifying restrictions"
+    },
+    {
+     "alt": "difference-in-Sargan (C statistic)",
+     "criterion": "you want to test one specific subset of moments"
+    },
+    {
+     "alt": "moment-selection criteria",
+     "criterion": "you want a ranking over many candidate subsets"
+    }
+   ],
+   "output_key_fields": [
+    "j_statistic, j_pvalue: the omnibus test",
+    "c_statistic: the difference-in-Sargan for the nominated subset",
+    "selected_moments: the subset a criterion prefers",
+    "msc: the moment-selection criterion value per candidate"
+   ],
+   "interpretation_traps": [
+    "dropping instruments until J stops rejecting is SPECIFICATION SEARCH and invalidates the reported p-value entirely",
+    "J has low power against a violation shared by every moment -- a passing J is weak evidence of validity",
+    "the C statistic requires the maintained moments to be valid; if they are not, it points at the wrong subset"
+   ],
+   "sources": [
+    "Sargan 1958 (Econometrica 26:393)",
+    "Hansen 1982 (Econometrica 50:1029)",
+    "Andrews 1999 (Econometrica 67:543-563)",
+    "linearmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 295,
+   "method": "Classical and efficient minimum distance",
+   "wrapper_file": "c34_gmm_mestimation_partial_id/minimum_distance.py",
+   "tool_fns": [
+    "gme_minimum_distance"
+   ],
+   "when": "you have a set of reduced-form estimates and a structural mapping, and want the structural parameters plus a test that the mapping fits",
+   "when_not": "the structural parameters can be estimated directly in one step; the reduced-form covariance is unavailable",
+   "alternatives": [
+    {
+     "alt": "efficient minimum distance",
+     "criterion": "the reduced-form covariance is well estimated"
+    },
+    {
+     "alt": "classical minimum distance with identity weighting",
+     "criterion": "the covariance estimate is poor and efficiency is not worth the noise"
+    },
+    {
+     "alt": "one-step GMM on the structural moments",
+     "criterion": "you can write the structural moments directly"
+    }
+   ],
+   "output_key_fields": [
+    "params, bse: the structural estimates",
+    "distance_statistic, p_value: the specification test of the mapping",
+    "weighting_matrix: the matrix used",
+    "jacobian: the derivative of the mapping at the optimum, which reveals weak identification"
+   ],
+   "interpretation_traps": [
+    "efficient weighting with a poorly estimated reduced-form covariance is WORSE than identity weighting in small samples",
+    "a near-singular Jacobian means the structural parameters are weakly identified by the reduced form; the standard errors will not say so",
+    "the distance statistic tests the OVERIDENTIFYING part of the mapping only"
+   ],
+   "sources": [
+    "Chamberlain 1984, Panel data (Handbook of Econometrics 2)",
+    "Wooldridge 2010, Econometric Analysis of Cross Section and Panel Data, 2nd ed., ch.14",
+    "optimagic"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 296,
+   "method": "Empirical likelihood and generalised empirical likelihood",
+   "wrapper_file": "c34_gmm_mestimation_partial_id/empirical_likelihood.py",
+   "tool_fns": [
+    "gme_empirical_likelihood",
+    "gme_el_test"
+   ],
+   "when": "you want GMM's moment-based identification with better small-sample behaviour and an internally studentised likelihood-ratio test",
+   "when_not": "the sample is large enough that GMM's asymptotics are reliable and the optimisation cost is not worth paying",
+   "alternatives": [
+    {
+     "alt": "two-step GMM",
+     "criterion": "large sample, and you want speed"
+    },
+    {
+     "alt": "continuously-updated GMM",
+     "criterion": "a member of the same family with different small-sample behaviour"
+    },
+    {
+     "alt": "exponential tilting",
+     "criterion": "you want a different member of the GEL family"
+    }
+   ],
+   "output_key_fields": [
+    "params, bse: the estimate and its standard errors",
+    "el_ratio, p_value: the empirical-likelihood ratio test, which needs no variance estimate",
+    "probabilities: the implied observation weights, which should be near 1/n",
+    "converged: inner and outer convergence"
+   ],
+   "interpretation_traps": [
+    "the inner optimisation can fail when the moment conditions cannot be satisfied by any convex weighting -- that is the empty-set problem, not a numerical glitch",
+    "implied probabilities far from 1/n mean a few observations dominate the estimate",
+    "empirical likelihood is more robust in small samples but is markedly slower and less stable to optimise"
+   ],
+   "sources": [
+    "Owen 1988 (Biometrika 75:237)",
+    "Qin & Lawless 1994 (Annals of Statistics 22:300)",
+    "Newey & Smith 2004 (Econometrica 72:219-255)",
+    "statsmodels.emplike"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 297,
+   "method": "Simulated method of moments and indirect inference",
+   "wrapper_file": "c34_gmm_mestimation_partial_id/smm_indirect.py",
+   "tool_fns": [
+    "gme_smm",
+    "gme_indirect_inference"
+   ],
+   "when": "the model can be simulated but its moments have no closed form -- structural models with latent states, discrete choice dynamics, agent-based models",
+   "when_not": "analytic moments exist (use GMM); simulation is too slow for the optimiser to converge in reasonable time",
+   "alternatives": [
+    {
+     "alt": "GMM",
+     "criterion": "the moments are analytic"
+    },
+    {
+     "alt": "indirect inference",
+     "criterion": "you want to match the parameters of an auxiliary model rather than raw moments"
+    },
+    {
+     "alt": "simulated maximum likelihood",
+     "criterion": "the likelihood can be simulated and you want efficiency"
+    }
+   ],
+   "output_key_fields": [
+    "params, bse: the estimate, with the simulation-noise inflation factor applied",
+    "objective: the distance at the optimum",
+    "n_sim: simulation draws per evaluation, which sets the noise floor",
+    "auxiliary_params: the auxiliary model's parameters under data and under simulation"
+   ],
+   "interpretation_traps": [
+    "the SAME random draws must be used at every parameter evaluation -- redrawing makes the objective discontinuous and the optimiser will wander forever",
+    "standard errors must include the simulation noise via the (1 + 1/S) inflation; omitting it understates uncertainty",
+    "too few simulation draws make the objective surface bumpy, and the optimiser will report a local minimum as a solution"
+   ],
+   "sources": [
+    "McFadden 1989 (Econometrica 57:995)",
+    "Gourieroux, Monfort & Renault 1993 (Journal of Applied Econometrics 8:S85)",
+    "Smith 1993 (Journal of Applied Econometrics 8:S63)",
+    "optimagic"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 298,
+   "method": "Constrained estimation, numerical derivatives and the optimiser layer",
+   "wrapper_file": "c34_gmm_mestimation_partial_id/optimiser_layer.py",
+   "tool_fns": [
+    "gme_optimise",
+    "gme_numerical_derivatives"
+   ],
+   "when": "the estimation problem has bounds, equality or inequality constraints, or a badly scaled objective, and the default optimiser silently returns a non-solution",
+   "when_not": "the problem is unconstrained, smooth and well scaled, where the estimator's own default is fine",
+   "alternatives": [
+    {
+     "alt": "derivative-free optimisers",
+     "criterion": "the objective is noisy or non-smooth, as with simulation"
+    },
+    {
+     "alt": "gradient-based optimisers",
+     "criterion": "the objective is smooth and derivatives are available"
+    },
+    {
+     "alt": "convex reformulation",
+     "criterion": "the problem can be written as a convex programme and solved exactly"
+    }
+   ],
+   "output_key_fields": [
+    "params: the solution",
+    "converged, message, n_evaluations: whether and how the search terminated",
+    "gradient, hessian: numerical derivatives at the optimum",
+    "active_constraints: which bounds or constraints bind, which changes inference"
+   ],
+   "interpretation_traps": [
+    "a parameter AT its bound has a non-standard sampling distribution -- the usual standard error and t-test do not apply",
+    "numerical derivatives on a simulation-based objective are dominated by simulation noise unless common random numbers are used",
+    "'converged' from an optimiser means its own tolerance was met, not that the point is a global optimum; multi-start is the only practical check"
+   ],
+   "sources": [
+    "Nocedal & Wright 2006, Numerical Optimization, 2nd ed.",
+    "Gill, Murray & Wright 1981, Practical Optimization",
+    "optimagic"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 299,
+   "method": "Partial identification: Manski bounds, Lee bounds and moment-inequality sets",
+   "wrapper_file": "c34_gmm_mestimation_partial_id/partial_identification.py",
+   "tool_fns": [
+    "gme_manski_bounds",
+    "gme_lee_bounds",
+    "gme_moment_inequality_set"
+   ],
+   "when": "the data do not point-identify the parameter and you would rather report the set that is consistent with them than a point that is not",
+   "when_not": "the parameter is point identified; the identified set is so wide it is uninformative and you should say so instead",
+   "alternatives": [
+    {
+     "alt": "Manski worst-case bounds",
+     "criterion": "selection is unrestricted and you want the assumption-free bound"
+    },
+    {
+     "alt": "Lee bounds",
+     "criterion": "attrition or sample selection with a monotone response"
+    },
+    {
+     "alt": "moment-inequality confidence sets",
+     "criterion": "the model implies inequalities rather than equalities"
+    }
+   ],
+   "output_key_fields": [
+    "bounds: the estimated identified set",
+    "confidence_set: a set with the requested coverage, for the parameter or for the set",
+    "width: how informative the bounds are -- the number that decides whether this was worth doing",
+    "assumptions_used: which restrictions narrowed the set"
+   ],
+   "interpretation_traps": [
+    "a confidence set for the PARAMETER and one for the identified SET are different objects with different coverage; report which one you computed",
+    "worst-case bounds are almost always wide -- that is the honest answer, not a failure of the method",
+    "each narrowing assumption must be stated with the bound it produced; a narrow interval whose assumption is unstated is worse than a wide one"
+   ],
+   "sources": [
+    "Manski 1990 (American Economic Review 80:319-323)",
+    "Lee 2009 (Review of Economic Studies 76:1071-1102)",
+    "Imbens & Manski 2004 (Econometrica 72:1845)",
+    "cvxpy"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "gme_fit",
+   "card_id": 292,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "moments": "y ~ x",
+    "method": "twostep",
+    "weighting": "robust",
+    "max_iter": 100,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data the moments are evaluated on.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "moments",
+     "kind": "formula",
+     "required": true,
+     "description": "Moment-condition specification.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "instruments",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Instrument columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "GMM variant.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "onestep",
+      "twostep",
+      "iterated",
+      "cue"
+     ],
+     "allowed_vars": null,
+     "default": "twostep",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "weighting",
+     "kind": "enum",
+     "required": false,
+     "description": "Weighting matrix.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "identity",
+      "robust",
+      "hac",
+      "cluster"
+     ],
+     "allowed_vars": null,
+     "default": "robust",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "max_iter",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum iterations for the iterated variant.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_j_test",
+   "card_id": 292,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted GMM model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_weighting_matrix",
+   "card_id": 293,
+   "register": null,
+   "input_example": {
+    "moments": "<matrix_handle>",
+    "kind": "hac",
+    "kernel": "bartlett"
+   },
+   "arguments": [
+    {
+     "name": "moments",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Evaluated moment conditions, one row per observation.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "kind",
+     "kind": "enum",
+     "required": false,
+     "description": "Covariance family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "homoskedastic",
+      "robust",
+      "hac",
+      "cluster"
+     ],
+     "allowed_vars": null,
+     "default": "hac",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "kernel",
+     "kind": "enum",
+     "required": false,
+     "description": "HAC kernel.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bartlett",
+      "parzen",
+      "quadratic_spectral",
+      "truncated"
+     ],
+     "allowed_vars": null,
+     "default": "bartlett",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "bandwidth",
+     "kind": "integer",
+     "required": false,
+     "description": "Lag truncation; omitted = automatic.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cluster",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Cluster identifier when kind is cluster.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "gme_c_test",
+   "card_id": 294,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "subset": [
+     "a",
+     "b"
+    ],
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted GMM or IV model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "subset",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Instruments whose validity is being tested.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_moment_selection",
+   "card_id": 294,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "moments": "y ~ x",
+    "criterion": "bic"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data the moments are evaluated on.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "moments",
+     "kind": "formula",
+     "required": true,
+     "description": "Moment-condition specification.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "candidates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Candidate instrument columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "criterion",
+     "kind": "enum",
+     "required": false,
+     "description": "Selection criterion.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "aic",
+      "bic",
+      "hqic"
+     ],
+     "allowed_vars": null,
+     "default": "bic",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "gme_minimum_distance",
+   "card_id": 295,
+   "register": null,
+   "input_example": {
+    "reduced_form": [
+     1.0,
+     2.0
+    ],
+    "vcov": "<matrix_handle>",
+    "mapping": "y ~ x",
+    "weighting": "efficient",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "reduced_form",
+     "kind": "num_array",
+     "required": true,
+     "description": "Reduced-form parameter estimates.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "vcov",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Covariance of the reduced-form estimates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "mapping",
+     "kind": "formula",
+     "required": true,
+     "description": "Structural mapping from parameters to reduced form.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weighting",
+     "kind": "enum",
+     "required": false,
+     "description": "Weighting scheme.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "efficient",
+      "identity",
+      "diagonal"
+     ],
+     "allowed_vars": null,
+     "default": "efficient",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "start",
+     "kind": "num_array",
+     "required": false,
+     "description": "Starting values.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_empirical_likelihood",
+   "card_id": 296,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "moments": "y ~ x",
+    "family": "el",
+    "max_iter": 100,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data the moments are evaluated on.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "moments",
+     "kind": "formula",
+     "required": true,
+     "description": "Moment-condition specification.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "GEL family member.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "el",
+      "et",
+      "cue",
+      "hd"
+     ],
+     "allowed_vars": null,
+     "default": "el",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "max_iter",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum outer iterations.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_el_test",
+   "card_id": 296,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "restriction": "y ~ x",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted empirical-likelihood model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "restriction",
+     "kind": "formula",
+     "required": true,
+     "description": "Restriction under the null.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_smm",
+   "card_id": 297,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "simulator": "y ~ x",
+    "moments": [
+     "a",
+     "b"
+    ],
+    "n_sim": 100,
+    "seed": 1,
+    "weighting": "efficient",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observed data whose moments are matched.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "simulator",
+     "kind": "formula",
+     "required": true,
+     "description": "Specification of the simulation model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "moments",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Names of the moments to match.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_sim",
+     "kind": "integer",
+     "required": false,
+     "description": "Simulation draws per evaluation.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weighting",
+     "kind": "enum",
+     "required": false,
+     "description": "Weighting matrix.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "identity",
+      "diagonal",
+      "efficient"
+     ],
+     "allowed_vars": null,
+     "default": "efficient",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_indirect_inference",
+   "card_id": 297,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "simulator": "y ~ x",
+    "auxiliary": "y ~ x",
+    "n_sim": 100,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Observed data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "simulator",
+     "kind": "formula",
+     "required": true,
+     "description": "Specification of the simulation model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "auxiliary",
+     "kind": "formula",
+     "required": true,
+     "description": "Auxiliary model whose parameters are matched.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_sim",
+     "kind": "integer",
+     "required": false,
+     "description": "Simulation draws per evaluation.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_optimise",
+   "card_id": 298,
+   "register": null,
+   "input_example": {
+    "objective": "y ~ x",
+    "start": [
+     1.0,
+     2.0
+    ],
+    "algorithm": "lbfgsb",
+    "n_starts": 1
+   },
+   "arguments": [
+    {
+     "name": "objective",
+     "kind": "formula",
+     "required": true,
+     "description": "Objective specification.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "start",
+     "kind": "num_array",
+     "required": true,
+     "description": "Starting values.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lower",
+     "kind": "num_array",
+     "required": false,
+     "description": "Lower bounds.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "upper",
+     "kind": "num_array",
+     "required": false,
+     "description": "Upper bounds.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "algorithm",
+     "kind": "enum",
+     "required": false,
+     "description": "Optimiser.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lbfgsb",
+      "nelder_mead",
+      "slsqp",
+      "trust_constr",
+      "differential_evolution"
+     ],
+     "allowed_vars": null,
+     "default": "lbfgsb",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_starts",
+     "kind": "integer",
+     "required": false,
+     "description": "Multi-start restarts.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "gme_numerical_derivatives",
+   "card_id": 298,
+   "register": null,
+   "input_example": {
+    "objective": "y ~ x",
+    "at": [
+     1.0,
+     2.0
+    ],
+    "method": "central"
+   },
+   "arguments": [
+    {
+     "name": "objective",
+     "kind": "formula",
+     "required": true,
+     "description": "Objective specification.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "at",
+     "kind": "num_array",
+     "required": true,
+     "description": "Point to differentiate at.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Difference scheme.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "forward",
+      "backward",
+      "central",
+      "richardson"
+     ],
+     "allowed_vars": null,
+     "default": "central",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "step",
+     "kind": "number",
+     "required": false,
+     "description": "Step size; omitted = scaled automatically.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "gme_manski_bounds",
+   "card_id": 299,
+   "register": null,
+   "input_example": {
+    "outcome": "<series_handle>",
+    "selection": "<series_handle>",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "outcome",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed outcome, missing where unobserved.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "selection",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Indicator that the outcome is observed.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "treatment",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Treatment indicator for an effect bound.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_min",
+     "kind": "number",
+     "required": false,
+     "description": "Logical lower bound on the outcome.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_max",
+     "kind": "number",
+     "required": false,
+     "description": "Logical upper bound on the outcome.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_lee_bounds",
+   "card_id": 299,
+   "register": null,
+   "input_example": {
+    "outcome": "<series_handle>",
+    "treatment": "<series_handle>",
+    "selection": "<series_handle>",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "outcome",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "treatment",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Treatment indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "selection",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Indicator that the outcome is observed.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariates for tightened bounds.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "gme_moment_inequality_set",
+   "card_id": 299,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "inequalities": "y ~ x",
+    "method": "subsampling",
+    "nboot": 999,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data the inequalities are evaluated on.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "inequalities",
+     "kind": "formula",
+     "required": true,
+     "description": "Moment-inequality specification.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grid",
+     "kind": "num_array",
+     "required": false,
+     "description": "Parameter grid to test over.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Critical-value construction.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "subsampling",
+      "bootstrap",
+      "self_normalised"
+     ],
+     "allowed_vars": null,
+     "default": "subsampling",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  }
+ ]
+}

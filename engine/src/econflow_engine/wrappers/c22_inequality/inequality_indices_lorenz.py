@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``inequality_indices_lorenz`` -- METHOD-SELECTION card #91.
+"""Method wrapper ``inequality_indices_lorenz`` -- method card #91.
 
 #91 inequality indices + Lorenz curve (Gini/Theil/Atkinson/RS/Kolm/CV/entropy)
 
@@ -7,8 +7,8 @@ Category 22-inequality; module ``inequality_indices_lorenz``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def compute_inequality(
     ) = None,
     parameter: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``compute_inequality`` -- METHOD-SELECTION card #91.
+    """Node ``compute_inequality`` -- method card #91.
 
     inequality indices + Lorenz curve (Gini/Theil/Atkinson/RS/Kolm/CV/entropy).
 
@@ -65,7 +65,7 @@ def compute_inequality(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "compute_inequality: not implemented. The method card is in ./README.md."
+        "compute_inequality: not implemented."
     )
 
 
@@ -73,7 +73,7 @@ def lorenz_curve(
     *,
     x: np.ndarray,
 ) -> dict[str, Any]:
-    """Node ``lorenz_curve`` -- METHOD-SELECTION card #91.
+    """Node ``lorenz_curve`` -- method card #91.
 
     inequality indices + Lorenz curve (Gini/Theil/Atkinson/RS/Kolm/CV/entropy).
 
@@ -87,5 +87,5 @@ def lorenz_curve(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "lorenz_curve: not implemented. The method card is in ./README.md."
+        "lorenz_curve: not implemented."
     )

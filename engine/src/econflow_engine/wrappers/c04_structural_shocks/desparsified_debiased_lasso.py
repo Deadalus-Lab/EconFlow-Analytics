@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``desparsified_debiased_lasso`` -- METHOD-SELECTION card #152.
+"""Method wrapper ``desparsified_debiased_lasso`` -- method card #152.
 
 #152 Desparsified/debiased LASSO inference (high-dimensional time series) + high-dimensional local
     projections (HDLP) with valid CIs — Adamek-Smeekes-Wilms
@@ -8,8 +8,8 @@ Category 04-structural-shocks; module ``desparsified_debiased_lasso``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,14 +25,14 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "dsl_desla",
-    "dsl_hdlp",
+    "dlasso_inference",
+    "dlasso_local_projection",
     "NODE_META",
     "wire_model",
 ]
 
 
-def dsl_desla(
+def dlasso_inference(
     *,
     X: np.ndarray,
     y: Sequence[float],
@@ -45,7 +45,7 @@ def dsl_desla(
     demean: bool | None = None,
     scale: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dsl_desla`` -- METHOD-SELECTION card #152.
+    """Node ``dlasso_inference`` -- method card #152.
 
     Desparsified/debiased LASSO inference (high-dimensional time series) + high-dimensional local
     projections (HDLP) with valid CIs — Adamek-Smeekes-Wilms.
@@ -59,7 +59,7 @@ def dsl_desla(
         H: [int_array, required] Integer column indices of X in [1,N] that are tested (target
             coefficients).
         seed: [integer, required] MANDATORY seed (integer) — the lasso lambda selection uses random
-            CV folds· set.seed beforehand.
+            CV folds· seeded beforehand.
         alphas: [num_array, optional] Significance levels ∈ (0,1) for the CIs (default 0.05).
         penalize_H: [boolean, optional] Penalise the H variables in the initial lasso (default
             True). Default ``True``.
@@ -76,11 +76,11 @@ def dsl_desla(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dsl_desla: not implemented. The method card is in ./README.md."
+        "dlasso_inference: not implemented."
     )
 
 
-def dsl_hdlp(
+def dlasso_local_projection(
     *,
     x: Sequence[float],
     y: Sequence[float],
@@ -96,7 +96,7 @@ def dsl_hdlp(
     penalize_x: bool | None = None,
     OLS: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dsl_hdlp`` -- METHOD-SELECTION card #152.
+    """Node ``dlasso_local_projection`` -- method card #152.
 
     Desparsified/debiased LASSO inference (high-dimensional time series) + high-dimensional local
     projections (HDLP) with valid CIs — Adamek-Smeekes-Wilms.
@@ -107,7 +107,7 @@ def dsl_hdlp(
         x: [num_array, required] Shock variable, numeric vector of length T (Plagborg-Moller & Wolf
             notation).
         y: [num_array, required] Response variable, numeric vector of length T (aligned with x).
-        seed: [integer, required] MANDATORY seed (integer) — lasso CV· set.seed beforehand.
+        seed: [integer, required] MANDATORY seed (integer) — lasso CV· seeded beforehand.
         r: [matrix_handle, optional] 'Slow' variables (do not react within the same period), T rows.
         q: [matrix_handle, optional] 'Fast' variables/controls (react within the same period), T
             rows — the high-dim space.
@@ -131,5 +131,5 @@ def dsl_hdlp(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dsl_hdlp: not implemented. The method card is in ./README.md."
+        "dlasso_local_projection: not implemented."
     )

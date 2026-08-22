@@ -1,0 +1,900 @@
+{
+ "category": "43-microsimulation-taxbenefit",
+ "cards": [
+  {
+   "id": 361,
+   "method": "Tax-benefit rule engine: parameters, entities, periods and reform overlays",
+   "wrapper_file": "c43_microsimulation_taxbenefit/taxbenefit_engine.py",
+   "tool_fns": [
+    "tb_compute",
+    "tb_reform",
+    "tb_parameters"
+   ],
+   "when": "computing a household's tax liability and benefit entitlement from the legislated rules, so a reform can be costed before it is enacted",
+   "when_not": "you only need an average effective rate from aggregate data; the country's rules are not implemented in the parameter set",
+   "alternatives": [
+    {
+     "alt": "aggregate tax functions",
+     "criterion": "you need one summary elasticity, not household detail"
+    },
+    {
+     "alt": "rule engine with reform overlay",
+     "criterion": "the whole point is comparing legislated and counterfactual rules"
+    },
+    {
+     "alt": "statutory rate tables",
+     "criterion": "a simple schedule suffices"
+    }
+   ],
+   "output_key_fields": [
+    "variables: computed tax and benefit variables per entity",
+    "entities: the household, family and person structure the rules were applied over",
+    "period: the period the calculation refers to",
+    "reform_delta: the difference a reform overlay makes, per variable"
+   ],
+   "interpretation_traps": [
+    "entity structure is LOAD-BEARING: a benefit assessed at family level and a tax assessed at person level cannot be added without an explicit aggregation rule",
+    "period semantics matter -- monthly benefits and annual taxes must be annualised consistently or the disposable income is simply wrong",
+    "a reform overlay changes only what it names; every interaction with untouched rules is computed, and those interactions are usually the surprise"
+   ],
+   "sources": [
+    "OpenFisca documentation",
+    "Sutherland & Figari 2013 (International Journal of Microsimulation 6:4-26)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 362,
+   "method": "Disposable income, net-of-tax income and budget constraints",
+   "wrapper_file": "c43_microsimulation_taxbenefit/disposable_income.py",
+   "tool_fns": [
+    "tb_disposable_income",
+    "tb_budget_constraint"
+   ],
+   "when": "tracing how gross income becomes take-home income across the earnings distribution, which is the object every incentive question rests on",
+   "when_not": "you only need the statutory rate; the rules governing in-work benefits are not implemented",
+   "alternatives": [
+    {
+     "alt": "effective tax rates",
+     "criterion": "you want rates rather than levels"
+    },
+    {
+     "alt": "budget constraint",
+     "criterion": "you want the whole earnings-to-income mapping"
+    },
+    {
+     "alt": "statutory schedule",
+     "criterion": "no benefits interact and the schedule is the answer"
+    }
+   ],
+   "output_key_fields": [
+    "disposable_income: income after taxes and transfers",
+    "budget_constraint: disposable income across an earnings grid",
+    "components: the tax and benefit elements that make it up",
+    "kinks: earnings points where the slope changes discontinuously"
+   ],
+   "interpretation_traps": [
+    "the budget constraint is frequently NON-CONVEX, with cliffs where a benefit withdraws entirely -- a smooth approximation hides exactly the behaviour that matters",
+    "the result is for a specific household type; there is no such thing as the budget constraint without stating composition, housing costs and hours",
+    "benefit take-up is assumed complete by default, which overstates incomes at the bottom"
+   ],
+   "sources": [
+    "Blundell & MaCurdy 1999, Labor supply (Handbook of Labor Economics 3A)",
+    "Immervoll, Kleven, Kreiner & Saez 2007 (Economic Journal 117:1-44)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 363,
+   "method": "Marginal and participation effective tax rates and work incentives",
+   "wrapper_file": "c43_microsimulation_taxbenefit/effective_tax_rates.py",
+   "tool_fns": [
+    "tb_metr",
+    "tb_participation_tax_rate"
+   ],
+   "when": "measuring what a household actually keeps from an extra hour, or from taking a job at all -- the two incentive margins policy cares about",
+   "when_not": "the rules governing withdrawal of the relevant benefits are not implemented; behaviour rather than incentive is the question",
+   "alternatives": [
+    {
+     "alt": "marginal effective tax rate",
+     "criterion": "the intensive margin, an extra unit of earnings"
+    },
+    {
+     "alt": "participation tax rate",
+     "criterion": "the extensive margin, moving into work"
+    },
+    {
+     "alt": "replacement rate",
+     "criterion": "the ratio of out-of-work to in-work income"
+    }
+   ],
+   "output_key_fields": [
+    "metr: marginal effective tax rate across the earnings grid",
+    "ptr: participation tax rate for the modelled transition",
+    "replacement_rate: out-of-work income over in-work income",
+    "high_metr_share: share of the population above a chosen threshold"
+   ],
+   "interpretation_traps": [
+    "METRs ABOVE ONE are real and common where several benefits withdraw at once -- they are a finding about the rules, not a computational error",
+    "the METR depends on the size of the earnings increment used to compute it; a large increment smooths over cliffs and understates the peak",
+    "the participation tax rate depends on the assumed alternative state; 'not working' must be specified precisely"
+   ],
+   "sources": [
+    "Immervoll, Kleven, Kreiner & Saez 2007 (Economic Journal 117:1-44)",
+    "Adam, Browne & Heady 2010, Taxation in the UK (Dimensions of Tax Design, Mirrlees Review)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 364,
+   "method": "Static distributional impact: winners, losers and decile incidence",
+   "wrapper_file": "c43_microsimulation_taxbenefit/distributional_impact.py",
+   "tool_fns": [
+    "tb_distributional_impact"
+   ],
+   "when": "costing a reform and showing who gains and who loses, before any behavioural response",
+   "when_not": "the behavioural response is large enough that a static answer is misleading and should be labelled as such",
+   "alternatives": [
+    {
+     "alt": "static incidence",
+     "criterion": "the first-round, mechanical effect"
+    },
+    {
+     "alt": "behavioural microsimulation",
+     "criterion": "labour supply responds materially"
+    },
+    {
+     "alt": "aggregate revenue costing",
+     "criterion": "only the exchequer cost is wanted"
+    }
+   ],
+   "output_key_fields": [
+    "decile_impact: mean and median gain by income decile",
+    "winners_losers: shares gaining, losing and unaffected",
+    "budget_cost: net exchequer cost",
+    "poverty_inequality: change in headline poverty and inequality measures"
+   ],
+   "interpretation_traps": [
+    "a STATIC result assumes nobody changes behaviour; for large reforms that is a strong assumption and the label must travel with the number",
+    "deciles must be defined on EQUIVALISED income and the ranking must be fixed before or after the reform consistently -- re-ranking changes the picture",
+    "survey weights and non-take-up both move the aggregate cost by more than most reform parameters"
+   ],
+   "sources": [
+    "Bourguignon & Spadaro 2006 (Journal of Economic Inequality 4:77-106)",
+    "Figari, Paulus & Sutherland 2015, Microsimulation and policy analysis (Handbook of Income Distribution 2B)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 365,
+   "method": "Behavioural labour-supply response",
+   "wrapper_file": "c43_microsimulation_taxbenefit/labour_supply_response.py",
+   "tool_fns": [
+    "tb_labour_supply"
+   ],
+   "when": "adding a behavioural margin to a reform costing, so the estimate reflects that people change hours and participation when incentives change",
+   "when_not": "the elasticities are not credible for the population in question; the reform is too small for a behavioural response to matter",
+   "alternatives": [
+    {
+     "alt": "static microsimulation",
+     "criterion": "the first-round effect is enough"
+    },
+    {
+     "alt": "elasticity-based adjustment",
+     "criterion": "a transparent, parameterised response"
+    },
+    {
+     "alt": "structural discrete-choice labour supply",
+     "criterion": "you want a utility-consistent model"
+    }
+   ],
+   "output_key_fields": [
+    "labour_supply_change: hours and participation response",
+    "revenue_with_behaviour: cost after the response",
+    "elasticities_used: the parameters driving the answer",
+    "decomposition: mechanical versus behavioural components of the cost"
+   ],
+   "interpretation_traps": [
+    "the answer is a FUNCTION OF THE ASSUMED ELASTICITIES, which are not estimated here; report them beside the result or the number is uninterpretable",
+    "extensive and intensive elasticities differ by an order of magnitude across groups; a single population elasticity is rarely defensible",
+    "behavioural responses estimated on past reforms may not transfer to a reform of a different size or salience"
+   ],
+   "sources": [
+    "Blundell & MaCurdy 1999, Labor supply (Handbook of Labor Economics 3A)",
+    "Saez, Slemrod & Giertz 2012 (Journal of Economic Literature 50:3-50)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 366,
+   "method": "Reweighting and calibration to population control totals",
+   "wrapper_file": "c43_microsimulation_taxbenefit/survey_reweighting.py",
+   "tool_fns": [
+    "tb_reweight"
+   ],
+   "when": "making a survey sample match known population totals, so simulated aggregates are comparable with administrative figures",
+   "when_not": "the survey already matches the controls; the controls themselves are unreliable",
+   "alternatives": [
+    {
+     "alt": "post-stratification",
+     "criterion": "few, well-populated cells"
+    },
+    {
+     "alt": "raking / iterative proportional fitting",
+     "criterion": "several marginal totals must be matched at once"
+    },
+    {
+     "alt": "calibration with bounded weights",
+     "criterion": "you must prevent extreme weights"
+    }
+   ],
+   "output_key_fields": [
+    "weights: the calibrated weights",
+    "convergence: whether the iterative procedure converged",
+    "weight_ratio: how far weights moved, and the extremes",
+    "margins_achieved: realised totals against the targets"
+   ],
+   "interpretation_traps": [
+    "extreme calibrated weights make a handful of households drive national aggregates; bound the weights or report the extremes",
+    "raking to inconsistent marginal totals does not converge, and a truncated run silently returns weights matching nothing",
+    "calibrating on variables uncorrelated with the outcome adds variance without reducing bias"
+   ],
+   "sources": [
+    "Deville & Sarndal 1992 (JASA 87:376-382)",
+    "Creedy 2004 (Australian Economic Review 37:441)",
+    "svy"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "tb_compute",
+   "card_id": 361,
+   "register": {
+    "field": "simulation"
+   },
+   "input_example": {
+    "population": "<df_handle>",
+    "variables": [
+     "a",
+     "b"
+    ],
+    "period": "...",
+    "country": "generic"
+   },
+   "arguments": [
+    {
+     "name": "population",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Household microdata.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variables",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Variables to compute.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "period",
+     "kind": "string",
+     "required": true,
+     "description": "Period the calculation refers to.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "country",
+     "kind": "enum",
+     "required": false,
+     "description": "Rule set to apply.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "generic",
+      "uk",
+      "fr",
+      "us",
+      "eu"
+     ],
+     "allowed_vars": null,
+     "default": "generic",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "tb_reform",
+   "card_id": 361,
+   "register": null,
+   "input_example": {
+    "simulation": "<raw_handle>",
+    "reform": "<df_handle>",
+    "variables": [
+     "a",
+     "b"
+    ]
+   },
+   "arguments": [
+    {
+     "name": "simulation",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a baseline simulation.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "reform",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Parameter changes defining the reform.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variables",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Variables to compare.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tb_parameters",
+   "card_id": 361,
+   "register": null,
+   "input_example": {
+    "period": "..."
+   },
+   "arguments": [
+    {
+     "name": "period",
+     "kind": "string",
+     "required": true,
+     "description": "Date to read the parameters at.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "path",
+     "kind": "string",
+     "required": false,
+     "description": "Parameter subtree to return.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tb_disposable_income",
+   "card_id": 362,
+   "register": null,
+   "input_example": {
+    "population": "<df_handle>",
+    "period": "...",
+    "include_housing": false
+   },
+   "arguments": [
+    {
+     "name": "population",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Household microdata.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "period",
+     "kind": "string",
+     "required": true,
+     "description": "Period the calculation refers to.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "include_housing",
+     "kind": "boolean",
+     "required": false,
+     "description": "Net off housing costs.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "tb_budget_constraint",
+   "card_id": 362,
+   "register": null,
+   "input_example": {
+    "household": "<df_handle>",
+    "earnings_grid": [
+     1.0,
+     2.0
+    ],
+    "period": "..."
+   },
+   "arguments": [
+    {
+     "name": "household",
+     "kind": "df_handle",
+     "required": true,
+     "description": "A single household specification.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "earnings_grid",
+     "kind": "num_array",
+     "required": true,
+     "description": "Earnings values to evaluate.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "period",
+     "kind": "string",
+     "required": true,
+     "description": "Period the calculation refers to.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tb_metr",
+   "card_id": 363,
+   "register": null,
+   "input_example": {
+    "population": "<df_handle>",
+    "period": "...",
+    "increment": 100.0
+   },
+   "arguments": [
+    {
+     "name": "population",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Household microdata.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "period",
+     "kind": "string",
+     "required": true,
+     "description": "Period the calculation refers to.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "increment",
+     "kind": "number",
+     "required": false,
+     "description": "Earnings increment used for the derivative.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100.0,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "tb_participation_tax_rate",
+   "card_id": 363,
+   "register": null,
+   "input_example": {
+    "population": "<df_handle>",
+    "period": "...",
+    "transition": "zero_to_full"
+   },
+   "arguments": [
+    {
+     "name": "population",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Household microdata.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "period",
+     "kind": "string",
+     "required": true,
+     "description": "Period the calculation refers to.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transition",
+     "kind": "enum",
+     "required": false,
+     "description": "Transition modelled.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "zero_to_full",
+      "zero_to_part",
+      "part_to_full"
+     ],
+     "allowed_vars": null,
+     "default": "zero_to_full",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "tb_distributional_impact",
+   "card_id": 364,
+   "register": null,
+   "input_example": {
+    "baseline": "<raw_handle>",
+    "reform": "<raw_handle>",
+    "equivalence_scale": "oecd_modified",
+    "n_groups": 10
+   },
+   "arguments": [
+    {
+     "name": "baseline",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a baseline simulation.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "reform",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a reform simulation.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Survey weights.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "equivalence_scale",
+     "kind": "enum",
+     "required": false,
+     "description": "Equivalence scale for ranking.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "oecd",
+      "oecd_modified",
+      "square_root"
+     ],
+     "allowed_vars": null,
+     "default": "oecd_modified",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_groups",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of income groups.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "tb_labour_supply",
+   "card_id": 365,
+   "register": null,
+   "input_example": {
+    "baseline": "<raw_handle>",
+    "reform": "<raw_handle>",
+    "intensive_elasticity": 0.2,
+    "extensive_elasticity": 0.3
+   },
+   "arguments": [
+    {
+     "name": "baseline",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a baseline simulation.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "reform",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a reform simulation.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "intensive_elasticity",
+     "kind": "number",
+     "required": false,
+     "description": "Hours elasticity to the net wage.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.2,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "extensive_elasticity",
+     "kind": "number",
+     "required": false,
+     "description": "Participation elasticity.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.3,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "by_group",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Columns defining groups with distinct elasticities.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tb_reweight",
+   "card_id": 366,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "weights": "...",
+    "targets": "<df_handle>",
+    "method": "raking",
+    "bounds": [
+     0.2,
+     5.0
+    ],
+    "max_iter": 100
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Survey microdata.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the design weights.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "targets",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Control totals to match.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Calibration method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "post_stratification",
+      "raking",
+      "linear",
+      "logit"
+     ],
+     "allowed_vars": null,
+     "default": "raking",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "bounds",
+     "kind": "num_array",
+     "required": false,
+     "description": "Lower and upper bounds on the weight ratio.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.2,
+      5.0
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "max_iter",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum iterations.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  }
+ ]
+}

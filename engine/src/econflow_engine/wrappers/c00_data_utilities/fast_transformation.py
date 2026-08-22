@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``fast_transformation`` -- METHOD-SELECTION card #103.
+"""Method wrapper ``fast_transformation`` -- method card #103.
 
 #103 Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA)
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform)
 
 Category 00-data-utilities; module ``fast_transformation``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,21 +25,21 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "cll_collap",
-    "cll_cumsum",
-    "cll_diff",
-    "cll_growth",
-    "cll_lag",
-    "cll_qsu",
-    "cll_scale",
-    "cll_transform",
-    "cll_within",
+    "fast_aggregate",
+    "fast_cumsum",
+    "fast_diff",
+    "fast_growth",
+    "fast_lag",
+    "fast_scale",
+    "fast_summary",
+    "fast_transform",
+    "fast_within",
     "NODE_META",
     "wire_model",
 ]
 
 
-def cll_growth(
+def fast_growth(
     *,
     x: pd.Series,
     n: int | None = None,
@@ -51,10 +51,10 @@ def cll_growth(
     t: Sequence[float] | None = None,
     fill: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_growth`` -- METHOD-SELECTION card #103.
+    """Node ``fast_growth`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -74,11 +74,11 @@ def cll_growth(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_growth: not implemented. The method card is in ./README.md."
+        "fast_growth: not implemented."
     )
 
 
-def cll_diff(
+def fast_diff(
     *,
     x: pd.Series,
     n: int | None = None,
@@ -89,10 +89,10 @@ def cll_diff(
     t: Sequence[float] | None = None,
     fill: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_diff`` -- METHOD-SELECTION card #103.
+    """Node ``fast_diff`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -110,11 +110,11 @@ def cll_diff(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_diff: not implemented. The method card is in ./README.md."
+        "fast_diff: not implemented."
     )
 
 
-def cll_lag(
+def fast_lag(
     *,
     x: pd.Series,
     n: int | None = None,
@@ -122,10 +122,10 @@ def cll_lag(
     t: Sequence[float] | None = None,
     fill: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_lag`` -- METHOD-SELECTION card #103.
+    """Node ``fast_lag`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -140,21 +140,21 @@ def cll_lag(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_lag: not implemented. The method card is in ./README.md."
+        "fast_lag: not implemented."
     )
 
 
-def cll_cumsum(
+def fast_cumsum(
     *,
     x: pd.Series,
     g: Sequence[str] | None = None,
     na_rm: bool | None = None,
     fill: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_cumsum`` -- METHOD-SELECTION card #103.
+    """Node ``fast_cumsum`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -168,11 +168,11 @@ def cll_cumsum(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_cumsum: not implemented. The method card is in ./README.md."
+        "fast_cumsum: not implemented."
     )
 
 
-def cll_scale(
+def fast_scale(
     *,
     x: pd.Series,
     g: Sequence[str] | None = None,
@@ -181,10 +181,10 @@ def cll_scale(
     mean: float | None = None,
     sd: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_scale`` -- METHOD-SELECTION card #103.
+    """Node ``fast_scale`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -201,11 +201,11 @@ def cll_scale(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_scale: not implemented. The method card is in ./README.md."
+        "fast_scale: not implemented."
     )
 
 
-def cll_within(
+def fast_within(
     *,
     x: pd.Series,
     g: Sequence[str] | None = None,
@@ -214,10 +214,10 @@ def cll_within(
     mean: float | None = None,
     theta: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_within`` -- METHOD-SELECTION card #103.
+    """Node ``fast_within`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -234,11 +234,11 @@ def cll_within(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_within: not implemented. The method card is in ./README.md."
+        "fast_within: not implemented."
     )
 
 
-def cll_collap(
+def fast_aggregate(
     *,
     X: pd.DataFrame,
     by: Sequence[str],
@@ -260,10 +260,10 @@ def cll_collap(
     cols: Sequence[str] | None = None,
     w: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_collap`` -- METHOD-SELECTION card #103.
+    """Node ``fast_aggregate`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -279,21 +279,21 @@ def cll_collap(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_collap: not implemented. The method card is in ./README.md."
+        "fast_aggregate: not implemented."
     )
 
 
-def cll_qsu(
+def fast_summary(
     *,
     x: pd.DataFrame,
     g: Sequence[str] | None = None,
     w: Sequence[float] | None = None,
     higher: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_qsu`` -- METHOD-SELECTION card #103.
+    """Node ``fast_summary`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -308,11 +308,11 @@ def cll_qsu(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_qsu: not implemented. The method card is in ./README.md."
+        "fast_summary: not implemented."
     )
 
 
-def cll_transform(
+def fast_transform(
     *,
     x: pd.Series,
     STATS: Sequence[float],
@@ -334,10 +334,10 @@ def cll_transform(
     ) = None,
     g: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``cll_transform`` -- METHOD-SELECTION card #103.
+    """Node ``fast_transform`` -- method card #103.
 
     Fast (grouped/panel) data transformation
-    (fgrowth/fdiff/flag/fcumsum/fscale/fwithin/collap/qsu/TRA).
+    (growth/diff/lag/cumsum/scale/within/aggregate/summary/generic transform).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -351,5 +351,5 @@ def cll_transform(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cll_transform: not implemented. The method card is in ./README.md."
+        "fast_transform: not implemented."
     )

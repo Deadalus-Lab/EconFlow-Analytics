@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # ============================================================
 # GENERATED FILE -- DO NOT EDIT.
-# Source: artifacts/node-specs.v1.json (committed) via scripts/gen_schemas.py.
+# Source: artifacts/node-specs.json (committed) via scripts/gen_schemas.py.
 # Rebuild with: python scripts/gen_schemas.py
 # ============================================================
 """Tier 3 modules."""
@@ -20,7 +20,7 @@ MODULES: tuple[str, ...] = (
     'c10_trend_cycle_statespace',
     'c11_decomposition_accounting',
     'c12_distribution_risk',
-    'c13_dsge_general_equilibrium',
+    'c13_heterogeneous_agent_ge',
     'c14_bayesian_toolkit',
     'c15_model_evaluation',
     'c16_limited_dependent',
@@ -37,4 +37,20 @@ MODULES: tuple[str, ...] = (
     'c27_frequency_domain',
     'c28_trade_gravity',
     'c29_unsupervised_clustering',
+    'c30_duration_survival',
+    'c31_discrete_choice_demand',
+    'c32_matching_weighting',
+    'c33_nonparametric_semiparametric',
+    'c34_gmm_mestimation_partial_id',
+    'c35_resampling_inference',
+    'c36_monte_carlo_design',
+    'c37_asset_pricing_factors',
+    'c38_portfolio_allocation',
+    'c39_market_microstructure',
+    'c40_option_implied_derivatives',
+    'c41_credit_risk_default',
+    'c42_fiscal_debt_sustainability',
+    'c43_microsimulation_taxbenefit',
+    'c44_environment_energy_climate',
+    'c45_causal_discovery_graphs',
 )

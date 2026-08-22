@@ -3,7 +3,7 @@
 
 A REASON CODE is the machine-readable half of a 422: the human message explains,
 the code lets the caller branch. The set is CLOSED and is the same on both sides
-of the wire -- it is asserted against ``artifacts/parity-fixtures.v1.json``
+of the wire -- it is asserted against ``artifacts/parity-fixtures.json``
 (``reason_codes``) by the parity suite.
 
 WHY THIS MODULE IS SEPARATE from :mod:`econflow_engine.kinds`: the pointer gates

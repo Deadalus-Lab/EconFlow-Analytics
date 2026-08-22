@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``residual_diagnostics_reduced`` -- METHOD-SELECTION card #153.
+"""Method wrapper ``residual_diagnostics_reduced`` -- method card #153.
 
 #153 Residual diagnostics for a reduced-form VAR: a multivariate LM autocorrelation test
     (+HC-robust/univariate) + a combined bootstrap ARCH test (CA/ET/MARCH) + a wild-bootstrap AC
@@ -9,8 +9,8 @@ Category 04-structural-shocks; module ``residual_diagnostics_reduced``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def vtt_fit(
     trend: bool | None = None,
     exogen: np.ndarray | None = None,
 ) -> dict[str, Any]:
-    """Node ``vtt_fit`` -- METHOD-SELECTION card #153.
+    """Node ``vtt_fit`` -- method card #153.
 
     Residual diagnostics for a reduced-form VAR: a multivariate LM autocorrelation test
     (+HC-robust/univariate) + a combined bootstrap ARCH test (CA/ET/MARCH) + a wild-bootstrap AC
@@ -55,8 +55,8 @@ def vtt_fit(
     Registers its result under ``model``, so a later node can consume it as a handle.
 
     Args:
-        y: [multiseries_handle, required] Handle to a multivariate series (ts/mts/matrix, T x K) —
-            the data of the reduced-form VAR.
+        y: [multiseries_handle, required] Handle to a multivariate series (series/panel/matrix, T x
+            K) — the data of the reduced-form VAR.
         p: [integer, optional] VAR lag order (positive integer· default 1). Default ``1``.
         const: [boolean, optional] Constant term (default True). Default ``True``.
         trend: [boolean, optional] Linear trend (default False). Default ``False``.
@@ -67,7 +67,7 @@ def vtt_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vtt_fit: not implemented. The method card is in ./README.md."
+        "vtt_fit: not implemented."
     )
 
 
@@ -79,7 +79,7 @@ def vtt_portmanteau(
     univariate: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``vtt_portmanteau`` -- METHOD-SELECTION card #153.
+    """Node ``vtt_portmanteau`` -- method card #153.
 
     Residual diagnostics for a reduced-form VAR: a multivariate LM autocorrelation test
     (+HC-robust/univariate) + a combined bootstrap ARCH test (CA/ET/MARCH) + a wild-bootstrap AC
@@ -89,7 +89,7 @@ def vtt_portmanteau(
 
     Args:
         fit: [raw_handle, required] Handle to a fitted VAR: 'VARfit' (from vtt_fit) or 'varest'
-            (from vr_var, button #11).
+            (from vr_fit, button #11).
         h: [integer, optional] Order h of the alternative VAR(h) for the errors (positive integer·
             default 4). Default ``4``.
         HCtype: [raw, optional] Character-vector subset of {LM,HC0,HC1,HC2,HC3}: LM=homoskedastic,
@@ -103,7 +103,7 @@ def vtt_portmanteau(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vtt_portmanteau: not implemented. The method card is in ./README.md."
+        "vtt_portmanteau: not implemented."
     )
 
 
@@ -119,7 +119,7 @@ def vtt_arch(
     skT_param: Sequence[float] | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``vtt_arch`` -- METHOD-SELECTION card #153.
+    """Node ``vtt_arch`` -- method card #153.
 
     Residual diagnostics for a reduced-form VAR: a multivariate LM autocorrelation test
     (+HC-robust/univariate) + a combined bootstrap ARCH test (CA/ET/MARCH) + a wild-bootstrap AC
@@ -133,8 +133,8 @@ def vtt_arch(
             Default ``2``.
         B: [integer, optional] Number of bootstrap simulations (positive integer· default 499).
             Default ``499``.
-        seed: [integer, required] MANDATORY seed (set.seed before the bootstrap· cache key· without
-            it uncacheable).
+        seed: [integer, required] MANDATORY seed (seeded before the bootstrap· cache key· without it
+            uncacheable).
         ET: [boolean, optional] Eklund-Terasvirta CCC-ARCH test (default True). The CA
             (Catani-Ahlgren) test ALWAYS runs. Default ``True``.
         MARCH: [boolean, optional] Multivariate LM ARCH test (Lutkepohl 2006, sect. 16.5· default
@@ -150,7 +150,7 @@ def vtt_arch(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vtt_arch: not implemented. The method card is in ./README.md."
+        "vtt_arch: not implemented."
     )
 
 
@@ -166,7 +166,7 @@ def vtt_wildboot(
     seed: int,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``vtt_wildboot`` -- METHOD-SELECTION card #153.
+    """Node ``vtt_wildboot`` -- method card #153.
 
     Residual diagnostics for a reduced-form VAR: a multivariate LM autocorrelation test
     (+HC-robust/univariate) + a combined bootstrap ARCH test (CA/ET/MARCH) + a wild-bootstrap AC
@@ -186,7 +186,7 @@ def vtt_wildboot(
         WBdist: [enum, optional] Distribution of the wild-bootstrap weights (default rademacher).
         univariate: [boolean, optional] Additional per-equation test (default False). Default
             ``False``.
-        seed: [integer, required] MANDATORY seed (set.seed before the bootstrap· cache key).
+        seed: [integer, required] MANDATORY seed (seeded before the bootstrap· cache key).
         alpha: [number, optional] Decision significance level ∈ (0,1) (default 0.05). Default
             ``0.05``.
 
@@ -194,5 +194,5 @@ def vtt_wildboot(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vtt_wildboot: not implemented. The method card is in ./README.md."
+        "vtt_wildboot: not implemented."
     )

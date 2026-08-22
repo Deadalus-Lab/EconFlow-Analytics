@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``generalized_moments_hansen`` -- METHOD-SELECTION card #172.
+"""Method wrapper ``generalized_moments_hansen`` -- method card #172.
 
 #172 Generalized Method of Moments (linear IV / moment conditions) + the Hansen-Sargan J test
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``generalized_moments_hansen``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
     "gmm_fit",
-    "gmm_jtest",
+    "gmm_j_test",
     "NODE_META",
     "wire_model",
 ]
@@ -39,7 +39,7 @@ def gmm_fit(
     wmatrix: Literal["optimal", "ident"] | None = None,
     vcov: Literal["HAC", "MDS", "iid", "TrueFixed"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``gmm_fit`` -- METHOD-SELECTION card #172.
+    """Node ``gmm_fit`` -- method card #172.
 
     Generalized Method of Moments (linear IV / moment conditions) + the Hansen-Sargan J test.
 
@@ -65,27 +65,27 @@ def gmm_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gmm_fit: not implemented. The method card is in ./README.md."
+        "gmm_fit: not implemented."
     )
 
 
-def gmm_jtest(
+def gmm_j_test(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``gmm_jtest`` -- METHOD-SELECTION card #172.
+    """Node ``gmm_j_test`` -- method card #172.
 
     Generalized Method of Moments (linear IV / moment conditions) + the Hansen-Sargan J test.
 
     Category 07-causality-policy; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to a fitted gmm object (from gmm_fit$object) —
+        object: [raw_handle, required] Handle to a fitted gmm object (from gmm_fit.object) —
             Hansen-Sargan J of overidentification.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gmm_jtest: not implemented. The method card is in ./README.md."
+        "gmm_j_test: not implemented."
     )

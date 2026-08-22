@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_structural_var_sign_zero`` -- METHOD-SELECTION card #149.
+"""Method wrapper ``bayesian_structural_var_sign_zero`` -- method card #149.
 
 #149 Bayesian Structural VAR with SIGN + ZERO + NARRATIVE restrictions (set-identified, importance
-    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q) — bsvarSIGNs
+    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q)
 
 Category 04-structural-shocks; module ``bayesian_structural_var_sign_zero``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -47,18 +47,18 @@ def bss_estimate(
     allow_nonconvergence: bool | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``bss_estimate`` -- METHOD-SELECTION card #149.
+    """Node ``bss_estimate`` -- method card #149.
 
     Bayesian Structural VAR with SIGN + ZERO + NARRATIVE restrictions (set-identified, importance
-    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q) — bsvarSIGNs.
+    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q).
 
     Category 04-structural-shocks; memory class ``mcmc``.
 
     Registers its result under ``model``, so a later node can consume it as a handle.
 
     Args:
-        data: [multiseries_handle, required] Handle to a multivariate series (matrix/ts/mts, (T+p) x
-            N, N>=2, no NA/Inf).
+        data: [multiseries_handle, required] Handle to a multivariate series (matrix/series/panel,
+            (T+p) x N, N>=2, no NA/Inf).
         p: [integer, optional] VAR lag order (positive integer, default 1). Default ``1``.
         sign_irf: [matrix_handle, optional] NxN (horizon-0) matrix restrictions on the IRF: 1/-1
             sign, 0 ZERO restriction, NA unrestricted. (For an NxNxH array see the L1 wrapper.)
@@ -76,14 +76,14 @@ def bss_estimate(
             ``0.01``.
         allow_nonconvergence: [boolean, optional] True -> return with converged=False instead of
             STOP on degenerate weights (default False). Default ``False``.
-        seed: [integer, required] MANDATORY seed (integer) — the Gibbs sampler is stochastic·
-            set.seed beforehand.
+        seed: [integer, required] MANDATORY seed (integer) — the Gibbs sampler is stochastic· seeded
+            beforehand.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bss_estimate: not implemented. The method card is in ./README.md."
+        "bss_estimate: not implemented."
     )
 
 
@@ -95,10 +95,10 @@ def bss_irf(
     lower_q: float | None = None,
     upper_q: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bss_irf`` -- METHOD-SELECTION card #149.
+    """Node ``bss_irf`` -- method card #149.
 
     Bayesian Structural VAR with SIGN + ZERO + NARRATIVE restrictions (set-identified, importance
-    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q) — bsvarSIGNs.
+    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q).
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -117,7 +117,7 @@ def bss_irf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bss_irf: not implemented. The method card is in ./README.md."
+        "bss_irf: not implemented."
     )
 
 
@@ -128,10 +128,10 @@ def bss_fevd(
     lower_q: float | None = None,
     upper_q: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bss_fevd`` -- METHOD-SELECTION card #149.
+    """Node ``bss_fevd`` -- method card #149.
 
     Bayesian Structural VAR with SIGN + ZERO + NARRATIVE restrictions (set-identified, importance
-    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q) — bsvarSIGNs.
+    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q).
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -148,7 +148,7 @@ def bss_fevd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bss_fevd: not implemented. The method card is in ./README.md."
+        "bss_fevd: not implemented."
     )
 
 
@@ -162,10 +162,10 @@ def bss_forecast(
     upper_q: float | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``bss_forecast`` -- METHOD-SELECTION card #149.
+    """Node ``bss_forecast`` -- method card #149.
 
     Bayesian Structural VAR with SIGN + ZERO + NARRATIVE restrictions (set-identified, importance
-    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q) — bsvarSIGNs.
+    sampling; a Waggoner-Zha Gibbs sampler + a uniform rotation Q).
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -182,11 +182,11 @@ def bss_forecast(
         upper_q: [number, optional] Upper quantile of the predictive band in (0,1), > lower_q
             (default 0.84). Default ``0.84``.
         seed: [integer, required] MANDATORY seed (integer) — the predictive-density sampling is
-            stochastic· set.seed beforehand.
+            stochastic· seeded beforehand.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bss_forecast: not implemented. The method card is in ./README.md."
+        "bss_forecast: not implemented."
     )

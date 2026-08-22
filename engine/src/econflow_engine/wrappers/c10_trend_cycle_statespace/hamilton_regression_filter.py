@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``hamilton_regression_filter`` -- METHOD-SELECTION card #57.
+"""Method wrapper ``hamilton_regression_filter`` -- method card #57.
 
 #57 Hamilton regression filter
 
@@ -7,8 +7,8 @@ Category 10-trend-cycle-statespace; module ``hamilton_regression_filter``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,22 +23,22 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "hf_filter",
-    "hf_glm",
-    "hf_xts_from_long",
+    "ham_filter",
+    "ham_frame_from_long",
+    "ham_regression",
     "NODE_META",
     "wire_model",
 ]
 
 
-def hf_xts_from_long(
+def ham_frame_from_long(
     *,
     df: pd.DataFrame,
     series_name: str,
     transform: Literal["none", "log100"] | None = None,
     frequency: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``hf_xts_from_long`` -- METHOD-SELECTION card #57.
+    """Node ``ham_frame_from_long`` -- method card #57.
 
     Hamilton regression filter.
 
@@ -57,24 +57,24 @@ def hf_xts_from_long(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hf_xts_from_long: not implemented. The method card is in ./README.md."
+        "ham_frame_from_long: not implemented."
     )
 
 
-def hf_filter(
+def ham_filter(
     *,
     x: Any,
     h: int | None = None,
     p: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``hf_filter`` -- METHOD-SELECTION card #57.
+    """Node ``ham_filter`` -- method card #57.
 
     Hamilton regression filter.
 
     Category 10-trend-cycle-statespace; memory class ``light``.
 
     Args:
-        x: [raw_handle, required] Handle to an series from hf_xts_from_long (kept as series).
+        x: [raw_handle, required] Handle to an series from ham_frame_from_long (kept as series).
         h: [integer, optional] Regression horizon (default 2*periods_per_year).
         p: [integer, optional] Number of lags (>=2· default periods_per_year).
 
@@ -82,24 +82,24 @@ def hf_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hf_filter: not implemented. The method card is in ./README.md."
+        "ham_filter: not implemented."
     )
 
 
-def hf_glm(
+def ham_regression(
     *,
     x: Any,
     h: int | None = None,
     p: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``hf_glm`` -- METHOD-SELECTION card #57.
+    """Node ``ham_regression`` -- method card #57.
 
     Hamilton regression filter.
 
     Category 10-trend-cycle-statespace; memory class ``light``.
 
     Args:
-        x: [raw_handle, required] Handle to an series from hf_xts_from_long (underlying Hamilton
+        x: [raw_handle, required] Handle to an series from ham_frame_from_long (underlying Hamilton
             regression).
         h: [integer, optional] Regression horizon (default 2*periods_per_year).
         p: [integer, optional] Number of lags (>=2· default periods_per_year).
@@ -108,5 +108,5 @@ def hf_glm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hf_glm: not implemented. The method card is in ./README.md."
+        "ham_regression: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``beast_bayesian_decomposition`` -- METHOD-SELECTION card #186.
+"""Method wrapper ``beast_bayesian_decomposition`` -- method card #186.
 
 #186 BEAST — a Bayesian decomposition into trend + seasonality + change points with posterior change
     probabilities
@@ -8,8 +8,8 @@ Category 10-trend-cycle-statespace; module ``beast_bayesian_decomposition``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def beast_decompose(
     mcmc_chains: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``beast_decompose`` -- METHOD-SELECTION card #186.
+    """Node ``beast_decompose`` -- method card #186.
 
     BEAST — a Bayesian decomposition into trend + seasonality + change points with posterior change
     probabilities.
@@ -73,7 +73,7 @@ def beast_decompose(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "beast_decompose: not implemented. The method card is in ./README.md."
+        "beast_decompose: not implemented."
     )
 
 
@@ -83,7 +83,7 @@ def beast_changepoints(
     component: Literal["trend", "season"] | None = None,
     threshold: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``beast_changepoints`` -- METHOD-SELECTION card #186.
+    """Node ``beast_changepoints`` -- method card #186.
 
     BEAST — a Bayesian decomposition into trend + seasonality + change points with posterior change
     probabilities.
@@ -91,7 +91,7 @@ def beast_changepoints(
     Category 10-trend-cycle-statespace; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to a fitted beast (output of beast_decompose$object).
+        object: [raw_handle, required] Handle to a fitted beast (output of beast_decompose.object).
         component: [enum, optional] Which component's change-points to extract· 'season' only if the
             fit had seasonality. Default ``'trend'``.
         threshold: [number, optional] Minimum posterior probability cpPr ∈ [0,1] for a change-point
@@ -101,5 +101,5 @@ def beast_changepoints(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "beast_changepoints: not implemented. The method card is in ./README.md."
+        "beast_changepoints: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``rolling_windowed_series`` -- METHOD-SELECTION card #107.
+"""Method wrapper ``rolling_windowed_series`` -- method card #107.
 
 #107 Rolling / windowed series transforms (rate-of-change, momentum, moving-average smoothers,
     single-series rolling stats, rolling cor/cov)
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``rolling_windowed_series``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,23 +25,23 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "ttr_ma",
-    "ttr_momentum",
-    "ttr_roc",
-    "ttr_run",
-    "ttr_run_cor",
+    "mov_average",
+    "mov_momentum",
+    "mov_rate_of_change",
+    "mov_run_correlation",
+    "mov_run_stat",
     "NODE_META",
     "wire_model",
 ]
 
 
-def ttr_roc(
+def mov_rate_of_change(
     *,
     x: pd.Series,
     n: int | None = None,
     type: Literal["continuous", "discrete"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``ttr_roc`` -- METHOD-SELECTION card #107.
+    """Node ``mov_rate_of_change`` -- method card #107.
 
     Rolling / windowed series transforms (rate-of-change, momentum, moving-average smoothers,
     single-series rolling stats, rolling cor/cov).
@@ -58,16 +58,16 @@ def ttr_roc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ttr_roc: not implemented. The method card is in ./README.md."
+        "mov_rate_of_change: not implemented."
     )
 
 
-def ttr_momentum(
+def mov_momentum(
     *,
     x: pd.Series,
     n: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ttr_momentum`` -- METHOD-SELECTION card #107.
+    """Node ``mov_momentum`` -- method card #107.
 
     Rolling / windowed series transforms (rate-of-change, momentum, moving-average smoothers,
     single-series rolling stats, rolling cor/cov).
@@ -83,11 +83,11 @@ def ttr_momentum(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ttr_momentum: not implemented. The method card is in ./README.md."
+        "mov_momentum: not implemented."
     )
 
 
-def ttr_ma(
+def mov_average(
     *,
     x: pd.Series,
     n: int | None = None,
@@ -99,7 +99,7 @@ def ttr_ma(
     offset: float | None = None,
     sigma: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``ttr_ma`` -- METHOD-SELECTION card #107.
+    """Node ``mov_average`` -- method card #107.
 
     Rolling / windowed series transforms (rate-of-change, momentum, moving-average smoothers,
     single-series rolling stats, rolling cor/cov).
@@ -123,17 +123,17 @@ def ttr_ma(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ttr_ma: not implemented. The method card is in ./README.md."
+        "mov_average: not implemented."
     )
 
 
-def ttr_run(
+def mov_run_stat(
     *,
     x: pd.Series,
     n: int | None = None,
     fun: Literal["sum", "mean", "sd", "min", "max", "median", "mad", "var"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``ttr_run`` -- METHOD-SELECTION card #107.
+    """Node ``mov_run_stat`` -- method card #107.
 
     Rolling / windowed series transforms (rate-of-change, momentum, moving-average smoothers,
     single-series rolling stats, rolling cor/cov).
@@ -150,18 +150,18 @@ def ttr_run(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ttr_run: not implemented. The method card is in ./README.md."
+        "mov_run_stat: not implemented."
     )
 
 
-def ttr_run_cor(
+def mov_run_correlation(
     *,
     x: pd.Series,
     y: pd.Series,
     n: int | None = None,
     method: Literal["cor", "cov"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``ttr_run_cor`` -- METHOD-SELECTION card #107.
+    """Node ``mov_run_correlation`` -- method card #107.
 
     Rolling / windowed series transforms (rate-of-change, momentum, moving-average smoothers,
     single-series rolling stats, rolling cor/cov).
@@ -179,5 +179,5 @@ def ttr_run_cor(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ttr_run_cor: not implemented. The method card is in ./README.md."
+        "mov_run_correlation: not implemented."
     )

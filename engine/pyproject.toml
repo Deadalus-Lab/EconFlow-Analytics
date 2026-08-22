@@ -9,9 +9,9 @@
 #     members = ["engine", "backend"]
 #
 # so that a single `uv.lock` at the root resolves both members together. That is
-# what keeps the engine and the backend on the SAME pydantic/pyarrow build: the
-# wire contract in `econflow_engine.kinds` is validated on one side and consumed
-# on the other, and two independent resolutions could silently drift apart.
+# what keeps the engine and the backend on the SAME pydantic build: the wire
+# contract in `econflow_engine.kinds` is validated on one side and consumed on
+# the other, and two independent resolutions could silently drift apart.
 # A member never declares `[tool.uv.workspace]` itself — only the root does.
 
 [build-system]
@@ -22,7 +22,6 @@ build-backend = "hatchling.build"
 name = "econflow-engine"
 version = "0.1.0"
 description = "Econometric computation engine: typed node contracts, MCP surface, and method wrappers."
-readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
 authors = [{ name = "Panagiotis Tsikos" }]
@@ -37,11 +36,16 @@ classifiers = [
 
 dependencies = [
     "pydantic>=2",
+    # kinds.py imports MinLen and MaxLen from it DIRECTLY. It arrives anyway as a
+    # dependency of pydantic, which is exactly why this line was missing: the
+    # import works on every machine until the day pydantic stops needing it, and
+    # then it fails at import time on a clean install rather than in any test.
+    # Found by `deptry .` (DEP003), which is step 6 of run_verifications.sh.
+    "annotated-types",
     "pandas",
     "numpy",
     "scipy",
     "statsmodels",
-    "pyarrow",
     "orjson",
 ]
 
@@ -49,29 +53,197 @@ dependencies = [
 Homepage = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
 Source = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
 
+# The tools the engine's own gates are made of. They live HERE rather than in
+# the workspace root's `dev` group because they check the engine and nothing
+# else -- and, measured with uv 0.10.10, a member's `dev` group is a default
+# group of the workspace: `uv sync --locked` at the root installs it, so
+# run_verifications.sh and the image build reach these without a `--group` flag.
+#
+# EVERY ONE IS PINNED EXACTLY, which the runtime dependencies above are not.
+# The reason is the same one that pins ruff in ci.yml's py-lint job: for a
+# LIBRARY, a version range is a compatibility statement; for a GATE, the version
+# IS part of what its verdict means. A floating pyright would turn a pull
+# request red for a rule nobody chose, and a floating griffe would compare a
+# committed API baseline against a dump written by a different serialiser.
+[dependency-groups]
+dev = [
+    "beartype==0.22.9",
+    "deptry==0.25.1",
+    "griffe==2.1.0",
+    "interrogate==1.7.0",
+    # The `nodejs` extra rather than bare `pyright`: without it the package
+    # downloads a Node runtime into a user cache on first run, which is an
+    # unpinned network fetch in the middle of an image build whose whole claim is
+    # `uv sync --locked`. The extra puts that runtime in uv.lock with the rest.
+    "pyright[nodejs]==1.1.411",
+    "pytest-randomly==4.1.0",
+    "pytest-timeout==2.4.0",
+    # The only way to ASK whether the thread pins took effect. The four
+    # *_NUM_THREADS variables are read once, at library load time, by whichever
+    # OpenBLAS a wheel happens to vendor -- so setting them proves intent and
+    # nothing else. threadpoolctl reports what the loaded pools actually did with
+    # them, which is what tests/test_thread_pinning.py asserts. Dev group only:
+    # the engine's runtime must not depend on it.
+    "threadpoolctl==3.6.0",
+    # Coverage exists for ONE consumer: the SonarQube Cloud analysis, which is
+    # CI-based precisely because automatic analysis cannot import a coverage
+    # report ("Code coverage information is not supported"). It is NOT wired into
+    # run_verifications.sh and carries no floor: today every wrapper is a typed
+    # stub that raises, so a coverage figure would describe the harness rather
+    # than the catalogue. A floor lands with the first real bodies, in Phase 2.
+    "pytest-cov==7.1.0",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/econflow_engine"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+# --strict-markers: an unregistered mark -- almost always a typo -- is a warning
+# by default, so `@pytest.mark.conformace` selects nothing, the test it was
+# meant to tag runs in every selection, and `-m conformance` quietly matches an
+# empty set. --strict-config: an unrecognised key in THIS table is likewise only
+# a warning, which would let a misspelt `filterwarnings` below turn itself off.
+addopts = "--strict-markers --strict-config"
+
+# A NUMERICAL WARNING IS A RESULT, NOT A DIAGNOSTIC.
+# numpy reports a divide-by-zero, an invalid operation or an overflow as a
+# RuntimeWarning and returns nan or inf; pandas and scipy announce a changed
+# default the same way. The suite prints the same dot either way, so on a green
+# run none of it is ever read. Every warning is therefore an error here.
+#
+# A method that legitimately provokes one narrows it with a `filterwarnings`
+# mark on ITS OWN test -- a reviewable statement about one wrapper, rather than
+# a silence stretched over every method in the contract.
+filterwarnings = [
+    "error",
+    # THREE FUNCTIONS, ONE CAUSE, AND THE NARROWEST EXEMPTION THAT COVERS IT.
+    # `CacheStore` at node/cache.py:43 is a bare typing.Protocol, so isinstance()
+    # refuses it and beartype cannot check the `store` parameter of cache_get,
+    # cache_put and with_node_cache at run time. It says so in a
+    # BeartypeClawDecorWarning, which `error` above then makes fatal at
+    # collection. The message prefix pins this to those three functions in that
+    # one module: any OTHER function beartype cannot instrument still turns the
+    # session red, which is the whole point -- a checker that quietly stopped
+    # checking is worse than no checker.
+    #
+    # The real fix is one `@runtime_checkable` on that Protocol. It belongs to
+    # the module, not to the test session, so it is reported rather than made
+    # here; delete these two lines with it.
+    "ignore:Function econflow_engine\\.node\\.cache\\.:beartype.roar.BeartypeClawDecorWarning",
+]
+
+# A ceiling per TEST, not per suite: what this catches is one sampler that never
+# converges, and a suite-level limit would only report that as "the suite got
+# slow". 120 s is far above every test in the tree (the whole suite runs in
+# about three seconds) and far below a wait anyone would sit through.
+timeout = 120
+# `thread`, not the `signal` default that pytest_timeout.py picks wherever
+# SIGALRM exists. A signal handler runs between Python bytecodes, so it never
+# gets its turn while the interpreter is inside a BLAS call or a scipy C loop --
+# which is precisely where this engine's hangs will be. The cost is honest and
+# accepted: the thread method takes the whole process down with the stuck test.
+timeout_method = "thread"
+
 markers = [
     "conformance: oracle harness against a golden corpus of independently established values",
 ]
 
+# 100 %, AND THE FLOOR IS SET WHERE THE CORPUS ALREADY IS -- WHICH IS THE ONLY
+# MOMENT IT CAN BE. Every documentable object under wrappers/ carries a docstring
+# today because gen_wrappers.py writes it from the node spec: the argument list,
+# its kinds, its defaults and the method's own description. Reproduce the count
+# with `interrogate -c pyproject.toml -v src/econflow_engine/wrappers`, whose
+# `-c` is load-bearing -- see step 7 of run_verifications.sh for why.
+#
+# What this catches is the first HAND-WRITTEN body arriving with the generated
+# docstring deleted rather than extended. At any floor below 100 the first few
+# hundred could go silently, and a wrapper whose docstring is gone has lost the
+# only place its wire contract is stated in prose.
+[tool.interrogate]
+fail-under = 100
+
+# WHAT A CLEAN INSTALL WOULD HAVE FOUND, FOUND HERE INSTEAD. Run from `engine/`
+# and from `backend/`; it reads the [project] table beside it, so it must be run
+# IN each member rather than pointed at one -- `deptry engine` from the root
+# exits with DependencySpecificationNotFoundError.
+[tool.deptry]
+# The package under analysis imports itself: 321 of the 323 findings on the
+# first run were DEP003 'econflow_engine imported but it is a transitive
+# dependency', which is deptry not knowing that econflow_engine is the subject
+# rather than a dependency of it.
+# `contract_hash` is scripts/contract_hash.py, imported by scripts/gen_artifacts.py
+# as a sibling after a sys.path insert -- the same shape as the generators' import
+# of econflow_engine.naming, but a bare module name, so deptry reads it as an
+# undeclared distribution (DEP001). scripts/ is deliberately not a package: it is
+# build tooling that must run on the standard library alone, before anything is
+# installed. Naming it first party here is the accurate statement, not a silencer.
+known_first_party = ["econflow_engine", "contract_hash"]
+
+# api-baseline/ is a GATE, not shipped code: [tool.hatch.build.targets.wheel]
+# packages only src/econflow_engine, so nothing in that directory is ever
+# installed anywhere. Its checker imports griffe, a dev dependency, which deptry
+# is right to call misplaced (DEP004) in anything that IS shipped. deptry
+# excludes `tests` by default for the same reason; this adds the one other
+# directory in the engine that exists only to check the engine. The patterns are
+# regular expressions.
+extend_exclude = ["api-baseline"]
+
+[tool.deptry.per_rule_ignores]
+# DEP002 = declared and never imported. TRUE TODAY AND DELIBERATE: every wrapper
+# function in the tree is a typed stub that raises NotImplementedError, so nothing
+# imports statsmodels yet. It is declared because the Phase 2 bodies
+# are written against it. DELETE THIS LINE with the first wrapper that imports
+# statsmodels -- at that point the ignore starts hiding a real answer.
+DEP002 = ["statsmodels"]
+
+# THE SECOND TYPE CHECKER, AND IT IS NOT REDUNDANT.
+# mypy and pyright disagree about real code: pyright narrows through `assert`,
+# `isinstance` and walrus bindings that mypy widens back, it resolves overloads
+# and descriptor protocols by a different algorithm, and it reports unreachable
+# branches and partially-unknown types that mypy accepts. Two checkers that
+# agree cost one run; the case worth having them for is the one where they do
+# not.
+#
+# THE MODE WAS MEASURED, NOT CHOSEN, AND RE-MEASURED ON 2026-08-21. At pyright
+# 1.1.411 over the 765 files this include resolves to, `standard` reports 0 errors
+# and `strict` reports 634. Of those 634, 474 are reportMissingTypeStubs and 155
+# are reportUnknown{Variable,Argument,Member}Type -- that is scipy and statsmodels
+# shipping no type information, the same gap that mypy is given
+# `ignore_missing_imports` for below. Adopting `strict` would therefore mean 629
+# suppressions describing somebody else's packaging, and this file would report on
+# the stubs situation rather than on our code.
+#
+# Reproduce: copy the three keys below into a pyrightconfig.json beside this file,
+# set typeCheckingMode to "strict", and run
+# `uv run pyright -p pyrightconfig.json --outputjson --level error`.
+#
+# Unlike mypy, this DOES include the generated tier: it is emitted from a verified
+# artifact, so it should type-check, and it costs nothing to prove that it does.
+[tool.pyright]
+include = ["src/econflow_engine"]
+typeCheckingMode = "standard"
+pythonVersion = "3.12"
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
-files = ["src/econflow_engine", "scripts", "tests"]
+files = ["src/econflow_engine", "scripts", "tests", "api-baseline"]
 # The generated tier is machine-written from a verified artifact and is not
 # type-checked: it is re-emitted on every build and never hand-edited.
 exclude = "^src/econflow_engine/generated/"
 
-# scipy, statsmodels and pyarrow ship no type information and have no stub
-# package worth pinning. Silencing the import keeps `strict` meaningful for OUR
+# scipy and statsmodels ship no type information and have no stub package worth
+# pinning. Silencing the import keeps `strict` meaningful for OUR
 # code instead of drowning it in 150 identical notices about theirs. pandas is
 # NOT in this list: pandas-stubs exists and is a dev dependency, so pandas calls
 # stay type-checked.
 [[tool.mypy.overrides]]
-module = ["scipy.*", "statsmodels.*", "pyarrow.*"]
+# threadpoolctl ships a single module with no py.typed marker, so mypy refuses to
+# analyse it. It is a dev-group dependency used by exactly one test, and the value
+# of that test is what the LOADED pools report at run time -- not what a stub says
+# they would return. The others are the scientific stack, same reason.
+module = ["scipy.*", "statsmodels.*", "threadpoolctl"]
 ignore_missing_imports = true

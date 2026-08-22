@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``temporal_aggregation_series`` -- METHOD-SELECTION card #79.
+"""Method wrapper ``temporal_aggregation_series`` -- method card #79.
 
 #79 Temporal (dis)aggregation of series (Chow-Lin/Fernandez/Litterman/Denton disaggregation +
     aggregation)
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``temporal_aggregation_series``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -60,7 +60,7 @@ def td_disaggregate(
     criterion: Literal["proportional", "additive"] | None = None,
     h: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``td_disaggregate`` -- METHOD-SELECTION card #79.
+    """Node ``td_disaggregate`` -- method card #79.
 
     Temporal (dis)aggregation of series (Chow-Lin/Fernandez/Litterman/Denton disaggregation +
     aggregation).
@@ -82,7 +82,7 @@ def td_disaggregate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "td_disaggregate: not implemented. The method card is in ./README.md."
+        "td_disaggregate: not implemented."
     )
 
 
@@ -92,7 +92,7 @@ def td_aggregate(
     conversion: Literal["sum", "average", "first", "last"] | None = None,
     to: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``td_aggregate`` -- METHOD-SELECTION card #79.
+    """Node ``td_aggregate`` -- method card #79.
 
     Temporal (dis)aggregation of series (Chow-Lin/Fernandez/Litterman/Denton disaggregation +
     aggregation).
@@ -100,7 +100,7 @@ def td_aggregate(
     Category 00-data-utilities; memory class ``light``.
 
     Args:
-        x: [series_handle, required] Handle to a high-frequency ts/mts to aggregate.
+        x: [series_handle, required] Handle to a high-frequency series/panel to aggregate.
         conversion: [enum, optional] Aggregation function (flow->sum, index/rate->average,
             stock->last/first).
         to: [string, optional] Target frequency (e.g. 'annual') or an integer frequency ratio.
@@ -110,5 +110,5 @@ def td_aggregate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "td_aggregate: not implemented. The method card is in ./README.md."
+        "td_aggregate: not implemented."
     )

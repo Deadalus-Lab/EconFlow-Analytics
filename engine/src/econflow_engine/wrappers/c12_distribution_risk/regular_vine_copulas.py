@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``regular_vine_copulas`` -- METHOD-SELECTION card #198.
+"""Method wrapper ``regular_vine_copulas`` -- method card #198.
 
 #198 Regular-vine copulas — a pair-copula construction of the joint dependence (structure selection
     + loglik + simulate)
@@ -8,8 +8,8 @@ Category 12-distribution-risk; module ``regular_vine_copulas``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def vine_select(
     rotations: bool | None = None,
     method: Literal["mle", "itau"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vine_select`` -- METHOD-SELECTION card #198.
+    """Node ``vine_select`` -- method card #198.
 
     Regular-vine copulas — a pair-copula construction of the joint dependence (structure selection +
     loglik + simulate).
@@ -76,7 +76,7 @@ def vine_select(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vine_select: not implemented. The method card is in ./README.md."
+        "vine_select: not implemented."
     )
 
 
@@ -86,7 +86,7 @@ def vine_loglik(
     data: np.ndarray,
     separate: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``vine_loglik`` -- METHOD-SELECTION card #198.
+    """Node ``vine_loglik`` -- method card #198.
 
     Regular-vine copulas — a pair-copula construction of the joint dependence (structure selection +
     loglik + simulate).
@@ -104,7 +104,7 @@ def vine_loglik(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vine_loglik: not implemented. The method card is in ./README.md."
+        "vine_loglik: not implemented."
     )
 
 
@@ -114,7 +114,7 @@ def vine_sim(
     N: int,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``vine_sim`` -- METHOD-SELECTION card #198.
+    """Node ``vine_sim`` -- method card #198.
 
     Regular-vine copulas — a pair-copula construction of the joint dependence (structure selection +
     loglik + simulate).
@@ -130,5 +130,5 @@ def vine_sim(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vine_sim: not implemented. The method card is in ./README.md."
+        "vine_sim: not implemented."
     )

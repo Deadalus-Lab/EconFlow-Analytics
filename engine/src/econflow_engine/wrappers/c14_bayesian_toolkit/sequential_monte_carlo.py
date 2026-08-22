@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``sequential_monte_carlo`` -- METHOD-SELECTION card #205.
+"""Method wrapper ``sequential_monte_carlo`` -- method card #205.
 
 #205 Sequential Monte Carlo / particle filters for non-linear/non-Gaussian state-space models
     (bootstrap / auxiliary / Liu-West / ensemble Kalman)
@@ -8,8 +8,8 @@ Category 14-bayesian-toolkit; module ``sequential_monte_carlo``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def smc_filter(
     d: float | None = None,
     probs: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``smc_filter`` -- METHOD-SELECTION card #205.
+    """Node ``smc_filter`` -- method card #205.
 
     Sequential Monte Carlo / particle filters for non-linear/non-Gaussian state-space models
     (bootstrap / auxiliary / Liu-West / ensemble Kalman).
@@ -58,7 +58,7 @@ def smc_filter(
             top-level stochastic parameters).
         latentNodes: [series_codes, required] Non-empty character vector of stochastic latent nodes
             in time order (e.g. ['x'] or ['x[1:10]']).
-        seed: [integer, required] REQUIRED single integer seed (reproducibility· set.seed before the
+        seed: [integer, required] REQUIRED single integer seed (reproducibility· seeded before the
             run).
         constants: [raw_handle, optional] Handle to a named list of constants/dimensions (e.g. Tn)·
             optional.
@@ -84,5 +84,5 @@ def smc_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "smc_filter: not implemented. The method card is in ./README.md."
+        "smc_filter: not implemented."
     )

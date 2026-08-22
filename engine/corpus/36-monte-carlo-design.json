@@ -1,0 +1,1726 @@
+{
+ "category": "36-monte-carlo-design",
+ "cards": [
+  {
+   "id": 309,
+   "method": "Data-generating-process simulators for ARMA, VAR, GARCH, panel and factor models",
+   "wrapper_file": "c36_monte_carlo_design/dgp_simulators.py",
+   "tool_fns": [
+    "mc_simulate_arma",
+    "mc_simulate_var",
+    "mc_simulate_garch",
+    "mc_simulate_panel"
+   ],
+   "when": "you need data with known properties to check an estimator, size a study or demonstrate a method",
+   "when_not": "you have real data and no need for a controlled experiment",
+   "alternatives": [
+    {
+     "alt": "bootstrap from real data",
+     "criterion": "you want realism rather than a known truth"
+    },
+    {
+     "alt": "parametric simulation",
+     "criterion": "the truth must be known exactly"
+    },
+    {
+     "alt": "agent-based simulation",
+     "criterion": "the process is not describable in closed form"
+    }
+   ],
+   "output_key_fields": [
+    "simulated: the generated data",
+    "true_params: the parameters used, so an estimator can be scored against them",
+    "seed: the seed, without which nothing here is reproducible"
+   ],
+   "interpretation_traps": [
+    "the burn-in must be long enough for the process to reach stationarity, or the first observations carry the initial condition",
+    "a simulated series is only as informative as the process is realistic; a study on a well-behaved ARMA says nothing about a break-ridden real series",
+    "reusing one seed across designs makes results correlated in ways that look like findings"
+   ],
+   "sources": [
+    "Hamilton 1994, Time Series Analysis",
+    "Lutkepohl 2005, New Introduction to Multiple Time Series Analysis",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 310,
+   "method": "Size and power studies with rejection frequencies",
+   "wrapper_file": "c36_monte_carlo_design/size_power.py",
+   "tool_fns": [
+    "mc_size_study",
+    "mc_power_study"
+   ],
+   "when": "quantifying whether a test actually holds its nominal level and how often it detects a given alternative, before it is used on real data",
+   "when_not": "the test is standard and its properties in your design are already documented",
+   "alternatives": [
+    {
+     "alt": "analytic power",
+     "criterion": "a closed-form power function exists"
+    },
+    {
+     "alt": "simulation-based power",
+     "criterion": "the test is complex or the design is non-standard"
+    },
+    {
+     "alt": "bootstrap size correction",
+     "criterion": "the test over-rejects and you want a corrected critical value"
+    }
+   ],
+   "output_key_fields": [
+    "size: rejection frequency under the null, which should equal alpha",
+    "power: rejection frequency under each alternative",
+    "size_corrected_power: power at the empirical rather than nominal critical value",
+    "mc_se: Monte Carlo standard error of each frequency"
+   ],
+   "interpretation_traps": [
+    "comparing POWER between tests that do not have the same size is meaningless -- size-corrected power is the only fair comparison",
+    "every reported frequency has Monte Carlo error; with 1000 replications a 5% rate has a standard error near 0.7 percentage points",
+    "a test that over-rejects under the null will look powerful under the alternative for exactly the wrong reason"
+   ],
+   "sources": [
+    "Davidson & MacKinnon 2004, Econometric Theory and Methods, ch.4",
+    "Horowitz 2001, The bootstrap (Handbook of Econometrics 5)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 311,
+   "method": "Coverage and calibration checks",
+   "wrapper_file": "c36_monte_carlo_design/coverage_calibration.py",
+   "tool_fns": [
+    "mc_coverage_study",
+    "mc_pit"
+   ],
+   "when": "an interval or a predictive distribution claims a coverage level, and that claim should be checked rather than assumed",
+   "when_not": "the procedure is exact by construction, such as a randomisation interval in a finite design",
+   "alternatives": [
+    {
+     "alt": "coverage simulation",
+     "criterion": "you have a known truth to cover"
+    },
+    {
+     "alt": "PIT histogram",
+     "criterion": "the object is a predictive distribution rather than an interval"
+    },
+    {
+     "alt": "calibration curve",
+     "criterion": "the object is a probability forecast"
+    }
+   ],
+   "output_key_fields": [
+    "coverage: realised coverage per nominal level",
+    "coverage_error: realised minus nominal, with its Monte Carlo error",
+    "mean_width: interval width, since coverage alone can be bought with width",
+    "pit: probability-integral-transform values, uniform under correct calibration"
+   ],
+   "interpretation_traps": [
+    "coverage and width must be read TOGETHER; a trivially wide interval covers perfectly and says nothing",
+    "an under-covering interval is a bigger problem than a wide one, because it makes false claims rather than weak ones",
+    "PIT uniformity is necessary but not sufficient for calibration -- a badly wrong forecast can still be marginally calibrated"
+   ],
+   "sources": [
+    "Dawid 1984 (JRSS-A 147:278)",
+    "Gneiting, Balabdaoui & Raftery 2007 (JRSS-B 69:243-268)",
+    "scipy.stats"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 312,
+   "method": "Global sensitivity analysis: Sobol, Morris, FAST and delta",
+   "wrapper_file": "c36_monte_carlo_design/global_sensitivity.py",
+   "tool_fns": [
+    "mc_sobol",
+    "mc_morris",
+    "mc_sample_design"
+   ],
+   "when": "a model has many inputs and you want to know which ones actually drive the output, over the whole input space rather than at one point",
+   "when_not": "the model is cheap and linear, where local derivatives suffice; there are only one or two inputs",
+   "alternatives": [
+    {
+     "alt": "Morris screening",
+     "criterion": "many inputs and you only need to rank them cheaply"
+    },
+    {
+     "alt": "Sobol indices",
+     "criterion": "you want variance shares including interactions"
+    },
+    {
+     "alt": "local sensitivity",
+     "criterion": "the model is near-linear around one point"
+    }
+   ],
+   "output_key_fields": [
+    "first_order: the variance share attributable to each input alone",
+    "total_order: the share including every interaction the input takes part in",
+    "interaction: total minus first order, which is where the structure hides",
+    "conf_int: bootstrap intervals on each index"
+   ],
+   "interpretation_traps": [
+    "a LOCAL derivative is not a global sensitivity; for a nonlinear model the two routinely disagree about which input matters",
+    "first-order indices summing to well below one means interactions dominate -- read the total-order indices, not the first-order ones",
+    "Sobol needs a specific sample design; feeding it an arbitrary sample gives numbers that are not Sobol indices"
+   ],
+   "sources": [
+    "Sobol 2001 (Mathematics and Computers in Simulation 55:271)",
+    "Morris 1991 (Technometrics 33:161)",
+    "Saltelli et al. 2008, Global Sensitivity Analysis: The Primer",
+    "SALib"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 313,
+   "method": "Experimental designs: Latin hypercube, factorial, Box-Behnken and Plackett-Burman",
+   "wrapper_file": "c36_monte_carlo_design/experimental_designs.py",
+   "tool_fns": [
+    "mc_design_generate"
+   ],
+   "when": "choosing WHERE to evaluate an expensive model or run an experiment, so the runs you can afford answer the question",
+   "when_not": "the input space is one dimensional; you can afford to evaluate everywhere",
+   "alternatives": [
+    {
+     "alt": "Latin hypercube",
+     "criterion": "continuous inputs and a space-filling sample"
+    },
+    {
+     "alt": "full factorial",
+     "criterion": "few discrete factors and you want every combination"
+    },
+    {
+     "alt": "Plackett-Burman",
+     "criterion": "many factors, screening main effects only"
+    }
+   ],
+   "output_key_fields": [
+    "design: the generated design matrix",
+    "n_runs: how many evaluations the design costs",
+    "resolution: which effects are confounded with which, for fractional designs",
+    "discrepancy: space-filling quality for the sampling designs"
+   ],
+   "interpretation_traps": [
+    "a fractional factorial CONFOUNDS effects by construction; the resolution says which, and ignoring it means attributing an interaction to a main effect",
+    "Plackett-Burman screens main effects only and its interaction aliasing is complex -- it is a screen, not an analysis",
+    "Latin hypercube is space-filling in projection but a bad draw can still cluster; check the discrepancy"
+   ],
+   "sources": [
+    "Box & Behnken 1960 (Technometrics 2:455)",
+    "Plackett & Burman 1946 (Biometrika 33:305-325)",
+    "McKay, Beckman & Conover 1979 (Technometrics 21:239)",
+    "pyDOE3"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 314,
+   "method": "Power analysis and minimum detectable effect for randomised and cluster designs",
+   "wrapper_file": "c36_monte_carlo_design/power_analysis.py",
+   "tool_fns": [
+    "mc_power",
+    "mc_power_cluster"
+   ],
+   "when": "deciding how large a trial must be before running it, or reporting honestly what a completed trial could ever have detected",
+   "when_not": "the study is already run and you are tempted by post-hoc power, which is a function of the p-value and adds nothing",
+   "alternatives": [
+    {
+     "alt": "analytic power",
+     "criterion": "a standard two-arm design"
+    },
+    {
+     "alt": "cluster-adjusted power",
+     "criterion": "randomisation is at group level"
+    },
+    {
+     "alt": "simulation-based power",
+     "criterion": "the design is non-standard"
+    }
+   ],
+   "output_key_fields": [
+    "n_required: sample size for the requested power",
+    "power: attained power at a given size and effect",
+    "mde: the minimum detectable effect at the design's size",
+    "design_effect: the cluster inflation factor, 1 + (m-1)*icc"
+   ],
+   "interpretation_traps": [
+    "POST-HOC power computed from the observed effect is a monotone function of the p-value and tells you nothing -- do not report it",
+    "cluster randomisation inflates the required sample by the design effect; ignoring the intra-cluster correlation understates the needed size by a large multiple",
+    "the number of CLUSTERS, not the number of individuals, drives power in a cluster design"
+   ],
+   "sources": [
+    "Cohen 1988, Statistical Power Analysis for the Behavioral Sciences, 2nd ed.",
+    "Duflo, Glennerster & Kremer 2007, Using randomization in development economics research (Handbook of Development Economics 4)",
+    "statsmodels.stats.power"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 315,
+   "method": "Quasi-random and low-discrepancy sequences",
+   "wrapper_file": "c36_monte_carlo_design/quasi_random.py",
+   "tool_fns": [
+    "mc_qmc_sample",
+    "mc_discrepancy"
+   ],
+   "when": "Monte Carlo integration converges slowly; a low-discrepancy sequence fills the space more evenly and converges faster for smooth integrands",
+   "when_not": "the integrand is discontinuous or very high dimensional, where the advantage disappears; you need genuine randomness for a randomisation test",
+   "alternatives": [
+    {
+     "alt": "plain pseudo-random",
+     "criterion": "you need independence, as in a randomisation test"
+    },
+    {
+     "alt": "Sobol sequence",
+     "criterion": "smooth integrand, moderate dimension"
+    },
+    {
+     "alt": "scrambled sequences",
+     "criterion": "you want quasi-random accuracy plus an error estimate"
+    }
+   ],
+   "output_key_fields": [
+    "sample: the generated points",
+    "discrepancy: how evenly the points fill the space",
+    "scrambled: whether randomisation was applied, which is what permits an error estimate"
+   ],
+   "interpretation_traps": [
+    "an UNSCRAMBLED low-discrepancy sequence gives no error estimate at all, because the points are deterministic",
+    "the advantage decays with dimension and is usually gone well before a hundred dimensions",
+    "taking a non-power-of-two prefix of a Sobol sequence breaks its balance properties"
+   ],
+   "sources": [
+    "Niederreiter 1992, Random Number Generation and Quasi-Monte Carlo Methods",
+    "Owen 1997 (Annals of Statistics 25:1541)",
+    "scipy.stats.qmc"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "mc_simulate_arma",
+   "card_id": 309,
+   "register": null,
+   "input_example": {
+    "n": 1,
+    "d": 0,
+    "sigma": 1.0,
+    "burnin": 500,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "n",
+     "kind": "integer",
+     "required": true,
+     "description": "Observations to generate.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ar",
+     "kind": "num_array",
+     "required": false,
+     "description": "Autoregressive coefficients.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ma",
+     "kind": "num_array",
+     "required": false,
+     "description": "Moving-average coefficients.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "d",
+     "kind": "integer",
+     "required": false,
+     "description": "Order of integration.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "sigma",
+     "kind": "number",
+     "required": false,
+     "description": "Innovation standard deviation.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "burnin",
+     "kind": "integer",
+     "required": false,
+     "description": "Discarded initial observations.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 500,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_simulate_var",
+   "card_id": 309,
+   "register": null,
+   "input_example": {
+    "n": 1,
+    "coefs": "<matrix_handle>",
+    "sigma": "<matrix_handle>",
+    "burnin": 500,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "n",
+     "kind": "integer",
+     "required": true,
+     "description": "Observations to generate.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "coefs",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Stacked coefficient matrices.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "sigma",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Innovation covariance.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "burnin",
+     "kind": "integer",
+     "required": false,
+     "description": "Discarded initial observations.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 500,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_simulate_garch",
+   "card_id": 309,
+   "register": null,
+   "input_example": {
+    "n": 1,
+    "omega": 1.0,
+    "alpha": [
+     1.0,
+     2.0
+    ],
+    "beta": [
+     1.0,
+     2.0
+    ],
+    "distribution": "normal",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "n",
+     "kind": "integer",
+     "required": true,
+     "description": "Observations to generate.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "omega",
+     "kind": "number",
+     "required": true,
+     "description": "Variance intercept.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "num_array",
+     "required": true,
+     "description": "ARCH coefficients.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "beta",
+     "kind": "num_array",
+     "required": true,
+     "description": "GARCH coefficients.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distribution",
+     "kind": "enum",
+     "required": false,
+     "description": "Innovation distribution.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "normal",
+      "t",
+      "skewt",
+      "ged"
+     ],
+     "allowed_vars": null,
+     "default": "normal",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_simulate_panel",
+   "card_id": 309,
+   "register": null,
+   "input_example": {
+    "n_units": 1,
+    "n_periods": 1,
+    "beta": [
+     1.0,
+     2.0
+    ],
+    "unit_sd": 1.0,
+    "time_sd": 0.5,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "n_units",
+     "kind": "integer",
+     "required": true,
+     "description": "Number of units.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_periods",
+     "kind": "integer",
+     "required": true,
+     "description": "Periods per unit.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "beta",
+     "kind": "num_array",
+     "required": true,
+     "description": "Slope coefficients.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "unit_sd",
+     "kind": "number",
+     "required": false,
+     "description": "Standard deviation of unit effects.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "time_sd",
+     "kind": "number",
+     "required": false,
+     "description": "Standard deviation of time effects.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_size_study",
+   "card_id": 310,
+   "register": null,
+   "input_example": {
+    "dgp": "y ~ x",
+    "test": "y ~ x",
+    "n_replications": 1000,
+    "sample_sizes": [
+     50,
+     100,
+     250,
+     500
+    ],
+    "seed": 1,
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "dgp",
+     "kind": "formula",
+     "required": true,
+     "description": "Data-generating process under the null.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "test",
+     "kind": "formula",
+     "required": true,
+     "description": "Test to apply.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_replications",
+     "kind": "integer",
+     "required": false,
+     "description": "Monte Carlo replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "sample_sizes",
+     "kind": "int_array",
+     "required": false,
+     "description": "Sample sizes to scan.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      50,
+      100,
+      250,
+      500
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mc_power_study",
+   "card_id": 310,
+   "register": null,
+   "input_example": {
+    "dgp": "y ~ x",
+    "test": "y ~ x",
+    "effect_grid": [
+     1.0,
+     2.0
+    ],
+    "n_replications": 1000,
+    "size_correct": true,
+    "seed": 1,
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "dgp",
+     "kind": "formula",
+     "required": true,
+     "description": "Data-generating process under the alternative.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "test",
+     "kind": "formula",
+     "required": true,
+     "description": "Test to apply.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "effect_grid",
+     "kind": "num_array",
+     "required": true,
+     "description": "Alternative values to scan.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_replications",
+     "kind": "integer",
+     "required": false,
+     "description": "Monte Carlo replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "size_correct",
+     "kind": "boolean",
+     "required": false,
+     "description": "Report power at the empirical critical value.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mc_coverage_study",
+   "card_id": 311,
+   "register": null,
+   "input_example": {
+    "dgp": "y ~ x",
+    "procedure": "y ~ x",
+    "levels": [
+     0.8,
+     0.9,
+     0.95
+    ],
+    "n_replications": 1000,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "dgp",
+     "kind": "formula",
+     "required": true,
+     "description": "Data-generating process with a known truth.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "procedure",
+     "kind": "formula",
+     "required": true,
+     "description": "Interval procedure to assess.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "levels",
+     "kind": "num_array",
+     "required": false,
+     "description": "Nominal levels to check.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.8,
+      0.9,
+      0.95
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "n_replications",
+     "kind": "integer",
+     "required": false,
+     "description": "Monte Carlo replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_pit",
+   "card_id": 311,
+   "register": null,
+   "input_example": {
+    "observed": "<series_handle>",
+    "predictive_cdf": "<matrix_handle>",
+    "test": "ks"
+   },
+   "arguments": [
+    {
+     "name": "observed",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Realised outcomes.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "predictive_cdf",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Predictive CDF evaluated at the outcomes.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "test",
+     "kind": "enum",
+     "required": false,
+     "description": "Uniformity test.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "ks",
+      "ad",
+      "cvm",
+      "berkowitz"
+     ],
+     "allowed_vars": null,
+     "default": "ks",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "mc_sobol",
+   "card_id": 312,
+   "register": null,
+   "input_example": {
+    "problem": "<df_handle>",
+    "outputs": "<series_handle>",
+    "n_samples": 1024,
+    "calc_second_order": false,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "problem",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Input definition: names and bounds.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "outputs",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Model outputs at the generated design.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_samples",
+     "kind": "integer",
+     "required": false,
+     "description": "Base sample size.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1024,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "calc_second_order",
+     "kind": "boolean",
+     "required": false,
+     "description": "Also compute second-order indices.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mc_morris",
+   "card_id": 312,
+   "register": null,
+   "input_example": {
+    "problem": "<df_handle>",
+    "outputs": "<series_handle>",
+    "n_trajectories": 100,
+    "levels": 4,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "problem",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Input definition: names and bounds.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "outputs",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Model outputs at the generated design.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_trajectories",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of trajectories.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "levels",
+     "kind": "integer",
+     "required": false,
+     "description": "Grid levels per input.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 4,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_sample_design",
+   "card_id": 312,
+   "register": null,
+   "input_example": {
+    "problem": "<df_handle>",
+    "method": "sobol",
+    "n_samples": 1024,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "problem",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Input definition: names and bounds.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Sampling scheme required by the analysis.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "sobol",
+      "morris",
+      "fast",
+      "latin_hypercube",
+      "finite_diff"
+     ],
+     "allowed_vars": null,
+     "default": "sobol",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_samples",
+     "kind": "integer",
+     "required": false,
+     "description": "Base sample size.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1024,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_design_generate",
+   "card_id": 313,
+   "register": null,
+   "input_example": {
+    "n_factors": 1,
+    "design": "lhs",
+    "n_samples": 100,
+    "criterion": "maximin",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": true,
+     "description": "Number of factors.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "design",
+     "kind": "enum",
+     "required": false,
+     "description": "Design family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lhs",
+      "full_factorial",
+      "fractional_factorial",
+      "box_behnken",
+      "central_composite",
+      "plackett_burman"
+     ],
+     "allowed_vars": null,
+     "default": "lhs",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_samples",
+     "kind": "integer",
+     "required": false,
+     "description": "Runs for the sampling designs.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "levels",
+     "kind": "int_array",
+     "required": false,
+     "description": "Levels per factor for factorial designs.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "criterion",
+     "kind": "enum",
+     "required": false,
+     "description": "Optimality criterion for Latin hypercube.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "maximin",
+      "centermaximin",
+      "correlation",
+      "none"
+     ],
+     "allowed_vars": null,
+     "default": "maximin",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_power",
+   "card_id": 314,
+   "register": null,
+   "input_example": {
+    "solve_for": "n",
+    "power": 0.8,
+    "ratio": 1.0,
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "solve_for",
+     "kind": "enum",
+     "required": false,
+     "description": "Quantity to solve for.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "n",
+      "power",
+      "effect"
+     ],
+     "allowed_vars": null,
+     "default": "n",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "effect_size",
+     "kind": "number",
+     "required": false,
+     "description": "Standardised effect size.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n",
+     "kind": "integer",
+     "required": false,
+     "description": "Sample size per arm.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "power",
+     "kind": "number",
+     "required": false,
+     "description": "Target power.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.8,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "ratio",
+     "kind": "number",
+     "required": false,
+     "description": "Allocation ratio between arms.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mc_power_cluster",
+   "card_id": 314,
+   "register": null,
+   "input_example": {
+    "cluster_size": 1,
+    "icc": 1.0,
+    "power": 0.8,
+    "solve_for": "n_clusters",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "n_clusters",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of clusters.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cluster_size",
+     "kind": "integer",
+     "required": true,
+     "description": "Units per cluster.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "icc",
+     "kind": "number",
+     "required": true,
+     "description": "Intra-cluster correlation.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "effect_size",
+     "kind": "number",
+     "required": false,
+     "description": "Standardised effect size.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "power",
+     "kind": "number",
+     "required": false,
+     "description": "Target power.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.8,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "solve_for",
+     "kind": "enum",
+     "required": false,
+     "description": "Quantity to solve for.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "n_clusters",
+      "power",
+      "effect"
+     ],
+     "allowed_vars": null,
+     "default": "n_clusters",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mc_qmc_sample",
+   "card_id": 315,
+   "register": null,
+   "input_example": {
+    "n_dimensions": 1,
+    "n_samples": 1,
+    "sequence": "sobol",
+    "scramble": true,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "n_dimensions",
+     "kind": "integer",
+     "required": true,
+     "description": "Dimension of the sample.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_samples",
+     "kind": "integer",
+     "required": true,
+     "description": "Number of points.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "sequence",
+     "kind": "enum",
+     "required": false,
+     "description": "Sequence family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "sobol",
+      "halton",
+      "latin_hypercube",
+      "poisson_disk"
+     ],
+     "allowed_vars": null,
+     "default": "sobol",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "scramble",
+     "kind": "boolean",
+     "required": false,
+     "description": "Randomise the sequence to permit an error estimate.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mc_discrepancy",
+   "card_id": 315,
+   "register": null,
+   "input_example": {
+    "sample": "<matrix_handle>",
+    "method": "cd"
+   },
+   "arguments": [
+    {
+     "name": "sample",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Point set to assess.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Discrepancy measure.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "cd",
+      "wd",
+      "md",
+      "l2_star"
+     ],
+     "allowed_vars": null,
+     "default": "cd",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  }
+ ]
+}

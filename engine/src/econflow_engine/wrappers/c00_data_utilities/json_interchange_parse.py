@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``json_interchange_parse`` -- METHOD-SELECTION card #99.
+"""Method wrapper ``json_interchange_parse`` -- method card #99.
 
-#99 JSON interchange: parse (fromJSON) / serialise (toJSON) / validate / NDJSON stream in-out
+#99 JSON interchange: parse / serialise / validate / NDJSON stream in-out
 
 Category 00-data-utilities; module ``json_interchange_parse``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,9 +41,9 @@ def json_parse(
     simplify_dataframe: bool | None = None,
     simplify_matrix: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``json_parse`` -- METHOD-SELECTION card #99.
+    """Node ``json_parse`` -- method card #99.
 
-    JSON interchange: parse (fromJSON) / serialise (toJSON) / validate / NDJSON stream in-out.
+    JSON interchange: parse / serialise / validate / NDJSON stream in-out.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -64,7 +64,7 @@ def json_parse(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "json_parse: not implemented. The method card is in ./README.md."
+        "json_parse: not implemented."
     )
 
 
@@ -78,9 +78,9 @@ def json_write(
     null: Literal["list", "null"] | None = None,
     digits: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``json_write`` -- METHOD-SELECTION card #99.
+    """Node ``json_write`` -- method card #99.
 
-    JSON interchange: parse (fromJSON) / serialise (toJSON) / validate / NDJSON stream in-out.
+    JSON interchange: parse / serialise / validate / NDJSON stream in-out.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -100,7 +100,7 @@ def json_write(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "json_write: not implemented. The method card is in ./README.md."
+        "json_write: not implemented."
     )
 
 
@@ -108,9 +108,9 @@ def json_validate(
     *,
     txt: str,
 ) -> dict[str, Any]:
-    """Node ``json_validate`` -- METHOD-SELECTION card #99.
+    """Node ``json_validate`` -- method card #99.
 
-    JSON interchange: parse (fromJSON) / serialise (toJSON) / validate / NDJSON stream in-out.
+    JSON interchange: parse / serialise / validate / NDJSON stream in-out.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -121,7 +121,7 @@ def json_validate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "json_validate: not implemented. The method card is in ./README.md."
+        "json_validate: not implemented."
     )
 
 
@@ -130,9 +130,9 @@ def json_stream_parse(
     txt: str,
     flatten: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``json_stream_parse`` -- METHOD-SELECTION card #99.
+    """Node ``json_stream_parse`` -- method card #99.
 
-    JSON interchange: parse (fromJSON) / serialise (toJSON) / validate / NDJSON stream in-out.
+    JSON interchange: parse / serialise / validate / NDJSON stream in-out.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -147,7 +147,7 @@ def json_stream_parse(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "json_stream_parse: not implemented. The method card is in ./README.md."
+        "json_stream_parse: not implemented."
     )
 
 
@@ -156,9 +156,9 @@ def json_stream_write(
     x: pd.DataFrame,
     pagesize: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``json_stream_write`` -- METHOD-SELECTION card #99.
+    """Node ``json_stream_write`` -- method card #99.
 
-    JSON interchange: parse (fromJSON) / serialise (toJSON) / validate / NDJSON stream in-out.
+    JSON interchange: parse / serialise / validate / NDJSON stream in-out.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -170,5 +170,5 @@ def json_stream_write(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "json_stream_write: not implemented. The method card is in ./README.md."
+        "json_stream_write: not implemented."
     )

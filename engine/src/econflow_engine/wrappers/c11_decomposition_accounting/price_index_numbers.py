@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``price_index_numbers`` -- METHOD-SELECTION card #190.
+"""Method wrapper ``price_index_numbers`` -- method card #190.
 
 #190 Price index numbers (bilateral/multilateral/spliced) + CPI-subindex contribution decompositions
 
@@ -7,8 +7,8 @@ Category 11-decomposition-accounting; module ``price_index_numbers``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ def pi_bilateral(
     ) = None,
     interval: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pi_bilateral`` -- METHOD-SELECTION card #190.
+    """Node ``pi_bilateral`` -- method card #190.
 
     Price index numbers (bilateral/multilateral/spliced) + CPI-subindex contribution decompositions.
 
@@ -72,7 +72,7 @@ def pi_bilateral(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pi_bilateral: not implemented. The method card is in ./README.md."
+        "pi_bilateral: not implemented."
     )
 
 
@@ -85,7 +85,7 @@ def pi_multilateral(
     window: int | None = None,
     wstart: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``pi_multilateral`` -- METHOD-SELECTION card #190.
+    """Node ``pi_multilateral`` -- method card #190.
 
     Price index numbers (bilateral/multilateral/spliced) + CPI-subindex contribution decompositions.
 
@@ -106,7 +106,7 @@ def pi_multilateral(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pi_multilateral: not implemented. The method card is in ./README.md."
+        "pi_multilateral: not implemented."
     )
 
 
@@ -131,7 +131,7 @@ def pi_splice(
     ) = None,
     interval: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``pi_splice`` -- METHOD-SELECTION card #190.
+    """Node ``pi_splice`` -- method card #190.
 
     Price index numbers (bilateral/multilateral/spliced) + CPI-subindex contribution decompositions.
 
@@ -153,7 +153,7 @@ def pi_splice(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pi_splice: not implemented. The method card is in ./README.md."
+        "pi_splice: not implemented."
     )
 
 
@@ -167,7 +167,7 @@ def pi_contributions(
     interval: bool | None = None,
     prec: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pi_contributions`` -- METHOD-SELECTION card #190.
+    """Node ``pi_contributions`` -- method card #190.
 
     Price index numbers (bilateral/multilateral/spliced) + CPI-subindex contribution decompositions.
 
@@ -191,5 +191,5 @@ def pi_contributions(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pi_contributions: not implemented. The method card is in ./README.md."
+        "pi_contributions: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``arbitrage_free_affine`` -- METHOD-SELECTION card #211.
+"""Method wrapper ``arbitrage_free_affine`` -- method card #211.
 
 #211 Arbitrage-free affine (Gaussian) term-structure model — JSZ-style single-country JPS estimation
     with unspanned macro risks (risk-neutral Q + physical P parameters, model-implied yields,
@@ -9,8 +9,8 @@ Category 18-yield-curve; module ``arbitrage_free_affine``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -59,7 +59,7 @@ def atsm_estimate(
     global_macro: np.ndarray | None = None,
     dom_macro: np.ndarray | None = None,
 ) -> dict[str, Any]:
-    """Node ``atsm_estimate`` -- METHOD-SELECTION card #211.
+    """Node ``atsm_estimate`` -- method card #211.
 
     Arbitrage-free affine (Gaussian) term-structure model — JSZ-style single-country JPS estimation
     with unspanned macro risks (risk-neutral Q + physical P parameters, model-implied yields,
@@ -74,7 +74,7 @@ def atsm_estimate(
             dom_macro.
         n_factors: [integer, optional] Number of country-specific spanned factors N (>=1, <
             #maturities). Default ``1``.
-        global_var: [series_codes, optional] Names of global variables (rownames of global_macro;
+        global_var: [series_codes, optional] Names of global variables (row labels of global_macro;
             default 'Gl_Eco_Act').
         dom_var: [series_codes, optional] Names of domestic variables ('<dom_var> <economy>' in
             dom_macro; default 'Eco_Act').
@@ -90,8 +90,8 @@ def atsm_estimate(
         compute_term_premia: [boolean, optional] True -> model-implied yields + term premia +
             expected component; False -> estimation only (default True). Default ``True``.
         yields: [matrix_handle, optional] Handle to a numeric matrix of yields (rows
-            'Y<mat>M_<economy>' × dates 'dd-mm-yyyy', with rownames/colnames); None -> built-in
-            'CM_2024'.
+            'Y<mat>M_<economy>' × dates 'dd-mm-yyyy', with row labels/column labels); None ->
+            built-in 'CM_2024'.
         global_macro: [matrix_handle, optional] Handle to a numeric matrix of global macro
             (variables × dates); None -> built-in; ALL-or-NONE with yields/dom_macro.
         dom_macro: [matrix_handle, optional] Handle to a numeric matrix of domestic macro ('<var>
@@ -101,5 +101,5 @@ def atsm_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "atsm_estimate: not implemented. The method card is in ./README.md."
+        "atsm_estimate: not implemented."
     )

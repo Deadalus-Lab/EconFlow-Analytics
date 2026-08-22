@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``synthetic_control_prediction`` -- METHOD-SELECTION card #41.
+"""Method wrapper ``synthetic_control_prediction`` -- method card #41.
 
 #41 Synthetic Control + prediction intervals
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``synthetic_control_prediction``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,15 +24,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_scdata",
-    "wrap_scest",
-    "wrap_scpi",
+    "scp_estimate",
+    "scp_intervals",
+    "scp_prepare_data",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_scdata(
+def scp_prepare_data(
     *,
     df: pd.DataFrame,
     id_var: str,
@@ -46,7 +46,7 @@ def wrap_scdata(
     constant: bool | None = None,
     cointegrated_data: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_scdata`` -- METHOD-SELECTION card #41.
+    """Node ``scp_prepare_data`` -- method card #41.
 
     Synthetic Control + prediction intervals.
 
@@ -72,17 +72,17 @@ def wrap_scdata(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_scdata: not implemented. The method card is in ./README.md."
+        "scp_prepare_data: not implemented."
     )
 
 
-def wrap_scest(
+def scp_estimate(
     *,
     data: Any,
     V: Literal["separate", "pooled"] | None = None,
     solver: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_scest`` -- METHOD-SELECTION card #41.
+    """Node ``scp_estimate`` -- method card #41.
 
     Synthetic Control + prediction intervals.
 
@@ -91,7 +91,7 @@ def wrap_scest(
     Registers its result under ``object``, so a later node can consume it as a handle.
 
     Args:
-        data: [raw_handle, required] Handle to an scdata object (from wrap_scdata).
+        data: [raw_handle, required] Handle to an scdata object (from scp_prepare_data).
         V: [enum, optional] Weighting matrix scheme (default separate).
         solver: [string, optional] Convex solver (default CLARABEL). Default ``'CLARABEL'``.
 
@@ -99,11 +99,11 @@ def wrap_scest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_scest: not implemented. The method card is in ./README.md."
+        "scp_estimate: not implemented."
     )
 
 
-def wrap_scpi(
+def scp_intervals(
     *,
     data: Any,
     V: Literal["separate", "pooled"] | None = None,
@@ -112,7 +112,7 @@ def wrap_scpi(
     sims: int | None = None,
     solver: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_scpi`` -- METHOD-SELECTION card #41.
+    """Node ``scp_intervals`` -- method card #41.
 
     Synthetic Control + prediction intervals.
 
@@ -131,5 +131,5 @@ def wrap_scpi(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_scpi: not implemented. The method card is in ./README.md."
+        "scp_intervals: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``categorical_association_contingency`` -- METHOD-SELECTION card #257.
+"""Method wrapper ``categorical_association_contingency`` -- method card #257.
 
 #257 Categorical association / contingency tables: a chi-squared test of independence, Fisher's
     exact test, nominal vs ordinal association measures with CIs
@@ -8,8 +8,8 @@ Category 25-expectations-surveys; module ``categorical_association_contingency``
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from econflow_engine.generated.args.c25_expectations_surveys import NODE_META, w
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "ca_assocs",
+    "ca_associations",
     "ca_chisq",
     "ca_contingency",
     "ca_fisher",
@@ -47,7 +47,7 @@ def ca_contingency(
     gate_alpha: float | None = None,
     ordered: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ca_contingency`` -- METHOD-SELECTION card #257.
+    """Node ``ca_contingency`` -- method card #257.
 
     Categorical association / contingency tables: a chi-squared test of independence, Fisher's exact
     test, nominal vs ordinal association measures with CIs.
@@ -64,8 +64,8 @@ def ca_contingency(
         y: [raw_handle, required] Handle to the CORRESPONDING coded vector for the COLUMN variable.
             SAME length as 'x' — PAIRED answers from the SAME respondents.
         x_name: [string, optional] LABEL of the ROW variable (NOT data; default 'x'). Used in the
-            dimnames and in the cross-section gate's diagnostics. Must differ from 'y_name'. Default
-            ``'x'``.
+            axis labels and in the cross-section gate's diagnostics. Must differ from 'y_name'.
+            Default ``'x'``.
         y_name: [string, optional] LABEL of the COLUMN variable (NOT data; default 'y'). Default
             ``'y'``.
         x_levels: [num_array, optional] OPTIONAL COMPLETE set of INTEGER codes of the row variable
@@ -106,7 +106,7 @@ def ca_contingency(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ca_contingency: not implemented. The method card is in ./README.md."
+        "ca_contingency: not implemented."
     )
 
 
@@ -132,7 +132,7 @@ def ca_chisq(
     B: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ca_chisq`` -- METHOD-SELECTION card #257.
+    """Node ``ca_chisq`` -- method card #257.
 
     Categorical association / contingency tables: a chi-squared test of independence, Fisher's exact
     test, nominal vs ordinal association measures with CIs.
@@ -149,8 +149,8 @@ def ca_chisq(
         y: [raw_handle, required] Handle to the CORRESPONDING coded vector for the COLUMN variable.
             SAME length as 'x' — PAIRED answers from the SAME respondents.
         x_name: [string, optional] LABEL of the ROW variable (NOT data; default 'x'). Used in the
-            dimnames and in the cross-section gate's diagnostics. Must differ from 'y_name'. Default
-            ``'x'``.
+            axis labels and in the cross-section gate's diagnostics. Must differ from 'y_name'.
+            Default ``'x'``.
         y_name: [string, optional] LABEL of the COLUMN variable (NOT data; default 'y'). Default
             ``'y'``.
         x_levels: [num_array, optional] OPTIONAL COMPLETE set of INTEGER codes of the row variable
@@ -200,7 +200,7 @@ def ca_chisq(
             'yates_applied' says what ACTUALLY happened. AFFECTS ONLY 'statistic'/'p_value' (the
             TEST's statistic). THE SIZE MEASURES ARE NOT: 'cramers_v' and 'contribution_share' are
             ALWAYS computed from the UNCORRECTED Pearson X² ('statistic_pearson'; Cramér 1946
-            §21.9), so they COINCIDE with ca_assocs. Default ``True``.
+            §21.9), so they COINCIDE with ca_associations. Default ``True``.
         simulate_p_value: [boolean, optional] Monte-Carlo p-value instead of the asymptotic/exact
             path (default False). It is the WAY OUT when the Cochran rule rejects the chi-square (it
             does not rely on the asymptotic) or when the exact Fisher does not fit in memory
@@ -208,7 +208,7 @@ def ca_chisq(
         B: [integer, optional] Monte-Carlo replications when simulate_p_value=True (default 2000;
             minimum 100). Ignored otherwise. Default ``2000``.
         seed: [integer, optional] Seed of the Monte-Carlo path (default 1234). The call runs with
-            set.seed(seed) AND restores the caller's.Random.seed => a REPRODUCIBLE p-value without
+            the seed set AND restores the caller's RNG state => a REPRODUCIBLE p-value without
             contaminating the RNG stream. Ignored on the algebraic (deterministic) paths. Default
             ``1234``.
 
@@ -216,7 +216,7 @@ def ca_chisq(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ca_chisq: not implemented. The method card is in ./README.md."
+        "ca_chisq: not implemented."
     )
 
 
@@ -243,7 +243,7 @@ def ca_fisher(
     workspace: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ca_fisher`` -- METHOD-SELECTION card #257.
+    """Node ``ca_fisher`` -- method card #257.
 
     Categorical association / contingency tables: a chi-squared test of independence, Fisher's exact
     test, nominal vs ordinal association measures with CIs.
@@ -260,8 +260,8 @@ def ca_fisher(
         y: [raw_handle, required] Handle to the CORRESPONDING coded vector for the COLUMN variable.
             SAME length as 'x' — PAIRED answers from the SAME respondents.
         x_name: [string, optional] LABEL of the ROW variable (NOT data; default 'x'). Used in the
-            dimnames and in the cross-section gate's diagnostics. Must differ from 'y_name'. Default
-            ``'x'``.
+            axis labels and in the cross-section gate's diagnostics. Must differ from 'y_name'.
+            Default ``'x'``.
         y_name: [string, optional] LABEL of the COLUMN variable (NOT data; default 'y'). Default
             ``'y'``.
         x_levels: [num_array, optional] OPTIONAL COMPLETE set of INTEGER codes of the row variable
@@ -319,7 +319,7 @@ def ca_fisher(
             THERE too ("FEXACT error 7"); 12x12 blows up even at 2e8 => then ONLY simulate_p_value.
             Default ``200000``.
         seed: [integer, optional] Seed of the Monte-Carlo path (default 1234). The call runs with
-            set.seed(seed) AND restores the caller's.Random.seed => a REPRODUCIBLE p-value without
+            the seed set AND restores the caller's RNG state => a REPRODUCIBLE p-value without
             contaminating the RNG stream. Ignored on the algebraic (deterministic) paths. Default
             ``1234``.
 
@@ -327,11 +327,11 @@ def ca_fisher(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ca_fisher: not implemented. The method card is in ./README.md."
+        "ca_fisher: not implemented."
     )
 
 
-def ca_assocs(
+def ca_associations(
     *,
     x: Any,
     y: Any,
@@ -351,7 +351,7 @@ def ca_assocs(
     cramer_method: Literal["ncchisq", "ncchisqadj", "fisher", "fisheradj"] | None = None,
     correct: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ca_assocs`` -- METHOD-SELECTION card #257.
+    """Node ``ca_associations`` -- method card #257.
 
     Categorical association / contingency tables: a chi-squared test of independence, Fisher's exact
     test, nominal vs ordinal association measures with CIs.
@@ -368,8 +368,8 @@ def ca_assocs(
         y: [raw_handle, required] Handle to the CORRESPONDING coded vector for the COLUMN variable.
             SAME length as 'x' — PAIRED answers from the SAME respondents.
         x_name: [string, optional] LABEL of the ROW variable (NOT data; default 'x'). Used in the
-            dimnames and in the cross-section gate's diagnostics. Must differ from 'y_name'. Default
-            ``'x'``.
+            axis labels and in the cross-section gate's diagnostics. Must differ from 'y_name'.
+            Default ``'x'``.
         y_name: [string, optional] LABEL of the COLUMN variable (NOT data; default 'y'). Default
             ``'y'``.
         x_levels: [num_array, optional] OPTIONAL COMPLETE set of INTEGER codes of the row variable
@@ -425,5 +425,5 @@ def ca_assocs(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ca_assocs: not implemented. The method card is in ./README.md."
+        "ca_associations: not implemented."
     )

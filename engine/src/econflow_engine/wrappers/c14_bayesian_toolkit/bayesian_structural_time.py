@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_structural_time`` -- METHOD-SELECTION card #204.
+"""Method wrapper ``bayesian_structural_time`` -- method card #204.
 
-#204 Bayesian Structural Time Series (state.specification: local/semilocal trend + seasonal + AR +
+#204 Bayesian Structural Time Series (state specification: local/semilocal trend + seasonal + AR +
     spike-and-slab regression) with MCMC
 
 Category 14-bayesian-toolkit; module ``bayesian_structural_time``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -48,9 +48,9 @@ def bsts_fit(
     expected_model_size: float | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``bsts_fit`` -- METHOD-SELECTION card #204.
+    """Node ``bsts_fit`` -- method card #204.
 
-    Bayesian Structural Time Series (state.specification: local/semilocal trend + seasonal + AR +
+    Bayesian Structural Time Series (state specification: local/semilocal trend + seasonal + AR +
     spike-and-slab regression) with MCMC.
 
     Category 14-bayesian-toolkit; memory class ``mcmc``.
@@ -78,13 +78,13 @@ def bsts_fit(
         burn: [integer, optional] Burn-in draws to discard (default None = SuggestBurn(0.1)).
         expected_model_size: [number, optional] Prior expected number of regressors
             (spike-and-slab)· ONLY in regression mode.
-        seed: [integer, required] REQUIRED seed (MCMC determinism· set.seed + bsts C++ RNG).
+        seed: [integer, required] REQUIRED seed (MCMC determinism· seeded + BSTS C++ RNG).
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsts_fit: not implemented. The method card is in ./README.md."
+        "bsts_fit: not implemented."
     )
 
 
@@ -98,15 +98,15 @@ def bsts_predict(
     burn: int | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``bsts_predict`` -- METHOD-SELECTION card #204.
+    """Node ``bsts_predict`` -- method card #204.
 
-    Bayesian Structural Time Series (state.specification: local/semilocal trend + seasonal + AR +
+    Bayesian Structural Time Series (state specification: local/semilocal trend + seasonal + AR +
     spike-and-slab regression) with MCMC.
 
     Category 14-bayesian-toolkit; memory class ``mcmc``.
 
     Args:
-        object: [raw_handle, required] Handle to a fitted bsts model (from bsts_fit).
+        object: [raw_handle, required] Handle to a fitted BSTS model (from bsts_fit).
         horizon: [integer, optional] Forecast horizon (>=1· default 12). Default ``12``.
         newdata: [df_handle, optional] Handle to future regressors (REQUIRED in regression models·
             nrow==horizon).
@@ -121,7 +121,7 @@ def bsts_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsts_predict: not implemented. The method card is in ./README.md."
+        "bsts_predict: not implemented."
     )
 
 
@@ -132,15 +132,15 @@ def bsts_components(
     quantile_lower: float | None = None,
     quantile_upper: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bsts_components`` -- METHOD-SELECTION card #204.
+    """Node ``bsts_components`` -- method card #204.
 
-    Bayesian Structural Time Series (state.specification: local/semilocal trend + seasonal + AR +
+    Bayesian Structural Time Series (state specification: local/semilocal trend + seasonal + AR +
     spike-and-slab regression) with MCMC.
 
     Category 14-bayesian-toolkit; memory class ``mcmc``.
 
     Args:
-        object: [raw_handle, required] Handle to a fitted bsts model (from bsts_fit).
+        object: [raw_handle, required] Handle to a fitted BSTS model (from bsts_fit).
         burn: [integer, optional] Burn-in draws (default None = SuggestBurn(0.1)).
         quantile_lower: [number, optional] Lower quantile per component (default 0.025). Default
             ``0.025``.
@@ -151,5 +151,5 @@ def bsts_components(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bsts_components: not implemented. The method card is in ./README.md."
+        "bsts_components: not implemented."
     )

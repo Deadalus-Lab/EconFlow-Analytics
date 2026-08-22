@@ -1,0 +1,1623 @@
+{
+ "category": "31-discrete-choice-demand",
+ "cards": [
+  {
+   "id": 266,
+   "method": "BLP random-coefficients logit demand estimation",
+   "wrapper_file": "c31_discrete_choice_demand/blp_demand.py",
+   "tool_fns": [
+    "dcd_blp_problem",
+    "dcd_blp_solve",
+    "dcd_blp_shares"
+   ],
+   "when": "estimating demand for differentiated products from market-level shares when price is endogenous and substitution patterns must not be forced into the IIA straitjacket",
+   "when_not": "you have individual choice data (-> mixed logit); there is one product; you need no substitution structure and a simple logit will do",
+   "alternatives": [
+    {
+     "alt": "nested logit",
+     "criterion": "a known grouping captures substitution and you want a closed form"
+    },
+    {
+     "alt": "mixed logit on micro data",
+     "criterion": "you observe individual choices rather than market shares"
+    },
+    {
+     "alt": "plain logit",
+     "criterion": "IIA is acceptable and price is exogenous"
+    }
+   ],
+   "output_key_fields": [
+    "beta/sigma: mean tastes and the random-coefficient dispersion",
+    "xi: the structural demand shock recovered by inversion",
+    "objective, gradient_norm: GMM objective and first-order condition at the optimum",
+    "converged: whether BOTH the inner share inversion and the outer search converged"
+   ],
+   "interpretation_traps": [
+    "the inner contraction tolerance must be far tighter than the outer one; a loose inner loop produces a smooth-looking optimum that is not one",
+    "sigma is identified by variation in the choice set ACROSS markets -- with few markets it is barely identified and the standard error will not say so",
+    "a reported optimum with a non-trivial gradient norm is a failed search, not a corner solution"
+   ],
+   "sources": [
+    "Berry, Levinsohn & Pakes 1995 (Econometrica 63:841-890)",
+    "Nevo 2000 (Journal of Economics and Management Strategy 9:513)",
+    "Conlon & Gortmaker 2020 (RAND Journal of Economics 51:1108)",
+    "pyblp"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 267,
+   "method": "Optimal instruments and differentiation instruments for demand systems",
+   "wrapper_file": "c31_discrete_choice_demand/blp_instruments.py",
+   "tool_fns": [
+    "dcd_blp_instruments",
+    "dcd_optimal_instruments"
+   ],
+   "when": "the demand estimate is imprecise or weakly identified and you want instruments that exploit the structure of the model rather than ad hoc cost shifters",
+   "when_not": "you already have strong excluded cost shifters; the model is not yet estimated at all (fit a first stage first)",
+   "alternatives": [
+    {
+     "alt": "BLP instruments (sums of rival characteristics)",
+     "criterion": "a cheap, transparent default"
+    },
+    {
+     "alt": "differentiation instruments",
+     "criterion": "local competition matters and the BLP sums are too coarse"
+    },
+    {
+     "alt": "optimal instruments",
+     "criterion": "you have a consistent first-stage estimate and want efficiency"
+    }
+   ],
+   "output_key_fields": [
+    "instruments: the constructed instrument matrix",
+    "first_stage_f: weak-instrument diagnostic per endogenous variable",
+    "improvement: change in the GMM objective and in the standard errors"
+   ],
+   "interpretation_traps": [
+    "optimal instruments require a CONSISTENT first-stage estimate; built from a bad first stage they are optimal for the wrong model",
+    "differentiation instruments are functions of characteristics, so they are invalid if characteristics are themselves endogenous",
+    "a first-stage F below the conventional threshold means the whole demand estimate is untrustworthy, not merely imprecise"
+   ],
+   "sources": [
+    "Berry, Levinsohn & Pakes 1995 (Econometrica 63:841)",
+    "Gandhi & Houde 2019, Measuring substitution patterns in differentiated products industries (NBER WP 26375)",
+    "Chamberlain 1987 (Journal of Econometrics 34:305)",
+    "pyblp"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 268,
+   "method": "Own- and cross-price elasticities and diversion ratios",
+   "wrapper_file": "c31_discrete_choice_demand/demand_elasticities.py",
+   "tool_fns": [
+    "dcd_elasticities",
+    "dcd_diversion",
+    "dcd_markups"
+   ],
+   "when": "translating estimated demand parameters into the quantities policy and merger analysis actually use: how much a product loses to a price rise and where that volume goes",
+   "when_not": "the demand model has not been estimated yet; you want welfare rather than substitution (-> welfare card)",
+   "alternatives": [
+    {
+     "alt": "diversion ratios",
+     "criterion": "the question is where volume goes, not how much is lost"
+    },
+    {
+     "alt": "aggregate elasticity",
+     "criterion": "only the market-level response to a uniform price change matters"
+    },
+    {
+     "alt": "logit closed form",
+     "criterion": "a plain logit was estimated and the matrix is analytic"
+    }
+   ],
+   "output_key_fields": [
+    "elasticities: the full own/cross matrix, own on the diagonal",
+    "diversion: the diversion-ratio matrix, rows summing to at most one with the outside good",
+    "aggregate_elasticity: market-level response to a uniform price change",
+    "markups: implied Lerner indices under the assumed conduct"
+   ],
+   "interpretation_traps": [
+    "the elasticity matrix is NOT symmetric -- element (i,j) is the response of i to the price of j, and reading it transposed inverts every conclusion",
+    "diversion ratios exclude the outside good by default; rows that do not sum to one are not an error",
+    "elasticities are evaluated at a point; with heterogeneous consumers they vary across markets and the average is not the elasticity of the average"
+   ],
+   "sources": [
+    "Nevo 2001 (Econometrica 69:307-342)",
+    "Conlon & Mortimer 2021 (American Economic Journal: Microeconomics 13:228)",
+    "pyblp"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 269,
+   "method": "Merger simulation and counterfactual pricing",
+   "wrapper_file": "c31_discrete_choice_demand/merger_simulation.py",
+   "tool_fns": [
+    "dcd_merger_simulate",
+    "dcd_upp",
+    "dcd_welfare_change"
+   ],
+   "when": "predicting the price and welfare effect of a change in ownership or of a cost shock, holding demand and conduct fixed",
+   "when_not": "demand is not credibly estimated; entry, repositioning or capacity responses dominate and the fixed-conduct assumption is untenable",
+   "alternatives": [
+    {
+     "alt": "upward pricing pressure",
+     "criterion": "a fast screen that needs no full equilibrium solve"
+    },
+    {
+     "alt": "full merger simulation",
+     "criterion": "you need predicted prices and welfare, not a screen"
+    },
+    {
+     "alt": "bargaining models",
+     "criterion": "prices are negotiated rather than posted"
+    }
+   ],
+   "output_key_fields": [
+    "prices_post: the counterfactual equilibrium price vector",
+    "delta_prices: change from the observed equilibrium, per product",
+    "consumer_surplus_change, profit_change: welfare decomposition",
+    "converged: whether the price fixed point actually solved"
+   ],
+   "interpretation_traps": [
+    "the result is conditional on conduct AND on demand; a merger simulation inherits every error in the demand estimate and adds none of its own uncertainty to the reported interval",
+    "efficiencies enter as a marginal-cost change and are an ASSUMPTION, not an estimate -- the simulation cannot tell you whether they are real",
+    "a non-converged fixed point can still return a plausible-looking price vector; check the flag, not the numbers"
+   ],
+   "sources": [
+    "Werden & Froeb 1994 (Journal of Law, Economics and Organization 10:407)",
+    "Nevo 2000 (Journal of Economics and Management Strategy 9:513)",
+    "Farrell & Shapiro 2010 (BE Journal of Theoretical Economics 10:9)",
+    "pyblp"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 270,
+   "method": "Nested logit demand",
+   "wrapper_file": "c31_discrete_choice_demand/nested_logit.py",
+   "tool_fns": [
+    "dcd_nested_logit_fit",
+    "dcd_nested_logit_elasticities"
+   ],
+   "when": "a known product grouping captures substitution well enough, and you want a closed-form estimator that runs in seconds rather than a full random-coefficients search",
+   "when_not": "the nesting structure is unknown or contested; substitution crosses the nests in ways the structure cannot express (-> BLP)",
+   "alternatives": [
+    {
+     "alt": "plain logit",
+     "criterion": "no grouping is needed and IIA is acceptable"
+    },
+    {
+     "alt": "BLP random coefficients",
+     "criterion": "substitution is driven by continuous characteristics, not a discrete grouping"
+    },
+    {
+     "alt": "two-level nested logit",
+     "criterion": "there is a credible hierarchy of groupings"
+    }
+   ],
+   "output_key_fields": [
+    "params: characteristic coefficients and the nesting parameter rho",
+    "rho: within-nest correlation; must lie in [0,1) for the model to be consistent with utility maximisation",
+    "elasticities: closed-form own and cross elasticities",
+    "loglike, aic"
+   ],
+   "interpretation_traps": [
+    "rho outside [0,1) means the estimates are NOT consistent with random utility maximisation -- it is a specification failure, not a large parameter",
+    "the within-nest share is mechanically correlated with the error, so it must be instrumented; ignoring that biases rho toward one",
+    "the nesting structure is an assumption the data cannot test from inside the model"
+   ],
+   "sources": [
+    "Berry 1994 (RAND Journal of Economics 25:242-262)",
+    "Cardell 1997 (Econometric Theory 13:185)",
+    "Train 2009, Discrete Choice Methods with Simulation",
+    "pyblp"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 271,
+   "method": "Multinomial and conditional logit",
+   "wrapper_file": "c31_discrete_choice_demand/multinomial_conditional_logit.py",
+   "tool_fns": [
+    "dcd_mnlogit_fit",
+    "dcd_clogit_fit",
+    "dcd_iia_test"
+   ],
+   "when": "individual-level choice among a small unordered set, where the regressors vary by chooser (multinomial) or by alternative (conditional)",
+   "when_not": "the alternatives are ordered (-> ordered choice); IIA is untenable and you need substitution structure (-> mixed or nested logit); shares are market level",
+   "alternatives": [
+    {
+     "alt": "mixed logit",
+     "criterion": "IIA fails and you have repeated choices or panel structure"
+    },
+    {
+     "alt": "nested logit",
+     "criterion": "a discrete grouping captures the substitution"
+    },
+    {
+     "alt": "ordered logit",
+     "criterion": "the alternatives have a natural order"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients, per alternative for multinomial and shared for conditional",
+    "marginal_effects: probability derivatives, which are what is interpretable",
+    "predicted_probabilities: fitted choice probabilities",
+    "loglike, aic, pseudo_r2, hausman_iia"
+   ],
+   "interpretation_traps": [
+    "multinomial logit coefficients are relative to a BASE alternative and change entirely if the base changes; only the marginal effects are invariant",
+    "IIA is a substantive restriction, not a technicality -- the Hausman-McFadden test is low power and passing it is weak evidence",
+    "a perfectly predicted alternative drives its coefficient to infinity; the optimiser reports a large number rather than an error"
+   ],
+   "sources": [
+    "McFadden 1974, Conditional logit analysis of qualitative choice behavior (Frontiers in Econometrics)",
+    "Hausman & McFadden 1984 (Econometrica 52:1219)",
+    "statsmodels.discrete"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 272,
+   "method": "Mixed and random-parameters logit for panel choice data",
+   "wrapper_file": "c31_discrete_choice_demand/mixed_logit.py",
+   "tool_fns": [
+    "dcd_mixed_logit_fit",
+    "dcd_mixed_logit_individual"
+   ],
+   "when": "repeated choices by the same individuals, or taste heterogeneity you want to estimate rather than assume away; relaxes IIA without imposing a nesting structure",
+   "when_not": "you have one choice per person and no basis for heterogeneity; market-level shares only (-> BLP)",
+   "alternatives": [
+    {
+     "alt": "conditional logit",
+     "criterion": "no heterogeneity and IIA is acceptable"
+    },
+    {
+     "alt": "latent class logit",
+     "criterion": "heterogeneity is discrete rather than continuous"
+    },
+    {
+     "alt": "BLP",
+     "criterion": "you observe shares rather than individual choices"
+    }
+   ],
+   "output_key_fields": [
+    "params: mean and standard deviation of each random coefficient",
+    "individual_params: posterior means per chooser, where a panel identifies them",
+    "wtp: willingness to pay when a price coefficient is present",
+    "loglike, aic, n_draws: the simulation size the estimate rests on"
+   ],
+   "interpretation_traps": [
+    "the estimate is SIMULATED; too few draws produce a likelihood surface with spurious local optima, and the reported standard error does not include simulation noise",
+    "a normally distributed price coefficient puts mass on the wrong sign; log-normal or triangular is usually the defensible choice",
+    "a random coefficient whose estimated standard deviation is insignificant should be made fixed -- leaving it in inflates every other standard error"
+   ],
+   "sources": [
+    "Train 2009, Discrete Choice Methods with Simulation, 2nd ed.",
+    "Revelt & Train 1998 (Review of Economics and Statistics 80:647)",
+    "McFadden & Train 2000 (Journal of Applied Econometrics 15:447)",
+    "xlogit"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 273,
+   "method": "Willingness to pay, compensating variation and consumer welfare from discrete choice",
+   "wrapper_file": "c31_discrete_choice_demand/choice_welfare.py",
+   "tool_fns": [
+    "dcd_wtp",
+    "dcd_compensating_variation",
+    "dcd_consumer_surplus"
+   ],
+   "when": "converting estimated demand into money: what a characteristic is worth, and what a price or choice-set change does to consumer surplus",
+   "when_not": "the price coefficient is insignificant or wrong-signed, which makes every money-metric meaningless; you want producer welfare only",
+   "alternatives": [
+    {
+     "alt": "elasticities",
+     "criterion": "the question is substitution rather than money"
+    },
+    {
+     "alt": "log-sum / inclusive value",
+     "criterion": "you want the exact closed-form surplus under logit"
+    },
+    {
+     "alt": "simulation-based CV",
+     "criterion": "the model has random coefficients and no closed form"
+    }
+   ],
+   "output_key_fields": [
+    "wtp: characteristic coefficient divided by the price coefficient, with a delta-method interval",
+    "compensating_variation: per-chooser money-metric change",
+    "consumer_surplus_change: aggregate change, in the price numeraire",
+    "log_sum: the inclusive value before and after"
+   ],
+   "interpretation_traps": [
+    "WTP is a RATIO of estimates, so its distribution is heavy-tailed and the delta-method interval understates uncertainty when the price coefficient is imprecise",
+    "surplus is only defined up to the marginal utility of income; comparisons across specifications with different price coefficients are not comparable",
+    "with random coefficients the mean of the WTP ratio is not the ratio of the means, and is often undefined"
+   ],
+   "sources": [
+    "Small & Rosen 1981 (Econometrica 49:105-130)",
+    "Train 2009, Discrete Choice Methods with Simulation, ch.3",
+    "Daly, Hess & de Jong 2012 (Transportation Research Part B 46:333)",
+    "pyblp"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "dcd_blp_problem",
+   "card_id": 266,
+   "register": {
+    "field": "problem"
+   },
+   "input_example": {
+    "product_data": "<df_handle>",
+    "market_ids": "...",
+    "shares": "...",
+    "prices": "..."
+   },
+   "arguments": [
+    {
+     "name": "product_data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "One row per product per market: shares, prices, characteristics.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market_ids",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the market.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "shares",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding observed market shares.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prices",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding prices.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "characteristics",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Product characteristic columns entering utility linearly.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "random_coefficients",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Characteristics carrying a random coefficient.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "instruments",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Excluded instrument columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_blp_solve",
+   "card_id": 266,
+   "register": {
+    "field": "results"
+   },
+   "input_example": {
+    "problem": "<raw_handle>",
+    "inner_tol": 1e-14,
+    "outer_tol": 1e-08,
+    "method": "2s"
+   },
+   "arguments": [
+    {
+     "name": "problem",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an assembled BLP problem.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "sigma_init",
+     "kind": "num_array",
+     "required": false,
+     "description": "Starting values for the random-coefficient dispersion.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "inner_tol",
+     "kind": "number",
+     "required": false,
+     "description": "Contraction tolerance for the share inversion.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1e-14,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "outer_tol",
+     "kind": "number",
+     "required": false,
+     "description": "Convergence tolerance for the outer GMM search.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1e-08,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "One-step or two-step GMM.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "1s",
+      "2s"
+     ],
+     "allowed_vars": null,
+     "default": "2s",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "dcd_blp_shares",
+   "card_id": 266,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted BLP results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prices",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Counterfactual prices; omitted = observed.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_blp_instruments",
+   "card_id": 267,
+   "register": null,
+   "input_example": {
+    "product_data": "<df_handle>",
+    "market_ids": "...",
+    "kind": "differentiation"
+   },
+   "arguments": [
+    {
+     "name": "product_data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Product-by-market table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market_ids",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the market.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "characteristics",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Characteristic columns the instruments are built from.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "kind",
+     "kind": "enum",
+     "required": false,
+     "description": "Instrument family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "blp",
+      "differentiation",
+      "local",
+      "quadratic"
+     ],
+     "allowed_vars": null,
+     "default": "differentiation",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "dcd_optimal_instruments",
+   "card_id": 267,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>",
+    "method": "approximate"
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to consistent first-stage BLP results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "How the expectation is approximated.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "approximate",
+      "monte_carlo"
+     ],
+     "allowed_vars": null,
+     "default": "approximate",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_elasticities",
+   "card_id": 268,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>",
+    "variable": "prices"
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market_id",
+     "kind": "string",
+     "required": false,
+     "description": "Restrict to one market; omitted = every market.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variable",
+     "kind": "string",
+     "required": false,
+     "description": "Characteristic to differentiate with respect to.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": "prices",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "dcd_diversion",
+   "card_id": 268,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>",
+    "include_outside": true
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market_id",
+     "kind": "string",
+     "required": false,
+     "description": "Restrict to one market.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "include_outside",
+     "kind": "boolean",
+     "required": false,
+     "description": "Include the outside good as a destination.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "dcd_markups",
+   "card_id": 268,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>",
+    "conduct": "bertrand"
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conduct",
+     "kind": "enum",
+     "required": false,
+     "description": "Assumed firm conduct.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bertrand",
+      "monopoly",
+      "cournot"
+     ],
+     "allowed_vars": null,
+     "default": "bertrand",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "ownership",
+     "kind": "matrix_handle",
+     "required": false,
+     "description": "Ownership matrix; omitted = single-product firms.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_merger_simulate",
+   "card_id": 269,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>",
+    "ownership_post": "<matrix_handle>",
+    "tol": 1e-12,
+    "max_iter": 1000
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ownership_post",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Post-merger ownership matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cost_change",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Proportional marginal-cost change per product.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tol",
+     "kind": "number",
+     "required": false,
+     "description": "Fixed-point tolerance.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1e-12,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "max_iter",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum fixed-point iterations.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "dcd_upp",
+   "card_id": 269,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>",
+    "merging": [
+     "a",
+     "b"
+    ],
+    "efficiency": 0.0
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "merging",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Product identifiers of the merging parties.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "efficiency",
+     "kind": "number",
+     "required": false,
+     "description": "Assumed proportional marginal-cost saving.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.0,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "dcd_welfare_change",
+   "card_id": 269,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>",
+    "prices_post": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prices_post",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Counterfactual price vector.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_nested_logit_fit",
+   "card_id": 270,
+   "register": {
+    "field": "results"
+   },
+   "input_example": {
+    "product_data": "<df_handle>",
+    "market_ids": "...",
+    "shares": "...",
+    "nesting_ids": "..."
+   },
+   "arguments": [
+    {
+     "name": "product_data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Product-by-market table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market_ids",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the market.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "shares",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding observed shares.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nesting_ids",
+     "kind": "string",
+     "required": true,
+     "description": "Column assigning each product to a nest.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "characteristics",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Characteristic columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "instruments",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Excluded instruments for price and the within-nest share.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_nested_logit_elasticities",
+   "card_id": 270,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted nested-logit results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market_id",
+     "kind": "string",
+     "required": false,
+     "description": "Restrict to one market.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_mnlogit_fit",
+   "card_id": 271,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "choice": "..."
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "One row per chooser.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "choice",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the chosen alternative.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Chooser-varying covariate columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "base",
+     "kind": "string",
+     "required": false,
+     "description": "Base alternative; omitted = the first observed.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_clogit_fit",
+   "card_id": 271,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "chooser": "...",
+    "chosen": "..."
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "One row per chooser per alternative.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chooser",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the chooser.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chosen",
+     "kind": "string",
+     "required": true,
+     "description": "Column flagging the chosen row.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Alternative-varying covariate columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_iia_test",
+   "card_id": 271,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "drop": [
+     "a",
+     "b"
+    ]
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted multinomial or conditional logit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "drop",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Alternatives removed to form the restricted model.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_mixed_logit_fit",
+   "card_id": 272,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "chooser": "...",
+    "chosen": "...",
+    "n_draws": 600,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Long-format choice data: one row per chooser per alternative.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chooser",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the chooser.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chosen",
+     "kind": "string",
+     "required": true,
+     "description": "Column flagging the chosen row.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "random",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariates carrying a random coefficient.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distributions",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Mixing distribution per random coefficient.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_draws",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of simulation draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 600,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "panel",
+     "kind": "string",
+     "required": false,
+     "description": "Column identifying the panel unit when choices repeat.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_mixed_logit_individual",
+   "card_id": 272,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted mixed logit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_wtp",
+   "card_id": 273,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>",
+    "price_variable": "prices",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "price_variable",
+     "kind": "string",
+     "required": false,
+     "description": "Name of the price coefficient.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": "prices",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "dcd_compensating_variation",
+   "card_id": 273,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prices_post",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Counterfactual prices.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "available_post",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Counterfactual availability flags.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dcd_consumer_surplus",
+   "card_id": 273,
+   "register": null,
+   "input_example": {
+    "results": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "results",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to fitted demand results.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "market_id",
+     "kind": "string",
+     "required": false,
+     "description": "Restrict to one market.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  }
+ ]
+}

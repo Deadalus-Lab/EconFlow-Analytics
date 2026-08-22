@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``modified_ols_cointegrating`` -- METHOD-SELECTION card #27.
+"""Method wrapper ``modified_ols_cointegrating`` -- method card #27.
 
 #27 Modified-OLS cointegrating regressions: FM-OLS / D-OLS / IM-OLS
 
@@ -7,8 +7,8 @@ Category 05-cointegration; module ``modified_ols_cointegrating``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def creg_fmols(
     bandwidth: Literal["and", "nw"] | None = None,
     demeaning: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``creg_fmols`` -- METHOD-SELECTION card #27.
+    """Node ``creg_fmols`` -- method card #27.
 
     Modified-OLS cointegrating regressions: FM-OLS / D-OLS / IM-OLS.
 
@@ -60,7 +60,7 @@ def creg_fmols(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "creg_fmols: not implemented. The method card is in ./README.md."
+        "creg_fmols: not implemented."
     )
 
 
@@ -75,7 +75,7 @@ def creg_dols(
     info_crit: Literal["AIC", "BIC"] | None = None,
     demeaning: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``creg_dols`` -- METHOD-SELECTION card #27.
+    """Node ``creg_dols`` -- method card #27.
 
     Modified-OLS cointegrating regressions: FM-OLS / D-OLS / IM-OLS.
 
@@ -95,7 +95,7 @@ def creg_dols(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "creg_dols: not implemented. The method card is in ./README.md."
+        "creg_dols: not implemented."
     )
 
 
@@ -107,7 +107,7 @@ def creg_imols(
     kernel: Literal["ba", "pa", "qs", "tr"] | None = None,
     bandwidth: Literal["and", "nw"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``creg_imols`` -- METHOD-SELECTION card #27.
+    """Node ``creg_imols`` -- method card #27.
 
     Modified-OLS cointegrating regressions: FM-OLS / D-OLS / IM-OLS.
 
@@ -124,5 +124,5 @@ def creg_imols(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "creg_imols: not implemented. The method card is in ./README.md."
+        "creg_imols: not implemented."
     )

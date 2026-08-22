@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_change_point`` -- METHOD-SELECTION card #214.
+"""Method wrapper ``bayesian_change_point`` -- method card #214.
 
 #214 Bayesian change point (the Barry-Hartigan Product-Partition Model, MCMC)
 
@@ -7,8 +7,8 @@ Category 19-business-cycle-dating; module ``bayesian_change_point``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def detect_change_points(
     threshold: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``detect_change_points`` -- METHOD-SELECTION card #214.
+    """Node ``detect_change_points`` -- method card #214.
 
     Bayesian change point (the Barry-Hartigan Product-Partition Model, MCMC).
 
@@ -63,5 +63,5 @@ def detect_change_points(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "detect_change_points: not implemented. The method card is in ./README.md."
+        "detect_change_points: not implemented."
     )

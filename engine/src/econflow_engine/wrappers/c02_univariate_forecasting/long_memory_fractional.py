@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``long_memory_fractional`` -- METHOD-SELECTION card #136.
+"""Method wrapper ``long_memory_fractional`` -- method card #136.
 
 #136 Long memory / fractional integration ARFIMA(p,d,q) (ML fit + GPH/Sperio semiparametric d +
     fractional differencing)
@@ -8,8 +8,8 @@ Category 02-univariate-forecasting; module ``long_memory_fractional``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,23 +24,23 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "fdf_diffseries",
-    "fdf_fit",
-    "fdf_gph",
-    "fdf_sperio",
+    "arfima_difference",
+    "arfima_fit",
+    "arfima_gph",
+    "arfima_sperio",
     "NODE_META",
     "wire_model",
 ]
 
 
-def fdf_fit(
+def arfima_fit(
     *,
     x: pd.Series,
     nar: int | None = None,
     nma: int | None = None,
     M: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fdf_fit`` -- METHOD-SELECTION card #136.
+    """Node ``arfima_fit`` -- method card #136.
 
     Long memory / fractional integration ARFIMA(p,d,q) (ML fit + GPH/Sperio semiparametric d +
     fractional differencing).
@@ -60,16 +60,16 @@ def fdf_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fdf_fit: not implemented. The method card is in ./README.md."
+        "arfima_fit: not implemented."
     )
 
 
-def fdf_gph(
+def arfima_gph(
     *,
     x: pd.Series,
     bandw_exp: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``fdf_gph`` -- METHOD-SELECTION card #136.
+    """Node ``arfima_gph`` -- method card #136.
 
     Long memory / fractional integration ARFIMA(p,d,q) (ML fit + GPH/Sperio semiparametric d +
     fractional differencing).
@@ -85,17 +85,17 @@ def fdf_gph(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fdf_gph: not implemented. The method card is in ./README.md."
+        "arfima_gph: not implemented."
     )
 
 
-def fdf_sperio(
+def arfima_sperio(
     *,
     x: pd.Series,
     bandw_exp: float | None = None,
     beta: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``fdf_sperio`` -- METHOD-SELECTION card #136.
+    """Node ``arfima_sperio`` -- method card #136.
 
     Long memory / fractional integration ARFIMA(p,d,q) (ML fit + GPH/Sperio semiparametric d +
     fractional differencing).
@@ -112,16 +112,16 @@ def fdf_sperio(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fdf_sperio: not implemented. The method card is in ./README.md."
+        "arfima_sperio: not implemented."
     )
 
 
-def fdf_diffseries(
+def arfima_difference(
     *,
     x: pd.Series,
     d: float,
 ) -> dict[str, Any]:
-    """Node ``fdf_diffseries`` -- METHOD-SELECTION card #136.
+    """Node ``arfima_difference`` -- method card #136.
 
     Long memory / fractional integration ARFIMA(p,d,q) (ML fit + GPH/Sperio semiparametric d +
     fractional differencing).
@@ -136,5 +136,5 @@ def fdf_diffseries(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fdf_diffseries: not implemented. The method card is in ./README.md."
+        "arfima_difference: not implemented."
     )

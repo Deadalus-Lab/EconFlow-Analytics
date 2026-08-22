@@ -2,13 +2,13 @@
   "schema_version": 1,
   "note": "ENUMERATED DELIBERATE STRICTNESS. Every entry is a case where the typed schema at the integration layer REJECTS an input that the engine's own argument surface would accept. That direction is safe by construction: soundness forbids the opposite, where the engine accepts something the schema refuses. The parity suite requires SET EQUALITY against this file, so a new divergence and a dead entry both fail it. The diff of this file IS the audit trail of the decision to allow one.",
   "key_scheme": "`members` are classes, not fixture ids: `<kind>/<mutation>` for the kind-matrix and mutation families (the same pair appears in hundreds of cases), the id itself for the pointer/formula families, and `<family>/<fn>` for spec-accept/optional-omitted.",
-  "oracle": "engine/artifacts/parity-fixtures.v1.json (the frozen argument-contract corpus)",
+  "oracle": "engine/artifacts/parity-fixtures.json (the frozen argument-contract corpus)",
   "divergences": [
     {
       "id": "*/explicit-null",
       "kind": "*",
       "reason": "an explicit JSON null on an OPTIONAL argument",
-      "rationale": "adapt_args (adapters line 180) reads an explicit null as ABSENT (`!is.null(raw[[nm]])`), so it accepts it silently. The Zod schema is `.optional()` — NEVER `.nullable()` — and rejects it. Deliberate: 'null means absent' is a trap for model output (and on a required argument it becomes a 422 later); the worker omits the key instead. ⚠️ THE `members` LIST IS A SAMPLE, NOT A DEFINITION: a `<kind>/null` appears here only when the corpus HAPPENS to draw the (kind, null) pair on an OPTIONAL argument — in the kind-matrix that depends on whether the kind's representative has that argument optional, and in the `mutation` family on the `sample.int` draw inside the corpus exporter. REVISION 2026-08-05: `arw_write_parquet` lost an argument (3->2, `sink` became `export=`) and sits at index 4/914, so the `mutation` family's RNG stream shifted and roughly 909 pairs were re-drawn. Measured result: `df_handle/null`, `matrix_handle/null` and `raw/null` LEFT (no node now draws `null` on an optional argument of those kinds; their kind-matrix representatives — arw_write_parquet/x, bn_apply/x, tidyr_replace_na/replace — are REQUIRED, so the validation schema rejects and the case is P2, not P3), and `int_array/null` ARRIVED (mutate/gts_arx/ar/null). The MECHANISM and the DIRECTION of the class did not change — which is why this stays ONE entry with its original `since` rather than splitting into a second. NOTE on the `path` kind: `path/null` does NOT belong here — its representative (arw_open_dataset/sources) is REQUIRED, the validation schema rejects with `missing-required`, and Zod agrees (P2). No `path/*` is a divergence: all 11 invalid mutations in the matrix are rejected by BOTH sides. REVISION 2026-08-07: the node `mfl_ts_from_rdb` was deleted (914->913) and two others renamed, so the `mutation` family's RNG stream SHIFTED AGAIN (252 ids left, 247 arrived). Measured result, exactly the inverse of the previous revision: `raw_handle/null` LEFT, and `df_handle/null` and `matrix_handle/null` ARRIVED. The MECHANISM and the DIRECTION did not change — no new semantics, so the entry stays as ONE with its original `since`.",
+      "rationale": "adapt_args (adapters line 180) reads an explicit null as ABSENT (`!is.null(raw[[nm]])`), so it accepts it silently. The Zod schema is `.optional()` — NEVER `.nullable()` — and rejects it. Deliberate: 'null means absent' is a trap for model output (and on a required argument it becomes a 422 later); the worker omits the key instead. ⚠️ THE `members` LIST IS A SAMPLE, NOT A DEFINITION: a `<kind>/null` appears here only when the corpus HAPPENS to draw the (kind, null) pair on an OPTIONAL argument — in the kind-matrix that depends on whether the kind's representative has that argument optional, and in the `mutation` family on the `sample.int` draw inside the corpus exporter. REVISION 2026-08-05: `arw_write_parquet` lost an argument (3->2, `sink` became `export=`) and sits at index 4/914, so the `mutation` family's RNG stream shifted and roughly 909 pairs were re-drawn. Measured result: `df_handle/null`, `matrix_handle/null` and `raw/null` LEFT (no node now draws `null` on an optional argument of those kinds; their kind-matrix representatives — arw_write_parquet/x, bn_apply/x, shape_fillna/replace — are REQUIRED, so the validation schema rejects and the case is P2, not P3), and `int_array/null` ARRIVED (mutate/gts_ar_x/ar/null). The MECHANISM and the DIRECTION of the class did not change — which is why this stays ONE entry with its original `since` rather than splitting into a second. NOTE on the `path` kind: `path/null` does NOT belong here — its representative (arw_open_dataset/sources) is REQUIRED, the validation schema rejects with `missing-required`, and Zod agrees (P2). No `path/*` is a divergence: all 11 invalid mutations in the matrix are rejected by BOTH sides. REVISION 2026-08-07: the node `mfl_ts_from_rdb` was deleted (914->913) and two others renamed, so the `mutation` family's RNG stream SHIFTED AGAIN (252 ids left, 247 arrived). Measured result, exactly the inverse of the previous revision: `raw_handle/null` LEFT, and `df_handle/null` and `matrix_handle/null` ARRIVED. The MECHANISM and the DIRECTION did not change — no new semantics, so the entry stays as ONE with its original `since`.",
       "since": "2026-07-27",
       "members": [
         "boolean/null",
@@ -27,8 +27,8 @@
     {
       "id": "integer/coerced-scalar",
       "kind": "integer",
-      "reason": "as.integer() accepts anything (often a silent NA)",
-      "rationale": "`as.integer(\"42\")`->42, `as.integer(\"abc\")`->NA+warning, `as.integer(1e18)`->NA, `as.integer(list(a=1))`->1. Zod requires a genuine JSON integer. Typed edges plus typed forms: the worker always sends a number, and an NA that reaches a wrapper gate is an expensive, late 422.",
+      "reason": "the frozen contract's integer coercion accepts anything, often yielding a silent missing value",
+      "rationale": "The string \"42\" becomes 42, \"abc\" becomes a missing value with a warning, 1e18 overflows to a missing value, and a one-element list collapses to 1. The typed schema requires a genuine JSON integer. Typed edges plus typed forms: the worker always sends a number, and a missing value that reaches a wrapper gate is an expensive, late 422.",
       "since": "2026-07-27",
       "members": [
         "integer/array-for-scalar",
@@ -45,8 +45,8 @@
     {
       "id": "number/coerced-scalar",
       "kind": "number",
-      "reason": "as.numeric() accepts anything",
-      "rationale": "`as.numeric(\"0.5\")`->0.5, `as.numeric(\"abc\")`->NA+warning, `as.numeric(list(...))`. Same reasoning as integer.",
+      "reason": "the frozen contract's numeric coercion accepts anything",
+      "rationale": "The string \"0.5\" becomes 0.5, \"abc\" becomes a missing value with a warning, and a list is flattened. Same reasoning as integer.",
       "since": "2026-07-27",
       "members": [
         "number/array-for-scalar",
@@ -62,8 +62,8 @@
     {
       "id": "boolean/coerced-scalar",
       "kind": "boolean",
-      "reason": "as.logical() accepts anything",
-      "rationale": "`as.logical(\"TRUE\")`->TRUE, `as.logical(\"yes\")`->NA, `as.logical(1)`->TRUE, `as.logical(list(...))`. A silent NA in a boolean flag changes THE MEANING of the method — Zod requires an explicit JSON boolean.",
+      "reason": "the frozen contract's boolean coercion accepts anything",
+      "rationale": "\"TRUE\" becomes true, \"yes\" becomes a missing value, 1 becomes true, and a list is coerced too. A silent missing value in a boolean flag changes THE MEANING of the method — the typed schema requires an explicit JSON boolean.",
       "since": "2026-07-27",
       "members": [
         "boolean/array-for-scalar",
@@ -81,8 +81,8 @@
     {
       "id": "string/coerced-scalar",
       "kind": "string",
-      "reason": "as.character() accepts anything",
-      "rationale": "`as.character(1e18)`, `as.character(list(a=1))` and so on all yield a string. Zod requires a JSON string.",
+      "reason": "the frozen contract's string coercion accepts anything",
+      "rationale": "A large float, a one-element list and so on all yield a string. The typed schema requires a JSON string.",
       "since": "2026-07-27",
       "members": [
         "string/array-for-scalar",
@@ -97,7 +97,7 @@
       "id": "enum/non-member",
       "kind": "enum",
       "reason": "membership is NOT checked by adapt_args",
-      "rationale": "`.mcp_coerce_one` CONVERTS ONLY THE TYPE for kind='enum' and NEVER checks membership; the match.arg gate lives INSIDE the wrapper, OUTSIDE the modelled class (which is why the reason code 'enum-invalid' is NEVER produced by the engine). Zod checks the enum up front. UPDATE: the type conversion is now type-aware (`as.numeric` when the spec's `values` are numeric, otherwise `as.character`) — no longer a bare `as.character`. For the engine's ONLY numeric enum (des_deseats$order_poly, values c(1,3)) the engine now accepts BOTH \"3\" AND 3, whereas Zod — which serialises enum members to strings — accepts only \"3\". Zod remains STRICTER, so the class stays P1-safe and its direction is unchanged.",
+      "rationale": "The frozen contract's coercion step CONVERTS ONLY THE TYPE for kind='enum' and NEVER checks membership; the membership check lives INSIDE the wrapper, OUTSIDE the modelled class (which is why the reason code 'enum-invalid' is NEVER produced by the engine). The typed schema checks the enum up front. UPDATE: the type conversion is now type-aware — numeric when the spec's values are numeric, textual otherwise — no longer textual in every case. For the engine's ONLY numeric enum (des_decompose.order_poly, whose values are 1 and 3) the engine now accepts BOTH \"3\" AND 3, whereas the typed schema — which serialises enum members to strings — accepts only \"3\". The typed schema remains STRICTER, so the class stays P1-safe and its direction is unchanged.",
       "since": "2026-07-27",
       "members": [
         "enum/array-for-scalar",
@@ -115,8 +115,8 @@
     {
       "id": "*_array/scalar-or-empty",
       "kind": "int_array|num_array|series_codes",
-      "reason": "unlist() flattens; character(0) is accepted",
-      "rationale": "`as.numeric(unlist(3))`->c(3) and `unlist(list())`->an empty vector. Zod is `z.array(...).min(1)`: an array socket means an array socket, and an empty vector almost always breaks later at a wrapper gate.",
+      "reason": "flattening accepts a scalar, and an empty vector passes",
+      "rationale": "A bare 3 is flattened to a one-element vector, and an empty list flattens to an empty vector. The typed schema requires an array of at least one element: an array socket means an array socket, and an empty vector almost always breaks later at a wrapper gate.",
       "since": "2026-07-27",
       "members": [
         "int_array/boolean-string",
@@ -201,27 +201,27 @@
       "id": "pointer/missing-pointer-uri",
       "kind": "series_handle",
       "reason": "an object WITHOUT pointer_uri",
-      "rationale": "`{format, sidecar}` without `pointer_uri` is not a pointer as far as `.node_is_pointer` is concerned, and the oracle lets it through. Zod requires `pointer_uri` — without it there is nothing to read from the store.",
+      "rationale": "`{format, sidecar}` without `pointer_uri` is not a pointer as far as the pointer predicate is concerned, and the oracle lets it through. Zod requires `pointer_uri` — without it there is nothing to read from the store.",
       "since": "2026-07-27",
       "members": [
         "pointer/missing-pointer-uri"
       ]
     },
     {
-      "id": "spec-accept/profoc_online",
+      "id": "spec-accept/crps_learning",
       "kind": "*",
       "reason": "the input_example ITSELF contains explicit nulls",
-      "rationale": "`mcp_synth_example()` for profoc_online puts `soft_threshold: null` / `hard_threshold: null` and similar on OPTIONAL arguments. The same class as */explicit-null, but inside the example's own base — which is why it is enumerated separately (the example is GENERATED; the worker does not construct it).",
+      "rationale": "`mcp_synth_example()` for crps_learning puts `soft_threshold: null` / `hard_threshold: null` and similar on OPTIONAL arguments. The same class as */explicit-null, but inside the example's own base — which is why it is enumerated separately (the example is GENERATED; the worker does not construct it).",
       "since": "2026-07-27",
       "members": [
-        "spec-accept/profoc_online"
+        "spec-accept/crps_learning"
       ]
     },
     {
       "id": "raw_handle_array/bare-string-or-empty",
       "kind": "raw_handle_array",
       "reason": "a bare string or an empty array satisfies an ARRAY-of-handles socket",
-      "rationale": "TWO known mechanisms COMPOSE here, which is why this class is separate rather than split between `*_array/scalar-or-empty` and `handle/non-conforming-string`. (1) `.mcp_coerce_one`'s `unlist(val)` FLATTENS \"abc\" into a length-1 vector — the array nature of the socket is lost BEFORE anything is checked. (2) Then the oracle's stubbed `resolve_handle` keeps ONLY the 'non-empty string' gate, so \"abc\" passes as a handle. `empty-array` is the same first mechanism at the other extreme: `unlist(list())`->NULL and `lapply(NULL, ...)`->`list()`. Zod is `z.array(handleInput()).min(2)`: an array socket means an array socket, and the `.min(2)` mirrors the REAL gate `.dcc_check_speclist` (rmgarch line 87, `length(specs) >= 2`) — a single-asset DCC does not exist. The strictness HERE is what matters: a divergence on this socket does not cost one 422, it costs one store read PER asset before it fails.",
+      "rationale": "TWO known mechanisms COMPOSE here, which is why this class is separate rather than split between `*_array/scalar-or-empty` and `handle/non-conforming-string`. (1) The frozen contract's coercion step FLATTENS \"abc\" into a length-1 vector — the array nature of the socket is lost BEFORE anything is checked. (2) Then the oracle's stubbed handle resolver keeps ONLY the 'non-empty string' gate, so \"abc\" passes as a handle. `empty-array` is the same first mechanism at the other extreme: an empty list flattens to nothing and mapping over nothing yields an empty list. The typed schema requires an array of at least two handles: an array socket means an array socket, and the minimum of two mirrors the engine's own DCC specification-list gate, which requires at least two specifications — a single-asset DCC does not exist. The strictness HERE is what matters: a divergence on this socket does not cost one 422, it costs one store read PER asset before it fails.",
       "since": "2026-07-28",
       "members": [
         "raw_handle_array/boolean-string",

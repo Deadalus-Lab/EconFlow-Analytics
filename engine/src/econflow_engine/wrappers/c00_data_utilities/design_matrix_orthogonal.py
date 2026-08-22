@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``design_matrix_orthogonal`` -- METHOD-SELECTION card #253.
+"""Method wrapper ``design_matrix_orthogonal`` -- method card #253.
 
-#253 DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (poly + returning attr
-    'coefs'), INTERACTIONS without a formula surface (model_matrix), an allowlisted formula path, a
-    COMBINATORIAL factor (interaction)
+#253 DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (returning the fitted
+    coefficients), INTERACTIONS without a formula surface, an allowlisted formula path, a
+    COMBINATORIAL factor
 
 Category 00-data-utilities; module ``design_matrix_orthogonal``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -27,16 +27,16 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "ply_interaction_factor",
+    "ply_interaction_categorical",
     "ply_interactions",
     "ply_model_matrix",
-    "ply_poly",
+    "ply_polynomial",
     "NODE_META",
     "wire_model",
 ]
 
 
-def ply_poly(
+def ply_polynomial(
     *,
     x: np.ndarray,
     degree: int | None = None,
@@ -45,11 +45,11 @@ def ply_poly(
     coefs_norm2: Sequence[float] | None = None,
     name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``ply_poly`` -- METHOD-SELECTION card #253.
+    """Node ``ply_polynomial`` -- method card #253.
 
-    DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (poly + returning attr 'coefs'),
-    INTERACTIONS without a formula surface (model_matrix), an allowlisted formula path, a
-    COMBINATORIAL factor (interaction).
+    DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (returning the fitted
+    coefficients), INTERACTIONS without a formula surface, an allowlisted formula path, a
+    COMBINATORIAL factor.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -79,7 +79,7 @@ def ply_poly(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ply_poly: not implemented. The method card is in ./README.md."
+        "ply_polynomial: not implemented."
     )
 
 
@@ -97,11 +97,11 @@ def ply_interactions(
     max_levels: int | None = None,
     max_columns: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ply_interactions`` -- METHOD-SELECTION card #253.
+    """Node ``ply_interactions`` -- method card #253.
 
-    DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (poly + returning attr 'coefs'),
-    INTERACTIONS without a formula surface (model_matrix), an allowlisted formula path, a
-    COMBINATORIAL factor (interaction).
+    DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (returning the fitted
+    coefficients), INTERACTIONS without a formula surface, an allowlisted formula path, a
+    COMBINATORIAL factor.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -145,7 +145,7 @@ def ply_interactions(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ply_interactions: not implemented. The method card is in ./README.md."
+        "ply_interactions: not implemented."
     )
 
 
@@ -160,11 +160,11 @@ def ply_model_matrix(
     max_levels: int | None = None,
     max_columns: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ply_model_matrix`` -- METHOD-SELECTION card #253.
+    """Node ``ply_model_matrix`` -- method card #253.
 
-    DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (poly + returning attr 'coefs'),
-    INTERACTIONS without a formula surface (model_matrix), an allowlisted formula path, a
-    COMBINATORIAL factor (interaction).
+    DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (returning the fitted
+    coefficients), INTERACTIONS without a formula surface, an allowlisted formula path, a
+    COMBINATORIAL factor.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -175,10 +175,10 @@ def ply_model_matrix(
             breaks the alignment with y). Column names must be valid identifiers.
         formula: [formula, required] ONE-SIDED formula over the columns of 'data' (e.g. "~ gdp *
             regime + I(infl^2)"). WITHOUT a response variable — the node builds a DESIGN MATRIX, it
-            does not fit a model. Only allowed: + - * : ^ I log log1p log2 log10 exp sqrt abs poly
-            factor as.factor ordered interaction (default-deny allowlist, TWICE: adapt_formula + the
-            node itself); every symbol must be a column of 'data' ('.' is NOT supported). For simple
-            interactions prefer ply_interactions (no formula surface).
+            does not fit a model. Calls are restricted to the formula allowlist (default-deny,
+            enforced TWICE: at the argument boundary and again in the node); every symbol must be a
+            column of 'data' ('.' is NOT supported). For simple interactions prefer ply_interactions
+            (no formula surface).
         contrasts: [enum, optional] Categorical encoding. 'treatment' (default) = dummy relative to
             the FIRST level; 'sum' = deviations from the mean (useful for interpretable
             interactions); 'helmert' = successive contrasts; 'poly' = orthogonal polynomials for
@@ -205,11 +205,11 @@ def ply_model_matrix(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ply_model_matrix: not implemented. The method card is in ./README.md."
+        "ply_model_matrix: not implemented."
     )
 
 
-def ply_interaction_factor(
+def ply_interaction_categorical(
     *,
     data: pd.DataFrame,
     vars: Sequence[str],
@@ -219,11 +219,11 @@ def ply_interaction_factor(
     indicator: bool | None = None,
     max_levels: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``ply_interaction_factor`` -- METHOD-SELECTION card #253.
+    """Node ``ply_interaction_categorical`` -- method card #253.
 
-    DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (poly + returning attr 'coefs'),
-    INTERACTIONS without a formula surface (model_matrix), an allowlisted formula path, a
-    COMBINATORIAL factor (interaction).
+    DESIGN MATRIX (feature engineering): ORTHOGONAL/RAW polynomials (returning the fitted
+    coefficients), INTERACTIONS without a formula surface, an allowlisted formula path, a
+    COMBINATORIAL factor.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -252,5 +252,5 @@ def ply_interaction_factor(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ply_interaction_factor: not implemented. The method card is in ./README.md."
+        "ply_interaction_categorical: not implemented."
     )

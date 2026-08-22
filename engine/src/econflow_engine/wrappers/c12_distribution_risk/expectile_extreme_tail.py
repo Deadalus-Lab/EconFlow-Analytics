@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``expectile_extreme_tail`` -- METHOD-SELECTION card #192.
+"""Method wrapper ``expectile_extreme_tail`` -- method card #192.
 
 #192 Expectile-based extreme tail risk (extreme/intermediate expectiles + marginal expected
     shortfall + the heavy-tail index)
@@ -8,8 +8,8 @@ Category 12-distribution-risk; module ``expectile_extreme_tail``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def er_expectiles(
     k: int | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``er_expectiles`` -- METHOD-SELECTION card #192.
+    """Node ``er_expectiles`` -- method card #192.
 
     Expectile-based extreme tail risk (extreme/intermediate expectiles + marginal expected shortfall
     + the heavy-tail index).
@@ -76,7 +76,7 @@ def er_expectiles(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "er_expectiles: not implemented. The method card is in ./README.md."
+        "er_expectiles: not implemented."
     )
 
 
@@ -96,7 +96,7 @@ def er_mes(
     k: int | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``er_mes`` -- METHOD-SELECTION card #192.
+    """Node ``er_mes`` -- method card #192.
 
     Expectile-based extreme tail risk (extreme/intermediate expectiles + marginal expected shortfall
     + the heavy-tail index).
@@ -125,7 +125,7 @@ def er_mes(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "er_mes: not implemented. The method card is in ./README.md."
+        "er_mes: not implemented."
     )
 
 
@@ -141,7 +141,7 @@ def er_tail_index(
     smallBlock: int | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``er_tail_index`` -- METHOD-SELECTION card #192.
+    """Node ``er_tail_index`` -- method card #192.
 
     Expectile-based extreme tail risk (extreme/intermediate expectiles + marginal expected shortfall
     + the heavy-tail index).
@@ -168,5 +168,5 @@ def er_tail_index(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "er_tail_index: not implemented. The method card is in ./README.md."
+        "er_tail_index: not implemented."
     )

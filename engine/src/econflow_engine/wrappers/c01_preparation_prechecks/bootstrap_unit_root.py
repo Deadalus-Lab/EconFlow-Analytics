@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bootstrap_unit_root`` -- METHOD-SELECTION card #122.
+"""Method wrapper ``bootstrap_unit_root`` -- method card #122.
 
 #122 Bootstrap unit-root tests robust to heterogeneity/non-stationary volatility/missing data (boot
     ADF / union / panel GM / order of integration)
@@ -8,8 +8,8 @@ Category 01-preparation-prechecks; module ``bootstrap_unit_root``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,16 +24,16 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "bur_boot_adf",
-    "bur_boot_panel",
-    "bur_boot_union",
-    "bur_order_integration",
+    "boot_adf",
+    "boot_order_integration",
+    "boot_panel",
+    "boot_union",
     "NODE_META",
     "wire_model",
 ]
 
 
-def bur_boot_adf(
+def boot_adf(
     *,
     data: pd.Series,
     seed: int,
@@ -47,7 +47,7 @@ def bur_boot_adf(
     criterion_scale: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bur_boot_adf`` -- METHOD-SELECTION card #122.
+    """Node ``boot_adf`` -- method card #122.
 
     Bootstrap unit-root tests robust to heterogeneity/non-stationary volatility/missing data (boot
     ADF / union / panel GM / order of integration).
@@ -73,11 +73,11 @@ def bur_boot_adf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bur_boot_adf: not implemented. The method card is in ./README.md."
+        "boot_adf: not implemented."
     )
 
 
-def bur_boot_union(
+def boot_union(
     *,
     data: pd.Series,
     seed: int,
@@ -90,7 +90,7 @@ def bur_boot_union(
     union_quantile: float | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bur_boot_union`` -- METHOD-SELECTION card #122.
+    """Node ``boot_union`` -- method card #122.
 
     Bootstrap unit-root tests robust to heterogeneity/non-stationary volatility/missing data (boot
     ADF / union / panel GM / order of integration).
@@ -115,11 +115,11 @@ def bur_boot_union(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bur_boot_union: not implemented. The method card is in ./README.md."
+        "boot_union: not implemented."
     )
 
 
-def bur_boot_panel(
+def boot_panel(
     *,
     data: pd.DataFrame,
     seed: int,
@@ -135,7 +135,7 @@ def bur_boot_panel(
     criterion_scale: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bur_boot_panel`` -- METHOD-SELECTION card #122.
+    """Node ``boot_panel`` -- method card #122.
 
     Bootstrap unit-root tests robust to heterogeneity/non-stationary volatility/missing data (boot
     ADF / union / panel GM / order of integration).
@@ -143,7 +143,7 @@ def bur_boot_panel(
     Category 01-preparation-prechecks; memory class ``heavy``.
 
     Args:
-        data: [multiseries_handle, required] Handle to a (T x N) matrix/mts of >=2 series (no NA,
+        data: [multiseries_handle, required] Handle to a (T x N) matrix/panel of >=2 series (no NA,
             >=20 obs).
         seed: [integer, required] Bootstrap seed (MANDATORY — determinism/caching).
         bootstrap: [enum, optional] Bootstrap method (default AWB).
@@ -164,11 +164,11 @@ def bur_boot_panel(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bur_boot_panel: not implemented. The method card is in ./README.md."
+        "boot_panel: not implemented."
     )
 
 
-def bur_order_integration(
+def boot_order_integration(
     *,
     data: pd.DataFrame,
     seed: int,
@@ -181,7 +181,7 @@ def bur_order_integration(
     max_lag: int | None = None,
     criterion: Literal["MAIC", "AIC", "BIC", "MBIC"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bur_order_integration`` -- METHOD-SELECTION card #122.
+    """Node ``boot_order_integration`` -- method card #122.
 
     Bootstrap unit-root tests robust to heterogeneity/non-stationary volatility/missing data (boot
     ADF / union / panel GM / order of integration).
@@ -191,7 +191,7 @@ def bur_order_integration(
     Registers its result under ``diff_data``, so a later node can consume it as a handle.
 
     Args:
-        data: [multiseries_handle, required] Handle to a (T x N) matrix/mts of >=2 series (no NA,
+        data: [multiseries_handle, required] Handle to a (T x N) matrix/panel of >=2 series (no NA,
             >=20 obs).
         seed: [integer, required] Bootstrap seed (MANDATORY — determinism/caching).
         method: [enum, optional] Multivariate test per step (default boot_ur).
@@ -208,5 +208,5 @@ def bur_order_integration(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bur_order_integration: not implemented. The method card is in ./README.md."
+        "boot_order_integration: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bekk_family_multivariate`` -- METHOD-SELECTION card #160.
+"""Method wrapper ``bekk_family_multivariate`` -- method card #160.
 
 #160 BEKK-family multivariate GARCH (BEKK/diagonal/scalar) + multivariate VaR + Volatility IRF
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``bekk_family_multivariate``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def bekk_estimate(
     crit: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``bekk_estimate`` -- METHOD-SELECTION card #160.
+    """Node ``bekk_estimate`` -- method card #160.
 
     BEKK-family multivariate GARCH (BEKK/diagonal/scalar) + multivariate VaR + Volatility IRF.
 
@@ -68,7 +68,7 @@ def bekk_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bekk_estimate: not implemented. The method card is in ./README.md."
+        "bekk_estimate: not implemented."
     )
 
 
@@ -79,7 +79,7 @@ def bekk_var(
     portfolio_weights: Sequence[float] | None = None,
     distribution: Literal["normal", "empirical", "t"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bekk_var`` -- METHOD-SELECTION card #160.
+    """Node ``bekk_var`` -- method card #160.
 
     BEKK-family multivariate GARCH (BEKK/diagonal/scalar) + multivariate VaR + Volatility IRF.
 
@@ -97,7 +97,7 @@ def bekk_var(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bekk_var: not implemented. The method card is in ./README.md."
+        "bekk_var: not implemented."
     )
 
 
@@ -111,7 +111,7 @@ def bekk_virf(
     ci: float | None = None,
     time_shock: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bekk_virf`` -- METHOD-SELECTION card #160.
+    """Node ``bekk_virf`` -- method card #160.
 
     BEKK-family multivariate GARCH (BEKK/diagonal/scalar) + multivariate VaR + Volatility IRF.
 
@@ -132,5 +132,5 @@ def bekk_virf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bekk_virf: not implemented. The method card is in ./README.md."
+        "bekk_virf: not implemented."
     )

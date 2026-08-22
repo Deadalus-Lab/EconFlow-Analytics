@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``vecm_estimate_johansen`` -- METHOD-SELECTION card #24.
+"""Method wrapper ``vecm_estimate_johansen`` -- method card #24.
 
-#24 VECM estimate + Johansen rank_test (ML-only) + rank.select + predict
+#24 VECM estimate + Johansen rank_test (ML-only) + rank selection + predict
 
 Category 05-cointegration; module ``vecm_estimate_johansen``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,16 +41,16 @@ def vecm_estimate(
     estim: Literal["2OLS", "ML"] | None = None,
     LRinclude: Literal["none", "const", "trend", "both"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vecm_estimate`` -- METHOD-SELECTION card #24.
+    """Node ``vecm_estimate`` -- method card #24.
 
-    VECM estimate + Johansen rank_test (ML-only) + rank.select + predict.
+    VECM estimate + Johansen rank_test (ML-only) + rank selection + predict.
 
     Category 05-cointegration; memory class ``light``.
 
     Registers its result under ``object``, so a later node can consume it as a handle.
 
     Args:
-        data: [matrix_handle, required] Handle to a multivariate system (matrix/mts, >=2 columns
+        data: [matrix_handle, required] Handle to a multivariate system (matrix/panel, >=2 columns
             I(1)).
         lag: [integer, required] Lag order (in differences); positive integer.
         r: [integer, optional] Cointegration rank; integer 1..(ncol-1) (default 1). Default ``1``.
@@ -62,7 +62,7 @@ def vecm_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vecm_estimate: not implemented. The method card is in ./README.md."
+        "vecm_estimate: not implemented."
     )
 
 
@@ -72,9 +72,9 @@ def vecm_rank_test(
     type: Literal["eigen", "trace"] | None = None,
     cval: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``vecm_rank_test`` -- METHOD-SELECTION card #24.
+    """Node ``vecm_rank_test`` -- method card #24.
 
-    VECM estimate + Johansen rank_test (ML-only) + rank.select + predict.
+    VECM estimate + Johansen rank_test (ML-only) + rank selection + predict.
 
     Category 05-cointegration; memory class ``light``.
 
@@ -88,7 +88,7 @@ def vecm_rank_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vecm_rank_test: not implemented. The method card is in ./README.md."
+        "vecm_rank_test: not implemented."
     )
 
 
@@ -98,14 +98,14 @@ def vecm_rank_select(
     lag_max: int,
     include: Literal["const", "trend", "none", "both"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``vecm_rank_select`` -- METHOD-SELECTION card #24.
+    """Node ``vecm_rank_select`` -- method card #24.
 
-    VECM estimate + Johansen rank_test (ML-only) + rank.select + predict.
+    VECM estimate + Johansen rank_test (ML-only) + rank selection + predict.
 
     Category 05-cointegration; memory class ``light``.
 
     Args:
-        data: [matrix_handle, required] Handle to a multivariate system (matrix/mts, >=2 columns).
+        data: [matrix_handle, required] Handle to a multivariate system (matrix/panel, >=2 columns).
         lag_max: [integer, required] Maximum lag for the search; positive integer.
         include: [enum, optional] Deterministic terms (default const).
 
@@ -113,7 +113,7 @@ def vecm_rank_select(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vecm_rank_select: not implemented. The method card is in ./README.md."
+        "vecm_rank_select: not implemented."
     )
 
 
@@ -122,9 +122,9 @@ def vecm_predict(
     vecm: Any,
     n_ahead: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``vecm_predict`` -- METHOD-SELECTION card #24.
+    """Node ``vecm_predict`` -- method card #24.
 
-    VECM estimate + Johansen rank_test (ML-only) + rank.select + predict.
+    VECM estimate + Johansen rank_test (ML-only) + rank selection + predict.
 
     Category 05-cointegration; memory class ``light``.
 
@@ -136,5 +136,5 @@ def vecm_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "vecm_predict: not implemented. The method card is in ./README.md."
+        "vecm_predict: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``conditional_unconditional_expectiles`` -- METHOD-SELECTION card #193.
+"""Method wrapper ``conditional_unconditional_expectiles`` -- method card #193.
 
 #193 Conditional & unconditional expectiles (Expectiles-at-Risk / a GaR analogue, LAWS)
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``conditional_unconditional_expectiles``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -53,7 +53,7 @@ def exr_expectile_reg(
     expectiles: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``exr_expectile_reg`` -- METHOD-SELECTION card #193.
+    """Node ``exr_expectile_reg`` -- method card #193.
 
     Conditional & unconditional expectiles (Expectiles-at-Risk / a GaR analogue, LAWS).
 
@@ -79,7 +79,7 @@ def exr_expectile_reg(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "exr_expectile_reg: not implemented. The method card is in ./README.md."
+        "exr_expectile_reg: not implemented."
     )
 
 
@@ -89,7 +89,7 @@ def exr_expectile(
     probs: float | None = None,
     dec: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``exr_expectile`` -- METHOD-SELECTION card #193.
+    """Node ``exr_expectile`` -- method card #193.
 
     Conditional & unconditional expectiles (Expectiles-at-Risk / a GaR analogue, LAWS).
 
@@ -105,5 +105,5 @@ def exr_expectile(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "exr_expectile: not implemented. The method card is in ./README.md."
+        "exr_expectile: not implemented."
     )

@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Deadalus-Lab/EconFlow-Analytics/engine/artifacts/schema/method-trees.schema.json",
+  "title": "method-trees",
+  "description": "The decision trees that turn a stated goal and a set of measured data properties into a method recommendation. This artifact is the only surviving copy of those trees, so its shape is not recoverable from anything else in the tree if it is replaced by mistake.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["artifact_version", "generated_by", "source", "meta", "trees"],
+  "properties": {
+    "artifact_version": { "const": 1 },
+    "generated_by": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n_trees", "n_leaves", "n_node_leaves", "n_branch_leaves"],
+      "properties": {
+        "n_trees": { "type": "integer", "minimum": 1 },
+        "n_leaves": { "type": "integer", "minimum": 1 },
+        "n_node_leaves": { "type": "integer", "minimum": 0 },
+        "n_branch_leaves": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "source", "polarity", "data_properties_contract"],
+      "properties": {
+        "version": { "type": "integer", "minimum": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "polarity": {
+          "description": "THE FIELD MOST LIKELY TO BE GOT WRONG, and the reason it is pinned here. A unit-root test and a stationarity test carry OPPOSITE null hypotheses, so reading one with the other's polarity inverts the conclusion while every number still looks plausible. Each entry must name its family, its null and what rejection means.",
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["family", "h0", "reject"],
+            "properties": {
+              "family": { "type": "string", "minLength": 1 },
+              "h0": { "type": "string", "minLength": 1 },
+              "reject": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "data_properties_contract": { "type": "object", "minProperties": 1 }
+      }
+    },
+    "trees": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "entry", "root", "nodes"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "entry": {
+            "description": "The conditions under which this tree is the one to walk.",
+            "type": "object",
+            "minProperties": 1
+          },
+          "root": {
+            "description": "Must name a key of `nodes`; a root that names nothing sends every walk of this tree nowhere.",
+            "type": "string",
+            "minLength": 1
+          },
+          "nodes": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": { "$ref": "#/$defs/treeNode" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "treeNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "question": { "type": "string", "minLength": 1 },
+        "reads": {
+          "description": "The data property this node consults. It is the join onto the measured-properties contract, so an unknown name is an unanswerable question rather than a default.",
+          "type": "string",
+          "minLength": 1
+        },
+        "branches": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["when"],
+            "properties": {
+              "when": { "type": "object", "minProperties": 1 },
+              "leaf": { "$ref": "#/$defs/leaf" },
+              "goto": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "precondition": {
+          "type": ["array", "string"],
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "leaf": { "$ref": "#/$defs/leaf" }
+      }
+    },
+    "leaf": {
+      "description": "A recommendation. `tool_fns` and `card_id` are what the caller acts on, and `rationale` is what a reader is owed: a recommendation with no stated reason cannot be argued with, which in a method-selection tool is a defect rather than brevity. All 48 leaves also carry `source`; `warn`, `guard` and `recheck` appear on the few that need them.",
+      "type": "object",
+      "required": ["tool_fns", "card_id", "rationale", "source"],
+      "properties": {
+        "tool_fns": {
+          "description": "A single tool is written as a bare string and a pipeline as a list -- both forms are in the artifact, so a consumer must normalise rather than index. Measured: 30 scalars against 18 lists. THE EMPTY LIST IS PERMITTED AND MEANS SOMETHING: the `guard` leaf on tree B recommends no tool at all, because an I(2) series invalidates both candidate methods until it has been differenced. Forbidding it here would outlaw the one honest answer that tree can give.",
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            }
+          ]
+        },
+        "card_id": { "type": "integer", "minimum": 1 },
+        "rationale": { "type": "string", "minLength": 1 },
+        "source": {
+          "description": "The citation the recommendation rests on. Every leaf carries one, which is what makes the trees auditable rather than opinion.",
+          "type": "string",
+          "minLength": 1
+        },
+        "warn": { "type": "string", "minLength": 1 },
+        "guard": {
+          "description": "Flags a leaf that deliberately recommends nothing until a precondition is repaired. Boolean, not prose: the caller branches on it.",
+          "type": "boolean"
+        },
+        "recheck": {
+          "description": "Flags a leaf that sends the walk back to an earlier step rather than terminating.",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1543 @@
+{
+ "category": "18-yield-curve",
+ "cards": [
+  {
+   "id": 87,
+   "method": "Nelson-Siegel / Svensson / Diebold-Li yield-curve factors",
+   "wrapper_file": "c18_yield_curve/nelson_siegel_svensson.py",
+   "tool_fns": [
+    "fit_nelson_siegel",
+    "fit_svensson"
+   ],
+   "when": "compressing the cross-section of yields by maturity into level/slope/curvature factors (NS/Diebold-Li) or a 4-factor Svensson for a second hump; typically as an input to the recession probit #83",
+   "when_not": "you want a no-arbitrage/affine term premium (ACM/ABG), or only the simple 10y-2y slope spread, or time-series stationarity/cointegration of one tenor (01/05)",
+   "alternatives": [
+    {
+     "alt": "fit_nelson_siegel (NS / Diebold-Li 3-factor)",
+     "criterion": "the default macro-factor extraction; few pillars (>=4), stability, interpretability"
+    },
+    {
+     "alt": "fit_svensson (4-factor)",
+     "criterion": "curves with a second hump, a rich tenor grid (>=6 pillars), a better long-end fit"
+    },
+    {
+     "alt": "a plain slope spread (10y-2y), outside the category",
+     "criterion": "you only want a recession slope indicator, not a full factor fit"
+    },
+    {
+     "alt": "affine no-arbitrage term premium (ACM/ABG)",
+     "criterion": "you want a decomposition into expectations versus term premium — outside this card (-> #211)"
+    },
+    {
+     "alt": "recession probit #83",
+     "criterion": "the natural consumer of the extracted factors — run it after the fit"
+    }
+   ],
+   "output_key_fields": [
+    "model: Nelson.Siegel or Svensson",
+    "factors: a date-indexed frame of the factors (Nelson-Siegel: beta_0, beta_1, beta_2, lambda; Svensson: beta_0..beta_3, tau1, tau2)",
+    "factors_df: chart-ready data_frame with a date column + factors",
+    "fitted_rates: a date-indexed frame of fitted yields per maturity",
+    "residuals: a date-indexed frame of observed minus fitted per pillar",
+    "which_rate: Spot (default) or Forward (Svensson only)",
+    "interpretation: mapping beta_0=level, beta_1=slope, beta_2=curvature,..",
+    "n_obs / n_maturities: number of dates / pillars"
+   ],
+   "interpretation_traps": [
+    "Svensson which_rate: the default MUST be Spot; with Forward the fitted/residuals silently become the wrong quantity (the instantaneous forward instead of the spot) — adversarial-review HIGH",
+    "lambda/tau are decay rates (the hump position), NOT yields — do not feed them into a probit as a spread",
+    "the sign of the slope depends on the direction of the definition — read the interpretation field, do not assume",
+    "this is a descriptive fit, NOT no-arbitrage — it does not separate expectations from the term premium",
+    "an inconsistent maturity unit (months/years) distorts lambda and the fit"
+   ],
+   "sources": [
+    "Diebold-Li 2006, Forecasting the Term Structure of Government Bond Yields, J. Econometrics 130",
+    "Nelson-Siegel 1987, J. Business 60",
+    "Svensson 1994, IMF WP 94/114",
+    "wrapper footer IMPLEMENTATION NOTE + adversarial-review HIGH (which_rate default=Spot)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 210,
+   "method": "Parametric yield-curve factor models (Nelson-Siegel / Svensson / cubic spline, Diebold-Li dynamics on a panel) + curve transforms (spot/forward/discount/PCA)",
+   "wrapper_file": "c18_yield_curve/parametric_yield_curve.py",
+   "tool_fns": [
+    "yc_fit",
+    "yc_transform"
+   ],
+   "when": "you have observed yields by maturity (a single cross-sectional curve AS a vector, or a time series of curves AS a time × maturity matrix) and you want (a) to compress them into level/slope/curvature factors (+ the extra Svensson term) with an explicit decay lambda, or (b) Diebold-Li factor dynamics (a Nelson-Siegel fit per date on a panel), or (c) to produce forward rates / discount factors / spot rates on a free maturity grid, or a PCA (Litterman-Scheinkman) of a yield panel",
+   "when_not": "you have coupon-bond cash-flow micro data (prices+coupons, not ready spot yields) -> #212 ycnp_estimate (nonparametric); you want a no-arbitrage/affine term-premium decomposition (ACM/ABG expectations vs term premium) — this is a descriptive fit ONLY, out of scope; you only want the simple 10y-2y slope spread (a transform, cat. 00); time-series stationarity/cointegration of one tenor (cat. 01/05); fewer pillars than parameters (NS<4, Svensson<6, cubic<3 = underdetermined)",
+   "alternatives": [
+    {
+     "alt": "18-yield-curve/fit_nelson_siegel",
+     "criterion": "you want a date-indexed factor series ready to feed the recession probit of #83; or Diebold-Li through the established interface of #87"
+    },
+    {
+     "alt": "18-yield-curve/fit_svensson",
+     "criterion": "you want a four-factor Svensson fit on a date-indexed panel, with a spot-or-forward rate choice"
+    },
+    {
+     "alt": "18-yield-curve/ycnp_estimate",
+     "criterion": "you have a coupon-bond cash-flow panel (not ready spot yields); you want a nonparametric time-varying discount/yield surface with no parametric shape"
+    },
+    {
+     "alt": "yc_transform (transform='pca')",
+     "criterion": "you want empirical (data-driven) level/slope/curvature factors as loadings rather than a parametric Nelson-Siegel fit"
+    },
+    {
+     "alt": "affine no-arbitrage term premium (ACM/ABG)",
+     "criterion": "you want an expectations against term-premium decomposition — outside this card, which is a descriptive fit only"
+    }
+   ],
+   "output_key_fields": [
+    "yc_fit (one curve): factors {level, slope, curvature}; params (the betas, and tau/tau1/tau2); lambda = 1/tau (Nelson-Siegel: one lambda; Svensson: lambda1 and lambda2; the cubic spline: none); fitted (chart-ready yields); residuals; rmse; plus the curve register handle",
+    "yc_fit (a panel, Diebold-Li): factors, a matrix [dates × {level,slope,curvature}]; params [dates × params]; lambda [dates × lambda(s)]; fitted [dates × maturities]; rmse per date; object = the panel matrix (the register handle -> pca)",
+    "yc_transform spot: maturity/rate on a grid (yc_predict); forward: maturity/forward_rate (instantaneous, or forward-forward with a horizon); discount: maturity/discount_factor (continuous/annual/semi_annual)",
+    "yc_transform pca: loadings [tenors × components]; scores [obs × components]; variance_explained; cumulative_variance; sdev; center; tenors"
+   ],
+   "interpretation_traps": [
+    "lambda = 1/tau is a decay rate (the hump position/loading), NOT a yield — do not use it as a spread; the NS lambda default comes from tau_init=1, but tau is estimated (optim), so the final lambda differs",
+    "the cubic spline has no parametric beta or tau, so lambda is blank; its level, slope and curvature are computed empirically from the curve rather than from beta coefficients — do not compare them one-to-one with the Nelson-Siegel betas",
+    "a panel + nelson_siegel = Diebold-Li: an INDEPENDENT fit per row (no common lambda/state space) — for joint dynamics run a VAR on the extracted factors (cat. 03)",
+    "the PCA default scale=False (on the covariance) is standard in yield-curve PCA; scale=True (on the correlation) changes the loadings — do not confuse them; the sign of the loadings and scores is arbitrary, since they are identified only up to sign",
+    "the maturities must be STRICTLY INCREASING and positive; duplicates or unsorted values are accepted silently by the raw routine (gate); an inconsistent unit — months against years — distorts lambda and the fit",
+    "a forward without a horizon = the instantaneous forward; with horizon>0 = a forward-forward rate (between maturity and maturity+horizon) — a different quantity, state it explicitly",
+    "n_components in the PCA is capped at min(n_obs-1, n_maturities); exceeding it is silently reduced by the raw routine, and the gate blocks that"
+   ],
+   "sources": [
+    "Nelson & Siegel 1987 J. Business 60(4); Svensson 1994 IMF WP 94/114; Litterman & Scheinkman 1991 J. Fixed Income 1(1) (the level, slope and curvature factors)",
+    "Nelson, C. R., & Siegel, A. F. (1987). Parsimonious Modeling of Yield Curves. Journal of Business, 60(4), 473-489",
+    "Svensson, L. E. O. (1994). Estimating and Interpreting Forward Interest Rates: Sweden 1992-1994. IMF Working Paper 94/114",
+    "Diebold, F. X., & Li, C. (2006). Forecasting the Term Structure of Government Bond Yields. Journal of Econometrics, 130(2), 337-364",
+    "Litterman, R., & Scheinkman, J. (1991). Common Factors Affecting Bond Returns. Journal of Fixed Income, 1(1), 54-61 (PCA level/slope/curvature)"
+   ],
+   "precondition_tools": [
+    "c00_data_utilities/reading_delimited_fixed.read_delimited (load the yields — one curve or a time × maturity panel)",
+    "yc_fit (the fit of one curve; register field='object' -> it feeds yc_transform as a handle)",
+    "c18_yield_curve/nelson_siegel_svensson.fit_nelson_siegel (the date-indexed baseline; compare the factors before changing method)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 211,
+   "method": "Arbitrage-free affine (Gaussian) term-structure model — JSZ-style single-country JPS estimation with unspanned macro risks (risk-neutral Q + physical P parameters, model-implied yields, term-premia decomposition)",
+   "wrapper_file": "c18_yield_curve/arbitrage_free_affine.py",
+   "tool_fns": [
+    "atsm_estimate"
+   ],
+   "when": "you have a panel of bond yields (zero-coupon yields at many maturities) + macro factors (global & domestic) and you want an arbitrage-free affine model (JSZ/JPS): the risk-neutral (Q) + physical (P) dynamics of the risk factors, the model-implied (fitted) yields, and a DECOMPOSITION of the yield into the expected average short rate (the expectations component) + the TERM PREMIUM; unspanned macro risks (Eco_Act/Inflation) are incorporated beyond the spanned yield factors",
+   "when_not": "you want a simple static yield-curve fit for one date (Nelson-Siegel or Svensson -> #87/#210); you do not have a multi-maturity yield panel; you want multi-country global-VAR or joint-latent models (they need trade-flow weight matrices and a domestic-unit specification — outside this single-country node); you want a bias-corrected or bootstrap ensemble, or out-of-sample yield forecasts (stochastic and heavy, excluded); macro data outside the strict format (the yield row labels 'Y<mat>M_<economy>', the macro labels '<var> <economy>', and dates as column labels 'dd-mm-yyyy')",
+   "alternatives": [
+    {
+     "alt": "18-yield-curve/yc_fit / nss_fit",
+     "criterion": "you want only a static factor fit of the curve (level/slope/curvature) per date, NOT a dynamic arbitrage-free model with term premia"
+    },
+    {
+     "alt": "atsm_estimate with compute_term_premia=False",
+     "criterion": "you want only the Q/P parameters + the maximum log-likelihood (faster, without the fit/term premia)"
+    },
+    {
+     "alt": "10-trend-cycle-statespace/kf_fit",
+     "criterion": "you want a general Gaussian state-space latent-factor model without no-arbitrage affine bond-pricing restrictions"
+    }
+   ],
+   "output_key_fields": [
+    "max_llk: the maximum log-likelihood of the JSZ MLE estimation",
+    "Q_params: the risk-neutral (Q) parameters {K1XQ (the Q-feedback eigenvalues), r0 (the short-rate intercept under Q), se (the measurement-error sd), VarYields (the per-maturity error variance)}",
+    "P_params: the physical (P) VAR(1) dynamics of the risk factors {K0Z (the drift), K1Z (the feedback), SSZ (the innovation covariance)}",
+    "fitted_yields / observed_yields: (time × maturities) model-implied vs observed yields + fit_rmse (chart-data)",
+    "term_premia: (time × maturities) the term-premium component per maturity (chart-data)",
+    "expected_component: (time × maturities) the expectations-hypothesis component (the average expected future short rate)",
+    "maturities / sample_dates / n_obs / pc_var_explained: sample metadata & the PCA variance of the spanned factors; object = the full ATSMModelOutputs"
+   ],
+   "interpretation_traps": [
+    "the identity yield = expected_component + term_premia: the term premium is the RESIDUAL above the expected future short rates; a negative term premium is valid (e.g. flight to quality)",
+    "the input format is STRICT: yield series 'Y<mat>M_<economy>' (e.g. 'Y120M_Brazil'), macro '<var> <economy>', date column labels 'dd-mm-yyyy'; wrong row labels -> the economy gate blocks it; a wrong data_freq -> a silently wrong annualization of dt",
+    "n_factors N = the country-specific SPANNED (yield-derived PCA) factors; N must be < the number of maturities; the macro variables (Eco_Act/Inflation) enter separately as UNSPANNED domestic factors (do not confuse them with N)",
+    "single country only: 'JPS original' (domestic-only spanned+macro) vs 'JPS global' (it adds global factors to the P dynamics); GVAR/JLL/JPS-multi were excluded (the trade-weight/domestic-unit machinery)",
+    "stationary_Q=True enforces a maximum absolute eigenvalue below 1 under Q, giving a stable long-run curve; False can produce explosive Q dynamics — check K1XQ",
+    "DETERMINISTIC (BFGS from a JSZ PCA/OLS initialisation, no RNG) -> no seed; the same input => the same max_llk"
+   ],
+   "sources": [
+    "Joslin, Singleton & Zhu 2011 Review of Financial Studies 24(3) (a new perspective on Gaussian dynamic term structure models)",
+    "Joslin, Singleton & Zhu (2011) 'A New Perspective on Gaussian Dynamic Term Structure Models', Review of Financial Studies 24(3):926-970 (the JSZ canonical form)",
+    "Joslin, Priebsch & Singleton (2014) 'Risk Premiums in Dynamic Term Structure Models with Unspanned Macro Risks', Journal of Finance 69(3):1197-1233 (JPS)",
+    "Candelon & Moura (2024) 'A Multicountry Model of the Term Structures of Interest Rates with a GVAR', Journal of Financial Econometrics 22(5):1558-1587",
+    "Le & Singleton (2018) 'A Small Package of Matlab Routines for the Estimation of Some Term Structure Models', EABCN Training School"
+   ],
+   "precondition_tools": [
+    "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the yield and macro panels as matrices; alternatively leave them unset to use the built-in 'CM_2024' sample)",
+    "c18_yield_curve/parametric_yield_curve.yc_fit (a static Nelson-Siegel fit per date — a simpler alternative when you do not need a dynamic arbitrage-free model)",
+    "atsm_estimate (the term-premia decomposition is returned inside it: term_premia + expected_component)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 212,
+   "method": "Nonparametric time-varying yield curve / discount function estimation from coupon-bond cash-flow data (the Koo-La Vecchia-Linton kernel estimator)",
+   "wrapper_file": "c18_yield_curve/nonparametric_time_varying.py",
+   "tool_fns": [
+    "ycnp_estimate"
+   ],
+   "when": "you have coupon-bond cross-section+time-series micro data (a cash-flow panel: qdate, id, price, tupq=the time to the cash flow in days, pdint=the cash-flow amount) and you want to ESTIMATE non-parametrically the discount function d(tau,t) and the implied yield curve y(tau,t) that EVOLVE over time — without imposing a parametric shape (Nelson-Siegel/Svensson); appropriate for sparse/irregular coupon schedules",
+   "when_not": "you already have a matrix of spot yields by maturity (zero-coupon rates) — then #87 fit_nelson_siegel/fit_svensson (parametric factor fitting); you want level/slope/curvature factors for macro/probit work — #87; you want an affine term-structure/no-arbitrage model; you do not have cash-flow-level data (only aggregate yields); very few bonds/dates (the kernel estimator needs density around each x)",
+   "alternatives": [
+    {
+     "alt": "18-yield-curve/fit_nelson_siegel",
+     "criterion": "you already have spot yields by maturity and you want a parametric 3-factor (level/slope/curvature) fit rather than nonparametric cash-flow estimation"
+    },
+    {
+     "alt": "18-yield-curve/fit_svensson",
+     "criterion": "a parametric 4-factor (Svensson/Diebold-Li) fit on a ready spot curve"
+    }
+   ],
+   "output_key_fields": [
+    "estimates: records {date, tau, discount, yield} — the estimated discount function + yield curve per (time, maturity) (chart-data)",
+    "yield_matrix: a numeric matrix [tau × date] — the yield surface (rows=maturities, cols=dates)",
+    "discount_matrix: a numeric matrix [tau × date] — the discount surface",
+    "x: the estimation time points (dates); tau: the maturities that were used; span_x; smooth",
+    "n_obs (the cash-flow rows), n_bonds (unique ids), n_dates, n_tau; plus the fitted nested estimate table"
+   ],
+   "interpretation_traps": [
+    "tupq is the time to EACH cash flow in DAYS (not years); pdint is the AMOUNT of the flow (a coupon, or a coupon+face value at maturity) — one row per (bond, cash flow), not per bond",
+    "x must lie INSIDE the range of qdate and have enough data around it (the kernel window ~ span_x): an x in a sparse region or at the edges -> non-finite/unstable estimates (the wrapper hard-gates non-finite values)",
+    "leaving tau unset lets the routine choose ITS OWN dense maturity grid (the percentiles of the observed maturities) rather than fixed pillars; supply an explicit tau for controlled maturities",
+    "span_x is measured in the number of regular intervals between consecutive qdate values (e.g. trading days): a small span_x -> noise/overfitting, a large one -> over-smoothing over time",
+    "smooth=True applies a loess over tau; with few tau values it produces 'span too small' warnings — the default False returns the raw estimator points, which are deterministic",
+    "yield = -log(discount)/tau (a transformation of the discount factor); it is a continuously compounded spot yield per maturity, NOT a par/coupon yield"
+   ],
+   "sources": [
+    "Koo, B., La Vecchia, D., & Linton, O. (2021). Estimation of a nonparametric model for bond prices from cross-section and time series information. Journal of Econometrics, 220(2), 562-588",
+    "Nelson, C. R., & Siegel, A. F. (1987). Parsimonious Modeling of Yield Curves. Journal of Business, 60(4), 473-489 (the DGP for ycevo_data)"
+   ],
+   "precondition_tools": [
+    "c00_data_utilities/reading_delimited_fixed.read_delimited (load the bond cash-flow panel; the columns qdate/id/price/tupq/pdint)",
+    "ycnp_estimate (the estimation returns the estimates + the yield/discount surface matrices inside it)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 535,
+   "method": "ACM term-premium decomposition",
+   "wrapper_file": "c18_yield_curve/acm_term_premium.py",
+   "tool_fns": [
+    "yc_acm_decomposition"
+   ],
+   "when": "splitting a bond yield into expected future short rates and the term premium, which is what monetary-policy analysis actually needs",
+   "when_not": "you only need the fitted curve; the sample is too short for the risk-price parameters to be identified",
+   "alternatives": [
+    {
+     "alt": "survey-based decomposition",
+     "criterion": "surveys of expected rates are available"
+    },
+    {
+     "alt": "ACM three-step regression",
+     "criterion": "fast, robust, the practitioner standard"
+    },
+    {
+     "alt": "full affine term-structure estimation",
+     "criterion": "you want a likelihood-based decomposition"
+    }
+   ],
+   "output_key_fields": [
+    "expected_short_rate: the average expected policy path",
+    "term_premium: the residual compensation for risk",
+    "fitted_yields: model yields against observed",
+    "factors: the pricing factors extracted"
+   ],
+   "interpretation_traps": [
+    "THE DECOMPOSITION IS NOT UNIQUE: different models attribute very different shares to the premium, and the level of the term premium is far less reliable than its changes",
+    "the estimated expected-rate path is heavily influenced by the assumed persistence of the factors, which is poorly identified in short samples",
+    "term premium estimates are revised substantially as the sample extends"
+   ],
+   "sources": [
+    "Adrian, Crump & Moench 2013 (Journal of Financial Economics 110:110-138)",
+    "Kim & Wright 2005 (Federal Reserve Board FEDS 2005-33)",
+    "pyacm"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 536,
+   "method": "Zero-coupon bootstrapping and spline curve fitting from coupon bonds",
+   "wrapper_file": "c18_yield_curve/curve_bootstrapping.py",
+   "tool_fns": [
+    "yc_bootstrap_curve"
+   ],
+   "when": "market instruments are coupon bonds and swaps, and everything downstream needs the zero-coupon curve they imply",
+   "when_not": "zero rates are already published; the instrument set is too sparse to pin down the curve",
+   "alternatives": [
+    {
+     "alt": "bootstrapping",
+     "criterion": "exact repricing of the inputs, piecewise curve"
+    },
+    {
+     "alt": "spline fitting",
+     "criterion": "a smooth curve that need not reprice exactly"
+    },
+    {
+     "alt": "parametric (Nelson-Siegel) fitting",
+     "criterion": "few parameters, smooth by construction"
+    }
+   ],
+   "output_key_fields": [
+    "zero_curve: the fitted zero-coupon curve",
+    "discount_factors: on the requested grid",
+    "forward_curve: implied forwards",
+    "repricing_error: how well the inputs are reproduced"
+   ],
+   "interpretation_traps": [
+    "BOOTSTRAPPING REPRICES THE INPUTS EXACTLY AND CAN PRODUCE ABSURD FORWARD RATES between nodes; smoothness and exact repricing are in direct conflict",
+    "the interpolation rule -- on zeros, on log discount factors, on forwards -- changes the curve materially between nodes",
+    "the forward curve is the second derivative of the discount curve and amplifies any roughness enormously"
+   ],
+   "sources": [
+    "Hagan & West 2006 (Applied Mathematical Finance 13:89-129)",
+    "Andersen 2007 (Journal of Computational Finance 10:1)",
+    "QuantLib"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 537,
+   "method": "Dynamic Nelson-Siegel in state space with macro factors",
+   "wrapper_file": "c18_yield_curve/dynamic_nelson_siegel.py",
+   "tool_fns": [
+    "yc_dynamic_nelson_siegel"
+   ],
+   "when": "the yield curve's level, slope and curvature evolve over time, and you want a model that forecasts them and can include macro variables",
+   "when_not": "you only need a cross-sectional fit at one date; the curve has shapes the three factors cannot represent",
+   "alternatives": [
+    {
+     "alt": "static Nelson-Siegel per date",
+     "criterion": "cross-sectional fitting only"
+    },
+    {
+     "alt": "dynamic Nelson-Siegel",
+     "criterion": "the factors follow a time-series process"
+    },
+    {
+     "alt": "Nelson-Siegel with macro factors",
+     "criterion": "you want yield-macro interaction"
+    }
+   ],
+   "output_key_fields": [
+    "factors: level, slope and curvature paths",
+    "loadings: the fixed factor loadings and the decay parameter",
+    "forecast: yield-curve forecasts",
+    "macro_interaction: cross-effects where macro variables are included"
+   ],
+   "interpretation_traps": [
+    "THE DECAY PARAMETER IS OFTEN FIXED rather than estimated because the likelihood is nearly flat in it; fixing it at a convention is a decision that affects curvature throughout",
+    "the model is not arbitrage free in its basic form, so it must not be used to price derivatives",
+    "level, slope and curvature are labels for loadings shapes, not economic objects, and their macro correlations are not causal"
+   ],
+   "sources": [
+    "Diebold & Li 2006 (Journal of Econometrics 130:337-364)",
+    "Diebold, Rudebusch & Aruoba 2006 (Journal of Econometrics 131:309)",
+    "nelson-siegel-svensson"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 538,
+   "method": "Shadow short rate at the effective lower bound",
+   "wrapper_file": "c18_yield_curve/shadow_short_rate.py",
+   "tool_fns": [
+    "yc_shadow_short_rate"
+   ],
+   "when": "the policy rate is at its floor, and a curve model without the bound implies negative short rates the market cannot deliver",
+   "when_not": "the bound never binds in the sample; you want a full macro system rather than a curve construct",
+   "alternatives": [
+    {
+     "alt": "standard affine model",
+     "criterion": "no binding bound"
+    },
+    {
+     "alt": "Wu-Xia shadow rate",
+     "criterion": "the widely used discrete-time construction"
+    },
+    {
+     "alt": "Krippner shadow rate",
+     "criterion": "a continuous-time alternative with different properties"
+    }
+   ],
+   "output_key_fields": [
+    "shadow_rate: the latent rate, which goes below the bound",
+    "expected_lift_off: the expected time to leave the bound",
+    "fitted_yields: model yields against observed",
+    "bound: the effective lower bound imposed"
+   ],
+   "interpretation_traps": [
+    "DIFFERENT SHADOW-RATE MODELS PRODUCE VERY DIFFERENT SERIES on the same data -- Wu-Xia and Krippner have disagreed by several percentage points, so the estimate is model, not measurement",
+    "the shadow rate is a latent modelling device and is not a policy stance indicator despite being used as one",
+    "estimates at the end of the sample are revised heavily as the bound period lengthens"
+   ],
+   "sources": [
+    "Wu & Xia 2016 (Journal of Money, Credit and Banking 48:253-291)",
+    "Krippner 2013 (Economics Letters 118:135)",
+    "srvar-toolkit"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 539,
+   "method": "Bond excess-return predictability and the Cochrane-Piazzesi factor",
+   "wrapper_file": "c18_yield_curve/bond_return_predictability.py",
+   "tool_fns": [
+    "yc_bond_return_predictability"
+   ],
+   "when": "testing whether forward rates predict bond excess returns, which is the empirical case against the expectations hypothesis",
+   "when_not": "the sample is short relative to the overlapping horizon, where the inference is unreliable regardless of correction",
+   "alternatives": [
+    {
+     "alt": "single forward-spread regressions",
+     "criterion": "a simple, transparent test"
+    },
+    {
+     "alt": "Cochrane-Piazzesi single factor",
+     "criterion": "a tent-shaped combination of forwards"
+    },
+    {
+     "alt": "term-premium model",
+     "criterion": "you want a structural decomposition instead"
+    }
+   ],
+   "output_key_fields": [
+    "cp_factor: the fitted return-forecasting factor",
+    "r_squared: predictive fit per maturity",
+    "coefficients: forward-rate loadings, the tent shape",
+    "hac_inference: standard errors corrected for overlap"
+   ],
+   "interpretation_traps": [
+    "OVERLAPPING ANNUAL RETURNS FROM MONTHLY DATA INDUCE STRONG SERIAL CORRELATION; without a HAC or Hodrick correction the t-statistics are inflated by a large factor",
+    "the high R2 of these regressions is partly small-sample bias, and out-of-sample performance is far weaker than in-sample fit suggests",
+    "the tent shape is not robust across samples and countries, which is the main criticism of the single-factor result"
+   ],
+   "sources": [
+    "Cochrane & Piazzesi 2005 (American Economic Review 95:138-160)",
+    "Fama & Bliss 1987 (American Economic Review 77:680)",
+    "Bauer & Hamilton 2018 (Review of Financial Studies 31:399)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "atsm_estimate",
+   "card_id": 211,
+   "register": null,
+   "input_example": {
+    "n_factors": 1,
+    "stationary_Q": false,
+    "horizon": 25,
+    "compute_term_premia": true
+   },
+   "arguments": [
+    {
+     "name": "model_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Type of single-country JPS ATSM (default 'JPS original'; GVAR/JLL/multi out of scope for this node).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "JPS original",
+      "JPS global"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "economy",
+     "kind": "string",
+     "required": false,
+     "description": "A single economy; must exist in yields ('Y<mat>M_<economy>') and dom_macro.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of country-specific spanned factors N (>=1, < #maturities).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "global_var",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Names of global variables (row labels of global_macro; default 'Gl_Eco_Act').",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dom_var",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Names of domestic variables ('<dom_var> <economy>' in dom_macro; default 'Eco_Act').",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "init_date",
+     "kind": "string",
+     "required": false,
+     "description": "Sample start 'dd-mm-yyyy' (within the data range, < final_date).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "final_date",
+     "kind": "string",
+     "required": false,
+     "description": "Sample end 'dd-mm-yyyy' (within the data range, > init_date).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data_freq",
+     "kind": "enum",
+     "required": false,
+     "description": "Data frequency (default 'Monthly'; determines the dt annualization).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "Monthly",
+      "Quarterly",
+      "Weekly",
+      "Annually",
+      "Daily All Days",
+      "Daily Business Days"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "stationary_Q",
+     "kind": "boolean",
+     "required": false,
+     "description": "StatQ: enforcement of maximum eigenvalue under Q < 1 (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Analysis horizon of the term-premia decomposition (default 25).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 25,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "compute_term_premia",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> model-implied yields + term premia + expected component; False -> estimation only (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "yields",
+     "kind": "matrix_handle",
+     "required": false,
+     "description": "Handle to a numeric matrix of yields (rows 'Y<mat>M_<economy>' × dates 'dd-mm-yyyy', with row labels/column labels); None -> built-in 'CM_2024'.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "global_macro",
+     "kind": "matrix_handle",
+     "required": false,
+     "description": "Handle to a numeric matrix of global macro (variables × dates); None -> built-in; ALL-or-NONE with yields/dom_macro.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dom_macro",
+     "kind": "matrix_handle",
+     "required": false,
+     "description": "Handle to a numeric matrix of domestic macro ('<var> <economy>' × dates); None -> built-in.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fit_nelson_siegel",
+   "card_id": 87,
+   "register": null,
+   "input_example": {
+    "rates": "<matrix_handle>",
+    "maturities": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "rates",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a yield matrix [n_obs x n_maturities] (rows = dates, columns = maturities).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "maturities",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a strictly increasing numeric vector of maturities (>= 4 pillars; same count as the columns of rates).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fit_svensson",
+   "card_id": 87,
+   "register": null,
+   "input_example": {
+    "rates": "<matrix_handle>",
+    "maturities": "<matrix_handle>"
+   },
+   "arguments": [
+    {
+     "name": "rates",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a yield matrix [n_obs x n_maturities] (rows = dates, columns = maturities).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "maturities",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a strictly increasing numeric vector of maturities (>= 6 pillars; same count as the columns of rates).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "which_rate",
+     "kind": "enum",
+     "required": false,
+     "description": "Curve type for fitted/residuals; default 'Spot' = the quantity comparable to the observed yields.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "Spot",
+      "Forward"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "yc_fit",
+   "card_id": 210,
+   "register": {
+    "field": "object"
+   },
+   "input_example": {
+    "maturities": [
+     0.5,
+     0.5
+    ],
+    "tau_init": 1,
+    "tau1_init": 1,
+    "tau2_init": 5
+   },
+   "arguments": [
+    {
+     "name": "maturities",
+     "kind": "num_array",
+     "required": true,
+     "description": "Maturities in years; positive & STRICTLY INCREASING (same count as the columns of the yields).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "rates",
+     "kind": "num_array",
+     "required": false,
+     "description": "Yields of ONE curve (decimals, same length as maturities); give rates OR panel, NOT both.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "panel",
+     "kind": "matrix_handle",
+     "required": false,
+     "description": "Handle to a yield matrix [n_obs × n_maturities] (time series of curves; nelson_siegel+panel = Diebold-Li factor dynamics).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Fit method (default nelson_siegel; min pillars: NS 4 / svensson 6 / cubic 3).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "nelson_siegel",
+      "svensson",
+      "cubic_spline"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "required": false,
+     "description": "Type of yields (default zero).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "zero",
+      "par",
+      "forward"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tau_init",
+     "kind": "number",
+     "required": false,
+     "description": "Initial decay value tau (nelson_siegel; > 0; default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "tau1_init",
+     "kind": "number",
+     "required": false,
+     "description": "Initial value of the 1st decay tau1 (svensson; > 0; default 1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "tau2_init",
+     "kind": "number",
+     "required": false,
+     "description": "Initial value of the 2nd decay tau2 (svensson; > 0; default 5).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "weights",
+     "kind": "num_array",
+     "required": false,
+     "description": "Positive weights per maturity (nelson_siegel/svensson; NOT cubic_spline); emphasis on liquid tenors.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Date labels per row of the panel (count = panel rows); labels only, not model input.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "yc_transform",
+   "card_id": 210,
+   "register": null,
+   "input_example": {
+    "object": "<raw_handle>",
+    "n_components": 3,
+    "scale": false
+   },
+   "arguments": [
+    {
+     "name": "object",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to yc_fit.object: fitted yc_curve (spot/forward/discount) or panel matrix (pca).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "Transformation (default spot); spot/forward/discount require yc_curve; pca requires a panel matrix.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "spot",
+      "forward",
+      "discount",
+      "pca"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grid",
+     "kind": "num_array",
+     "required": false,
+     "description": "Maturity grid (positive maturities) for spot/forward/discount; None -> the curve's maturities.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "number",
+     "required": false,
+     "description": "Forward-forward horizon (> 0) for transform='forward'; None -> instantaneous forward.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "compounding",
+     "kind": "enum",
+     "required": false,
+     "description": "Compounding convention for transform='discount' (default continuous).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "continuous",
+      "annual",
+      "semi_annual"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_components",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of principal components for transform='pca' (∈ [1, min(n_obs-1, n_maturities)]; default 3).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "scale",
+     "kind": "boolean",
+     "required": false,
+     "description": "Scaling of variables before the PCA (default False = covariance, standard in yield-curve PCA).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "ycnp_estimate",
+   "card_id": 212,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "x": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "span_x": 60,
+    "smooth": false
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a bond cash-flow panel with columns qdate(Date), id, price, tupq(>0, days), pdint.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Estimation time points as dates 'YYYY-MM-DD' (same class/range as qdate).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tau",
+     "kind": "num_array",
+     "required": false,
+     "description": "Maturity grid in years (>0); default None = the package's automatic grid.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "span_x",
+     "kind": "number",
+     "required": false,
+     "description": "Half-width of the kernel time window (default 60; ignored if hx is given).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 60,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "hx",
+     "kind": "num_array",
+     "required": false,
+     "description": "Bandwidths per point x (positive; length = length(x)); overrides span_x.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ht",
+     "kind": "num_array",
+     "required": false,
+     "description": "Bandwidths per maturity tau (positive; length = length(tau); requires explicit tau).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "smooth",
+     "kind": "boolean",
+     "required": false,
+     "description": "loess smoothing of the curve with respect to tau (default False = raw estimator points).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "yc_acm_decomposition",
+   "card_id": 535,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "yields": "<df_handle>",
+    "maturities": [
+     1.0,
+     2.0
+    ],
+    "n_factors": 5,
+    "real": false
+   },
+   "arguments": [
+    {
+     "name": "yields",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Yield panel, one column per maturity.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "maturities",
+     "kind": "num_array",
+     "required": true,
+     "description": "Maturities in years.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "Pricing factors extracted.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "real",
+     "kind": "boolean",
+     "required": false,
+     "description": "Decompose real rather than nominal yields.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "yc_bootstrap_curve",
+   "card_id": 536,
+   "register": {
+    "field": "curve"
+   },
+   "input_example": {
+    "instruments": "<df_handle>",
+    "method": "bootstrap",
+    "interpolation": "log_discount",
+    "day_count": "act365"
+   },
+   "arguments": [
+    {
+     "name": "instruments",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Instrument table: maturity, coupon, price or rate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Construction method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bootstrap",
+      "cubic_spline",
+      "monotone_convex",
+      "nelson_siegel",
+      "svensson"
+     ],
+     "allowed_vars": null,
+     "default": "bootstrap",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "interpolation",
+     "kind": "enum",
+     "required": false,
+     "description": "Interpolation variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "zero_rate",
+      "log_discount",
+      "forward"
+     ],
+     "allowed_vars": null,
+     "default": "log_discount",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "day_count",
+     "kind": "enum",
+     "required": false,
+     "description": "Day-count convention.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "act360",
+      "act365",
+      "thirty360",
+      "actact"
+     ],
+     "allowed_vars": null,
+     "default": "act365",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "yc_dynamic_nelson_siegel",
+   "card_id": 537,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "yields": "<df_handle>",
+    "maturities": [
+     1.0,
+     2.0
+    ],
+    "decay": 0.0609,
+    "factors": "three",
+    "h": 0
+   },
+   "arguments": [
+    {
+     "name": "yields",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Yield panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "maturities",
+     "kind": "num_array",
+     "required": true,
+     "description": "Maturities in years.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "macro",
+     "kind": "exog_handle",
+     "required": false,
+     "description": "Macro variables to include.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "decay",
+     "kind": "number",
+     "required": false,
+     "description": "Decay parameter; omitted = estimated.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.0609,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "factors",
+     "kind": "enum",
+     "required": false,
+     "description": "Factor set.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "three",
+      "four_svensson"
+     ],
+     "allowed_vars": null,
+     "default": "three",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "yc_shadow_short_rate",
+   "card_id": 538,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "yields": "<df_handle>",
+    "maturities": [
+     1.0,
+     2.0
+    ],
+    "lower_bound": 0.0,
+    "n_factors": 3,
+    "model": "wu_xia"
+   },
+   "arguments": [
+    {
+     "name": "yields",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Yield panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "maturities",
+     "kind": "num_array",
+     "required": true,
+     "description": "Maturities in years.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lower_bound",
+     "kind": "number",
+     "required": false,
+     "description": "Effective lower bound.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "Factors in the term-structure model.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Construction.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "wu_xia",
+      "krippner"
+     ],
+     "allowed_vars": null,
+     "default": "wu_xia",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "yc_bond_return_predictability",
+   "card_id": 539,
+   "register": null,
+   "input_example": {
+    "yields": "<df_handle>",
+    "maturities": [
+     1.0,
+     2.0
+    ],
+    "holding_period": 12,
+    "factor": true,
+    "cov_type": "hac",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "yields",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Yield panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "maturities",
+     "kind": "num_array",
+     "required": true,
+     "description": "Maturities in years.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "holding_period",
+     "kind": "integer",
+     "required": false,
+     "description": "Holding period in months.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 12,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "factor",
+     "kind": "boolean",
+     "required": false,
+     "description": "Construct the single return-forecasting factor.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "cov_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Covariance estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "hac",
+      "hodrick",
+      "robust"
+     ],
+     "allowed_vars": null,
+     "default": "hac",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  }
+ ]
+}

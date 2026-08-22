@@ -1,0 +1,1730 @@
+{
+ "category": "33-nonparametric-semiparametric",
+ "cards": [
+  {
+   "id": 283,
+   "method": "Kernel regression: Nadaraya-Watson, local linear and local polynomial with mixed data",
+   "wrapper_file": "c33_nonparametric_semiparametric/kernel_regression.py",
+   "tool_fns": [
+    "np_kernel_regress",
+    "np_local_polynomial"
+   ],
+   "when": "estimating a conditional mean without committing to a functional form, when the shape of the relationship is the object of interest",
+   "when_not": "the sample is small or the covariate dimension above three or four -- the curse of dimensionality makes the estimate noise; you need parameters to interpret",
+   "alternatives": [
+    {
+     "alt": "local linear",
+     "criterion": "the default: no boundary bias, unlike Nadaraya-Watson"
+    },
+    {
+     "alt": "series/sieve estimation",
+     "criterion": "you want a basis expansion you can put in a regression"
+    },
+    {
+     "alt": "GAM with penalised splines",
+     "criterion": "several covariates, additive structure acceptable"
+    }
+   ],
+   "output_key_fields": [
+    "fitted: the estimated conditional mean on the evaluation grid",
+    "bandwidth: the bandwidth actually used, per covariate",
+    "conf_band: pointwise band, which is not a uniform band",
+    "r_squared: the nonparametric goodness of fit"
+   ],
+   "interpretation_traps": [
+    "Nadaraya-Watson is badly biased at the BOUNDARY of the support; local linear is not, which is why it is the default",
+    "the pointwise band does not cover the whole curve simultaneously -- reading it as a uniform band overstates precision",
+    "bandwidth choice dominates every other decision here; a cross-validated bandwidth on dependent data is too small"
+   ],
+   "sources": [
+    "Nadaraya 1964 (Theory of Probability and Its Applications 9:141); Watson 1964 (Sankhya A 26:359)",
+    "Fan & Gijbels 1996, Local Polynomial Modelling and Its Applications",
+    "Li & Racine 2007, Nonparametric Econometrics",
+    "statsmodels.nonparametric.kernel_regression"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 284,
+   "method": "Bandwidth selection: cross-validation, plug-in and rule of thumb",
+   "wrapper_file": "c33_nonparametric_semiparametric/bandwidth_selection.py",
+   "tool_fns": [
+    "np_bandwidth_select"
+   ],
+   "when": "the bandwidth is the single choice that determines a nonparametric estimate, and it should be made by a stated rule rather than by eye",
+   "when_not": "the estimator supplies its own bandwidth internally and you have no reason to override it",
+   "alternatives": [
+    {
+     "alt": "least-squares cross-validation",
+     "criterion": "the target is the regression function"
+    },
+    {
+     "alt": "plug-in",
+     "criterion": "you want speed and the density is roughly smooth"
+    },
+    {
+     "alt": "rule of thumb",
+     "criterion": "a quick first look only -- it assumes near-normality"
+    }
+   ],
+   "output_key_fields": [
+    "bandwidth: the selected value per covariate",
+    "criterion_curve: the objective over the searched grid, so a flat or multi-modal objective is visible",
+    "method: which rule produced the answer"
+   ],
+   "interpretation_traps": [
+    "cross-validation on SERIALLY DEPENDENT data selects a bandwidth that is far too small; use a blocked or modified criterion for time series",
+    "the rule of thumb assumes approximate normality and is badly wrong for skewed or multimodal data",
+    "a flat criterion curve means the bandwidth is barely identified and the estimate is unstable across near-equivalent choices"
+   ],
+   "sources": [
+    "Hall, Racine & Li 2004 (JASA 99:1015)",
+    "Sheather & Jones 1991 (JRSS-B 53:683)",
+    "Silverman 1986, Density Estimation for Statistics and Data Analysis"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 285,
+   "method": "Multivariate and conditional kernel density estimation",
+   "wrapper_file": "c33_nonparametric_semiparametric/kernel_density.py",
+   "tool_fns": [
+    "np_kde",
+    "np_conditional_kde",
+    "np_ecdf_grid"
+   ],
+   "when": "estimating a joint or conditional density without a parametric family -- for distributional questions, mode finding and density-based diagnostics",
+   "when_not": "you need tail probabilities far beyond the data (-> extreme value theory); the dimension is high",
+   "alternatives": [
+    {
+     "alt": "univariate KDE",
+     "criterion": "one variable and you only need a shape"
+    },
+    {
+     "alt": "conditional KDE",
+     "criterion": "the object is the distribution of y given x, not the joint"
+    },
+    {
+     "alt": "mixture models",
+     "criterion": "you want interpretable components rather than a smooth surface"
+    }
+   ],
+   "output_key_fields": [
+    "density: the estimated density on the evaluation grid",
+    "bandwidth: bandwidth per dimension",
+    "cdf: the integrated density where requested",
+    "loglike_cv: cross-validated log-likelihood, for comparing bandwidths"
+   ],
+   "interpretation_traps": [
+    "KDE has poor tail behaviour by construction; it must not be used for extreme quantiles",
+    "in more than two or three dimensions the estimate is dominated by sparsity, whatever the bandwidth",
+    "boundary bias is severe for variables with a hard bound such as durations or shares -- reflect or transform first"
+   ],
+   "sources": [
+    "Silverman 1986, Density Estimation for Statistics and Data Analysis",
+    "Li & Racine 2007, Nonparametric Econometrics, ch.1-3",
+    "statsmodels.nonparametric.kernel_density"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 286,
+   "method": "Nonparametric conditional quantiles",
+   "wrapper_file": "c33_nonparametric_semiparametric/conditional_quantiles.py",
+   "tool_fns": [
+    "np_quantile_forest",
+    "np_quantile_predict"
+   ],
+   "when": "the whole conditional distribution matters, not the mean, and you are unwilling to impose linearity on the quantile function",
+   "when_not": "a linear quantile regression is adequate; the sample is too small for tail quantiles to be estimable",
+   "alternatives": [
+    {
+     "alt": "linear quantile regression",
+     "criterion": "linearity is acceptable and you want coefficients"
+    },
+    {
+     "alt": "quantile forests",
+     "criterion": "many covariates and interactions"
+    },
+    {
+     "alt": "distributional regression",
+     "criterion": "you want a full parametric conditional distribution"
+    }
+   ],
+   "output_key_fields": [
+    "quantiles: the estimated conditional quantile per requested level",
+    "crossing_detected: whether the fitted quantile curves cross, which is a specification failure",
+    "prediction_interval: the interval implied by the requested quantile pair"
+   ],
+   "interpretation_traps": [
+    "separately estimated quantile curves CAN CROSS, which is logically impossible for a distribution function -- check the flag rather than assuming it away",
+    "extreme quantiles need far more data than central ones; a 1% conditional quantile from a few hundred observations is noise",
+    "quantile forests give conditional quantiles under an implicit smoothness assumption from the tree structure, not a distribution-free guarantee"
+   ],
+   "sources": [
+    "Koenker & Bassett 1978 (Econometrica 46:33)",
+    "Meinshausen 2006 (Journal of Machine Learning Research 7:983)",
+    "quantile-forest"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 287,
+   "method": "Series and sieve estimation with polynomial and spline bases",
+   "wrapper_file": "c33_nonparametric_semiparametric/series_sieve.py",
+   "tool_fns": [
+    "np_basis",
+    "np_series_regress"
+   ],
+   "when": "you want nonparametric flexibility inside an ordinary regression, so the estimate has closed-form inference and composes with instrumental variables",
+   "when_not": "the basis dimension needed exceeds what the sample supports; the relationship is genuinely local (-> kernel methods)",
+   "alternatives": [
+    {
+     "alt": "kernel regression",
+     "criterion": "you want a local estimate rather than a global basis"
+    },
+    {
+     "alt": "penalised splines",
+     "criterion": "you want smoothness chosen by a penalty rather than by basis size"
+    },
+    {
+     "alt": "polynomial basis",
+     "criterion": "the function is smooth and low order suffices"
+    }
+   ],
+   "output_key_fields": [
+    "fitted: the fitted conditional mean",
+    "basis: the constructed design matrix, reusable in any downstream regression",
+    "k_selected: the basis dimension chosen and the criterion that chose it",
+    "params, bse: coefficients on the basis, which have no direct interpretation"
+   ],
+   "interpretation_traps": [
+    "basis coefficients are NOT interpretable individually -- only the fitted function and its derivatives are",
+    "high-order global polynomials oscillate wildly near the boundary (Runge's phenomenon); splines are the fix, not a higher degree",
+    "the basis dimension must grow with the sample for consistency, and selecting it on the same data invalidates the naive standard error"
+   ],
+   "sources": [
+    "Newey 1997 (Journal of Econometrics 79:147-168)",
+    "Chen 2007, Large sample sieve estimation of semi-nonparametric models (Handbook of Econometrics 6B)",
+    "formulaic documentation"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 288,
+   "method": "Partially linear models by the Robinson double-residual method",
+   "wrapper_file": "c33_nonparametric_semiparametric/partially_linear.py",
+   "tool_fns": [
+    "np_partially_linear"
+   ],
+   "when": "one coefficient is the object of interest and everything else is a nuisance you would rather not specify -- the semiparametric workhorse behind modern double machine learning",
+   "when_not": "every covariate is of interest; the nuisance dimension is small enough for a fully parametric model",
+   "alternatives": [
+    {
+     "alt": "double machine learning",
+     "criterion": "the nuisance is high dimensional and you want machine learners with cross-fitting"
+    },
+    {
+     "alt": "fully parametric regression",
+     "criterion": "the nuisance functional form is known"
+    },
+    {
+     "alt": "GAM",
+     "criterion": "you want each nuisance term visible and additive"
+    }
+   ],
+   "output_key_fields": [
+    "theta: the parametric coefficient of interest, root-n consistent",
+    "se, conf_int: inference that already accounts for the nuisance estimation",
+    "nuisance_r2: fit of the two first-stage regressions",
+    "n_folds: the cross-fitting used, which is what makes the inference valid"
+   ],
+   "interpretation_traps": [
+    "WITHOUT cross-fitting the estimate is biased by overfitting in the nuisance step; a single-fold implementation is not the same estimator",
+    "the double-residual construction requires BOTH first stages to converge fast enough; a badly fitting nuisance model breaks the root-n claim silently",
+    "theta is a partial effect holding the nuisance function fixed -- it is not a total derivative"
+   ],
+   "sources": [
+    "Robinson 1988 (Econometrica 56:931-954)",
+    "Chernozhukov, Chetverikov, Demirer, Duflo, Hansen, Newey & Robins 2018 (Econometrics Journal 21:C1)",
+    "doubleml"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 289,
+   "method": "Single-index and varying-coefficient models",
+   "wrapper_file": "c33_nonparametric_semiparametric/single_index_varying.py",
+   "tool_fns": [
+    "np_single_index",
+    "np_varying_coefficient"
+   ],
+   "when": "you want dimension reduction without full nonparametrics: a single linear index passed through an unknown link, or coefficients that vary smoothly with one modifier",
+   "when_not": "the index restriction is untenable; the modifier is discrete with few values (use interactions instead)",
+   "alternatives": [
+    {
+     "alt": "full kernel regression",
+     "criterion": "no index structure is credible"
+    },
+    {
+     "alt": "varying-coefficient model",
+     "criterion": "the effect changes smoothly with a known modifier"
+    },
+    {
+     "alt": "GAM",
+     "criterion": "an additive structure fits better than an index"
+    }
+   ],
+   "output_key_fields": [
+    "index_coef: the index direction, identified only up to scale and sign",
+    "link: the estimated link function on a grid",
+    "varying_coef: coefficient paths against the modifier, with bands",
+    "bandwidth: the smoothing used for the link or the coefficient paths"
+   ],
+   "interpretation_traps": [
+    "the index coefficients are identified only UP TO SCALE, so a normalisation is imposed and the raw magnitudes are not comparable across fits",
+    "the sign of the index is arbitrary unless anchored; flipping it flips the link and leaves the fit identical",
+    "varying-coefficient bands are pointwise and are especially wide where the modifier is sparse"
+   ],
+   "sources": [
+    "Ichimura 1993 (Journal of Econometrics 58:71)",
+    "Hastie & Tibshirani 1993 (JRSS-B 55:757)",
+    "Li & Racine 2007, ch.8"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 290,
+   "method": "Generalised additive models with penalised splines",
+   "wrapper_file": "c33_nonparametric_semiparametric/gam_penalised.py",
+   "tool_fns": [
+    "np_gam_fit",
+    "np_gam_partial"
+   ],
+   "when": "several covariates, each entering smoothly and additively, with the smoothness chosen by a penalty rather than by hand",
+   "when_not": "strong interactions dominate and additivity is false; you need a single index (-> single index)",
+   "alternatives": [
+    {
+     "alt": "kernel regression",
+     "criterion": "few covariates and no additive structure"
+    },
+    {
+     "alt": "series regression",
+     "criterion": "you want a plain regression on a fixed basis"
+    },
+    {
+     "alt": "gradient boosting",
+     "criterion": "prediction matters more than the shape of each term"
+    }
+   ],
+   "output_key_fields": [
+    "fitted: the additive fit",
+    "partial_effects: each smooth term on a grid, with a band -- the interpretable output",
+    "edf: effective degrees of freedom per term, which is how wiggly each term ended up",
+    "lambda: the selected penalty per term; gcv/aic for the fit"
+   ],
+   "interpretation_traps": [
+    "effective degrees of freedom near one means the term is essentially LINEAR -- that is a finding about the shape, not a failure",
+    "the additive structure is an assumption; a term can look flat only because an omitted interaction absorbs its variation",
+    "the bands are conditional on the selected penalty and do not include the uncertainty of selecting it"
+   ],
+   "sources": [
+    "Hastie & Tibshirani 1990, Generalized Additive Models",
+    "Wood 2017, Generalized Additive Models: An Introduction, 2nd ed.",
+    "pygam"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 291,
+   "method": "Specification tests of a parametric null against a nonparametric alternative",
+   "wrapper_file": "c33_nonparametric_semiparametric/specification_tests_np.py",
+   "tool_fns": [
+    "np_specification_test"
+   ],
+   "when": "asking whether a parametric model is adequate, with a test whose alternative is 'some smooth function' rather than another parametric form",
+   "when_not": "you are comparing two specific parametric models (-> non-nested tests); the sample is too small for a nonparametric alternative to have power",
+   "alternatives": [
+    {
+     "alt": "RESET test",
+     "criterion": "a cheap parametric screen for neglected nonlinearity"
+    },
+    {
+     "alt": "non-nested tests",
+     "criterion": "the alternative is a specific rival model"
+    },
+    {
+     "alt": "residual plots",
+     "criterion": "you want diagnosis rather than a formal test"
+    }
+   ],
+   "output_key_fields": [
+    "statistic, p_value: the specification test",
+    "bootstrap_p: wild-bootstrap p-value, which is the one to report in small samples",
+    "parametric_fit, nonparametric_fit: the two fits being compared"
+   ],
+   "interpretation_traps": [
+    "the asymptotic null distribution is a poor approximation in small samples; the wild bootstrap version is the usable one",
+    "rejection says the parametric form is inadequate; it does not say which nonparametric alternative is right",
+    "power depends on the bandwidth of the alternative, so a non-rejection at one bandwidth is not a non-rejection"
+   ],
+   "sources": [
+    "Hardle & Mammen 1993 (Annals of Statistics 21:1926-1947)",
+    "Zheng 1996 (Journal of Econometrics 75:263)",
+    "Li & Racine 2007, ch.12"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "np_kernel_regress",
+   "card_id": 283,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<multiseries_handle>",
+    "estimator": "ll",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Covariates, one column each.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "var_type",
+     "kind": "string",
+     "required": false,
+     "description": "One character per covariate: c continuous, o ordered, u unordered.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "estimator",
+     "kind": "enum",
+     "required": false,
+     "description": "Local estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lc",
+      "ll"
+     ],
+     "allowed_vars": null,
+     "default": "ll",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "bandwidth",
+     "kind": "num_array",
+     "required": false,
+     "description": "Bandwidth per covariate; omitted = data-driven.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grid",
+     "kind": "num_array",
+     "required": false,
+     "description": "Evaluation points; omitted = the observed covariates.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "np_local_polynomial",
+   "card_id": 283,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<series_handle>",
+    "degree": 1,
+    "deriv": 0,
+    "kernel": "epanechnikov"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Single continuous covariate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "degree",
+     "kind": "integer",
+     "required": false,
+     "description": "Polynomial degree fitted locally.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "deriv",
+     "kind": "integer",
+     "required": false,
+     "description": "Order of the derivative to return.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "bandwidth",
+     "kind": "number",
+     "required": false,
+     "description": "Bandwidth; omitted = plug-in.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "kernel",
+     "kind": "enum",
+     "required": false,
+     "description": "Kernel function.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "epanechnikov",
+      "gaussian",
+      "uniform",
+      "triangular",
+      "biweight"
+     ],
+     "allowed_vars": null,
+     "default": "epanechnikov",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "np_bandwidth_select",
+   "card_id": 284,
+   "register": null,
+   "input_example": {
+    "x": "<multiseries_handle>",
+    "method": "cv_ls"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Data the bandwidth is chosen for.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Dependent variable when the target is a regression.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Selection rule.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "cv_ls",
+      "cv_ml",
+      "plug_in",
+      "silverman",
+      "scott"
+     ],
+     "allowed_vars": null,
+     "default": "cv_ls",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "var_type",
+     "kind": "string",
+     "required": false,
+     "description": "One character per covariate: c, o or u.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "np_kde",
+   "card_id": 285,
+   "register": null,
+   "input_example": {
+    "x": "<multiseries_handle>",
+    "grid_size": 50
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Data, one column per dimension.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "var_type",
+     "kind": "string",
+     "required": false,
+     "description": "One character per dimension: c, o or u.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bandwidth",
+     "kind": "num_array",
+     "required": false,
+     "description": "Bandwidth per dimension; omitted = data-driven.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grid_size",
+     "kind": "integer",
+     "required": false,
+     "description": "Points per dimension in the evaluation grid.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 50,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "np_conditional_kde",
+   "card_id": 285,
+   "register": null,
+   "input_example": {
+    "y": "<multiseries_handle>",
+    "x": "<multiseries_handle>",
+    "grid_size": 50
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Dependent variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Conditioning variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "var_type_y",
+     "kind": "string",
+     "required": false,
+     "description": "Kind characters for y.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "var_type_x",
+     "kind": "string",
+     "required": false,
+     "description": "Kind characters for x.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grid_size",
+     "kind": "integer",
+     "required": false,
+     "description": "Points per dimension in the evaluation grid.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 50,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "np_ecdf_grid",
+   "card_id": 285,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grid",
+     "kind": "num_array",
+     "required": false,
+     "description": "Evaluation points; omitted = the sorted data.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "np_quantile_forest",
+   "card_id": 286,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "quantiles": [
+     0.1,
+     0.5,
+     0.9
+    ],
+    "n_estimators": 500,
+    "min_samples_leaf": 5
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "quantiles",
+     "kind": "num_array",
+     "required": false,
+     "description": "Quantile levels to return.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.1,
+      0.5,
+      0.9
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "n_estimators",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of trees.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 500,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "min_samples_leaf",
+     "kind": "integer",
+     "required": false,
+     "description": "Minimum observations per leaf.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "np_quantile_predict",
+   "card_id": 286,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "newdata": "<df_handle>",
+    "quantiles": [
+     0.1,
+     0.5,
+     0.9
+    ]
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted quantile forest.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "newdata",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate rows to predict for.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "quantiles",
+     "kind": "num_array",
+     "required": false,
+     "description": "Quantile levels to return.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.1,
+      0.5,
+      0.9
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    }
+   ]
+  },
+  {
+   "fn": "np_basis",
+   "card_id": 287,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>",
+    "basis": "bspline",
+    "df": 5,
+    "degree": 3
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Covariate to expand.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "basis",
+     "kind": "enum",
+     "required": false,
+     "description": "Basis family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "polynomial",
+      "bspline",
+      "natural_spline",
+      "fourier",
+      "legendre"
+     ],
+     "allowed_vars": null,
+     "default": "bspline",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "df",
+     "kind": "integer",
+     "required": false,
+     "description": "Basis dimension.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "degree",
+     "kind": "integer",
+     "required": false,
+     "description": "Spline degree.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "knots",
+     "kind": "num_array",
+     "required": false,
+     "description": "Interior knots; omitted = quantile-spaced.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "np_series_regress",
+   "card_id": 287,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<multiseries_handle>",
+    "basis": "bspline",
+    "k_max": 10,
+    "criterion": "aic",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Covariates to expand.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "basis",
+     "kind": "enum",
+     "required": false,
+     "description": "Basis family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "polynomial",
+      "bspline",
+      "natural_spline"
+     ],
+     "allowed_vars": null,
+     "default": "bspline",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "k_max",
+     "kind": "integer",
+     "required": false,
+     "description": "Largest basis dimension searched.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "criterion",
+     "kind": "enum",
+     "required": false,
+     "description": "Selection criterion.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "aic",
+      "bic",
+      "cv"
+     ],
+     "allowed_vars": null,
+     "default": "aic",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "np_partially_linear",
+   "card_id": 288,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "y": "...",
+    "d": "...",
+    "learner": "random_forest",
+    "n_folds": 5,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "One row per unit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "string",
+     "required": true,
+     "description": "Outcome column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "d",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the variable of interest.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Nuisance covariate columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "learner",
+     "kind": "enum",
+     "required": false,
+     "description": "Learner for both nuisance regressions.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "linear",
+      "lasso",
+      "random_forest",
+      "gradient_boosting"
+     ],
+     "allowed_vars": null,
+     "default": "random_forest",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_folds",
+     "kind": "integer",
+     "required": false,
+     "description": "Cross-fitting folds.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "np_single_index",
+   "card_id": 289,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<multiseries_handle>",
+    "normalisation": "first_unit"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Covariates entering the index.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bandwidth",
+     "kind": "number",
+     "required": false,
+     "description": "Smoothing bandwidth for the link.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "normalisation",
+     "kind": "enum",
+     "required": false,
+     "description": "Identifying normalisation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "first_unit",
+      "unit_norm"
+     ],
+     "allowed_vars": null,
+     "default": "first_unit",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "np_varying_coefficient",
+   "card_id": 289,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<multiseries_handle>",
+    "modifier": "<series_handle>",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Covariates whose coefficients vary.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "modifier",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Variable the coefficients vary with.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bandwidth",
+     "kind": "number",
+     "required": false,
+     "description": "Smoothing bandwidth.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "np_gam_fit",
+   "card_id": 290,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "distribution": "normal",
+    "link": "identity",
+    "n_splines": 20
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distribution",
+     "kind": "enum",
+     "required": false,
+     "description": "Response distribution.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "normal",
+      "binomial",
+      "poisson",
+      "gamma",
+      "inv_gauss"
+     ],
+     "allowed_vars": null,
+     "default": "normal",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "link",
+     "kind": "enum",
+     "required": false,
+     "description": "Link function.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "identity",
+      "logit",
+      "log",
+      "inverse"
+     ],
+     "allowed_vars": null,
+     "default": "identity",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_splines",
+     "kind": "integer",
+     "required": false,
+     "description": "Basis functions per smooth term.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "lam",
+     "kind": "number",
+     "required": false,
+     "description": "Penalty; omitted = selected by grid search.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "np_gam_partial",
+   "card_id": 290,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "term": 1,
+    "grid_size": 100,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted additive model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "term",
+     "kind": "integer",
+     "required": true,
+     "description": "Index of the term to extract.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grid_size",
+     "kind": "integer",
+     "required": false,
+     "description": "Grid points for the curve.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "np_specification_test",
+   "card_id": 291,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<multiseries_handle>",
+    "parametric": "y ~ x",
+    "nboot": 999,
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "parametric",
+     "kind": "formula",
+     "required": true,
+     "description": "Formula for the parametric null.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bandwidth",
+     "kind": "number",
+     "required": false,
+     "description": "Bandwidth for the nonparametric alternative.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  }
+ ]
+}

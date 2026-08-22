@@ -1,16 +1,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``hierarchical_clustering_distance`` -- METHOD-SELECTION card #242.
+"""Method wrapper ``hierarchical_clustering_distance`` -- method card #242.
 
-#242 Hierarchical clustering on a distance matrix: agglomerative hclust (the 8 documented methods) +
-    agnes (with an agglomerative coefficient), divisive diana (with a divisive coefficient), and
-    tree cutting with cutree (k OR h) -> dendrogram chart-data (merge/height/order) + memberships
+#242 Hierarchical clustering on a distance matrix: agglomerative linkage (the 8 classic methods) +
+    agglomerative nesting (with an agglomerative coefficient), divisive analysis (with a divisive
+    coefficient), and tree cutting (k OR h) -> dendrogram chart-data (merge/height/order) +
+    memberships
 
 Category 29-unsupervised-clustering; module ``hierarchical_clustering_distance``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,15 +25,15 @@ from econflow_engine.generated.args.c29_unsupervised_clustering import NODE_META
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
     "hc_agnes",
-    "hc_cutree",
+    "hc_cut_tree",
     "hc_diana",
-    "hc_hclust",
+    "hc_linkage",
     "NODE_META",
     "wire_model",
 ]
 
 
-def hc_hclust(
+def hc_linkage(
     *,
     d: Any,
     method: (
@@ -51,11 +52,12 @@ def hc_hclust(
     k: int | None = None,
     h: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``hc_hclust`` -- METHOD-SELECTION card #242.
+    """Node ``hc_linkage`` -- method card #242.
 
-    Hierarchical clustering on a distance matrix: agglomerative hclust (the 8 documented methods) +
-    agnes (with an agglomerative coefficient), divisive diana (with a divisive coefficient), and
-    tree cutting with cutree (k OR h) -> dendrogram chart-data (merge/height/order) + memberships.
+    Hierarchical clustering on a distance matrix: agglomerative linkage (the 8 classic methods) +
+    agglomerative nesting (with an agglomerative coefficient), divisive analysis (with a divisive
+    coefficient), and tree cutting (k OR h) -> dendrogram chart-data (merge/height/order) +
+    memberships.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
@@ -78,27 +80,28 @@ def hc_hclust(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hc_hclust: not implemented. The method card is in ./README.md."
+        "hc_linkage: not implemented."
     )
 
 
-def hc_cutree(
+def hc_cut_tree(
     *,
     tree: Any,
     k: int | None = None,
     h: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``hc_cutree`` -- METHOD-SELECTION card #242.
+    """Node ``hc_cut_tree`` -- method card #242.
 
-    Hierarchical clustering on a distance matrix: agglomerative hclust (the 8 documented methods) +
-    agnes (with an agglomerative coefficient), divisive diana (with a divisive coefficient), and
-    tree cutting with cutree (k OR h) -> dendrogram chart-data (merge/height/order) + memberships.
+    Hierarchical clustering on a distance matrix: agglomerative linkage (the 8 classic methods) +
+    agglomerative nesting (with an agglomerative coefficient), divisive analysis (with a divisive
+    coefficient), and tree cutting (k OR h) -> dendrogram chart-data (merge/height/order) +
+    memberships.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
     Args:
         tree: [raw_handle, required] Handle to an hclust or agnes/diana ('twins') tree — from the
-            register of hc_hclust/hc_agnes/hc_diana.
+            register of hc_linkage/hc_agnes/hc_diana.
         k: [integer, optional] Number of groups (1..n). EXACTLY one of 'k'/'h' (required).
         h: [number, optional] Cut height (>= 0· only on a monotone tree). EXACTLY one of 'k'/'h'
             (required).
@@ -107,7 +110,7 @@ def hc_cutree(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hc_cutree: not implemented. The method card is in ./README.md."
+        "hc_cut_tree: not implemented."
     )
 
 
@@ -130,11 +133,12 @@ def hc_agnes(
     k: int | None = None,
     h: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``hc_agnes`` -- METHOD-SELECTION card #242.
+    """Node ``hc_agnes`` -- method card #242.
 
-    Hierarchical clustering on a distance matrix: agglomerative hclust (the 8 documented methods) +
-    agnes (with an agglomerative coefficient), divisive diana (with a divisive coefficient), and
-    tree cutting with cutree (k OR h) -> dendrogram chart-data (merge/height/order) + memberships.
+    Hierarchical clustering on a distance matrix: agglomerative linkage (the 8 classic methods) +
+    agglomerative nesting (with an agglomerative coefficient), divisive analysis (with a divisive
+    coefficient), and tree cutting (k OR h) -> dendrogram chart-data (merge/height/order) +
+    memberships.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
@@ -159,7 +163,7 @@ def hc_agnes(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hc_agnes: not implemented. The method card is in ./README.md."
+        "hc_agnes: not implemented."
     )
 
 
@@ -169,11 +173,12 @@ def hc_diana(
     k: int | None = None,
     h: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``hc_diana`` -- METHOD-SELECTION card #242.
+    """Node ``hc_diana`` -- method card #242.
 
-    Hierarchical clustering on a distance matrix: agglomerative hclust (the 8 documented methods) +
-    agnes (with an agglomerative coefficient), divisive diana (with a divisive coefficient), and
-    tree cutting with cutree (k OR h) -> dendrogram chart-data (merge/height/order) + memberships.
+    Hierarchical clustering on a distance matrix: agglomerative linkage (the 8 classic methods) +
+    agglomerative nesting (with an agglomerative coefficient), divisive analysis (with a divisive
+    coefficient), and tree cutting (k OR h) -> dendrogram chart-data (merge/height/order) +
+    memberships.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
@@ -192,5 +197,5 @@ def hc_diana(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hc_diana: not implemented. The method card is in ./README.md."
+        "hc_diana: not implemented."
     )

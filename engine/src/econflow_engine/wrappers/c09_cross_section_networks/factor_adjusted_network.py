@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``factor_adjusted_network`` -- METHOD-SELECTION card #182.
+"""Method wrapper ``factor_adjusted_network`` -- method card #182.
 
 #182 Factor-adjusted network estimation (high-dimensional TS): a common factor + an idiosyncratic
     VAR + Granger/partial-correlation networks
@@ -8,8 +8,8 @@ Category 09-cross-section-networks; module ``factor_adjusted_network``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ def fnets_fit(
     path_length: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fnets_fit`` -- METHOD-SELECTION card #182.
+    """Node ``fnets_fit`` -- method card #182.
 
     Factor-adjusted network estimation (high-dimensional TS): a common factor + an idiosyncratic VAR
     + Granger/partial-correlation networks.
@@ -83,7 +83,7 @@ def fnets_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fnets_fit: not implemented. The method card is in ./README.md."
+        "fnets_fit: not implemented."
     )
 
 
@@ -95,7 +95,7 @@ def fnets_factor(
     center: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fnets_factor`` -- METHOD-SELECTION card #182.
+    """Node ``fnets_factor`` -- method card #182.
 
     Factor-adjusted network estimation (high-dimensional TS): a common factor + an idiosyncratic VAR
     + Granger/partial-correlation networks.
@@ -118,5 +118,5 @@ def fnets_factor(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fnets_factor: not implemented. The method card is in ./README.md."
+        "fnets_factor: not implemented."
     )

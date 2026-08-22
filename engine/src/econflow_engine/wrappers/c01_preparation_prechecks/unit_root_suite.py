@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``unit_root_suite`` -- METHOD-SELECTION card #2.
+"""Method wrapper ``unit_root_suite`` -- method card #2.
 
 #2 Unit-root suite (ADF/KPSS/PP/ERS-DFGLS/Zivot-Andrews)
 
@@ -7,8 +7,8 @@ Category 01-preparation-prechecks; module ``unit_root_suite``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,24 +23,24 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_ur_df",
-    "wrap_ur_ers",
-    "wrap_ur_kpss",
-    "wrap_ur_pp",
-    "wrap_ur_za",
+    "unitroot_adf",
+    "unitroot_dfgls",
+    "unitroot_kpss",
+    "unitroot_phillips_perron",
+    "unitroot_zivot_andrews",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_ur_df(
+def unitroot_adf(
     *,
     y: pd.Series,
     type: Literal["none", "drift", "trend"] | None = None,
     lags: int | None = None,
     selectlags: Literal["Fixed", "AIC", "BIC"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_ur_df`` -- METHOD-SELECTION card #2.
+    """Node ``unitroot_adf`` -- method card #2.
 
     Unit-root suite (ADF/KPSS/PP/ERS-DFGLS/Zivot-Andrews).
 
@@ -56,17 +56,17 @@ def wrap_ur_df(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_ur_df: not implemented. The method card is in ./README.md."
+        "unitroot_adf: not implemented."
     )
 
 
-def wrap_ur_kpss(
+def unitroot_kpss(
     *,
     y: pd.Series,
     type: Literal["mu", "tau"] | None = None,
     lags: Literal["short", "long", "nil"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_ur_kpss`` -- METHOD-SELECTION card #2.
+    """Node ``unitroot_kpss`` -- method card #2.
 
     Unit-root suite (ADF/KPSS/PP/ERS-DFGLS/Zivot-Andrews).
 
@@ -81,18 +81,18 @@ def wrap_ur_kpss(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_ur_kpss: not implemented. The method card is in ./README.md."
+        "unitroot_kpss: not implemented."
     )
 
 
-def wrap_ur_pp(
+def unitroot_phillips_perron(
     *,
     x: pd.Series,
     type: Literal["Z-alpha", "Z-tau"] | None = None,
     model: Literal["constant", "trend"] | None = None,
     lags: Literal["short", "long"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_ur_pp`` -- METHOD-SELECTION card #2.
+    """Node ``unitroot_phillips_perron`` -- method card #2.
 
     Unit-root suite (ADF/KPSS/PP/ERS-DFGLS/Zivot-Andrews).
 
@@ -108,18 +108,18 @@ def wrap_ur_pp(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_ur_pp: not implemented. The method card is in ./README.md."
+        "unitroot_phillips_perron: not implemented."
     )
 
 
-def wrap_ur_ers(
+def unitroot_dfgls(
     *,
     y: pd.Series,
     type: Literal["DF-GLS", "P-test"] | None = None,
     model: Literal["constant", "trend"] | None = None,
     lag_max: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_ur_ers`` -- METHOD-SELECTION card #2.
+    """Node ``unitroot_dfgls`` -- method card #2.
 
     Unit-root suite (ADF/KPSS/PP/ERS-DFGLS/Zivot-Andrews).
 
@@ -135,17 +135,17 @@ def wrap_ur_ers(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_ur_ers: not implemented. The method card is in ./README.md."
+        "unitroot_dfgls: not implemented."
     )
 
 
-def wrap_ur_za(
+def unitroot_zivot_andrews(
     *,
     y: pd.Series,
     model: Literal["intercept", "trend", "both"] | None = None,
     lag: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_ur_za`` -- METHOD-SELECTION card #2.
+    """Node ``unitroot_zivot_andrews`` -- method card #2.
 
     Unit-root suite (ADF/KPSS/PP/ERS-DFGLS/Zivot-Andrews).
 
@@ -160,5 +160,5 @@ def wrap_ur_za(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_ur_za: not implemented. The method card is in ./README.md."
+        "unitroot_zivot_andrews: not implemented."
     )

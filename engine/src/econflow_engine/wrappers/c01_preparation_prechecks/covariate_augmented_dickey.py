@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``covariate_augmented_dickey`` -- METHOD-SELECTION card #123.
+"""Method wrapper ``covariate_augmented_dickey`` -- method card #123.
 
-#123 Covariate-Augmented Dickey-Fuller (CADF) unit-root test — power gain from stationary covariates
-    (Hansen 1995); a plain ADF when X=NULL
+#123 Covariate-Augmented Dickey-Fuller (CADF) unit-root test — the power gain from stationary
+    covariates (Hansen 1995); a plain ADF when no covariates are supplied
 
 Category 01-preparation-prechecks; module ``covariate_augmented_dickey``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,18 +41,18 @@ def run_cadf(
     criterion: Literal["none", "BIC", "AIC", "HQC", "MAIC"] | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_cadf`` -- METHOD-SELECTION card #123.
+    """Node ``run_cadf`` -- method card #123.
 
-    Covariate-Augmented Dickey-Fuller (CADF) unit-root test — power gain from stationary covariates
-    (Hansen 1995); a plain ADF when X=NULL.
+    Covariate-Augmented Dickey-Fuller (CADF) unit-root test — the power gain from stationary
+    covariates (Hansen 1995); a plain ADF when no covariates are supplied.
 
     Category 01-preparation-prechecks; memory class ``light``.
 
     Args:
         y: [series_handle, required] Handle to a univariate ts to test for a unit root (ADF/CADF, no
             NA).
-        X: [multiseries_handle, optional] Optional STATIONARY covariates (mts/matrix, same length as
-            y)· None => plain ADF.
+        X: [multiseries_handle, optional] Optional STATIONARY covariates (panel/matrix, same length
+            as y)· None => plain ADF.
         type: [enum, optional] Deterministic kernel (default trend).
         max_lag_y: [integer, optional] Maximum lags of the differences of y (>=0, default 1).
             Default ``1``.
@@ -66,5 +66,5 @@ def run_cadf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_cadf: not implemented. The method card is in ./README.md."
+        "run_cadf: not implemented."
     )

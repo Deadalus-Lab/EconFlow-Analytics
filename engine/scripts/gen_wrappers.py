@@ -4,25 +4,26 @@
 
 Emits, from BOTH committed artifacts:
 
-    wrappers/<category-package>/<module>.py   251 modules, one per wrapper file
-    wrappers/<category-package>/README.md      30 files, one per category
+    wrappers/<category-package>/<module>.py   598 modules, one per wrapper file
 
 Unlike the generated schema tier these files ARE committed: the stubs are filled
-in by hand, one method at a time, and the README is the reviewer's copy of the
-METHOD-SELECTION card that governs the method.
+in by hand, one method at a time.
 
-NAMING (verified over all 251 wrapper files: zero collisions, every name a valid
+NAMING (verified over all 598 wrapper files: zero collisions, every name a valid
 identifier):
 
     category "00-data-utilities"                        -> package c00_data_utilities
-THE ONE N:1 CASE: ``c08_panel_data/plm.py`` is governed by TWO cards (#46
-static estimators, #47 dynamic GMM). It yields ONE module carrying the tool
-functions of both, never two.
+THE N:1 CASES: two wrapper files are each governed by TWO cards --
+``c08_panel_data/static_panel_estimators.py`` (#46 static estimators, #47
+dynamic GMM) and ``c07_causality_policy/staggered_did.py``. Each yields ONE
+module carrying the tool functions of both, never two.
 
 Modes:
     --init   create what is missing; NEVER overwrite an existing file.
-    --check  assert every expected module and README exists and that every stub
+    --check  assert every expected module exists and that every stub
              signature still matches node-specs; exit 1 on drift.
+    --write  rewrite every generated file; refuses any module holding a written
+             body, so a hand-filled implementation cannot be overwritten.
 """
 
 from __future__ import annotations
@@ -90,7 +91,12 @@ def reference_implementation(package: str, module: str) -> str:
     return "not yet selected; see engine/METHOD-SOURCES.json"
 LINE_LIMIT = 100
 
+# REUSE-IgnoreStart -- the line below is EMITTED INTO GENERATED OUTPUT, not a
+# declaration about this file. reuse reads the tag wherever it appears, sees the
+# surrounding quotes and escapes as part of the expression, and reports it as an
+# invalid SPDX expression. This file's own licence is declared at the top.
 SPDX = "# SPDX-License-Identifier: AGPL-3.0-only"
+# REUSE-IgnoreEnd
 
 # kind -> the Python type a wrapper actually receives.
 #
@@ -174,7 +180,7 @@ def stub_source(
             lines += render_param(arg, forecastfn_names)
     lines.append(") -> dict[str, Any]:")
 
-    lines.append(f'    """Node ``{fn}`` -- METHOD-SELECTION card #{card["id"]}.')
+    lines.append(f'    """Node ``{fn}`` -- method card #{card["id"]}.')
     lines.append("")
     lines += _wrap(docsafe(card["method"]) + ".", "    ")
     lines.append("")
@@ -211,11 +217,10 @@ def stub_source(
     lines.append("    Returns:")
     lines.append("        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.")
     lines.append('    """')
-    # The message used to name a source file to port from. Those files never existed here,
-    # so it pointed every reader at nothing. It names the one thing that does: the
-    # category README, which carries this method's card.
+    # The message names no document: the card lives in engine/corpus/, which is a
+    # source tree, not something a user of this package has on disk.
     lines.append("    raise NotImplementedError(")
-    lines.append(f'        "{fn}: not implemented. The method card is in ./README.md."')
+    lines.append(f'        "{fn}: not implemented."')
     lines.append("    )")
     return lines
 
@@ -300,7 +305,7 @@ def module_source(
 
     head = [
         SPDX,
-        f'"""Method wrapper ``{module}`` -- METHOD-SELECTION card{plural} {ids}.',
+        f'"""Method wrapper ``{module}`` -- method card{plural} {ids}.',
         "",
     ]
     for card in cards:
@@ -313,8 +318,8 @@ def module_source(
     )
     head.append("")
     head += _wrap(
-        "See ``./README.md`` for when this method applies, what to reach for instead, and "
-        "the interpretation traps recorded against it.",
+        "See ``engine/corpus/`` for when this method applies, what to reach for "
+        "instead, and the interpretation traps recorded against it.",
         "",
     )
     head += ['"""', "", "from __future__ import annotations", ""]
@@ -348,107 +353,14 @@ def module_source(
         body += ["", ""]
     return "\n".join(head + body).rstrip("\n") + "\n"
 
-
-# ---------------------------------------------------------------------------
-# README rendering
-# ---------------------------------------------------------------------------
-
-
-def md_cell(text: str) -> str:
-    return text.replace("|", "\\|").replace("\n", " ").strip()
-
-
-def bullets(items: list[str] | None) -> list[str]:
-    return [f"- {md_cell(i)}" for i in (items or [])]
-
-
-def render_card(card: dict[str, Any], nodes_by_fn: dict[str, dict[str, Any]]) -> list[str]:
-    module = wrapper_module_name(card["wrapper_file"])
-    reference = reference_implementation(category_package(card["category"]), module)
-    out = [
-        f"## #{card['id']} — {card['method']}",
-        "",
-        f"**Module:** `{module}.py` · **Reference:** {reference}",
-        "",
-        "### Nodes",
-        "",
-        "| fn | required args | kinds | defaults | memory | register.field |",
-        "| --- | --- | --- | --- | --- | --- |",
-    ]
-    for fn in card["tool_fns"]:
-        node = nodes_by_fn[fn]
-        args = node["arguments"]
-        required = ", ".join(f"`{a['name']}`" for a in args if a["required"]) or "—"
-        kinds = ", ".join(f"`{a['kind']}`" for a in args) or "—"
-        defaults = (
-            ", ".join(f"`{a['name']}={a['default']!r}`" for a in args if a.get("has_default"))
-            or "—"
-        )
-        register = (node.get("register") or {}).get("field")
-        out.append(
-            f"| `{fn}` | {md_cell(required)} | {md_cell(kinds)} | {md_cell(defaults)} "
-            f"| `{node['memory_class']}` | {f'`{register}`' if register else '—'} |"
-        )
-    out += ["", "### Use when", "", md_cell(card["when"]), ""]
-    out += ["### Do not use when", "", md_cell(card["when_not"]), ""]
-
-    prerequisites = (card.get("precondition_tools") or []) + (
-        card.get("precondition_gates") or []
-    )
-    if prerequisites:
-        out += ["### Prerequisites", "", *bullets(prerequisites), ""]
-
-    if card.get("alternatives"):
-        out += [
-            "### Alternatives",
-            "",
-            "| instead use | when |",
-            "| --- | --- |",
-        ]
-        out += [
-            f"| {md_cell(a['alt'])} | {md_cell(a['criterion'])} |" for a in card["alternatives"]
-        ]
-        out.append("")
-
-    if card.get("output_key_fields"):
-        out += ["### Output fields", "", *bullets(card["output_key_fields"]), ""]
-    if card.get("interpretation_traps"):
-        out += ["### Pitfalls", "", *bullets(card["interpretation_traps"]), ""]
-    if card.get("sources"):
-        out += ["### References", "", *bullets(card["sources"]), ""]
-    return out
-
-
-def readme_source(
-    category: str, cards: list[dict[str, Any]], nodes_by_fn: dict[str, dict[str, Any]]
-) -> str:
-    n_nodes = sum(len(c["tool_fns"]) for c in cards)
-    modules = sorted({wrapper_module_name(c["wrapper_file"]) for c in cards})
-    lines = [
-        "<!-- SPDX-License-Identifier: AGPL-3.0-only -->",
-        f"# {category}",
-        "",
-        f"{len(cards)} METHOD-SELECTION card{'s' if len(cards) != 1 else ''}, "
-        f"{len(modules)} module{'s' if len(modules) != 1 else ''}, {n_nodes} nodes.",
-        "",
-        "Every card below governs one wrapper module in this package. The cards are the",
-        "reason a method exists here at all: they record when it applies, what to reach",
-        "for instead, and the traps that make its output easy to misread.",
-        "",
-    ]
-    for card in cards:
-        lines += render_card(card, nodes_by_fn)
-    return "\n".join(lines).rstrip("\n") + "\n"
-
-
 # ---------------------------------------------------------------------------
 # Planning, writing, checking
 # ---------------------------------------------------------------------------
 
 
 def build_plan() -> tuple[dict[Path, str], dict[str, Any]]:
-    specs = read_artifact("node-specs.v1.json")
-    cards = read_artifact("method-cards.v1.json")["cards"]
+    specs = read_artifact("node-specs.json")
+    cards = read_artifact("method-cards.json")["cards"]
     nodes_by_fn = {n["fn"]: n for n in specs["nodes"]}
     forecastfn_names = tuple(specs["vocabulary"]["forecastfn_names"])
 
@@ -468,13 +380,12 @@ def build_plan() -> tuple[dict[Path, str], dict[str, Any]]:
         group.sort(key=lambda c: c["id"])
 
     plan: dict[Path, str] = {}
-    for category, group in by_category.items():
+    for category in by_category:
         package = OUT_ROOT / category_package(category)
         plan[package / "__init__.py"] = (
             f"{SPDX}\n"
-            f'"""Wrappers for METHOD-SELECTION category {category}."""\n'
+            f'"""Wrappers for category {category}."""\n'
         )
-        plan[package / "README.md"] = readme_source(category, group, nodes_by_fn)
     for wrapper_file, group in by_wrapper.items():
         package = OUT_ROOT / category_package(group[0]["category"])
         module = wrapper_module_name(wrapper_file)
@@ -522,10 +433,9 @@ def run_init(plan: dict[Path, str]) -> int:
         path.write_text(body, encoding="utf-8")
         created += 1
     modules = len([p for p in plan if p.suffix == ".py" and p.name != "__init__.py"])
-    readmes = len([p for p in plan if p.name == "README.md"])
     print(
         f"gen_wrappers --init: {created} file(s) created; "
-        f"{modules} modules and {readmes} READMEs expected. Existing files were left untouched."
+        f"{modules} modules expected. Existing files were left untouched."
     )
     return 0
 
@@ -561,7 +471,7 @@ def holds_only_generated_stubs(tree: ast.Module, fns: list[str]) -> str | None:
 
 def run_write(plan: dict[Path, str], context: dict[str, Any]) -> int:
     """Rewrite every generated file, refusing any module that holds a real body."""
-    cards = read_artifact("method-cards.v1.json")["cards"]
+    cards = read_artifact("method-cards.json")["cards"]
     fns_by_module: dict[Path, list[str]] = {}
     for card in cards:
         module = OUT_ROOT / category_package(card["category"]) / (
@@ -589,19 +499,19 @@ def run_write(plan: dict[Path, str], context: dict[str, Any]) -> int:
             path.write_text(body, encoding="utf-8")
             written += 1
     modules = len([p for p in plan if p.suffix == ".py" and p.name != "__init__.py"])
-    readmes = len([p for p in plan if p.name == "README.md"])
     print(f"gen_wrappers --write: {written} file(s) rewritten; "
-          f"{modules} modules and {readmes} READMEs regenerated from the artifacts.")
+          f"{modules} modules regenerated from the artifacts.")
     return 0
 
 
 def run_check(plan: dict[Path, str], context: dict[str, Any]) -> int:
-    problems: list[str] = []
-    for path in sorted(plan):
-        if not path.exists():
-            problems.append(f"missing: {path.relative_to(ENGINE_ROOT)}")
+    problems: list[str] = [
+        f"missing: {path.relative_to(ENGINE_ROOT)}"
+        for path in sorted(plan)
+        if not path.exists()
+    ]
     expected = expected_signatures(context)
-    cards = read_artifact("method-cards.v1.json")["cards"]
+    cards = read_artifact("method-cards.json")["cards"]
     fns_by_module: dict[Path, list[str]] = {}
     for card in cards:
         package = OUT_ROOT / category_package(card["category"])
@@ -633,9 +543,8 @@ def run_check(plan: dict[Path, str], context: dict[str, Any]) -> int:
             print(f"  {line}")
         return 1
     modules = len([p for p in plan if p.suffix == ".py" and p.name != "__init__.py"])
-    readmes = len([p for p in plan if p.name == "README.md"])
     print(
-        f"gen_wrappers --check: OK -- {modules} modules, {readmes} READMEs, "
+        f"gen_wrappers --check: OK -- {modules} modules, "
         f"{len(expected)} stub signatures match node-specs."
     )
     return 0

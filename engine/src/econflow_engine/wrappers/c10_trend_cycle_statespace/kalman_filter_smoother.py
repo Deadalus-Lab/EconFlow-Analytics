@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``kalman_filter_smoother`` -- METHOD-SELECTION card #58.
+"""Method wrapper ``kalman_filter_smoother`` -- method card #58.
 
 #58 Kalman filter/smoother + unobserved-components models
 
@@ -7,8 +7,8 @@ Category 10-trend-cycle-statespace; module ``kalman_filter_smoother``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def kf_local_level(
     seasonal: bool | None = None,
     seasonal_period: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``kf_local_level`` -- METHOD-SELECTION card #58.
+    """Node ``kf_local_level`` -- method card #58.
 
     Kalman filter/smoother + unobserved-components models.
 
@@ -55,7 +55,7 @@ def kf_local_level(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "kf_local_level: not implemented. The method card is in ./README.md."
+        "kf_local_level: not implemented."
     )
 
 
@@ -65,7 +65,7 @@ def kf_local_linear_trend(
     seasonal: bool | None = None,
     seasonal_period: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``kf_local_linear_trend`` -- METHOD-SELECTION card #58.
+    """Node ``kf_local_linear_trend`` -- method card #58.
 
     Kalman filter/smoother + unobserved-components models.
 
@@ -82,7 +82,7 @@ def kf_local_linear_trend(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "kf_local_linear_trend: not implemented. The method card is in ./README.md."
+        "kf_local_linear_trend: not implemented."
     )
 
 
@@ -93,7 +93,7 @@ def kf_trend_cycle(
     seasonal: bool | None = None,
     seasonal_period: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``kf_trend_cycle`` -- METHOD-SELECTION card #58.
+    """Node ``kf_trend_cycle`` -- method card #58.
 
     Kalman filter/smoother + unobserved-components models.
 
@@ -112,7 +112,7 @@ def kf_trend_cycle(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "kf_trend_cycle: not implemented. The method card is in ./README.md."
+        "kf_trend_cycle: not implemented."
     )
 
 
@@ -123,7 +123,7 @@ def kf_forecast(
     interval: Literal["prediction", "confidence", "none"] | None = None,
     level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``kf_forecast`` -- METHOD-SELECTION card #58.
+    """Node ``kf_forecast`` -- method card #58.
 
     Kalman filter/smoother + unobserved-components models.
 
@@ -140,5 +140,5 @@ def kf_forecast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "kf_forecast: not implemented. The method card is in ./README.md."
+        "kf_forecast: not implemented."
     )

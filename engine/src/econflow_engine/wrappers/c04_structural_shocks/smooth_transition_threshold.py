@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``smooth_transition_threshold`` -- METHOD-SELECTION card #150.
+"""Method wrapper ``smooth_transition_threshold`` -- method card #150.
 
 #150 Smooth-transition / threshold / (m)logistic STRUCTURAL VAR (nonlinear, regime-dependent
-    dynamics) + GIRF/GFEVD/linear IRF — sstvars
+    dynamics) + GIRF/GFEVD/linear IRF
 
 Category 04-structural-shocks; module ``smooth_transition_threshold``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -58,10 +58,10 @@ def sst_fit(
     maxit: int | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``sst_fit`` -- METHOD-SELECTION card #150.
+    """Node ``sst_fit`` -- method card #150.
 
     Smooth-transition / threshold / (m)logistic STRUCTURAL VAR (nonlinear, regime-dependent
-    dynamics) + GIRF/GFEVD/linear IRF — sstvars.
+    dynamics) + GIRF/GFEVD/linear IRF.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -84,13 +84,13 @@ def sst_fit(
             Default ``30``.
         maxit: [integer, optional] Maximum variable-metric optim iterations (default 300). Default
             ``300``.
-        seed: [integer, required] MANDATORY seed (integer) — stochastic GA· set.seed + seeds vector.
+        seed: [integer, required] MANDATORY seed (integer) — stochastic GA· seeded + seeds vector.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sst_fit: not implemented. The method card is in ./README.md."
+        "sst_fit: not implemented."
     )
 
 
@@ -107,10 +107,10 @@ def sst_girf(
     burn_in: int | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``sst_girf`` -- METHOD-SELECTION card #150.
+    """Node ``sst_girf`` -- method card #150.
 
     Smooth-transition / threshold / (m)logistic STRUCTURAL VAR (nonlinear, regime-dependent
-    dynamics) + GIRF/GFEVD/linear IRF — sstvars.
+    dynamics) + GIRF/GFEVD/linear IRF.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -127,13 +127,13 @@ def sst_girf(
             Default ``1``.
         ci: [num_array, optional] Confidence levels of the bands (default [0.95, 0.8]).
         burn_in: [integer, optional] Simulation burn-in (default 200). Default ``200``.
-        seed: [integer, required] MANDATORY seed — simulation-based· set.seed for reproducibility.
+        seed: [integer, required] MANDATORY seed — simulation-based· seeded for reproducibility.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sst_girf: not implemented. The method card is in ./README.md."
+        "sst_girf: not implemented."
     )
 
 
@@ -149,10 +149,10 @@ def sst_gfevd(
     burn_in: int | None = None,
     seed: int,
 ) -> dict[str, Any]:
-    """Node ``sst_gfevd`` -- METHOD-SELECTION card #150.
+    """Node ``sst_gfevd`` -- method card #150.
 
     Smooth-transition / threshold / (m)logistic STRUCTURAL VAR (nonlinear, regime-dependent
-    dynamics) + GIRF/GFEVD/linear IRF — sstvars.
+    dynamics) + GIRF/GFEVD/linear IRF.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -168,13 +168,13 @@ def sst_gfevd(
         init_regime: [integer, optional] Regime of the initial values 1..M (default 1). Default
             ``1``.
         burn_in: [integer, optional] Simulation burn-in (default 200). Default ``200``.
-        seed: [integer, required] MANDATORY seed — simulation-based· set.seed for reproducibility.
+        seed: [integer, required] MANDATORY seed — simulation-based· seeded for reproducibility.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sst_gfevd: not implemented. The method card is in ./README.md."
+        "sst_gfevd: not implemented."
     )
 
 
@@ -187,10 +187,10 @@ def sst_linear_irf(
     bootstrap_reps: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sst_linear_irf`` -- METHOD-SELECTION card #150.
+    """Node ``sst_linear_irf`` -- method card #150.
 
     Smooth-transition / threshold / (m)logistic STRUCTURAL VAR (nonlinear, regime-dependent
-    dynamics) + GIRF/GFEVD/linear IRF — sstvars.
+    dynamics) + GIRF/GFEVD/linear IRF.
 
     Category 04-structural-shocks; memory class ``light``.
 
@@ -211,5 +211,5 @@ def sst_linear_irf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sst_linear_irf: not implemented. The method card is in ./README.md."
+        "sst_linear_irf: not implemented."
     )

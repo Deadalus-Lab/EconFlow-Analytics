@@ -1,0 +1,1934 @@
+{
+ "category": "30-duration-survival",
+ "cards": [
+  {
+   "id": 258,
+   "method": "Kaplan-Meier and Nelson-Aalen estimators with the log-rank family of tests",
+   "wrapper_file": "c30_duration_survival/km_nelson_aalen.py",
+   "tool_fns": [
+    "srv_km_fit",
+    "srv_na_fit",
+    "srv_logrank_test"
+   ],
+   "when": "estimating a survival or cumulative-hazard curve from right-censored durations, and comparing curves across groups without assuming a parametric shape",
+   "when_not": "you need covariates (-> #Cox); the durations are interval-censored; the outcome is competing risks (-> cumulative incidence); you want a parametric time-to-event distribution",
+   "alternatives": [
+    {
+     "alt": "Cox proportional hazards",
+     "criterion": "you need to adjust for covariates rather than compare raw curves"
+    },
+    {
+     "alt": "competing-risks cumulative incidence",
+     "criterion": "more than one mutually exclusive failure type"
+    },
+    {
+     "alt": "parametric AFT",
+     "criterion": "you want a smooth closed-form survival function and extrapolation"
+    }
+   ],
+   "output_key_fields": [
+    "survival/cumhazard: the step function on the observed event times",
+    "lower/upper: pointwise confidence band at conf_level",
+    "median_survival: the first time the curve crosses 0.5, None if it never does",
+    "logrank: statistic, df and p_value for equality of curves across groups"
+   ],
+   "interpretation_traps": [
+    "the curve is only identified up to the largest observed time; beyond it the estimate is undefined, not flat",
+    "median_survival is None when the curve never reaches 0.5 -- that is heavy censoring, not an error",
+    "the log-rank test assumes proportional hazards; with crossing curves it loses power and can be near-zero for a real difference"
+   ],
+   "sources": [
+    "Kaplan & Meier 1958 (JASA 53:457-481)",
+    "Nelson 1972 (Technometrics 14:945)",
+    "Aalen 1978 (Annals of Statistics 6:701)",
+    "statsmodels.duration.survfunc"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 259,
+   "method": "Cox proportional-hazards regression with time-varying covariates and stratification",
+   "wrapper_file": "c30_duration_survival/cox_ph.py",
+   "tool_fns": [
+    "srv_cox_fit",
+    "srv_cox_predict",
+    "srv_cox_timevarying"
+   ],
+   "when": "estimating covariate effects on the hazard of an event without committing to a baseline hazard shape; hazard ratios are the quantity of interest",
+   "when_not": "the proportional-hazards assumption fails and cannot be repaired by stratification (-> AFT); you want an absolute survival prediction rather than a ratio; there are competing risks",
+   "alternatives": [
+    {
+     "alt": "parametric AFT",
+     "criterion": "you need a closed-form survival function or to extrapolate beyond the data"
+    },
+    {
+     "alt": "stratified Cox",
+     "criterion": "the hazards are non-proportional in a small number of discrete strata"
+    },
+    {
+     "alt": "discrete-time hazard",
+     "criterion": "durations are recorded in coarse intervals with many ties"
+    }
+   ],
+   "output_key_fields": [
+    "params/coef: log hazard ratios; exp(coef) is the hazard ratio",
+    "bse, z, p_value, conf_int: Wald inference on the log scale",
+    "baseline_cumhazard: the Breslow estimate of the baseline",
+    "loglike, concordance: fit and discrimination"
+   ],
+   "interpretation_traps": [
+    "coefficients are on the LOG hazard scale -- exponentiate before reading them as hazard ratios",
+    "a hazard ratio is not a risk ratio and does not integrate to one over time",
+    "ties are handled by an approximation; with heavy tying the Efron and Breslow handlers disagree materially",
+    "stratification removes the strata's main effect from the estimate entirely -- it is not a control variable"
+   ],
+   "sources": [
+    "Cox 1972 (JRSS-B 34:187-220)",
+    "Breslow 1974 (Biometrics 30:89)",
+    "Efron 1977 (JASA 72:557)",
+    "statsmodels.duration.hazard_regression.PHReg"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 260,
+   "method": "Parametric accelerated-failure-time models: Weibull, log-normal, log-logistic and exponential",
+   "wrapper_file": "c30_duration_survival/aft_parametric.py",
+   "tool_fns": [
+    "srv_aft_fit",
+    "srv_aft_compare",
+    "srv_aft_predict"
+   ],
+   "when": "you want a smooth closed-form survival function, the ability to extrapolate beyond the last observed time, or a time-ratio interpretation rather than a hazard ratio",
+   "when_not": "you are unwilling to commit to a distributional shape (-> Cox); the shape is clearly non-monotonic in a way none of the four families capture",
+   "alternatives": [
+    {
+     "alt": "Cox proportional hazards",
+     "criterion": "you do not want to assume a baseline shape"
+    },
+    {
+     "alt": "flexible parametric splines",
+     "criterion": "the hazard shape is complex and the four families all fit badly"
+    },
+    {
+     "alt": "Kaplan-Meier",
+     "criterion": "no covariates and no extrapolation needed"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients on the LOG time scale; exp(coef) is a time ratio",
+    "scale/shape: the fitted distribution parameters",
+    "aic, bic, loglike: for choosing among the four families",
+    "predicted_median/predicted_mean: fitted survival summaries"
+   ],
+   "interpretation_traps": [
+    "an AFT coefficient is a TIME ratio, not a hazard ratio -- a positive coefficient lengthens survival",
+    "only the Weibull and exponential are simultaneously AFT and proportional-hazards; for the others the two scales disagree",
+    "the exponential imposes a constant hazard, which is almost never right for economic durations and shows up as a poor AIC rather than an error",
+    "extrapolation beyond the data is the point of the model and also its main risk"
+   ],
+   "sources": [
+    "Kalbfleisch & Prentice 2002, The Statistical Analysis of Failure Time Data, 2nd ed.",
+    "Wei 1992 (Statistics in Medicine 11:1871)",
+    "lifelines documentation"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 261,
+   "method": "Discrete-time hazard models with complementary log-log and logit links",
+   "wrapper_file": "c30_duration_survival/discrete_hazard.py",
+   "tool_fns": [
+    "srv_discrete_expand",
+    "srv_discrete_fit"
+   ],
+   "when": "durations are recorded in coarse intervals -- months, quarters, waves -- so ties are pervasive and a continuous-time model is a fiction",
+   "when_not": "durations are measured finely enough for a continuous-time model (-> Cox/AFT); there is no person-period expansion available",
+   "alternatives": [
+    {
+     "alt": "Cox with an appropriate tie handler",
+     "criterion": "the discreteness is mild and the grid is fine"
+    },
+    {
+     "alt": "parametric AFT",
+     "criterion": "you want a closed-form continuous survival function"
+    },
+    {
+     "alt": "multinomial discrete hazard",
+     "criterion": "the exit is to more than one competing destination"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients on the link scale; cloglog recovers the proportional-hazards parameter",
+    "baseline_hazard: the fitted hazard at each duration interval",
+    "survival: the implied discrete survivor function",
+    "loglike, aic: fit"
+   ],
+   "interpretation_traps": [
+    "the input must be a PERSON-PERIOD table -- one row per unit per interval at risk -- not one row per unit",
+    "with a cloglog link the coefficients are the underlying continuous-time proportional-hazards parameters; with a logit link they are not",
+    "the baseline must be modelled explicitly (dummies, polynomial or spline in duration); omitting it forces a flat hazard",
+    "unobserved heterogeneity biases duration dependence toward negative -- the estimated hazard falls even when the true one does not"
+   ],
+   "sources": [
+    "Prentice & Gloeckler 1978 (Biometrics 34:57)",
+    "Allison 1982 (Sociological Methodology 13:61)",
+    "Jenkins 2005, Survival Analysis (unpublished manuscript, University of Essex)",
+    "statsmodels.discrete"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 262,
+   "method": "Competing risks: cause-specific hazards, cumulative incidence and the Fine-Gray subdistribution model",
+   "wrapper_file": "c30_duration_survival/competing_risks.py",
+   "tool_fns": [
+    "srv_cif_fit",
+    "srv_cause_specific",
+    "srv_finegray_fit",
+    "srv_gray_test"
+   ],
+   "when": "a unit can exit to more than one mutually exclusive destination and treating the other destinations as censoring would overstate the risk of the one you care about",
+   "when_not": "there is only one failure type (-> Kaplan-Meier/Cox); the destinations are not mutually exclusive",
+   "alternatives": [
+    {
+     "alt": "cause-specific Cox",
+     "criterion": "you want the effect on the hazard of one cause among those still at risk"
+    },
+    {
+     "alt": "Fine-Gray",
+     "criterion": "you want the effect on the observable cumulative incidence"
+    },
+    {
+     "alt": "Kaplan-Meier per cause",
+     "criterion": "wrong here -- it treats competing events as censoring and overstates incidence"
+    }
+   ],
+   "output_key_fields": [
+    "cumulative_incidence: the CIF per cause, which sums with the survivor function to one",
+    "cause_specific: per-cause hazard-model coefficients",
+    "subdistribution: Fine-Gray coefficients, on the CIF scale",
+    "gray_test: statistic and p_value for equality of CIFs across groups"
+   ],
+   "interpretation_traps": [
+    "ONE minus Kaplan-Meier is NOT the cumulative incidence under competing risks -- it is biased upward, sometimes severely",
+    "a cause-specific hazard ratio and a subdistribution hazard ratio answer different questions and routinely point in opposite directions",
+    "the CIFs of all causes plus the survivor function must sum to one; a set that does not is a sign the events were not mutually exclusive"
+   ],
+   "sources": [
+    "Fine & Gray 1999 (JASA 94:496-509)",
+    "Gray 1988 (Annals of Statistics 16:1141)",
+    "Putter, Fiocco & Geskus 2007 (Statistics in Medicine 26:2389)",
+    "statsmodels.duration.survfunc.CumIncidenceRight"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 263,
+   "method": "Frailty and shared-frailty models for unobserved heterogeneity",
+   "wrapper_file": "c30_duration_survival/frailty.py",
+   "tool_fns": [
+    "srv_frailty_fit",
+    "srv_frailty_test"
+   ],
+   "when": "units are clustered, or duration dependence is suspected to be contaminated by unobserved heterogeneity, and you want to separate the two",
+   "when_not": "there is no clustering and no reason to expect heterogeneity; the sample is too small to identify a frailty variance",
+   "alternatives": [
+    {
+     "alt": "Cox with cluster-robust standard errors",
+     "criterion": "you only need correct inference, not a heterogeneity estimate"
+    },
+    {
+     "alt": "stratified Cox",
+     "criterion": "the clusters are few and you can afford a baseline per cluster"
+    },
+    {
+     "alt": "discrete-time hazard with random effects",
+     "criterion": "durations are interval-recorded"
+    }
+   ],
+   "output_key_fields": [
+    "params: covariate effects conditional on the frailty",
+    "frailty_variance: theta, the dispersion of the unobserved term; zero means no heterogeneity",
+    "loglike, aic: fit",
+    "lrt_frailty: likelihood-ratio test of theta = 0, which is on the boundary"
+   ],
+   "interpretation_traps": [
+    "the test of theta = 0 sits on the boundary of the parameter space, so the null distribution is a mixture and the naive p-value is conservative",
+    "conditional (frailty) and marginal (population-average) coefficients differ; they are not interchangeable",
+    "unobserved heterogeneity and genuine negative duration dependence are only weakly separated -- identification comes from the functional form, not from the data"
+   ],
+   "sources": [
+    "Vaupel, Manton & Stallard 1979 (Demography 16:439)",
+    "Hougaard 2000, Analysis of Multivariate Survival Data",
+    "Lancaster 1990, The Econometric Analysis of Transition Data",
+    "lifelines documentation"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 264,
+   "method": "Proportional-hazards diagnostics: Schoenfeld residuals and time-interaction tests",
+   "wrapper_file": "c30_duration_survival/ph_diagnostics.py",
+   "tool_fns": [
+    "srv_schoenfeld",
+    "srv_ph_test",
+    "srv_cox_residuals"
+   ],
+   "when": "checking the assumption a Cox model rests on, before its hazard ratios are reported as if they held at every horizon",
+   "when_not": "the model is not a proportional-hazards model (an AFT needs different diagnostics); the sample has too few events for residual patterns to be readable",
+   "alternatives": [
+    {
+     "alt": "stratify the offending covariate",
+     "criterion": "the violation is confined to a discrete variable you do not need an estimate for"
+    },
+    {
+     "alt": "add a time interaction",
+     "criterion": "the violation is a smooth trend in the log hazard ratio"
+    },
+    {
+     "alt": "switch to AFT",
+     "criterion": "the violation is pervasive across covariates"
+    }
+   ],
+   "output_key_fields": [
+    "schoenfeld: scaled residuals per covariate per event time",
+    "zph: per-covariate and global test of a zero slope against time",
+    "slope: the fitted trend, which is the direction the hazard ratio drifts",
+    "martingale/deviance: residuals for functional-form and outlier checks"
+   ],
+   "interpretation_traps": [
+    "the global test is not a substitute for the per-covariate tests -- a large violation in one direction can cancel another",
+    "the test depends on the time transform: identity, log and rank transforms disagree, and a violation visible under one can vanish under another",
+    "a significant test with a very large sample can flag a violation too small to matter; read the slope, not just the p-value",
+    "martingale residuals are strongly skewed by construction and must not be read as approximately normal"
+   ],
+   "sources": [
+    "Schoenfeld 1982 (Biometrika 69:239)",
+    "Grambsch & Therneau 1994 (Biometrika 81:515)",
+    "Therneau & Grambsch 2000, Modeling Survival Data",
+    "lifelines documentation"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 265,
+   "method": "Spell duration dependence and hazard-shape estimation",
+   "wrapper_file": "c30_duration_survival/duration_dependence.py",
+   "tool_fns": [
+    "srv_piecewise_hazard",
+    "srv_hazard_shape"
+   ],
+   "when": "the question is the SHAPE of the hazard over the spell -- whether exit rates rise or fall with elapsed duration, as in unemployment or firm-survival studies",
+   "when_not": "you only need covariate effects (-> Cox); the spells are too short or too few for a shape to be identified",
+   "alternatives": [
+    {
+     "alt": "piecewise-constant hazard",
+     "criterion": "you want a readable shape with no functional-form commitment"
+    },
+    {
+     "alt": "Weibull AFT",
+     "criterion": "a monotone shape is enough and you want one parameter for it"
+    },
+    {
+     "alt": "frailty model",
+     "criterion": "you must separate true duration dependence from unobserved heterogeneity"
+    }
+   ],
+   "output_key_fields": [
+    "hazard: the estimated hazard on the duration grid",
+    "shape: increasing / decreasing / non-monotonic, with the turning point where one exists",
+    "weibull_p: the Weibull shape parameter, where p > 1 is positive duration dependence",
+    "conf_band: pointwise band on the hazard"
+   ],
+   "interpretation_traps": [
+    "unobserved heterogeneity biases the estimated hazard DOWNWARD over the spell -- apparent negative duration dependence is the single most common artefact in this literature",
+    "the piecewise grid drives the answer: too few intervals hide the shape, too many make it noise",
+    "the hazard near the largest observed duration rests on very few units still at risk and its band is correspondingly wide"
+   ],
+   "sources": [
+    "Lancaster 1979 (Econometrica 47:939-956)",
+    "Van den Berg 2001, Duration models: specification, identification and multiple durations (Handbook of Econometrics 5)",
+    "Machin & Manning 1999 (Handbook of Labor Economics 3C)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "srv_km_fit",
+   "card_id": 258,
+   "register": null,
+   "input_example": {
+    "time": "<series_handle>",
+    "event": "<series_handle>",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "time",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed duration for each unit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Event indicator: 1 = event observed, 0 = right-censored.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Optional observation weights.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_na_fit",
+   "card_id": 258,
+   "register": null,
+   "input_example": {
+    "time": "<series_handle>",
+    "event": "<series_handle>",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "time",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed duration for each unit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Event indicator: 1 = event observed, 0 = right-censored.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Optional observation weights.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_logrank_test",
+   "card_id": 258,
+   "register": null,
+   "input_example": {
+    "time": "<series_handle>",
+    "event": "<series_handle>",
+    "group": "<series_handle>",
+    "weighting": "logrank"
+   },
+   "arguments": [
+    {
+     "name": "time",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed duration for each unit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Event indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "group",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Group label for each unit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weighting",
+     "kind": "enum",
+     "required": false,
+     "description": "Weight function on the event times.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "logrank",
+      "wilcoxon",
+      "tarone-ware",
+      "peto",
+      "fleming-harrington"
+     ],
+     "allowed_vars": null,
+     "default": "logrank",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "srv_cox_fit",
+   "card_id": 259,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "time": "...",
+    "event": "...",
+    "ties": "efron",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Table holding the durations, the event indicator and the covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the observed duration.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the event indicator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate column names.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "strata",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Columns to stratify the baseline hazard on.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ties",
+     "kind": "enum",
+     "required": false,
+     "description": "Handler for tied event times.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "efron",
+      "breslow"
+     ],
+     "allowed_vars": null,
+     "default": "efron",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_cox_predict",
+   "card_id": 259,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "what": "survival"
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted Cox model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "newdata",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Covariate rows to predict for; omitted = the training rows.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "what",
+     "kind": "enum",
+     "required": false,
+     "description": "Quantity to return.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "survival",
+      "cumhazard",
+      "linear_predictor",
+      "hazard_ratio"
+     ],
+     "allowed_vars": null,
+     "default": "survival",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "srv_cox_timevarying",
+   "card_id": 259,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "start": "...",
+    "stop": "...",
+    "event": "...",
+    "id": "..."
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Counting-process table: one row per unit per interval.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "start",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the interval start.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "stop",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the interval end.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the event indicator for the interval.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate column names.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "id",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the unit.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "srv_aft_fit",
+   "card_id": 260,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "time": "...",
+    "event": "...",
+    "distribution": "weibull",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Table holding the durations, the event indicator and the covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the observed duration.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the event indicator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate column names.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "distribution",
+     "kind": "enum",
+     "required": false,
+     "description": "Failure-time distribution.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "weibull",
+      "lognormal",
+      "loglogistic",
+      "exponential"
+     ],
+     "allowed_vars": null,
+     "default": "weibull",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_aft_compare",
+   "card_id": 260,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "time": "...",
+    "event": "...",
+    "criterion": "aic"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Table holding the durations, the event indicator and the covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the observed duration.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the event indicator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate column names.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "criterion",
+     "kind": "enum",
+     "required": false,
+     "description": "Information criterion used to rank the families.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "aic",
+      "bic"
+     ],
+     "allowed_vars": null,
+     "default": "aic",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "srv_aft_predict",
+   "card_id": 260,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "what": "survival",
+    "q": 0.5
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted parametric model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "newdata",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Covariate rows to predict for.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "what",
+     "kind": "enum",
+     "required": false,
+     "description": "Quantity to return.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "survival",
+      "quantile",
+      "mean",
+      "median"
+     ],
+     "allowed_vars": null,
+     "default": "survival",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "q",
+     "kind": "number",
+     "required": false,
+     "description": "Quantile to return when what='quantile'.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_discrete_expand",
+   "card_id": 261,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "time": "...",
+    "event": "...",
+    "id": "..."
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "One row per unit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the observed duration in whole intervals.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the event indicator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "id",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the unit.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "srv_discrete_fit",
+   "card_id": 261,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "event": "...",
+    "duration": "...",
+    "link": "cloglog",
+    "baseline": "dummies"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Person-period table: one row per unit per interval at risk.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the within-interval event indicator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "duration",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the interval index.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate column names.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "link",
+     "kind": "enum",
+     "required": false,
+     "description": "Link function.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "cloglog",
+      "logit",
+      "probit"
+     ],
+     "allowed_vars": null,
+     "default": "cloglog",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "baseline",
+     "kind": "enum",
+     "required": false,
+     "description": "How duration dependence enters the model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "dummies",
+      "polynomial",
+      "linear",
+      "none"
+     ],
+     "allowed_vars": null,
+     "default": "dummies",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "srv_cif_fit",
+   "card_id": 262,
+   "register": null,
+   "input_example": {
+    "time": "<series_handle>",
+    "event": "<series_handle>",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "time",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed duration.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Cause code: 0 = censored, 1..K = the competing causes.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Optional observation weights.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_cause_specific",
+   "card_id": 262,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "time": "...",
+    "event": "...",
+    "cause": 1
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Table holding durations, the cause code and covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the observed duration.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the cause code.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cause",
+     "kind": "integer",
+     "required": true,
+     "description": "The cause to model; all others are treated as censoring.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate column names.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "srv_finegray_fit",
+   "card_id": 262,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "time": "...",
+    "event": "...",
+    "cause": 1,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Table holding durations, the cause code and covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the observed duration.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the cause code.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cause",
+     "kind": "integer",
+     "required": true,
+     "description": "The cause whose cumulative incidence is modelled.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate column names.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_gray_test",
+   "card_id": 262,
+   "register": null,
+   "input_example": {
+    "time": "<series_handle>",
+    "event": "<series_handle>",
+    "group": "<series_handle>",
+    "cause": 1
+   },
+   "arguments": [
+    {
+     "name": "time",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed duration.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Cause code.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "group",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Group label.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cause",
+     "kind": "integer",
+     "required": true,
+     "description": "The cause being compared.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "srv_frailty_fit",
+   "card_id": 263,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "time": "...",
+    "event": "...",
+    "cluster": "...",
+    "frailty": "gamma"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Table holding durations, the event indicator and covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the observed duration.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the event indicator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate column names.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cluster",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the frailty group.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "frailty",
+     "kind": "enum",
+     "required": false,
+     "description": "Distribution of the shared frailty term.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gamma",
+      "lognormal",
+      "inverse_gaussian"
+     ],
+     "allowed_vars": null,
+     "default": "gamma",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "srv_frailty_test",
+   "card_id": 263,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted frailty model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "srv_schoenfeld",
+   "card_id": 264,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "transform": "km"
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted Cox model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "Time transform applied before the test.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "identity",
+      "log",
+      "rank",
+      "km"
+     ],
+     "allowed_vars": null,
+     "default": "km",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "srv_ph_test",
+   "card_id": 264,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "transform": "km",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted Cox model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "required": false,
+     "description": "Time transform applied before the test.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "identity",
+      "log",
+      "rank",
+      "km"
+     ],
+     "allowed_vars": null,
+     "default": "km",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_cox_residuals",
+   "card_id": 264,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "kind": "martingale"
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted Cox model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "kind",
+     "kind": "enum",
+     "required": false,
+     "description": "Residual type.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "martingale",
+      "deviance",
+      "score",
+      "dfbeta"
+     ],
+     "allowed_vars": null,
+     "default": "martingale",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "srv_piecewise_hazard",
+   "card_id": 265,
+   "register": null,
+   "input_example": {
+    "time": "<series_handle>",
+    "event": "<series_handle>",
+    "n_intervals": 6,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "time",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed duration.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Event indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "breaks",
+     "kind": "num_array",
+     "required": false,
+     "description": "Interval boundaries; empty = equal-count intervals.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_intervals",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of equal-count intervals when breaks is empty.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 6,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "srv_hazard_shape",
+   "card_id": 265,
+   "register": null,
+   "input_example": {
+    "time": "<series_handle>",
+    "event": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "time",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Observed duration.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "event",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Event indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bandwidth",
+     "kind": "number",
+     "required": false,
+     "description": "Smoothing bandwidth; omitted = plug-in rule.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  }
+ ]
+}

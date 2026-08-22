@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``multivariate_changepoints`` -- method card #543.
+
+#543 Multivariate and kernel change-point detection with penalty calibration
+
+Category 19-business-cycle-dating; module ``multivariate_changepoints``.
+
+Reference implementation: ruptures.
+
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c19_business_cycle_dating import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "bc_multivariate_changepoints",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def bc_multivariate_changepoints(
+    *,
+    y: pd.DataFrame,
+    model: Literal["l1", "l2", "rbf", "linear", "normal", "ar"] | None = None,
+    method: Literal["pelt", "binseg", "dynp", "window", "bottomup"] | None = None,
+    penalty: float | None = None,
+    n_changepoints: int | None = None,
+    min_size: int | None = None,
+) -> dict[str, Any]:
+    """Node ``bc_multivariate_changepoints`` -- method card #543.
+
+    Multivariate and kernel change-point detection with penalty calibration.
+
+    Category 19-business-cycle-dating; memory class ``light``.
+
+    Args:
+        y: [multiseries_handle, required] Series to segment.
+        model: [enum, optional] Cost model. Default ``'rbf'``.
+        method: [enum, optional] Search method. Default ``'pelt'``.
+        penalty: [number, optional] Penalty; omitted = calibrated.
+        n_changepoints: [integer, optional] Known number of change points.
+        min_size: [integer, optional] Minimum segment length. Default ``5``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "bc_multivariate_changepoints: not implemented."
+    )

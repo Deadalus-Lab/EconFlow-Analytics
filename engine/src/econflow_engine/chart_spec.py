@@ -121,9 +121,21 @@ def _numbers(values: Any) -> list[float | None]:
                                                                                       dtype=float)]
 
 
+def _iso_label(value: object) -> str:
+    """ISO-8601 for a real stamp; a missing one labels itself.
+
+    `isinstance` rather than a `pd.isna` guard because pyright types the
+    constructor as `Timestamp | NaTType` and only this form narrows it. The
+    fallback is not a behaviour change: `NaT.isoformat()` and `str(NaT)` both
+    return 'NaT'.
+    """
+    moment = pd.Timestamp(str(value))
+    return moment.isoformat() if isinstance(moment, pd.Timestamp) else str(value)
+
+
 def _axis_labels(index: pd.Index) -> list[str]:
     if isinstance(index, pd.DatetimeIndex | pd.PeriodIndex):
-        return [pd.Timestamp(str(t)).isoformat() for t in index]
+        return [_iso_label(t) for t in index]
     return [str(v) for v in index]
 
 

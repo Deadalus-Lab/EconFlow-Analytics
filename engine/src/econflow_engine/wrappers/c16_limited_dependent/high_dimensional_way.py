@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``high_dimensional_way`` -- METHOD-SELECTION card #206.
+"""Method wrapper ``high_dimensional_way`` -- method card #206.
 
 #206 High-dimensional k-way fixed-effects GLM (binary logit/probit, Poisson count) with an analytic
     incidental-parameter bias correction (Fernández-Val/Weidner) + average partial effects
@@ -8,8 +8,8 @@ Category 16-limited-dependent; module ``high_dimensional_way``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,14 +24,14 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "alpaca_apes",
-    "alpaca_feglm",
+    "hdfe_average_partial_effects",
+    "hdfe_glm",
     "NODE_META",
     "wire_model",
 ]
 
 
-def alpaca_feglm(
+def hdfe_glm(
     *,
     formula: str,
     data: pd.DataFrame,
@@ -40,7 +40,7 @@ def alpaca_feglm(
     L: int | None = None,
     panel_structure: Literal["classic", "network"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``alpaca_feglm`` -- METHOD-SELECTION card #206.
+    """Node ``hdfe_glm`` -- method card #206.
 
     High-dimensional k-way fixed-effects GLM (binary logit/probit, Poisson count) with an analytic
     incidental-parameter bias correction (Fernández-Val/Weidner) + average partial effects.
@@ -66,18 +66,18 @@ def alpaca_feglm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "alpaca_feglm: not implemented. The method card is in ./README.md."
+        "hdfe_glm: not implemented."
     )
 
 
-def alpaca_apes(
+def hdfe_average_partial_effects(
     *,
     object: Any,
     n_pop: int | None = None,
     sampling_fe: Literal["independence", "unrestricted"] | None = None,
     weak_exo: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``alpaca_apes`` -- METHOD-SELECTION card #206.
+    """Node ``hdfe_average_partial_effects`` -- method card #206.
 
     High-dimensional k-way fixed-effects GLM (binary logit/probit, Poisson count) with an analytic
     incidental-parameter bias correction (Fernández-Val/Weidner) + average partial effects.
@@ -86,7 +86,7 @@ def alpaca_apes(
 
     Args:
         object: [raw_handle, required] Handle to a fitted (+bias-corrected) feglm model from
-            alpaca_feglm· ONLY binary choice (binomial).
+            hdfe_glm· ONLY binary choice (binomial).
         n_pop: [integer, optional] Finite-population correction (population size)·
             empty=delta-method only.
         sampling_fe: [enum, optional] Sampling assumptions for the FPC of the APE covariance
@@ -98,5 +98,5 @@ def alpaca_apes(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "alpaca_apes: not implemented. The method card is in ./README.md."
+        "hdfe_average_partial_effects: not implemented."
     )

@@ -7,9 +7,9 @@ silent 422 (or worse, a silently dropped argument).
 
 WHY IT IS NEEDED AT ALL -- measured against the artifact, not assumed:
 
-* dotted contract names became snake_case in the contract itself, so nothing
-  ``conf.level``, ``na.rm``, ``n.ahead``, ...). A dot is not legal in a Python
-  parameter name.
+* dotted contract names were folded to snake_case in the contract itself. A dot
+  is not legal in a Python parameter name, so a name such as ``conf_level`` or
+  ``n_ahead`` is the only form a signature can carry.
 * 101 arguments are named with a Python keyword. ``class``, ``from`` and
   ``lambda`` are HARD keywords and cannot be parameter names at all (``case``
   and ``type`` are soft keywords and are left alone).
@@ -49,10 +49,10 @@ def category_package(category: str) -> str:
 
 
 def wrapper_module_name(wrapper_file: str) -> str:
-    """``c01_preparation_prechecks/tseries.py`` -> ``tseries``.
+    """``c01_preparation_prechecks/auto_orders.py`` -> ``auto_orders``.
 
     The basename, minus ``.py``, non-alphanumerics folded to ``_``, lowercased.
-    Verified over all 251 modules: every result is a valid identifier and no two
+    Verified over all 598 modules: every result is a valid identifier and no two
     collide inside a category.
     """
     base = wrapper_file.rsplit("/", 1)[-1]

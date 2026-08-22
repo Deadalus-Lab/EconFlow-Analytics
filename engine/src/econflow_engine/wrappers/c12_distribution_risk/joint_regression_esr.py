@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``joint_regression_esr`` -- METHOD-SELECTION card #194.
+"""Method wrapper ``joint_regression_esr`` -- method card #194.
 
 #194 Joint (VaR, ES) regression (Fissler-Ziegel) + an ESR-based Expected Shortfall backtest
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``joint_regression_esr``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def es_joint_reg(
     early_stopping: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``es_joint_reg`` -- METHOD-SELECTION card #194.
+    """Node ``es_joint_reg`` -- method card #194.
 
     Joint (VaR, ES) regression (Fissler-Ziegel) + an ESR-based Expected Shortfall backtest.
 
@@ -68,7 +68,7 @@ def es_joint_reg(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "es_joint_reg: not implemented. The method card is in ./README.md."
+        "es_joint_reg: not implemented."
     )
 
 
@@ -85,7 +85,7 @@ def es_backtest(
     misspec: bool | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``es_backtest`` -- METHOD-SELECTION card #194.
+    """Node ``es_backtest`` -- method card #194.
 
     Joint (VaR, ES) regression (Fissler-Ziegel) + an ESR-based Expected Shortfall backtest.
 
@@ -113,5 +113,5 @@ def es_backtest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "es_backtest: not implemented. The method card is in ./README.md."
+        "es_backtest: not implemented."
     )

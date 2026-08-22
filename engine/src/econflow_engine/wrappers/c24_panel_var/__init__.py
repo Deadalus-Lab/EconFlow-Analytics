@@ -1,2 +1,2 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Wrappers for METHOD-SELECTION category 24-panel-var."""
+"""Wrappers for category 24-panel-var."""

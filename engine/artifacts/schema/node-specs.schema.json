@@ -1,0 +1,348 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/Deadalus-Lab/EconFlow-Analytics/engine/artifacts/schema/node-specs.schema.json",
+ "title": "node-specs",
+ "description": "The argument contract for every callable node the engine serves. This is the artifact the generated tier is derived from, so a shape change here propagates into every typed signature before anyone notices. The digest sidecar proves the bytes did not move; this schema proves the shape did not. Counts are deliberately absent -- read them from the file, with the commands in .github/inventory.json. EMITTED by scripts/gen_artifacts.py from corpus/; never edited by hand.",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "artifact_version",
+  "generated_by",
+  "engine",
+  "vocabulary",
+  "nodes"
+ ],
+ "properties": {
+  "artifact_version": {
+   "const": 2
+  },
+  "generated_by": {
+   "type": "string",
+   "minLength": 1
+  },
+  "engine": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "n_nodes",
+    "n_categories"
+   ],
+   "properties": {
+    "n_nodes": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "n_categories": {
+     "type": "integer",
+     "minimum": 1
+    }
+   }
+  },
+  "vocabulary": {
+   "description": "The closed sets the contract is written in. These are the values the runtime adapter switches on, so an unannounced addition here is a silent behaviour change rather than new documentation.",
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "kinds",
+    "pointer_handle_kinds",
+    "forecastfn_names",
+    "formula",
+    "pointer_formats",
+    "export_formats",
+    "stochastic_unseeded_fns",
+    "memory_classes"
+   ],
+   "properties": {
+    "kinds": {
+     "$ref": "#/$defs/stringList"
+    },
+    "pointer_handle_kinds": {
+     "$ref": "#/$defs/stringList"
+    },
+    "forecastfn_names": {
+     "$ref": "#/$defs/stringList"
+    },
+    "formula": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "allowed_calls",
+      "max_depth"
+     ],
+     "properties": {
+      "allowed_calls": {
+       "$ref": "#/$defs/stringList"
+      },
+      "max_depth": {
+       "type": "integer",
+       "minimum": 1
+      }
+     }
+    },
+    "pointer_formats": {
+     "$ref": "#/$defs/stringList"
+    },
+    "export_formats": {
+     "$ref": "#/$defs/stringList"
+    },
+    "stochastic_unseeded_fns": {
+     "$ref": "#/$defs/stringList"
+    },
+    "memory_classes": {
+     "$ref": "#/$defs/stringList"
+    }
+   }
+  },
+  "nodes": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/node"
+   }
+  }
+ },
+ "$defs": {
+  "stringList": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "string",
+    "minLength": 1
+   }
+  },
+  "node": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "fn",
+    "route",
+    "category",
+    "card_id",
+    "register",
+    "contract_hash",
+    "executability",
+    "memory_class",
+    "cacheability",
+    "input_example",
+    "arguments"
+   ],
+   "properties": {
+    "fn": {
+     "description": "The wire name. It is the contract and cannot be renamed without breaking every saved analysis.",
+     "type": "string",
+     "minLength": 1
+    },
+    "route": {
+     "type": "string",
+     "minLength": 1
+    },
+    "category": {
+     "type": "string",
+     "minLength": 1
+    },
+    "card_id": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "register": {
+     "description": "Null for most nodes; where present it names the field a result is registered under. `field` is itself nullable: four nodes (bsp_prior, mss_prepare_data, risk_returns_from_long, breg_set_prior) register a result under no named field, which is not the same as not registering at all.",
+     "type": [
+      "object",
+      "null"
+     ],
+     "additionalProperties": false,
+     "required": [
+      "field"
+     ],
+     "properties": {
+      "field": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "minLength": 1
+      }
+     }
+    },
+    "contract_hash": {
+     "description": "Computed by scripts/contract_hash.py over this node's callable contract -- fn, arguments in order excluding their prose, and export. Carried with a `c2-` prefix so it can never be mistaken for a file digest, NOR for a v1 `c-` token: a v1 value came from an exporter that is not in this repository and cannot be recomputed by anything in it, surviving only in artifacts/legacy-inventory.json, so the two vocabularies are kept mutually invalid rather than merely different. It is what a Galaxy tool version pins to, so it must be a full digest and never a truncation.",
+     "type": "string",
+     "pattern": "^c2-[0-9a-f]{64}$"
+    },
+    "executability": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "status",
+      "reason_code",
+      "reason",
+      "blocked_arg"
+     ],
+     "properties": {
+      "status": {
+       "type": "string",
+       "minLength": 1
+      },
+      "reason_code": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "reason": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "blocked_arg": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "memory_class": {
+     "type": "string",
+     "minLength": 1
+    },
+    "cacheability": {
+     "description": "Four booleans, never null. A null here would be read as false by anything that tests it, which is the permissive direction and therefore the wrong one for a cache-safety flag.",
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "spec_cacheable",
+      "has_seed_arg",
+      "seed_required",
+      "stochastic_unseeded"
+     ],
+     "properties": {
+      "spec_cacheable": {
+       "type": "boolean"
+      },
+      "has_seed_arg": {
+       "type": "boolean"
+      },
+      "seed_required": {
+       "type": "boolean"
+      },
+      "stochastic_unseeded": {
+       "type": "boolean"
+      }
+     }
+    },
+    "input_example": {
+     "type": "object"
+    },
+    "arguments": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/argument"
+     }
+    },
+    "export": {
+     "description": "Present on the three nodes that write a file. Optional by measurement, not by guess.",
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "arg",
+      "format",
+      "ext"
+     ],
+     "properties": {
+      "arg": {
+       "type": "string",
+       "minLength": 1
+      },
+      "format": {
+       "type": "string",
+       "minLength": 1
+      },
+      "ext": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    }
+   }
+  },
+  "argument": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "name",
+    "kind",
+    "required",
+    "description",
+    "pointer_handle",
+    "json_type",
+    "enum",
+    "allowed_vars",
+    "default",
+    "has_default",
+    "default_json_type"
+   ],
+   "properties": {
+    "name": {
+     "type": "string",
+     "minLength": 1
+    },
+    "kind": {
+     "type": "string",
+     "minLength": 1
+    },
+    "required": {
+     "type": "boolean"
+    },
+    "description": {
+     "type": "string"
+    },
+    "pointer_handle": {
+     "type": "boolean"
+    },
+    "json_type": {
+     "type": "string",
+     "minLength": 1
+    },
+    "enum": {
+     "type": [
+      "array",
+      "null"
+     ],
+     "minItems": 1
+    },
+    "allowed_vars": {
+     "type": [
+      "array",
+      "null"
+     ]
+    },
+    "default": {
+     "description": "Any JSON value, including null. `has_default` is what distinguishes 'defaults to null' from 'has no default' -- the two are different contracts and the value alone cannot tell them apart.",
+     "type": [
+      "string",
+      "number",
+      "boolean",
+      "array",
+      "object",
+      "null"
+     ]
+    },
+    "has_default": {
+     "type": "boolean"
+    },
+    "default_json_type": {
+     "type": [
+      "string",
+      "null"
+     ]
+    },
+    "materialize": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  }
+ }
+}

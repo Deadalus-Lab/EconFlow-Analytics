@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``spatial_dynamic_panel`` -- METHOD-SELECTION card #179.
+"""Method wrapper ``spatial_dynamic_panel`` -- method card #179.
 
 #179 Spatial dynamic panel data model (Lee-Yu QML, fixed effects) + direct/indirect/total effects
 
@@ -7,8 +7,8 @@ Category 09-cross-section-networks; module ``spatial_dynamic_panel``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def sp_dynpanel(
     LYtrans: bool | None = None,
     rowstand: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_dynpanel`` -- METHOD-SELECTION card #179.
+    """Node ``sp_dynpanel`` -- method card #179.
 
     Spatial dynamic panel data model (Lee-Yu QML, fixed effects) + direct/indirect/total effects.
 
@@ -83,7 +83,7 @@ def sp_dynpanel(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_dynpanel: not implemented. The method card is in ./README.md."
+        "sp_dynpanel: not implemented."
     )
 
 
@@ -93,7 +93,7 @@ def sp_dynpanel_impacts(
     NSIM: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_dynpanel_impacts`` -- METHOD-SELECTION card #179.
+    """Node ``sp_dynpanel_impacts`` -- method card #179.
 
     Spatial dynamic panel data model (Lee-Yu QML, fixed effects) + direct/indirect/total effects.
 
@@ -110,5 +110,5 @@ def sp_dynpanel_impacts(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_dynpanel_impacts: not implemented. The method card is in ./README.md."
+        "sp_dynpanel_impacts: not implemented."
     )

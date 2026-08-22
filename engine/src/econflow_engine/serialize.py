@@ -89,11 +89,16 @@ def _iso_index_label(stamp: Any) -> str | None:
     if stamp is pd.NaT or stamp is None:
         return None
     moment = stamp.to_timestamp() if isinstance(stamp, pd.Period) else pd.Timestamp(stamp)
-    # `pd.isna`, not `is pd.NaT`: pandas-stubs types the constructor as always
-    # returning Timestamp, so the identity check reads as provably false and mypy
-    # rejects it -- while at runtime `pd.Timestamp(pd.NaT)` really is NaT. The
-    # predicate is the honest way to ask, and it is what the stubs model.
-    return None if bool(pd.isna(moment)) else moment.isoformat()
+    # TWO PREDICATES, BECAUSE THE TWO CHECKERS MODEL THIS LINE DIFFERENTLY.
+    # `pd.isna` states the intent -- `is pd.NaT` reads as provably false to mypy,
+    # which types the constructor as always returning Timestamp, while at run time
+    # `pd.Timestamp(pd.NaT)` really is NaT. pyright types the same call as
+    # `Timestamp | NaTType` and only the isinstance form narrows it. Measured:
+    # `isinstance(pd.NaT, pd.Timestamp)` is False, so the two agree on every input
+    # this function can receive.
+    if bool(pd.isna(moment)) or not isinstance(moment, pd.Timestamp):
+        return None
+    return moment.isoformat()
 
 
 def _clean_float(value: float) -> float | None:

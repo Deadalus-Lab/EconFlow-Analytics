@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``drivers_inequality_change`` -- METHOD-SELECTION card #225.
+"""Method wrapper ``drivers_inequality_change`` -- method card #225.
 
 #225 drivers of inequality change: RIF (recentered influence function) regressions +
     regression-based (Fields/Yun) inequality decomposition
@@ -8,8 +8,8 @@ Category 22-inequality; module ``drivers_inequality_change``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -26,9 +26,9 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "dineq_change_decomp",
-    "dineq_regression_decomp",
     "gini_decomposition",
+    "ineq_change_decomp",
+    "ineq_regression_decomp",
     "mld_decomposition",
     "rif_influence",
     "rif_regression",
@@ -57,7 +57,7 @@ def rif_influence(
         | None
     ) = None,
 ) -> dict[str, Any]:
-    """Node ``rif_influence`` -- METHOD-SELECTION card #225.
+    """Node ``rif_influence`` -- method card #225.
 
     drivers of inequality change: RIF (recentered influence function) regressions + regression-based
     (Fields/Yun) inequality decomposition.
@@ -79,7 +79,7 @@ def rif_influence(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rif_influence: not implemented. The method card is in ./README.md."
+        "rif_influence: not implemented."
     )
 
 
@@ -103,7 +103,7 @@ def rif_regression(
         | None
     ) = None,
 ) -> dict[str, Any]:
-    """Node ``rif_regression`` -- METHOD-SELECTION card #225.
+    """Node ``rif_regression`` -- method card #225.
 
     drivers of inequality change: RIF (recentered influence function) regressions + regression-based
     (Fields/Yun) inequality decomposition.
@@ -126,7 +126,7 @@ def rif_regression(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rif_regression: not implemented. The method card is in ./README.md."
+        "rif_regression: not implemented."
     )
 
 
@@ -153,7 +153,7 @@ def rif_regression_se(
     confidence: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``rif_regression_se`` -- METHOD-SELECTION card #225.
+    """Node ``rif_regression_se`` -- method card #225.
 
     drivers of inequality change: RIF (recentered influence function) regressions + regression-based
     (Fields/Yun) inequality decomposition.
@@ -180,7 +180,7 @@ def rif_regression_se(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rif_regression_se: not implemented. The method card is in ./README.md."
+        "rif_regression_se: not implemented."
     )
 
 
@@ -190,7 +190,7 @@ def gini_decomposition(
     z: Any,
     weights: np.ndarray | None = None,
 ) -> dict[str, Any]:
-    """Node ``gini_decomposition`` -- METHOD-SELECTION card #225.
+    """Node ``gini_decomposition`` -- method card #225.
 
     drivers of inequality change: RIF (recentered influence function) regressions + regression-based
     (Fields/Yun) inequality decomposition.
@@ -209,7 +209,7 @@ def gini_decomposition(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gini_decomposition: not implemented. The method card is in ./README.md."
+        "gini_decomposition: not implemented."
     )
 
 
@@ -219,7 +219,7 @@ def mld_decomposition(
     z: Any,
     weights: np.ndarray | None = None,
 ) -> dict[str, Any]:
-    """Node ``mld_decomposition`` -- METHOD-SELECTION card #225.
+    """Node ``mld_decomposition`` -- method card #225.
 
     drivers of inequality change: RIF (recentered influence function) regressions + regression-based
     (Fields/Yun) inequality decomposition.
@@ -238,17 +238,17 @@ def mld_decomposition(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "mld_decomposition: not implemented. The method card is in ./README.md."
+        "mld_decomposition: not implemented."
     )
 
 
-def dineq_regression_decomp(
+def ineq_regression_decomp(
     *,
     formula: str,
     data: pd.DataFrame,
     weights: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``dineq_regression_decomp`` -- METHOD-SELECTION card #225.
+    """Node ``ineq_regression_decomp`` -- method card #225.
 
     drivers of inequality change: RIF (recentered influence function) regressions + regression-based
     (Fields/Yun) inequality decomposition.
@@ -267,11 +267,11 @@ def dineq_regression_decomp(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dineq_regression_decomp: not implemented. The method card is in ./README.md."
+        "ineq_regression_decomp: not implemented."
     )
 
 
-def dineq_change_decomp(
+def ineq_change_decomp(
     *,
     formula1: str,
     data1: pd.DataFrame,
@@ -280,7 +280,7 @@ def dineq_change_decomp(
     data2: pd.DataFrame,
     weights2: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``dineq_change_decomp`` -- METHOD-SELECTION card #225.
+    """Node ``ineq_change_decomp`` -- method card #225.
 
     drivers of inequality change: RIF (recentered influence function) regressions + regression-based
     (Fields/Yun) inequality decomposition.
@@ -302,5 +302,5 @@ def dineq_change_decomp(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dineq_change_decomp: not implemented. The method card is in ./README.md."
+        "ineq_change_decomp: not implemented."
     )

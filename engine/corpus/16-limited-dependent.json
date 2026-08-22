@@ -1,0 +1,1502 @@
+{
+ "category": "16-limited-dependent",
+ "cards": [
+  {
+   "id": 83,
+   "method": "Binomial GLM (probit/logit) — recession probability (Estrella-Mishkin)",
+   "wrapper_file": "c16_limited_dependent/binomial_glm_recession.py",
+   "tool_fns": [
+    "run_binomial_fe_glm"
+   ],
+   "when": "a binary outcome (a recession dummy 0/1); estimating P(y=1|x) from predictors (the yield-curve spread) with probit/logit; optionally high-dimensional fixed effects + clustered SE + weights",
+   "when_not": "a continuous outcome (-> #33, or forecasting); more than two categories (-> an ordered model, or #30); an endogenous dynamic recession state (a dynamic probit, outside the surface); counts (-> Poisson)",
+   "alternatives": [
+    {
+     "alt": "logit link",
+     "criterion": "you want an odds-ratio interpretation (probit is the Estrella-Mishkin default)"
+    },
+    {
+     "alt": "base glm(family=binomial)",
+     "criterion": "without high-dimensional FE / clustered SE it is equivalent"
+    },
+    {
+     "alt": "#30 Markov switching (category 06)",
+     "criterion": "the recession state is latent/unobserved -> extract regime probabilities (gaussian/lm only)"
+    },
+    {
+     "alt": "dynamic probit (Kauppi-Saikkonen)",
+     "criterion": "an autoregressive latent recession probability (outside the wrapper)"
+    }
+   ],
+   "output_key_fields": [
+    "coefficients: named beta on the LINK scale (the index), NOT marginal effects/probabilities",
+    "coeftable: term/estimate/std_error/z_value/p_value (z-test; SE clustered if a cluster was supplied)",
+    "fitted_probabilities: P(y=1|x) via predict(type=response) — the score that feeds #84",
+    "obs_kept: 1-based indices of the retained rows (fixef/separation -> length < nrow; alignment)",
+    "pseudo_r2: McFadden pseudo-R2 (ratio of log-likelihoods, fitstat pr2) — NOT an OLS R2",
+    "loglik/aic/bic/deviance/nobs: fit stats; link/family/fixef_names: metadata"
+   ],
+   "interpretation_traps": [
+    "coef = the effect on the latent index, NOT the marginal effect on the probability (which shrinks at the extremes); only the sign & significance are directly readable",
+    "do NOT assume length(fitted_probabilities)==nrow; fixef/separation drops rows -> align through obs_kept",
+    "pseudo-R2 != R2; a McFadden value of 0.3 is excellent (not '30% of the variance')",
+    "perfect/quasi-separation -> coefficients of ±∞ with enormous SE, or a drop (check obs_kept & the SE)",
+    "an in-sample AUC (via #84 on the same sample) is optimistic; an out-of-sample/real-time vintage is needed"
+   ],
+   "sources": [
+    "Bergé 2018 CREA discussion paper (efficient estimation with many fixed effects)",
+    "Estrella & Mishkin 1998 Rev. Econ. Stat. 80(1):45-61 (probit recession probability)",
+    "Estrella & Hardouvelis 1991 J. Finance 46(2):555-576 (yield curve -> activity)",
+    "Kauppi & Saikkonen 2008 Rev. Econ. Stat. 90(4):777-791 (dynamic probit, alt)",
+    "McFadden 1974 (pseudo-R2)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 84,
+   "method": "ROC / AUC — binary forecast evaluation",
+   "wrapper_file": "c16_limited_dependent/roc_auc_binary.py",
+   "tool_fns": [
+    "run_roc"
+   ],
+   "when": "a numeric score/prediction (the fitted_probabilities of #83) + a binary target; threshold-independent discrimination: AUC + DeLong CI + the full ROC curve + the Youden best threshold",
+   "when_not": ">2 classes (multiclass); a point/interval forecast of a continuous variable (-> RMSE/DM, cat. 15); comparing two curves (roc_test, out of scope); calibration (-> Brier/reliability)",
+   "alternatives": [
+    {
+     "alt": "single-threshold accuracy/precision/recall",
+     "criterion": "a specific false-alarm/miss cost; you operate at one cutoff (-> best_threshold)"
+    },
+    {
+     "alt": "bootstrap intervals for sensitivity and specificity",
+     "criterion": "partial AUC or smoothed curves (outside the wrapper; the default is analytic DeLong)"
+    },
+    {
+     "alt": "a cost-weighted threshold from roc_curve",
+     "criterion": "an asymmetric cost, missed recession >> false alarm (Youden weights them equally)"
+    },
+    {
+     "alt": "roc_test (DeLong paired)",
+     "criterion": "comparing two models/curves (outside the wrapper)"
+    }
+   ],
+   "output_key_fields": [
+    "auc: Area Under Curve in [0,1]; 0.5=random, 1=perfect (the C-statistic)",
+    "auc_ci: {low,high,conf_level,method=delong}; low>0.5 -> significantly better than random",
+    "roc_curve: data_frame threshold/sensitivity/specificity (chart-ready; the ±Inf sentinels are removed)",
+    "best_threshold: named list at the Youden point (threshold/sensitivity/specificity; several rows on ties)",
+    "n_cases/n_controls: positives/negatives after dropping missing values; controls_level/cases_level: WHICH label is which",
+    "direction: '<' (controls below cases, the normal case for a probability score) or '>'; percent: False"
+   ],
+   "interpretation_traps": [
+    "CRITICAL label inversion: swapped control/case labels -> AUC=1-AUC; always read controls_level/cases_level; AUC<0.5 is often inverted labels/direction",
+    "direction=auto silently picks the orientation with AUC>=0.5, hiding an inversion; for a strict evaluation set direction='<'",
+    "an in-sample AUC (a predictor from the same sample) is optimistic; an out-of-sample/real-time evaluation is needed",
+    "Youden != operationally optimal (it weights false alarm/miss equally; macro recession-calling is asymmetric)",
+    "AUC measures discrimination, NOT calibration; the same AUC can correspond to very different probability calibration"
+   ],
+   "sources": [
+    "Robin et al. 2011 BMC Bioinformatics 12:77 (ROC curve analysis and comparison)",
+    "DeLong, DeLong & Clarke-Pearson 1988 Biometrics 44:837-845 (AUC variance / CI)",
+    "Youden 1950 Cancer 3(1):32-35 (index J, best operating point)"
+   ],
+   "precondition_tools": [
+    "c16_limited_dependent/binomial_glm_recession.run_binomial_fe_glm (produces the fitted_probabilities score)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 206,
+   "method": "High-dimensional k-way fixed-effects GLM (binary logit/probit, Poisson count) with an analytic incidental-parameter bias correction (Fernández-Val/Weidner) + average partial effects",
+   "wrapper_file": "c16_limited_dependent/high_dimensional_way.py",
+   "tool_fns": [
+    "hdfe_glm",
+    "hdfe_average_partial_effects"
+   ],
+   "when": "panel/pseudo-panel micro data with MULTIPLE high-dimensional fixed effects (e.g. unit + time; or a network: exporter + importer) and a binary/count response — the probability of a recession/default/transition per unit; you want a consistent nonlinear FE estimate with a CORRECTION for the incidental-parameter bias (short-T panels) + interpretable average partial effects with SE",
+   "when_not": "no fixed effects (a plain GLM or probit); a single fixed effect with few levels (a classic conditional logit, or #83, suffices); you only want fitted probabilities or an AUC with no bias correction (-> #83); a continuous response (linear fixed effects -> #33/#46); average partial effects for a Poisson model (not supported); interactions or polynomials inside the partial effects (not supported)",
+   "alternatives": [
+    {
+     "alt": "#83 run_binomial_fe_glm (category 16)",
+     "criterion": "you want a plain binomial FE GLM with fitted probabilities/clustered SE/pseudo-R2 and you do NOT care about the incidental-parameter bias correction (a long T or large groups)"
+    },
+    {
+     "alt": "hdfe_average_partial_effects",
+     "criterion": "you have a fitted (+ bias-corrected) binary model and you want interpretable average partial effects (marginal effects) + delta-method SE rather than log-odds coefficients"
+    },
+    {
+     "alt": "#33 fx_fit / #46 pd_fit",
+     "criterion": "a continuous response — linear fixed effects rather than a nonlinear GLM"
+    }
+   ],
+   "output_key_fields": [
+    "coefficients (hdfe_glm): the uncorrected structural beta (log-odds or log-rate); coefficients_bias_corrected: the bias-corrected beta (absent when bias_correct=False)",
+    "coef_table (hdfe_glm): a matrix of Estimate/Std. error/z value/Pr(>|z|) for the primary estimate (bias-corrected when that was requested)",
+    "deviance / null_deviance / converged / iterations (hdfe_glm): the fit diagnostics (converged=False is blocked by a hard gate)",
+    "nobs (full/na/pc/effective) · fe_names · fe_levels (the number of levels per fixed effect) · n_fe · bias_term/bandwidth/panel_structure, when the bias correction ran",
+    "ape (hdfe_average_partial_effects): the average partial effects per covariate, in probability units; ape_se: the delta-method standard error; ape_table: Estimate/SE/z/p; vcov: the covariance matrix",
+    "bias_corrected / panel_structure / sampling_fe / weak_exo / bandwidth / n_pop (hdfe_average_partial_effects): the estimation settings"
+   ],
+   "interpretation_traps": [
+    "incidental-parameter bias: in nonlinear fixed-effects models with a short T the ML coefficients are biased; bias_correct=True gives the corrected beta — compare coefficients against coefficients_bias_corrected, where the difference is often 20-30%",
+    "the bias correction and the partial effects are for binomial models ONLY: a Poisson fit is estimated, but bias_correct=True and hdfe_average_partial_effects are rejected by a hard gate, since the partial effects support binary choice only",
+    "coefficients != marginal effects: the feglm beta are log-odds (logit) / z-scores (probit) — do NOT interpret them as changes in probability; use hdfe_average_partial_effects for interpretable average partial effects",
+    "bandwidth L: 0 only if ALL the regressors are strictly exogenous; with a lagged outcome (a dynamic panel / state dependence) set L=1.4 (Fernández-Val/Weidner); the order of the FE in the formula matters when L>0",
+    "panel_structure, network against classic: for bilateral flows (trade: exporter, importer, time) use network; the wrong structure gives a wrong bias correction and a wrong partial-effect covariance (the wrapper reads the structure back off the bias-corrected fit, for consistency)",
+    "perfect classification: the fit silently drops the rows and fixed-effect groups that are perfectly predicted (counted in the perfect-classification tally of nobs); check nobs so that you do not read a reduced sample as an error",
+    "non-convergence: converged=False (hard-gated) usually means linear dependence between a regressor and the fixed effects; revise the specification"
+   ],
+   "sources": [
+    "Stammann, A. (2018) Fast and Feasible Estimation of Generalized Linear Models with High-Dimensional k-Way Fixed Effects, ArXiv e-prints",
+    "Fernández-Val, I. & Weidner, M. (2016) Individual and time effects in nonlinear panel models with large N, T, J. Econometrics 192(1):291-312",
+    "Fernández-Val, I. & Weidner, M. (2018) Fixed effects estimation of large-T panel data models, Annual Review of Economics 10:109-138",
+    "Neyman, J. & Scott, E.L. (1948) Consistent estimates based on partially consistent observations, Econometrica 16(1):1-32 (the incidental parameter problem)",
+    "Cruz-Gonzalez, M., Fernández-Val, I. & Weidner, M. (2017) Bias corrections for probit and logit models with two-way fixed effects, Stata Journal 17(3):517-545 (average partial effects)",
+    "Czarnowske, D. & Stammann, A. (2020) Fixed Effects Binary Choice Models: Estimation and Inference with Long Panels, ArXiv e-prints"
+   ],
+   "precondition_tools": [
+    "c00_data_utilities/reading_delimited_fixed.read_delimited (load the panel frame; clean the gaps in the model variables)",
+    "hdfe_glm (the PRODUCER; the fit + an optional biasCorr -> the object handle consumed by hdfe_average_partial_effects)",
+    "c16_limited_dependent/binomial_glm_recession.run_binomial_fe_glm (a fast binomial FE GLM + fitted probabilities/pseudo-R2 when you do NOT need the bias correction)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 523,
+   "method": "Ordered logit and probit",
+   "wrapper_file": "c16_limited_dependent/ordered_choice.py",
+   "tool_fns": [
+    "ld_ordered_choice",
+    "ld_proportional_odds_test"
+   ],
+   "when": "the outcome has a natural order but no cardinal meaning -- survey scales, ratings, self-assessed categories",
+   "when_not": "the categories are unordered (-> multinomial); the proportional-odds assumption fails badly",
+   "alternatives": [
+    {
+     "alt": "multinomial logit",
+     "criterion": "no natural order"
+    },
+    {
+     "alt": "ordered logit or probit",
+     "criterion": "ordered categories, proportional odds acceptable"
+    },
+    {
+     "alt": "generalised ordered model",
+     "criterion": "proportional odds fails for some covariates"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients, common across thresholds under proportional odds",
+    "thresholds: the estimated cut points",
+    "marginal_effects: per category, which is what is interpretable",
+    "brant_test: test of the proportional-odds assumption"
+   ],
+   "interpretation_traps": [
+    "THE PROPORTIONAL-ODDS ASSUMPTION forces one coefficient across every threshold, and it is frequently violated -- the Brant test is not optional",
+    "the coefficient sign tells you the direction for the highest and lowest categories only; middle-category marginal effects can go either way",
+    "thresholds are not parameters of interest and are not comparable across specifications"
+   ],
+   "sources": [
+    "McKelvey & Zavoina 1975 (Journal of Mathematical Sociology 4:103-120)",
+    "Brant 1990 (Biometrics 46:1171)",
+    "statsmodels.miscmodels.ordinal_model"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 524,
+   "method": "Count models: Poisson, negative binomial, generalised Poisson, zero-inflated and hurdle",
+   "wrapper_file": "c16_limited_dependent/count_models.py",
+   "tool_fns": [
+    "ld_count_model",
+    "ld_overdispersion_test"
+   ],
+   "when": "the outcome is a non-negative count, where a linear model predicts impossible values and misstates the variance",
+   "when_not": "the counts are large enough to be treated as continuous; the outcome is a rate with a known exposure and no count structure",
+   "alternatives": [
+    {
+     "alt": "Poisson",
+     "criterion": "mean equals variance"
+    },
+    {
+     "alt": "negative binomial",
+     "criterion": "overdispersion"
+    },
+    {
+     "alt": "zero-inflated or hurdle",
+     "criterion": "more zeros than the count distribution allows"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients, interpretable as semi-elasticities",
+    "dispersion: the overdispersion parameter",
+    "zero_inflation: the inflation equation, where fitted",
+    "vuong: comparison of zero-inflated against the plain model"
+   ],
+   "interpretation_traps": [
+    "OVERDISPERSION DOES NOT BIAS POISSON COEFFICIENTS but makes its standard errors far too small; the choice between robust Poisson and negative binomial is about inference, not consistency",
+    "zero-inflated and hurdle models mean different things: hurdle treats all zeros as one process, zero-inflation mixes structural and sampling zeros",
+    "an exposure variable belongs in the model as an offset with coefficient one, not as a regressor"
+   ],
+   "sources": [
+    "Cameron & Trivedi 2013, Regression Analysis of Count Data, 2nd ed.",
+    "Mullahy 1986 (Journal of Econometrics 33:341-365)",
+    "Lambert 1992 (Technometrics 34:1)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 525,
+   "method": "Truncated and censored regression: Tobit and variants",
+   "wrapper_file": "c16_limited_dependent/tobit_censored.py",
+   "tool_fns": [
+    "ld_tobit"
+   ],
+   "when": "the outcome is observed only above or below a limit, or piles up at a corner -- hours worked, expenditure, bounded scores",
+   "when_not": "the limit is a genuine behavioural corner rather than a censoring of a latent variable; there is no censoring at all",
+   "alternatives": [
+    {
+     "alt": "Tobit",
+     "criterion": "the latent variable is censored at a known limit"
+    },
+    {
+     "alt": "truncated regression",
+     "criterion": "observations beyond the limit are absent entirely"
+    },
+    {
+     "alt": "two-part model",
+     "criterion": "participation and amount are separate decisions"
+    }
+   ],
+   "output_key_fields": [
+    "params: latent-variable coefficients",
+    "marginal_effects: on the latent variable, on the observed outcome and on the uncensored subpopulation -- three different things",
+    "sigma: the latent error standard deviation",
+    "censored_share: proportion at the limit"
+   ],
+   "interpretation_traps": [
+    "TOBIT COEFFICIENTS ARE FOR THE LATENT VARIABLE, not the observed outcome; reporting them as marginal effects overstates the effect on what is actually observed",
+    "Tobit forces the same parameters to govern participation and amount, which the two-part model relaxes -- and that restriction is testable and frequently rejected",
+    "Tobit is inconsistent under heteroskedasticity or non-normality, unlike ordinary least squares which is merely inefficient"
+   ],
+   "sources": [
+    "Tobin 1958 (Econometrica 26:24-36)",
+    "Amemiya 1984 (Journal of Econometrics 24:3-61)",
+    "Wooldridge 2010, ch.17",
+    "statsmodels.discrete.truncated_model"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 526,
+   "method": "Heckman sample selection, two-step and full information",
+   "wrapper_file": "c16_limited_dependent/heckman_selection.py",
+   "tool_fns": [
+    "ld_heckman"
+   ],
+   "when": "the outcome is observed only for a selected subsample, and that selection is related to the outcome",
+   "when_not": "selection is on observables only, where weighting suffices; no exclusion restriction exists",
+   "alternatives": [
+    {
+     "alt": "two-step Heckman",
+     "criterion": "transparent, easy to diagnose"
+    },
+    {
+     "alt": "full-information maximum likelihood",
+     "criterion": "efficient if the joint normality holds"
+    },
+    {
+     "alt": "inverse probability weighting",
+     "criterion": "selection is on observables"
+    }
+   ],
+   "output_key_fields": [
+    "params: outcome and selection equation coefficients",
+    "lambda_: the inverse Mills ratio coefficient, which measures the selection",
+    "rho: correlation between the two errors",
+    "exclusion: whether an exclusion restriction was used"
+   ],
+   "interpretation_traps": [
+    "WITHOUT AN EXCLUSION RESTRICTION the model is identified only by the nonlinearity of the inverse Mills ratio, which is weak and makes the estimates extremely fragile -- this is the single most common failure",
+    "a significant lambda means selection matters; an insignificant one does not license using the selected subsample if the exclusion restriction is weak",
+    "the two-step estimator's standard errors must be corrected for the estimated first stage"
+   ],
+   "sources": [
+    "Heckman 1979 (Econometrica 47:153-161)",
+    "Puhani 2000 (Journal of Economic Surveys 14:53)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 527,
+   "method": "Fractional response and beta regression",
+   "wrapper_file": "c16_limited_dependent/fractional_beta.py",
+   "tool_fns": [
+    "ld_fractional_response"
+   ],
+   "when": "the outcome is a proportion or a share bounded in the unit interval, where a linear model predicts outside it",
+   "when_not": "the outcome is a count of successes out of a known total (use a binomial model); the bounds are not structural",
+   "alternatives": [
+    {
+     "alt": "fractional response (Papke-Wooldridge)",
+     "criterion": "zeros and ones are present"
+    },
+    {
+     "alt": "beta regression",
+     "criterion": "the outcome is strictly inside the unit interval"
+    },
+    {
+     "alt": "zero-one inflated beta",
+     "criterion": "there is a mass at the boundaries"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients on the link scale",
+    "marginal_effects: on the proportion scale, which is what is interpretable",
+    "precision: the beta precision parameter, where fitted",
+    "boundary_share: proportion at exactly zero or one"
+   ],
+   "interpretation_traps": [
+    "BETA REGRESSION IS UNDEFINED AT EXACTLY ZERO OR ONE; the common fix of squeezing the data slightly is an arbitrary transformation that changes results, so a fractional or inflated model is usually better",
+    "the fractional response estimator is a quasi-likelihood and is consistent under correct mean specification alone, which is why it is robust",
+    "coefficients are on the link scale and must be converted to marginal effects before interpretation"
+   ],
+   "sources": [
+    "Papke & Wooldridge 1996 (Journal of Applied Econometrics 11:619-632)",
+    "Ferrari & Cribari-Neto 2004 (Journal of Applied Statistics 31:799)",
+    "statsmodels.othermod.betareg"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 528,
+   "method": "Multinomial and conditional logit for unordered outcomes",
+   "wrapper_file": "c16_limited_dependent/unordered_choice.py",
+   "tool_fns": [
+    "ld_unordered_choice"
+   ],
+   "when": "the outcome is one of several unordered alternatives -- sector, tenure, mode",
+   "when_not": "the alternatives are ordered (-> ordered choice); IIA fails and substitution structure matters",
+   "alternatives": [
+    {
+     "alt": "multinomial logit",
+     "criterion": "chooser-varying regressors"
+    },
+    {
+     "alt": "conditional logit",
+     "criterion": "alternative-varying regressors"
+    },
+    {
+     "alt": "multinomial probit",
+     "criterion": "IIA must be relaxed without a nesting structure"
+    }
+   ],
+   "output_key_fields": [
+    "params: coefficients relative to a base alternative",
+    "marginal_effects: per alternative, which are what is interpretable",
+    "predicted_probabilities: fitted choice probabilities",
+    "iia_test: Hausman-McFadden test"
+   ],
+   "interpretation_traps": [
+    "MULTINOMIAL LOGIT COEFFICIENTS ARE RELATIVE TO A BASE ALTERNATIVE and change entirely when the base changes; only the marginal effects and predicted probabilities are invariant",
+    "the marginal effect of a covariate on one alternative can have the opposite sign to its coefficient, because the probabilities must sum to one",
+    "an alternative chosen by very few observations produces unstable, sometimes divergent, coefficients"
+   ],
+   "sources": [
+    "McFadden 1974, Conditional logit analysis of qualitative choice behavior (Frontiers in Econometrics)",
+    "Train 2009, Discrete Choice Methods with Simulation",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 529,
+   "method": "Classification evaluation: Brier decomposition, log score, reliability and PR curves",
+   "wrapper_file": "c16_limited_dependent/classification_evaluation.py",
+   "tool_fns": [
+    "ld_classification_evaluation"
+   ],
+   "when": "a binary or categorical model produces probabilities, and both their ranking and their calibration must be assessed",
+   "when_not": "the model produces hard labels with no probabilities; the classes are so imbalanced that every metric is dominated by the majority",
+   "alternatives": [
+    {
+     "alt": "ROC and AUC",
+     "criterion": "ranking, insensitive to class balance"
+    },
+    {
+     "alt": "precision-recall curve",
+     "criterion": "the positive class is rare"
+    },
+    {
+     "alt": "Brier score and reliability",
+     "criterion": "calibration of the probabilities"
+    }
+   ],
+   "output_key_fields": [
+    "auc, average_precision: ranking measures",
+    "brier: with its reliability, resolution and uncertainty decomposition",
+    "calibration_curve: predicted against realised frequency",
+    "confusion: at the chosen threshold"
+   ],
+   "interpretation_traps": [
+    "ROC-AUC IS MISLEADING UNDER SEVERE CLASS IMBALANCE -- it can look excellent while the model is useless on the rare class; the precision-recall curve is the honest instrument there",
+    "a model can rank perfectly and be badly calibrated, and vice versa; the Brier decomposition separates the two",
+    "the classification threshold is a decision-theoretic choice, not a property of the model, and 0.5 is rarely optimal"
+   ],
+   "sources": [
+    "Brier 1950 (Monthly Weather Review 78:1-3)",
+    "Murphy 1973 (Journal of Applied Meteorology 12:595)",
+    "Saito & Rehmsmeier 2015 (PLOS ONE 10:e0118432)",
+    "scikit-learn"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "hdfe_average_partial_effects",
+   "card_id": 206,
+   "register": null,
+   "input_example": {
+    "object": "<raw_handle>",
+    "weak_exo": false
+   },
+   "arguments": [
+    {
+     "name": "object",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted (+bias-corrected) feglm model from hdfe_glm· ONLY binary choice (binomial).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_pop",
+     "kind": "integer",
+     "required": false,
+     "description": "Finite-population correction (population size)· empty=delta-method only.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "sampling_fe",
+     "kind": "enum",
+     "required": false,
+     "description": "Sampling assumptions for the FPC of the APE covariance (default independence).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "independence",
+      "unrestricted"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weak_exo",
+     "kind": "boolean",
+     "required": false,
+     "description": "True if some regressors are weakly exogenous/predetermined (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "hdfe_glm",
+   "card_id": 206,
+   "register": {
+    "field": "object"
+   },
+   "input_example": {
+    "formula": "y ~ x",
+    "data": "<df_handle>",
+    "bias_correct": false,
+    "L": 0
+   },
+   "arguments": [
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": true,
+     "description": "FE GLM formula 'y ~ x1 + x2 | fe1 + fe2' — the '| fe' part (high-dim fixed effects) is REQUIRED.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a panel DataFrame· response binary (binomial) or non-negative integers/counts (poisson), without NA in the variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Family/link (default logit· probit=binomial probit· poisson=count).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "logit",
+      "probit",
+      "poisson"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bias_correct",
+     "kind": "boolean",
+     "required": false,
+     "description": "Analytical incidental-parameter bias correction (Fernández-Val/Weidner)· ONLY binomial (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "L",
+     "kind": "integer",
+     "required": false,
+     "description": "Spectral density bandwidth (Hahn-Kuersteiner)· 0=strictly exogenous, 1-4 for weakly exogenous (lagged) regressors.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "panel_structure",
+     "kind": "enum",
+     "required": false,
+     "description": "Panel structure for the bias correction (default classic· network=bilateral).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "classic",
+      "network"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_binomial_fe_glm",
+   "card_id": 83,
+   "register": null,
+   "input_example": {
+    "formula": "y ~ x",
+    "data": "<df_handle>"
+   },
+   "arguments": [
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": true,
+     "description": "Binary model formula, e.g. 'recession ~ spread'· high-dim fixed effects also via '| year'.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a DataFrame· LHS binary (0/1, logical or 2-level factor), without NA in the variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "link",
+     "kind": "enum",
+     "required": false,
+     "description": "Link function (default probit — Estrella-Mishkin).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "probit",
+      "logit"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "fixef",
+     "kind": "string",
+     "required": false,
+     "description": "Column name of the high-dim fixed effect (alternatively via '| col' in the formula)· the column must exist in the data.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_roc",
+   "card_id": 84,
+   "register": null,
+   "input_example": {
+    "response": "<raw_handle>",
+    "predictor": "<raw_handle>",
+    "ci": true,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "response",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a binary target (logical, numeric 0/1 or categorical/string with 2 levels).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "predictor",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a numeric score/prediction (e.g. the fitted_probabilities of #83), of the same length as the response.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "direction",
+     "kind": "enum",
+     "required": false,
+     "description": "Relation of controls to cases (default auto· '<' = normal prob-score).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "auto",
+      "<",
+      ">"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ci",
+     "kind": "boolean",
+     "required": false,
+     "description": "Computation of the DeLong CI of the AUC (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level of the CI of the AUC, in (0,1) (default 0.95).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_ordered_choice",
+   "card_id": 523,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "link": "logit",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Ordered categorical outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "link",
+     "kind": "enum",
+     "required": false,
+     "description": "Link function.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "logit",
+      "probit",
+      "cloglog"
+     ],
+     "allowed_vars": null,
+     "default": "logit",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_proportional_odds_test",
+   "card_id": 523,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted ordered model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_count_model",
+   "card_id": 524,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "family": "negative_binomial",
+    "zeros": "none",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Count outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Count family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "poisson",
+      "negative_binomial",
+      "generalised_poisson"
+     ],
+     "allowed_vars": null,
+     "default": "negative_binomial",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "zeros",
+     "kind": "enum",
+     "required": false,
+     "description": "Zero handling.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "zero_inflated",
+      "hurdle",
+      "truncated"
+     ],
+     "allowed_vars": null,
+     "default": "none",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "exposure",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Exposure entering as an offset.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "inflation_covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariates in the inflation equation.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_overdispersion_test",
+   "card_id": 524,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "alpha": 0.05
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted count model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_tobit",
+   "card_id": 525,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "model": "censored",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "left",
+     "kind": "number",
+     "required": false,
+     "description": "Left censoring or truncation limit.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "right",
+     "kind": "number",
+     "required": false,
+     "description": "Right censoring or truncation limit.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "censored",
+      "truncated",
+      "two_part"
+     ],
+     "allowed_vars": null,
+     "default": "censored",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_heckman",
+   "card_id": 526,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "selection": "<series_handle>",
+    "z": "<df_handle>",
+    "method": "two_step",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome, observed for the selected subsample.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Outcome-equation covariates.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "selection",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Selection indicator.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "z",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Selection-equation covariates, including the exclusion.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "two_step",
+      "mle"
+     ],
+     "allowed_vars": null,
+     "default": "two_step",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_fractional_response",
+   "card_id": 527,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "model": "fractional",
+    "link": "logit",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Bounded outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "fractional",
+      "beta",
+      "zero_one_inflated_beta"
+     ],
+     "allowed_vars": null,
+     "default": "fractional",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "link",
+     "kind": "enum",
+     "required": false,
+     "description": "Link function.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "logit",
+      "probit",
+      "cloglog",
+      "loglog"
+     ],
+     "allowed_vars": null,
+     "default": "logit",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "precision_covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariates modelling the precision parameter.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_unordered_choice",
+   "card_id": 528,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "model": "multinomial",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Categorical outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Model.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "multinomial",
+      "conditional",
+      "multinomial_probit"
+     ],
+     "allowed_vars": null,
+     "default": "multinomial",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "base",
+     "kind": "string",
+     "required": false,
+     "description": "Base alternative.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "ld_classification_evaluation",
+   "card_id": 529,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "probability": "<series_handle>",
+    "threshold": 0.5,
+    "n_bins": 10,
+    "decompose": true
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Binary or categorical outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "probability",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Predicted probability.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "threshold",
+     "kind": "number",
+     "required": false,
+     "description": "Classification threshold.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "n_bins",
+     "kind": "integer",
+     "required": false,
+     "description": "Calibration buckets.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "decompose",
+     "kind": "boolean",
+     "required": false,
+     "description": "Decompose the Brier score.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  }
+ ]
+}

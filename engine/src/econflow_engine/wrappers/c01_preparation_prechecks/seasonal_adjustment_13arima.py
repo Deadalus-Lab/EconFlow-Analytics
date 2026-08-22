@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``seasonal_adjustment_13arima`` -- METHOD-SELECTION card #4.
+"""Method wrapper ``seasonal_adjustment_13arima`` -- method card #4.
 
 #4 Seasonal adjustment with X-13ARIMA-SEATS
 
@@ -7,8 +7,8 @@ Category 01-preparation-prechecks; module ``seasonal_adjustment_13arima``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,20 +25,20 @@ if TYPE_CHECKING:
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
     "check_x13",
-    "get_series",
-    "run_seas",
+    "get_x13_series",
+    "run_x13",
     "NODE_META",
     "wire_model",
 ]
 
 
-def run_seas(
+def run_x13(
     *,
     x: pd.Series,
     exog: np.ndarray | None = None,
     out: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_seas`` -- METHOD-SELECTION card #4.
+    """Node ``run_x13`` -- method card #4.
 
     Seasonal adjustment with X-13ARIMA-SEATS.
 
@@ -55,25 +55,25 @@ def run_seas(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_seas: not implemented. The method card is in ./README.md."
+        "run_x13: not implemented."
     )
 
 
-def get_series(
+def get_x13_series(
     *,
     seas_object: Any,
     series: str,
     reeval: bool | None = None,
     verbose: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``get_series`` -- METHOD-SELECTION card #4.
+    """Node ``get_x13_series`` -- method card #4.
 
     Seasonal adjustment with X-13ARIMA-SEATS.
 
     Category 01-preparation-prechecks; memory class ``light``.
 
     Args:
-        seas_object: [raw_handle, required] Handle to a 'seas' object (from run_seas).
+        seas_object: [raw_handle, required] Handle to a 'seas' object (from run_x13).
         series: [string, required] Name of the X-13 table to extract (e.g. 'fct', 'seats.seasonal').
         reeval: [boolean, optional] Re-estimate if the table had not been requested (default True).
             Default ``True``.
@@ -84,7 +84,7 @@ def get_series(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "get_series: not implemented. The method card is in ./README.md."
+        "get_x13_series: not implemented."
     )
 
 
@@ -94,7 +94,7 @@ def check_x13(
     fullcheck: bool | None = None,
     htmlcheck: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``check_x13`` -- METHOD-SELECTION card #4.
+    """Node ``check_x13`` -- method card #4.
 
     Seasonal adjustment with X-13ARIMA-SEATS.
 
@@ -112,5 +112,5 @@ def check_x13(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "check_x13: not implemented. The method card is in ./README.md."
+        "check_x13: not implemented."
     )

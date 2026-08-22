@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``hac_robust_standard`` -- METHOD-SELECTION card #35.
+"""Method wrapper ``hac_robust_standard`` -- method card #35.
 
 #35 HAC / robust standard errors
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``hac_robust_standard``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -20,23 +20,23 @@ from econflow_engine.generated.args.c07_causality_policy import NODE_META, wire_
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_sandwich_blocks",
-    "wrap_vcov_cl",
-    "wrap_vcov_hac",
-    "wrap_vcov_hc",
-    "wrap_vcov_panel",
+    "vcov_cluster",
+    "vcov_hac",
+    "vcov_hc",
+    "vcov_panel",
+    "vcov_sandwich_blocks",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_vcov_hc(
+def vcov_hc(
     *,
     object: Any,
     type: Literal["HC3", "const", "HC", "HC0", "HC1", "HC2", "HC4", "HC4m", "HC5"] | None = None,
     sandwich: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_vcov_hc`` -- METHOD-SELECTION card #35.
+    """Node ``vcov_hc`` -- method card #35.
 
     HAC / robust standard errors.
 
@@ -51,11 +51,11 @@ def wrap_vcov_hc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_vcov_hc: not implemented. The method card is in ./README.md."
+        "vcov_hc: not implemented."
     )
 
 
-def wrap_vcov_hac(
+def vcov_hac(
     *,
     object: Any,
     method: Literal["NeweyWest", "vcovHAC"] | None = None,
@@ -64,7 +64,7 @@ def wrap_vcov_hac(
     adjust: bool | None = None,
     sandwich: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_vcov_hac`` -- METHOD-SELECTION card #35.
+    """Node ``vcov_hac`` -- method card #35.
 
     HAC / robust standard errors.
 
@@ -82,18 +82,18 @@ def wrap_vcov_hac(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_vcov_hac: not implemented. The method card is in ./README.md."
+        "vcov_hac: not implemented."
     )
 
 
-def wrap_vcov_cl(
+def vcov_cluster(
     *,
     object: Any,
     cluster: Any,
     type: Literal["HC0", "HC1", "HC2", "HC3"] | None = None,
     fix: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_vcov_cl`` -- METHOD-SELECTION card #35.
+    """Node ``vcov_cluster`` -- method card #35.
 
     HAC / robust standard errors.
 
@@ -110,11 +110,11 @@ def wrap_vcov_cl(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_vcov_cl: not implemented. The method card is in ./README.md."
+        "vcov_cluster: not implemented."
     )
 
 
-def wrap_vcov_panel(
+def vcov_panel(
     *,
     object: Any,
     cluster: Any,
@@ -133,7 +133,7 @@ def wrap_vcov_panel(
     pairwise: bool | None = None,
     fix: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_vcov_panel`` -- METHOD-SELECTION card #35.
+    """Node ``vcov_panel`` -- method card #35.
 
     HAC / robust standard errors.
 
@@ -153,16 +153,16 @@ def wrap_vcov_panel(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_vcov_panel: not implemented. The method card is in ./README.md."
+        "vcov_panel: not implemented."
     )
 
 
-def wrap_sandwich_blocks(
+def vcov_sandwich_blocks(
     *,
     object: Any,
     adjust: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_sandwich_blocks`` -- METHOD-SELECTION card #35.
+    """Node ``vcov_sandwich_blocks`` -- method card #35.
 
     HAC / robust standard errors.
 
@@ -176,5 +176,5 @@ def wrap_sandwich_blocks(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_sandwich_blocks: not implemented. The method card is in ./README.md."
+        "vcov_sandwich_blocks: not implemented."
     )

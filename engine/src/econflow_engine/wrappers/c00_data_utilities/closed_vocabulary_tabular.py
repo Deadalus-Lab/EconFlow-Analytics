@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``closed_vocabulary_tabular`` -- METHOD-SELECTION card #101.
+"""Method wrapper ``closed_vocabulary_tabular`` -- method card #101.
 
 #101 CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice)
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``closed_vocabulary_tabular``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,23 +25,23 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "dpl_arrange",
-    "dpl_distinct",
-    "dpl_filter",
-    "dpl_group_by",
-    "dpl_join",
-    "dpl_mutate",
-    "dpl_relocate",
-    "dpl_rename",
-    "dpl_select",
-    "dpl_slice",
-    "dpl_summarise",
+    "tab_aggregate",
+    "tab_assign",
+    "tab_drop_duplicates",
+    "tab_filter",
+    "tab_group_by",
+    "tab_join",
+    "tab_rename",
+    "tab_reorder_columns",
+    "tab_select",
+    "tab_slice_rows",
+    "tab_sort",
     "NODE_META",
     "wire_model",
 ]
 
 
-def dpl_filter(
+def tab_filter(
     *,
     df: pd.DataFrame,
     column: str,
@@ -63,7 +63,7 @@ def dpl_filter(
     ) = None,
     value: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``dpl_filter`` -- METHOD-SELECTION card #101.
+    """Node ``tab_filter`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -82,17 +82,17 @@ def dpl_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_filter: not implemented. The method card is in ./README.md."
+        "tab_filter: not implemented."
     )
 
 
-def dpl_select(
+def tab_select(
     *,
     df: pd.DataFrame,
     columns: Sequence[str],
     action: Literal["keep", "drop"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dpl_select`` -- METHOD-SELECTION card #101.
+    """Node ``tab_select`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -108,11 +108,11 @@ def dpl_select(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_select: not implemented. The method card is in ./README.md."
+        "tab_select: not implemented."
     )
 
 
-def dpl_mutate(
+def tab_assign(
     *,
     df: pd.DataFrame,
     new_column: str,
@@ -136,7 +136,7 @@ def dpl_mutate(
     columns: Sequence[str],
     constant: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``dpl_mutate`` -- METHOD-SELECTION card #101.
+    """Node ``tab_assign`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -155,17 +155,17 @@ def dpl_mutate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_mutate: not implemented. The method card is in ./README.md."
+        "tab_assign: not implemented."
     )
 
 
-def dpl_arrange(
+def tab_sort(
     *,
     df: pd.DataFrame,
     columns: Sequence[str],
     desc: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dpl_arrange`` -- METHOD-SELECTION card #101.
+    """Node ``tab_sort`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -181,11 +181,11 @@ def dpl_arrange(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_arrange: not implemented. The method card is in ./README.md."
+        "tab_sort: not implemented."
     )
 
 
-def dpl_summarise(
+def tab_aggregate(
     *,
     df: pd.DataFrame,
     stat: (
@@ -208,7 +208,7 @@ def dpl_summarise(
     column: str | None = None,
     by: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dpl_summarise`` -- METHOD-SELECTION card #101.
+    """Node ``tab_aggregate`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -225,16 +225,16 @@ def dpl_summarise(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_summarise: not implemented. The method card is in ./README.md."
+        "tab_aggregate: not implemented."
     )
 
 
-def dpl_group_by(
+def tab_group_by(
     *,
     df: pd.DataFrame,
     columns: Sequence[str],
 ) -> dict[str, Any]:
-    """Node ``dpl_group_by`` -- METHOD-SELECTION card #101.
+    """Node ``tab_group_by`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -249,18 +249,18 @@ def dpl_group_by(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_group_by: not implemented. The method card is in ./README.md."
+        "tab_group_by: not implemented."
     )
 
 
-def dpl_join(
+def tab_join(
     *,
     x: pd.DataFrame,
     y: pd.DataFrame,
     type: Literal["left", "inner", "full", "anti"] | None = None,
     by: Sequence[str],
 ) -> dict[str, Any]:
-    """Node ``dpl_join`` -- METHOD-SELECTION card #101.
+    """Node ``tab_join`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -277,17 +277,17 @@ def dpl_join(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_join: not implemented. The method card is in ./README.md."
+        "tab_join: not implemented."
     )
 
 
-def dpl_distinct(
+def tab_drop_duplicates(
     *,
     df: pd.DataFrame,
     columns: Sequence[str] | None = None,
     keep_all: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dpl_distinct`` -- METHOD-SELECTION card #101.
+    """Node ``tab_drop_duplicates`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -303,17 +303,17 @@ def dpl_distinct(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_distinct: not implemented. The method card is in ./README.md."
+        "tab_drop_duplicates: not implemented."
     )
 
 
-def dpl_rename(
+def tab_rename(
     *,
     df: pd.DataFrame,
     old_names: Sequence[str],
     new_names: Sequence[str],
 ) -> dict[str, Any]:
-    """Node ``dpl_rename`` -- METHOD-SELECTION card #101.
+    """Node ``tab_rename`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -329,18 +329,18 @@ def dpl_rename(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_rename: not implemented. The method card is in ./README.md."
+        "tab_rename: not implemented."
     )
 
 
-def dpl_relocate(
+def tab_reorder_columns(
     *,
     df: pd.DataFrame,
     columns: Sequence[str],
     before: Sequence[str] | None = None,
     after: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dpl_relocate`` -- METHOD-SELECTION card #101.
+    """Node ``tab_reorder_columns`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -357,11 +357,11 @@ def dpl_relocate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_relocate: not implemented. The method card is in ./README.md."
+        "tab_reorder_columns: not implemented."
     )
 
 
-def dpl_slice(
+def tab_slice_rows(
     *,
     df: pd.DataFrame,
     type: Literal["head", "tail", "index", "min", "max"] | None = None,
@@ -370,7 +370,7 @@ def dpl_slice(
     start: int | None = None,
     end: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dpl_slice`` -- METHOD-SELECTION card #101.
+    """Node ``tab_slice_rows`` -- method card #101.
 
     CLOSED-vocabulary tabular manipulation
     (filter/select/mutate/arrange/summarise/group_by/join/distinct/rename/relocate/slice).
@@ -389,5 +389,5 @@ def dpl_slice(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dpl_slice: not implemented. The method card is in ./README.md."
+        "tab_slice_rows: not implemented."
     )

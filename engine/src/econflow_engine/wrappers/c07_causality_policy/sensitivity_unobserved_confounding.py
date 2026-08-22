@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``sensitivity_unobserved_confounding`` -- METHOD-SELECTION card #170.
+"""Method wrapper ``sensitivity_unobserved_confounding`` -- method card #170.
 
 #170 Sensitivity analysis to unobserved confounding / omitted-variable bias (robustness value + OVB
     bounds)
@@ -8,8 +8,8 @@ Category 07-causality-policy; module ``sensitivity_unobserved_confounding``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def sens_analyze(
     alpha: float | None = None,
     reduce: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sens_analyze`` -- METHOD-SELECTION card #170.
+    """Node ``sens_analyze`` -- method card #170.
 
     Sensitivity analysis to unobserved confounding / omitted-variable bias (robustness value + OVB
     bounds).
@@ -76,5 +76,5 @@ def sens_analyze(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sens_analyze: not implemented. The method card is in ./README.md."
+        "sens_analyze: not implemented."
     )

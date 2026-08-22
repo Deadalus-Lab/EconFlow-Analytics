@@ -1,18 +1,20 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``staggered_did`` -- METHOD-SELECTION card #36.
+"""Method wrapper ``staggered_did`` -- method cards #36, #445.
 
 #36 Staggered DiD (Callaway-Sant'Anna)
+#445 Heterogeneity-robust staggered DiD: Sun-Abraham, ETWFE, stacked, did2s and LP-DiD
 
 Category 07-causality-policy; module ``staggered_did``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
 from econflow_engine.generated.args.c07_causality_policy import NODE_META, wire_model
@@ -23,14 +25,16 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_aggte",
-    "wrap_att_gt",
+    "cp_bacon_decomposition",
+    "cp_staggered_did",
+    "did_aggregate_att",
+    "did_att_gt",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_att_gt(
+def did_att_gt(
     *,
     yname: str,
     tname: str,
@@ -47,7 +51,7 @@ def wrap_att_gt(
     cband: bool | None = None,
     alp: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_att_gt`` -- METHOD-SELECTION card #36.
+    """Node ``did_att_gt`` -- method card #36.
 
     Staggered DiD (Callaway-Sant'Anna).
 
@@ -76,11 +80,11 @@ def wrap_att_gt(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_att_gt: not implemented. The method card is in ./README.md."
+        "did_att_gt: not implemented."
     )
 
 
-def wrap_aggte(
+def did_aggregate_att(
     *,
     MP: Any,
     type: Literal["dynamic", "simple", "group", "calendar"] | None = None,
@@ -88,14 +92,14 @@ def wrap_aggte(
     max_e: float | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_aggte`` -- METHOD-SELECTION card #36.
+    """Node ``did_aggregate_att`` -- method card #36.
 
     Staggered DiD (Callaway-Sant'Anna).
 
     Category 07-causality-policy; memory class ``light``.
 
     Args:
-        MP: [raw_handle, required] Handle to an att_gt object (from wrap_att_gt).
+        MP: [raw_handle, required] Handle to an att_gt object (from did_att_gt).
         type: [enum, optional] Aggregation: event-study/overall/cohort/calendar (default dynamic).
         min_e: [number, optional] Minimum event time (default -Inf).
         max_e: [number, optional] Maximum event time (default Inf).
@@ -105,5 +109,85 @@ def wrap_aggte(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_aggte: not implemented. The method card is in ./README.md."
+        "did_aggregate_att: not implemented."
+    )
+
+
+def cp_staggered_did(
+    *,
+    data: pd.DataFrame,
+    outcome: str,
+    unit: str,
+    time: str,
+    cohort: str,
+    estimator: (
+        Literal[
+            "sun_abraham",
+            "etwfe",
+            "stacked",
+            "did2s",
+            "lp_did",
+            "callaway_santanna",
+        ]
+        | None
+    ) = None,
+    control_group: Literal["never_treated", "not_yet_treated"] | None = None,
+    covariates: Sequence[str] | None = None,
+    cluster: str | None = None,
+    conf_level: float | None = None,
+) -> dict[str, Any]:
+    """Node ``cp_staggered_did`` -- method card #445.
+
+    Heterogeneity-robust staggered DiD: Sun-Abraham, ETWFE, stacked, did2s and LP-DiD.
+
+    Category 07-causality-policy; memory class ``light``.
+
+    Registers its result under ``fit``, so a later node can consume it as a handle.
+
+    Args:
+        data: [df_handle, required] Panel data.
+        outcome: [string, required] Outcome column.
+        unit: [string, required] Unit identifier.
+        time: [string, required] Time identifier.
+        cohort: [string, required] Column holding the first treatment period.
+        estimator: [enum, optional] Estimator. Default ``'sun_abraham'``.
+        control_group: [enum, optional] Comparison group. Default ``'not_yet_treated'``.
+        covariates: [series_codes, optional] Covariate columns.
+        cluster: [string, optional] Clustering variable.
+        conf_level: [number, optional] Confidence level for intervals. Default ``0.95``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "cp_staggered_did: not implemented."
+    )
+
+
+def cp_bacon_decomposition(
+    *,
+    data: pd.DataFrame,
+    outcome: str,
+    unit: str,
+    time: str,
+    treatment: str,
+) -> dict[str, Any]:
+    """Node ``cp_bacon_decomposition`` -- method card #445.
+
+    Heterogeneity-robust staggered DiD: Sun-Abraham, ETWFE, stacked, did2s and LP-DiD.
+
+    Category 07-causality-policy; memory class ``light``.
+
+    Args:
+        data: [df_handle, required] Panel data.
+        outcome: [string, required] Outcome column.
+        unit: [string, required] Unit identifier.
+        time: [string, required] Time identifier.
+        treatment: [string, required] Treatment indicator column.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "cp_bacon_decomposition: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``gravity_bilateral_trade`` -- METHOD-SELECTION card #237.
+"""Method wrapper ``gravity_bilateral_trade`` -- method card #237.
 
 #237 Gravity models of bilateral trade (OLS / PPML / importer-exporter fixed effects / Bonus vetus
     OLS / Head-Mayer-Ries tetrads)
@@ -8,8 +8,8 @@ Category 28-trade-gravity; module ``gravity_bilateral_trade``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def gr_ppml(
     additional_regressors: Sequence[str] | None = None,
     robust: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``gr_ppml`` -- METHOD-SELECTION card #237.
+    """Node ``gr_ppml`` -- method card #237.
 
     Gravity models of bilateral trade (OLS / PPML / importer-exporter fixed effects / Bonus vetus
     OLS / Head-Mayer-Ries tetrads).
@@ -68,7 +68,7 @@ def gr_ppml(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gr_ppml: not implemented. The method card is in ./README.md."
+        "gr_ppml: not implemented."
     )
 
 
@@ -85,7 +85,7 @@ def gr_ols(
     uie: bool | None = None,
     robust: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``gr_ols`` -- METHOD-SELECTION card #237.
+    """Node ``gr_ols`` -- method card #237.
 
     Gravity models of bilateral trade (OLS / PPML / importer-exporter fixed effects / Bonus vetus
     OLS / Head-Mayer-Ries tetrads).
@@ -120,7 +120,7 @@ def gr_ols(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gr_ols: not implemented. The method card is in ./README.md."
+        "gr_ols: not implemented."
     )
 
 
@@ -134,7 +134,7 @@ def gr_fixed_effects(
     additional_regressors: Sequence[str] | None = None,
     robust: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``gr_fixed_effects`` -- METHOD-SELECTION card #237.
+    """Node ``gr_fixed_effects`` -- method card #237.
 
     Gravity models of bilateral trade (OLS / PPML / importer-exporter fixed effects / Bonus vetus
     OLS / Head-Mayer-Ries tetrads).
@@ -162,7 +162,7 @@ def gr_fixed_effects(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gr_fixed_effects: not implemented. The method card is in ./README.md."
+        "gr_fixed_effects: not implemented."
     )
 
 
@@ -178,7 +178,7 @@ def gr_bvu(
     additional_regressors: Sequence[str] | None = None,
     robust: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``gr_bvu`` -- METHOD-SELECTION card #237.
+    """Node ``gr_bvu`` -- method card #237.
 
     Gravity models of bilateral trade (OLS / PPML / importer-exporter fixed effects / Bonus vetus
     OLS / Head-Mayer-Ries tetrads).
@@ -210,7 +210,7 @@ def gr_bvu(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gr_bvu: not implemented. The method card is in ./README.md."
+        "gr_bvu: not implemented."
     )
 
 
@@ -226,7 +226,7 @@ def gr_tetrads(
     additional_regressors: Sequence[str],
     multiway: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``gr_tetrads`` -- METHOD-SELECTION card #237.
+    """Node ``gr_tetrads`` -- method card #237.
 
     Gravity models of bilateral trade (OLS / PPML / importer-exporter fixed effects / Bonus vetus
     OLS / Head-Mayer-Ries tetrads).
@@ -259,5 +259,5 @@ def gr_tetrads(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "gr_tetrads: not implemented. The method card is in ./README.md."
+        "gr_tetrads: not implemented."
     )

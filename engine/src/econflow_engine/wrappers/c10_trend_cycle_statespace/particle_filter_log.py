@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``particle_filter_log`` -- METHOD-SELECTION card #185.
+"""Method wrapper ``particle_filter_log`` -- method card #185.
 
 #185 Particle-filter (bootstrap) log-likelihood + iterated filtering (IF2) MLE for non-linear
     non-Gaussian state-space models
@@ -8,8 +8,8 @@ Category 10-trend-cycle-statespace; module ``particle_filter_log``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -21,21 +21,21 @@ from econflow_engine.generated.args.c10_trend_cycle_statespace import NODE_META,
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "pomp_mif2",
-    "pomp_pfilter",
+    "pf_iterated_filtering",
+    "pf_loglik",
     "NODE_META",
     "wire_model",
 ]
 
 
-def pomp_pfilter(
+def pf_loglik(
     *,
     model: Literal["gompertz", "ricker", "ou2"] | None = None,
     params: Any | None = None,
     Np: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pomp_pfilter`` -- METHOD-SELECTION card #185.
+    """Node ``pf_loglik`` -- method card #185.
 
     Particle-filter (bootstrap) log-likelihood + iterated filtering (IF2) MLE for non-linear
     non-Gaussian state-space models.
@@ -43,7 +43,7 @@ def pomp_pfilter(
     Category 10-trend-cycle-statespace; memory class ``light``.
 
     Args:
-        model: [enum, optional] Built-in pomp template (gompertz=stochastic Gompertz· ricker=Ricker
+        model: [enum, optional] Built-in POMP template (gompertz=stochastic Gompertz· ricker=Ricker
             map· ou2=bivariate OU). ONLY built-in — no user C-code. Default ``'gompertz'``.
         params: [raw, optional] Optional named list/vector override of the template parameters (e.g.
             list(r=0.15)). Unknown names -> gate error.
@@ -56,11 +56,11 @@ def pomp_pfilter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pomp_pfilter: not implemented. The method card is in ./README.md."
+        "pf_loglik: not implemented."
     )
 
 
-def pomp_mif2(
+def pf_iterated_filtering(
     *,
     model: Literal["gompertz", "ricker", "ou2"] | None = None,
     params: Any | None = None,
@@ -71,7 +71,7 @@ def pomp_mif2(
     rw_sd_value: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pomp_mif2`` -- METHOD-SELECTION card #185.
+    """Node ``pf_iterated_filtering`` -- method card #185.
 
     Particle-filter (bootstrap) log-likelihood + iterated filtering (IF2) MLE for non-linear
     non-Gaussian state-space models.
@@ -79,8 +79,8 @@ def pomp_mif2(
     Category 10-trend-cycle-statespace; memory class ``light``.
 
     Args:
-        model: [enum, optional] Built-in pomp template (same as pomp_pfilter). ONLY built-in — no
-            user C-code. Default ``'gompertz'``.
+        model: [enum, optional] Built-in POMP template (same as pf_loglik). ONLY built-in — no user
+            C-code. Default ``'gompertz'``.
         params: [raw, optional] Optional named list/vector of initial parameter values (starting
             point of IF2). Unknown names -> gate error.
         estimate: [raw, optional] Character vector of parameter names to estimate (rw.sd
@@ -101,5 +101,5 @@ def pomp_mif2(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pomp_mif2: not implemented. The method card is in ./README.md."
+        "pf_iterated_filtering: not implemented."
     )

@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # ============================================================
 # GENERATED FILE -- DO NOT EDIT.
-# Source: artifacts/node-specs.v1.json (committed) via scripts/gen_schemas.py.
+# Source: artifacts/node-specs.json (committed) via scripts/gen_schemas.py.
 # Rebuild with: python scripts/gen_schemas.py
 # ============================================================
 
-"""Tier 2 for category 25-expectations-surveys -- 16 nodes. No descriptions."""
+"""Tier 2 for category 25-expectations-surveys -- 22 nodes. No descriptions."""
 
 from functools import cache
 
@@ -20,11 +20,11 @@ from econflow_engine.kinds import (
 )
 
 NODE_META: dict[str, NodeMeta] = {
-    'ca_assocs': NodeMeta(
-        fn='ca_assocs',
+    'ca_associations': NodeMeta(
+        fn='ca_associations',
         category='25-expectations-surveys',
         card_id=257,
-        contract_hash='c-44a1a535f2982e5b8e1b232e2568b69c79584705ee298d47202f250334223a9a',
+        contract_hash='c2-52859893bc9fee24e15d607e9c6698623ef38456ac479226147e04f5a44e4aee',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -53,7 +53,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='ca_chisq',
         category='25-expectations-surveys',
         card_id=257,
-        contract_hash='c-018774e774aaa94c5ee430da910b922cde39aeefe60aee71582ab8da52cb146b',
+        contract_hash='c2-d984b5c8ac289ab8e127834f1fe5973eaaf171aed2e6e66380ba2a116b91e817',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='heavy',
@@ -84,7 +84,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='ca_contingency',
         category='25-expectations-surveys',
         card_id=257,
-        contract_hash='c-087cc61511057f57b749ae3e0a9f5aacd06d06b8a89aded7e4eb7173b9df0063',
+        contract_hash='c2-c07a0e09ace3214cf12ce831187f80f4186cedb3579abdf88b49f31db2ef3c90',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -109,7 +109,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='ca_fisher',
         category='25-expectations-surveys',
         card_id=257,
-        contract_hash='c-5700982bf84f06d53a036b26a680199c81aef2f54ea085e22a8d921b7515d0fe',
+        contract_hash='c2-ae19f8b9ac009db548f9a69010165e7c83225704ec5f65caddc01d8989dc3a5e',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='heavy',
@@ -141,7 +141,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='qn_balance',
         category='25-expectations-surveys',
         card_id=231,
-        contract_hash='c-00352e466827a4b02272e6ff9174fd767f003d4344d05d31070e89e320281c45',
+        contract_hash='c2-69ff61f4dfbcd82553542fe71d7ab342b8ba9e722b76682991f87c2a1cca97a3',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -159,7 +159,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='qn_carlson_parkin',
         category='25-expectations-surveys',
         card_id=231,
-        contract_hash='c-26e2704062aeb0f32d8c9431f2cc2fea9d11d60c1bf171d5cb156a304b2d6287',
+        contract_hash='c2-15388d6952bd8f0390e05fff69433998ff80684308db939f27e1479f47413638',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -190,7 +190,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='qn_conditional_expectations',
         category='25-expectations-surveys',
         card_id=231,
-        contract_hash='c-8fc22f1a3414b937c8565bd0898f0f603e992e8681fc1e0e33657157f8c6b7f8',
+        contract_hash='c2-93e7e5173fee012ca23d9086a0d1ccfcd09f5042aad2e88f9683f35db9354a7c',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -212,7 +212,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='qn_regression',
         category='25-expectations-surveys',
         card_id=231,
-        contract_hash='c-95928bc354081de75b2435bcee34d61b710ef05be4db27744550f57f33faadfb',
+        contract_hash='c2-cebb2ba004e3de757323ebc1c162211d72785b2f855d5da0e12826f2194bd995',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -237,7 +237,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='sae_eblup_bhf',
         category='25-expectations-surveys',
         card_id=233,
-        contract_hash='c-877ea476c0b0f01bee030637bcdee2c9c5fba70432073f7af76569a4fb50dafc',
+        contract_hash='c2-e3c2e51ac6d51c478b4f18af43a311f352a94f85c43c03f837c418638e9fbd17',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -256,7 +256,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='sae_eblup_fh',
         category='25-expectations-surveys',
         card_id=233,
-        contract_hash='c-e2e8f7622e6e02361aefa4f8fd6350a20eb25a5ca62925a6aa0164f6875042a1',
+        contract_hash='c2-a6b5ffcaea58820ade72b250231a2a851c31651683ce66ae08b5855d8ac0cba9',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='heavy',
@@ -276,7 +276,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='sae_mse_fh',
         category='25-expectations-surveys',
         card_id=233,
-        contract_hash='c-d3badddf4ea1ba11b00383cb9c3a1795a8ed2cffbbfa2b77079cf1314bb45f31',
+        contract_hash='c2-fb036bffc1f298dfe03c0f470821a507398754b8082ce523dec177837d65df6f',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='heavy',
@@ -292,11 +292,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'MAXITER': 100, 'PRECISION': 0.0001, 'B': 0, 'seed': 1},
     ),
-    'sv_svyby': NodeMeta(
-        fn='sv_svyby',
+    'srv_by_domain': NodeMeta(
+        fn='srv_by_domain',
         category='25-expectations-surveys',
         card_id=232,
-        contract_hash='c-7dd59ce36712c8a7b0938ed6bf835c28e3c1620c9c0a7834994007a47eb83888',
+        contract_hash='c2-ad1eeed42eccb13cbbc60e01e7568592059af29572e0ad3ccc0b104ade77f051',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -310,11 +310,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'deff': False, 'na_rm': False},
     ),
-    'sv_svydesign': NodeMeta(
-        fn='sv_svydesign',
+    'srv_design': NodeMeta(
+        fn='srv_design',
         category='25-expectations-surveys',
         card_id=232,
-        contract_hash='c-e67cbeeb921ba56873f2a79f39ee0a1cf3b77631de9f85c24db8da69094cc2ec',
+        contract_hash='c2-9889721060e89c92c2592ef29a7b340599cbabc21ac65f9f5473d47e665fac78',
         register_field='design',
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -329,11 +329,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'ids': '1', 'nest': False},
     ),
-    'sv_svymean': NodeMeta(
-        fn='sv_svymean',
+    'srv_mean': NodeMeta(
+        fn='srv_mean',
         category='25-expectations-surveys',
         card_id=232,
-        contract_hash='c-ebfdf5725b07a1b94dbe5ae37cecaef8da26bb0dc81fd80bd4e1143aa6583493',
+        contract_hash='c2-6d66abd412fde62c4df166ea7d735d480e863554116a90db4d9dc739e3cf612a',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -345,11 +345,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'deff': True, 'na_rm': False},
     ),
-    'sv_svyquantile': NodeMeta(
-        fn='sv_svyquantile',
+    'srv_quantile': NodeMeta(
+        fn='srv_quantile',
         category='25-expectations-surveys',
         card_id=232,
-        contract_hash='c-8db0fd372c7ff60a5cf3349ac71b98eeb7c33338cdec1b150c8a41ac75da43f2',
+        contract_hash='c2-f5048465bc81ae4b13b3576807e4815ba915c6735a53b954db2eadcfc8117401',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -361,11 +361,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'na_rm': False},
     ),
-    'sv_svytotal': NodeMeta(
-        fn='sv_svytotal',
+    'srv_total': NodeMeta(
+        fn='srv_total',
         category='25-expectations-surveys',
         card_id=232,
-        contract_hash='c-fd834f9d33093c7877ee7b5f71b540c5367faa2cdeb15ea53010225f3ae21e73',
+        contract_hash='c2-fa0c2ebd9176d219493758d1302200f31df2e70e8e47b6cd689350ea29e08955',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -377,12 +377,111 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={'deff': True, 'na_rm': False},
     ),
+    'es_fit_bin_density': NodeMeta(
+        fn='es_fit_bin_density',
+        category='25-expectations-surveys',
+        card_id=574,
+        contract_hash='c2-a8776c0d601e336e7030e90e4e19a943b2cb46ae4576762aa575942d9c0aa220',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='bins', kind='df_handle', required=True),
+        NodeArgMeta(name='family', kind='enum', required=False, enum=('generalised_beta', 'normal', 'triangular', 'uniform', 'nonparametric', )),
+        NodeArgMeta(name='open_ended_width', kind='number', required=False),
+        NodeArgMeta(name='min_bins', kind='integer', required=False),
+        ),
+        defaults={'family': 'generalised_beta', 'open_ended_width': 1.0, 'min_bins': 3},
+    ),
+    'es_disagreement_uncertainty': NodeMeta(
+        fn='es_disagreement_uncertainty',
+        category='25-expectations-surveys',
+        card_id=575,
+        contract_hash='c2-aada49f1e15284c1ec01f9c03c6cdfb9c0d3aa10f38a17c1236cf2fea1bf06e1',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='densities', kind='df_handle', required=True),
+        NodeArgMeta(name='respondent', kind='string', required=True),
+        NodeArgMeta(name='period', kind='string', required=True),
+        NodeArgMeta(name='balanced', kind='boolean', required=False),
+        ),
+        defaults={'balanced': False},
+    ),
+    'es_expectations_tests': NodeMeta(
+        fn='es_expectations_tests',
+        category='25-expectations-surveys',
+        card_id=576,
+        contract_hash='c2-1fd208340b3510a1ade893a5e6c575f52c557a5dbdc00844ca42a098300641a1',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='actual', kind='series_handle', required=True),
+        NodeArgMeta(name='forecast', kind='series_handle', required=True),
+        NodeArgMeta(name='revision', kind='series_handle', required=False),
+        NodeArgMeta(name='level', kind='enum', required=False, enum=('consensus', 'individual', )),
+        NodeArgMeta(name='horizon', kind='integer', required=False),
+        NodeArgMeta(name='alpha', kind='number', required=False),
+        ),
+        defaults={'level': 'consensus', 'horizon': 4, 'alpha': 0.05},
+    ),
+    'es_survey_weights': NodeMeta(
+        fn='es_survey_weights',
+        category='25-expectations-surveys',
+        card_id=577,
+        contract_hash='c2-ca5c6df731cfd7d066764ebb85977903f117bfae6c1a519f0e6e49e3b4fad8eb',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='data', kind='df_handle', required=True),
+        NodeArgMeta(name='base_weights', kind='string', required=False),
+        NodeArgMeta(name='targets', kind='df_handle', required=True),
+        NodeArgMeta(name='method', kind='enum', required=False, enum=('post_stratification', 'raking', 'linear_calibration', 'logit_calibration', )),
+        NodeArgMeta(name='trim', kind='num_array', required=False),
+        NodeArgMeta(name='max_iter', kind='integer', required=False),
+        ),
+        defaults={'method': 'raking', 'trim': [0.2, 5.0], 'max_iter': 100},
+    ),
+    'es_agreement': NodeMeta(
+        fn='es_agreement',
+        category='25-expectations-surveys',
+        card_id=578,
+        contract_hash='c2-704712f3bb685af5303cefb8fbe74bc90a843e980ccb2e2936cdcddcfe0819a2',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='heavy',
+        args=(
+        NodeArgMeta(name='data', kind='df_handle', required=True),
+        NodeArgMeta(name='measure', kind='enum', required=False, enum=('kendall_w', 'cohen_kappa', 'fleiss_kappa', 'cronbach_alpha', 'icc', )),
+        NodeArgMeta(name='nboot', kind='integer', required=False),
+        NodeArgMeta(name='seed', kind='integer', required=False),
+        NodeArgMeta(name='conf_level', kind='number', required=False),
+        ),
+        defaults={'measure': 'kendall_w', 'nboot': 1000, 'conf_level': 0.95},
+    ),
+    'es_polychoric': NodeMeta(
+        fn='es_polychoric',
+        category='25-expectations-surveys',
+        card_id=578,
+        contract_hash='c2-9c75434b0132b074d1cbe2e8103f81831cace869d1c0f0f96f2aae69b5bc8ac0',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='data', kind='df_handle', required=True),
+        NodeArgMeta(name='method', kind='enum', required=False, enum=('two_step', 'mle', )),
+        ),
+        defaults={'method': 'two_step'},
+    ),
 }
 
 #: Argument defaults, for FORM PREFILL ONLY. A default must never be sent
 #: explicitly on the wire: adapt_args assigns it RAW, bypassing coercion.
 DEFAULTS: dict[str, dict[str, object]] = {
-    'ca_assocs': {'x_name': 'x', 'y_name': 'y', 'na_action': 'fail', 'max_levels': 20, 'gate_alpha': 0.05, 'ordered': True, 'scale': 'nominal', 'conf_level': 0.95, 'cramer_method': 'ncchisq', 'correct': False},
+    'ca_associations': {'x_name': 'x', 'y_name': 'y', 'na_action': 'fail', 'max_levels': 20, 'gate_alpha': 0.05, 'ordered': True, 'scale': 'nominal', 'conf_level': 0.95, 'cramer_method': 'ncchisq', 'correct': False},
     'ca_chisq': {'x_name': 'x', 'y_name': 'y', 'na_action': 'fail', 'max_levels': 20, 'gate_alpha': 0.05, 'ordered': True, 'alpha': 0.05, 'rule': 'cochran', 'correct': True, 'simulate_p_value': False, 'B': 2000, 'seed': 1234},
     'ca_contingency': {'x_name': 'x', 'y_name': 'y', 'na_action': 'fail', 'max_levels': 20, 'gate_alpha': 0.05, 'ordered': True},
     'ca_fisher': {'x_name': 'x', 'y_name': 'y', 'na_action': 'fail', 'max_levels': 20, 'gate_alpha': 0.05, 'ordered': True, 'alpha': 0.05, 'alternative': 'two.sided', 'conf_level': 0.95, 'simulate_p_value': False, 'B': 2000, 'workspace': 200000, 'seed': 1234},
@@ -393,11 +492,17 @@ DEFAULTS: dict[str, dict[str, object]] = {
     'sae_eblup_bhf': {},
     'sae_eblup_fh': {'MAXITER': 100, 'PRECISION': 0.0001, 'B': 0, 'seed': 1},
     'sae_mse_fh': {'MAXITER': 100, 'PRECISION': 0.0001, 'B': 0, 'seed': 1},
-    'sv_svyby': {'deff': False, 'na_rm': False},
-    'sv_svydesign': {'ids': '1', 'nest': False},
-    'sv_svymean': {'deff': True, 'na_rm': False},
-    'sv_svyquantile': {'na_rm': False},
-    'sv_svytotal': {'deff': True, 'na_rm': False},
+    'srv_by_domain': {'deff': False, 'na_rm': False},
+    'srv_design': {'ids': '1', 'nest': False},
+    'srv_mean': {'deff': True, 'na_rm': False},
+    'srv_quantile': {'na_rm': False},
+    'srv_total': {'deff': True, 'na_rm': False},
+    'es_fit_bin_density': {'family': 'generalised_beta', 'open_ended_width': 1.0, 'min_bins': 3},
+    'es_disagreement_uncertainty': {'balanced': False},
+    'es_expectations_tests': {'level': 'consensus', 'horizon': 4, 'alpha': 0.05},
+    'es_survey_weights': {'method': 'raking', 'trim': [0.2, 5.0], 'max_iter': 100},
+    'es_agreement': {'measure': 'kendall_w', 'nboot': 1000, 'conf_level': 0.95},
+    'es_polychoric': {'method': 'two_step'},
 }
 
 

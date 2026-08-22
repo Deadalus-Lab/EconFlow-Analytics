@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``tvp_var_stochastic`` -- METHOD-SELECTION card #14.
+"""Method wrapper ``tvp_var_stochastic`` -- method card #14.
 
 #14 TVP-VAR with Stochastic Volatility
 
@@ -7,8 +7,8 @@ Category 03-multivariate-nowcasting; module ``tvp_var_stochastic``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def sv_estimate(
     thinfac: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_estimate`` -- METHOD-SELECTION card #14.
+    """Node ``sv_estimate`` -- method card #14.
 
     TVP-VAR with Stochastic Volatility.
 
@@ -68,7 +68,7 @@ def sv_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_estimate: not implemented. The method card is in ./README.md."
+        "sv_estimate: not implemented."
     )
 
 
@@ -80,7 +80,7 @@ def sv_predict_density(
     n_grid: int | None = None,
     cdf: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_predict_density`` -- METHOD-SELECTION card #14.
+    """Node ``sv_predict_density`` -- method card #14.
 
     TVP-VAR with Stochastic Volatility.
 
@@ -99,7 +99,7 @@ def sv_predict_density(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_predict_density: not implemented. The method card is in ./README.md."
+        "sv_predict_density: not implemented."
     )
 
 
@@ -109,7 +109,7 @@ def sv_predict_draws(
     variable: int | None = None,
     horizon: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_predict_draws`` -- METHOD-SELECTION card #14.
+    """Node ``sv_predict_draws`` -- method card #14.
 
     TVP-VAR with Stochastic Volatility.
 
@@ -124,7 +124,7 @@ def sv_predict_draws(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_predict_draws: not implemented. The method card is in ./README.md."
+        "sv_predict_draws: not implemented."
     )
 
 
@@ -136,7 +136,7 @@ def sv_irf(
     horizon: int | None = None,
     scenario: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_irf`` -- METHOD-SELECTION card #14.
+    """Node ``sv_irf`` -- method card #14.
 
     TVP-VAR with Stochastic Volatility.
 
@@ -155,7 +155,7 @@ def sv_irf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_irf: not implemented. The method card is in ./README.md."
+        "sv_irf: not implemented."
     )
 
 
@@ -166,7 +166,7 @@ def sv_parameter_draws(
     row: int | None = None,
     col: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sv_parameter_draws`` -- METHOD-SELECTION card #14.
+    """Node ``sv_parameter_draws`` -- method card #14.
 
     TVP-VAR with Stochastic Volatility.
 
@@ -184,5 +184,5 @@ def sv_parameter_draws(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sv_parameter_draws: not implemented. The method card is in ./README.md."
+        "sv_parameter_draws: not implemented."
     )

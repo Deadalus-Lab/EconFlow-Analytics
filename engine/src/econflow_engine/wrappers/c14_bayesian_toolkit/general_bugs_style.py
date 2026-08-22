@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``general_bugs_style`` -- METHOD-SELECTION card #70.
+"""Method wrapper ``general_bugs_style`` -- method card #70.
 
 #70 General BUGS-style Bayesian MCMC (injection-safe)
 
@@ -7,8 +7,8 @@ Category 14-bayesian-toolkit; module ``general_bugs_style``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -21,13 +21,13 @@ from econflow_engine.generated.args.c14_bayesian_toolkit import NODE_META, wire_
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "nim_bayes_mcmc",
+    "bugs_style_mcmc",
     "NODE_META",
     "wire_model",
 ]
 
 
-def nim_bayes_mcmc(
+def bugs_style_mcmc(
     *,
     code: str,
     inits: Any,
@@ -43,7 +43,7 @@ def nim_bayes_mcmc(
     ess_min: float | None = None,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``nim_bayes_mcmc`` -- METHOD-SELECTION card #70.
+    """Node ``bugs_style_mcmc`` -- method card #70.
 
     General BUGS-style Bayesian MCMC (injection-safe).
 
@@ -77,5 +77,5 @@ def nim_bayes_mcmc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nim_bayes_mcmc: not implemented. The method card is in ./README.md."
+        "bugs_style_mcmc: not implemented."
     )

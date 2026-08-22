@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``distance_dissimilarity_matrix`` -- METHOD-SELECTION card #240.
+"""Method wrapper ``distance_dissimilarity_matrix`` -- method card #240.
 
-#240 DISTANCE / dissimilarity matrix between objects: dist (the 6 documented metrics),
-    correlation-based dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), dist (14 further
-    shape/compositional/Mahalanobis metrics)
+#240 DISTANCE / dissimilarity matrix between objects: the 6 classic metrics, correlation-based
+    dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), 14 further shape/compositional/Mahalanobis
+    metrics
 
 Category 29-unsupervised-clustering; module ``distance_dissimilarity_matrix``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,15 +25,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "dm_cor_dist",
-    "dm_dist",
-    "dm_proxy_dist",
+    "dm_correlation_distance",
+    "dm_custom_distance",
+    "dm_distance",
     "NODE_META",
     "wire_model",
 ]
 
 
-def dm_dist(
+def dm_distance(
     *,
     x: np.ndarray,
     method: (
@@ -50,11 +50,11 @@ def dm_dist(
     p: float | None = None,
     orientation: Literal["rows_are_objects", "columns_are_objects"],
 ) -> dict[str, Any]:
-    """Node ``dm_dist`` -- METHOD-SELECTION card #240.
+    """Node ``dm_distance`` -- method card #240.
 
-    DISTANCE / dissimilarity matrix between objects: dist (the 6 documented metrics),
-    correlation-based dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), dist (14 further
-    shape/compositional/Mahalanobis metrics).
+    DISTANCE / dissimilarity matrix between objects: the 6 classic metrics, correlation-based
+    dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), 14 further shape/compositional/Mahalanobis
+    metrics.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
@@ -83,22 +83,22 @@ def dm_dist(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dm_dist: not implemented. The method card is in ./README.md."
+        "dm_distance: not implemented."
     )
 
 
-def dm_cor_dist(
+def dm_correlation_distance(
     *,
     x: np.ndarray,
     cor_method: Literal["pearson", "spearman", "kendall"] | None = None,
     transform: Literal["one_minus", "one_minus_abs", "mantegna"] | None = None,
     orientation: Literal["rows_are_objects", "columns_are_objects"],
 ) -> dict[str, Any]:
-    """Node ``dm_cor_dist`` -- METHOD-SELECTION card #240.
+    """Node ``dm_correlation_distance`` -- method card #240.
 
-    DISTANCE / dissimilarity matrix between objects: dist (the 6 documented metrics),
-    correlation-based dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), dist (14 further
-    shape/compositional/Mahalanobis metrics).
+    DISTANCE / dissimilarity matrix between objects: the 6 classic metrics, correlation-based
+    dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), 14 further shape/compositional/Mahalanobis
+    metrics.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
@@ -124,11 +124,11 @@ def dm_cor_dist(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dm_cor_dist: not implemented. The method card is in ./README.md."
+        "dm_correlation_distance: not implemented."
     )
 
 
-def dm_proxy_dist(
+def dm_custom_distance(
     *,
     x: np.ndarray,
     method: (
@@ -152,11 +152,11 @@ def dm_proxy_dist(
     ) = None,
     orientation: Literal["rows_are_objects", "columns_are_objects"],
 ) -> dict[str, Any]:
-    """Node ``dm_proxy_dist`` -- METHOD-SELECTION card #240.
+    """Node ``dm_custom_distance`` -- method card #240.
 
-    DISTANCE / dissimilarity matrix between objects: dist (the 6 documented metrics),
-    correlation-based dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), dist (14 further
-    shape/compositional/Mahalanobis metrics).
+    DISTANCE / dissimilarity matrix between objects: the 6 classic metrics, correlation-based
+    dissimilarity (1-r | 1-|r| | sqrt(2(1-r)) Mantegna), 14 further shape/compositional/Mahalanobis
+    metrics.
 
     Category 29-unsupervised-clustering; memory class ``light``.
 
@@ -172,7 +172,7 @@ def dm_proxy_dist(
             Mahalanobis (requires n > p AND a non-singular cov). COMPOSITIONAL/shares (require
             NON-negative & non-zero row sum): Bray, Soergel, Whittaker, Hellinger, Kullback,
             divergence, Wave, Podani, eJaccard. Euclidean/Manhattan/supremum/Minkowski/Canberra live
-            in dm_dist· correlation in dm_cor_dist.
+            in dm_distance· correlation in dm_correlation_distance.
         orientation: [enum, required] REQUIRED, never guessed: which dimension holds the objects to
             be clustered. 'rows_are_objects' = objects (countries/units) in the ROWS, features in
             the columns· 'columns_are_objects' = series in the COLUMNS, time in the rows (typical
@@ -182,5 +182,5 @@ def dm_proxy_dist(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dm_proxy_dist: not implemented. The method card is in ./README.md."
+        "dm_custom_distance: not implemented."
     )

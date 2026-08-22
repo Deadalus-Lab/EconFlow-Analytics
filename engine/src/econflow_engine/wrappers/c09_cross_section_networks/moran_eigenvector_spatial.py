@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``moran_eigenvector_spatial`` -- METHOD-SELECTION card #180.
+"""Method wrapper ``moran_eigenvector_spatial`` -- method card #180.
 
 #180 Moran eigenvector spatial regression — eigenvector spatial filtering (ESF) & random-effects ESF
     (RE-ESF, an approximate Gaussian process)
@@ -8,8 +8,8 @@ Category 09-cross-section-networks; module ``moran_eigenvector_spatial``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,22 +25,22 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "sp_esf",
-    "sp_meigen",
-    "sp_resf",
+    "sp_eigenvector_filter",
+    "sp_moran_eigenvectors",
+    "sp_random_effects_filter",
     "NODE_META",
     "wire_model",
 ]
 
 
-def sp_meigen(
+def sp_moran_eigenvectors(
     *,
     W: np.ndarray,
     model: Literal["exp", "gau", "sph"] | None = None,
     threshold: float | None = None,
     enum: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_meigen`` -- METHOD-SELECTION card #180.
+    """Node ``sp_moran_eigenvectors`` -- method card #180.
 
     Moran eigenvector spatial regression — eigenvector spatial filtering (ESF) & random-effects ESF
     (RE-ESF, an approximate Gaussian process).
@@ -62,11 +62,11 @@ def sp_meigen(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_meigen: not implemented. The method card is in ./README.md."
+        "sp_moran_eigenvectors: not implemented."
     )
 
 
-def sp_esf(
+def sp_eigenvector_filter(
     *,
     object: Any,
     y: Sequence[float],
@@ -74,7 +74,7 @@ def sp_esf(
     fn: Literal["r2", "aic", "bic", "all"] | None = None,
     vif: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_esf`` -- METHOD-SELECTION card #180.
+    """Node ``sp_eigenvector_filter`` -- method card #180.
 
     Moran eigenvector spatial regression — eigenvector spatial filtering (ESF) & random-effects ESF
     (RE-ESF, an approximate Gaussian process).
@@ -82,7 +82,8 @@ def sp_esf(
     Category 09-cross-section-networks; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Moran-eigenvector object (sp_meigen $handle/$object).
+        object: [raw_handle, required] Moran-eigenvector object (sp_moran_eigenvectors
+            $handle/$object).
         y: [num_array, required] Dependent variable (numeric vector N x 1, no NA).
         x: [matrix_handle, optional] Matrix of explanatory variables N x K (None -> intercept-only).
         fn: [enum, optional] Objective function for stepwise eigenvector selection (default r2·
@@ -94,18 +95,18 @@ def sp_esf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_esf: not implemented. The method card is in ./README.md."
+        "sp_eigenvector_filter: not implemented."
     )
 
 
-def sp_resf(
+def sp_random_effects_filter(
     *,
     object: Any,
     y: Sequence[float],
     x: np.ndarray | None = None,
     method: Literal["reml", "ml"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``sp_resf`` -- METHOD-SELECTION card #180.
+    """Node ``sp_random_effects_filter`` -- method card #180.
 
     Moran eigenvector spatial regression — eigenvector spatial filtering (ESF) & random-effects ESF
     (RE-ESF, an approximate Gaussian process).
@@ -113,7 +114,8 @@ def sp_resf(
     Category 09-cross-section-networks; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Moran-eigenvector object (sp_meigen $handle/$object).
+        object: [raw_handle, required] Moran-eigenvector object (sp_moran_eigenvectors
+            $handle/$object).
         y: [num_array, required] Dependent variable (numeric vector N x 1, no NA).
         x: [matrix_handle, optional] Matrix of explanatory variables N x K (None -> intercept-only).
         method: [enum, optional] Variance-components estimation method: REML or ML (default reml).
@@ -122,5 +124,5 @@ def sp_resf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sp_resf: not implemented. The method card is in ./README.md."
+        "sp_random_effects_filter: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``dcc_mgarch`` -- METHOD-SELECTION card #29.
+"""Method wrapper ``dcc_mgarch`` -- method card #29.
 
 #29 DCC-MGARCH (multivariate)
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``dcc_mgarch``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def dcc_multispec(
     *,
     specs: Sequence[Any],
 ) -> dict[str, Any]:
-    """Node ``dcc_multispec`` -- METHOD-SELECTION card #29.
+    """Node ``dcc_multispec`` -- method card #29.
 
     DCC-MGARCH (multivariate).
 
@@ -49,13 +49,13 @@ def dcc_multispec(
 
     Args:
         specs: [raw_handle_array, required] Array of handles to 'uGARCHspec' objects (output of
-            ga_spec$object) — one per asset, AT LEAST 2.
+            ga_spec.object) — one per asset, AT LEAST 2.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dcc_multispec: not implemented. The method card is in ./README.md."
+        "dcc_multispec: not implemented."
     )
 
 
@@ -67,7 +67,7 @@ def dcc_spec(
     VAR: bool | None = None,
     lag: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dcc_spec`` -- METHOD-SELECTION card #29.
+    """Node ``dcc_spec`` -- method card #29.
 
     DCC-MGARCH (multivariate).
 
@@ -87,7 +87,7 @@ def dcc_spec(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dcc_spec: not implemented. The method card is in ./README.md."
+        "dcc_spec: not implemented."
     )
 
 
@@ -98,7 +98,7 @@ def dcc_fit(
     out_sample: int | None = None,
     solver: Literal["solnp", "nlminb", "lbfgs", "gosolnp"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dcc_fit`` -- METHOD-SELECTION card #29.
+    """Node ``dcc_fit`` -- method card #29.
 
     DCC-MGARCH (multivariate).
 
@@ -117,7 +117,7 @@ def dcc_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dcc_fit: not implemented. The method card is in ./README.md."
+        "dcc_fit: not implemented."
     )
 
 
@@ -127,7 +127,7 @@ def dcc_forecast(
     n_ahead: int | None = None,
     n_roll: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dcc_forecast`` -- METHOD-SELECTION card #29.
+    """Node ``dcc_forecast`` -- method card #29.
 
     DCC-MGARCH (multivariate).
 
@@ -143,7 +143,7 @@ def dcc_forecast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dcc_forecast: not implemented. The method card is in ./README.md."
+        "dcc_forecast: not implemented."
     )
 
 
@@ -154,7 +154,7 @@ def dcc_sim(
     n_start: int | None = None,
     m_sim: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dcc_sim`` -- METHOD-SELECTION card #29.
+    """Node ``dcc_sim`` -- method card #29.
 
     DCC-MGARCH (multivariate).
 
@@ -170,7 +170,7 @@ def dcc_sim(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dcc_sim: not implemented. The method card is in ./README.md."
+        "dcc_sim: not implemented."
     )
 
 
@@ -183,7 +183,7 @@ def dcc_roll(
     refit_window: Literal["recursive", "moving"] | None = None,
     solver: Literal["solnp", "nlminb", "lbfgs", "gosolnp"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``dcc_roll`` -- METHOD-SELECTION card #29.
+    """Node ``dcc_roll`` -- method card #29.
 
     DCC-MGARCH (multivariate).
 
@@ -202,5 +202,5 @@ def dcc_roll(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dcc_roll: not implemented. The method card is in ./README.md."
+        "dcc_roll: not implemented."
     )

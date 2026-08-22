@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``l_moments`` -- method card #494.
+
+#494 L-moments and regional frequency analysis
+
+Category 12-distribution-risk; module ``l_moments``.
+
+Reference implementation: lmoments3.
+
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c12_distribution_risk import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "dr_l_moments",
+    "dr_regional_frequency",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def dr_l_moments(
+    *,
+    x: pd.Series,
+    distribution: Literal["gev", "gpa", "gum", "glo", "pe3", "wak", "nor"] | None = None,
+    n_moments: int | None = None,
+) -> dict[str, Any]:
+    """Node ``dr_l_moments`` -- method card #494.
+
+    L-moments and regional frequency analysis.
+
+    Category 12-distribution-risk; memory class ``light``.
+
+    Args:
+        x: [series_handle, required] Data.
+        distribution: [enum, optional] Distribution to fit. Default ``'gev'``.
+        n_moments: [integer, optional] L-moments computed. Default ``4``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "dr_l_moments: not implemented."
+    )
+
+
+def dr_regional_frequency(
+    *,
+    data: pd.DataFrame,
+    site: str,
+    value: str,
+    distribution: Literal["gev", "gpa", "gum", "glo", "pe3", "wak"] | None = None,
+    return_periods: Sequence[float] | None = None,
+) -> dict[str, Any]:
+    """Node ``dr_regional_frequency`` -- method card #494.
+
+    L-moments and regional frequency analysis.
+
+    Category 12-distribution-risk; memory class ``light``.
+
+    Args:
+        data: [df_handle, required] Site-by-observation panel.
+        site: [string, required] Site identifier.
+        value: [string, required] Value column.
+        distribution: [enum, optional] Regional distribution. Default ``'gev'``.
+        return_periods: [num_array, optional] Return periods to report. Default ``[10.0, 50.0,
+            100.0]``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "dr_regional_frequency: not implemented."
+    )

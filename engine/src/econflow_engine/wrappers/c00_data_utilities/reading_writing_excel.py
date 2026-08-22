@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``reading_writing_excel`` -- METHOD-SELECTION card #97.
+"""Method wrapper ``reading_writing_excel`` -- method card #97.
 
 #97 Reading/writing Excel workbooks (.xls/.xlsx read + sheet discovery +.xlsx write)
 
@@ -7,8 +7,8 @@ Category 00-data-utilities; module ``reading_writing_excel``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,16 +23,16 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "xl_excel_sheets",
-    "xl_read_excel",
-    "xl_read_openxlsx",
-    "xl_write_xlsx",
+    "xl_read",
+    "xl_read_workbook",
+    "xl_sheet_names",
+    "xl_write",
     "NODE_META",
     "wire_model",
 ]
 
 
-def xl_read_excel(
+def xl_read(
     *,
     path: str,
     sheet: str | None = None,
@@ -40,7 +40,7 @@ def xl_read_excel(
     col_names: bool | None = None,
     skip: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``xl_read_excel`` -- METHOD-SELECTION card #97.
+    """Node ``xl_read`` -- method card #97.
 
     Reading/writing Excel workbooks (.xls/.xlsx read + sheet discovery +.xlsx write).
 
@@ -52,8 +52,7 @@ def xl_read_excel(
         path: [path, required] Object-store path to an.xls or.xlsx workbook.
         sheet: [string, optional] Sheet name or position (validated against excel_sheets); empty =
             1st sheet.
-        range: [string, optional] A1/R1C1 range (e.g. 'B3:D87' or 'Sheet!B2:G14'); pre-validated
-            with cellranger.
+        range: [string, optional] A1/R1C1 range (e.g. 'B3:D87' or 'Sheet!B2:G14').
         col_names: [boolean, optional] 1st row = column names (default True). Default ``True``.
         skip: [integer, optional] Rows to skip at the start (default 0). Default ``0``.
 
@@ -61,15 +60,15 @@ def xl_read_excel(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xl_read_excel: not implemented. The method card is in ./README.md."
+        "xl_read: not implemented."
     )
 
 
-def xl_excel_sheets(
+def xl_sheet_names(
     *,
     path: str,
 ) -> dict[str, Any]:
-    """Node ``xl_excel_sheets`` -- METHOD-SELECTION card #97.
+    """Node ``xl_sheet_names`` -- method card #97.
 
     Reading/writing Excel workbooks (.xls/.xlsx read + sheet discovery +.xlsx write).
 
@@ -82,11 +81,11 @@ def xl_excel_sheets(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xl_excel_sheets: not implemented. The method card is in ./README.md."
+        "xl_sheet_names: not implemented."
     )
 
 
-def xl_read_openxlsx(
+def xl_read_workbook(
     *,
     path: str,
     sheet: str | None = None,
@@ -95,7 +94,7 @@ def xl_read_openxlsx(
     rowNames: bool | None = None,
     detectDates: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``xl_read_openxlsx`` -- METHOD-SELECTION card #97.
+    """Node ``xl_read_workbook`` -- method card #97.
 
     Reading/writing Excel workbooks (.xls/.xlsx read + sheet discovery +.xlsx write).
 
@@ -115,17 +114,17 @@ def xl_read_openxlsx(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xl_read_openxlsx: not implemented. The method card is in ./README.md."
+        "xl_read_workbook: not implemented."
     )
 
 
-def xl_write_xlsx(
+def xl_write(
     *,
     x: pd.DataFrame,
     overwrite: bool | None = None,
     as_table: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``xl_write_xlsx`` -- METHOD-SELECTION card #97.
+    """Node ``xl_write`` -- method card #97.
 
     Reading/writing Excel workbooks (.xls/.xlsx read + sheet discovery +.xlsx write).
 
@@ -140,5 +139,5 @@ def xl_write_xlsx(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "xl_write_xlsx: not implemented. The method card is in ./README.md."
+        "xl_write: not implemented."
     )

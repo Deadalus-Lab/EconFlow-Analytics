@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Deadalus-Lab/EconFlow-Analytics/engine/artifacts/schema/recommend-fixtures.schema.json",
+  "title": "recommend-fixtures",
+  "description": "Recorded walks of the decision trees: an input situation and the recommendation it must produce. Together they reach all 48 leaves, which is what makes the corpus a coverage claim rather than a sample.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["artifact_version", "generated_by", "source", "fixtures"],
+  "properties": {
+    "artifact_version": { "const": 1 },
+    "generated_by": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trees_yaml_sha256",
+        "n_fixtures",
+        "statuses_covered",
+        "trees_covered",
+        "leaves_reached",
+        "leaves_total"
+      ],
+      "properties": {
+        "trees_yaml_sha256": {
+          "description": "Pins this corpus to the exact trees it was walked against. A corpus replayed against different trees proves nothing about either.",
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "n_fixtures": { "type": "integer", "minimum": 1 },
+        "statuses_covered": { "$ref": "#/$defs/stringList" },
+        "trees_covered": { "$ref": "#/$defs/stringList" },
+        "leaves_reached": { "type": "integer", "minimum": 0 },
+        "leaves_total": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "fixtures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["input", "output"],
+        "properties": {
+          "input": {
+            "description": "Usually the measured data properties as an object, but two fixtures carry a bare string and one a list. Those are deliberate hostile inputs -- the recommender must survive being handed the wrong shape -- so this is permissive by measurement, not by omission.",
+            "type": ["object", "array", "string"]
+          },
+          "output": {
+            "description": "Deliberately open beyond `status`. The nine observed key sets differ by status (a recommendation carries card_id and tool_fns; a need_data_property carries the missing property and the question to ask), and pinning every combination here would encode the recommender's control flow in a shape contract, where it does not belong. `status` is the field every consumer switches on, so that one is closed.",
+            "type": "object",
+            "required": ["status"],
+            "properties": {
+              "status": {
+                "enum": [
+                  "recommended",
+                  "need_data_property",
+                  "no_route",
+                  "guard",
+                  "no_tree"
+                ]
+              },
+              "card_id": { "type": "integer", "minimum": 1 },
+              "tool_fns": {
+                "description": "Carried through from the tree leaf, so it inherits the same scalar-or-list shape: a single tool is a bare string, a pipeline is a list, and an empty list is the guard leaf that recommends nothing.",
+                "oneOf": [
+                  { "type": "string", "minLength": 1 },
+                  { "type": "array", "items": { "type": "string", "minLength": 1 } }
+                ]
+              },
+              "tree": { "type": "string", "minLength": 1 },
+              "node": { "type": "string", "minLength": 1 },
+              "rationale": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stringList": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

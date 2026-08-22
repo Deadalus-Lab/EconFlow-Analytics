@@ -1,14 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``replacement_missing_values`` -- METHOD-SELECTION card #80.
+"""Method wrapper ``replacement_missing_values`` -- method card #80.
 
-#80 Replacement of missing values (NA) in time series (Kalman/interpolation/seadec + statsNA)
+#80 Replacement of missing values in time series (Kalman / interpolation / seasonally-decomposed + a
+    missingness report)
 
 Category 00-data-utilities; module ``replacement_missing_values``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,31 +24,32 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "imputets_interpolation",
-    "imputets_kalman",
-    "imputets_seadec",
-    "imputets_statsna",
+    "impute_interpolation",
+    "impute_kalman",
+    "impute_missing_stats",
+    "impute_seasonal_decomposed",
     "NODE_META",
     "wire_model",
 ]
 
 
-def imputets_kalman(
+def impute_kalman(
     *,
     x: pd.Series,
-    model: Literal["StructTS", "auto.arima"] | None = None,
+    model: Literal["structural", "auto_arima"] | None = None,
     smooth: bool | None = None,
     maxgap: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``imputets_kalman`` -- METHOD-SELECTION card #80.
+    """Node ``impute_kalman`` -- method card #80.
 
-    Replacement of missing values (NA) in time series (Kalman/interpolation/seadec + statsNA).
+    Replacement of missing values in time series (Kalman / interpolation / seasonally-decomposed + a
+    missingness report).
 
     Category 00-data-utilities; memory class ``light``.
 
     Args:
         x: [series_handle, required] Handle to a univariate series with NA (>=2 non-NA values).
-        model: [enum, optional] State-space model (default StructTS).
+        model: [enum, optional] State-space model (default structural).
         smooth: [boolean, optional] True=Kalman Smoothing, False=Kalman Run (default True). Default
             ``True``.
         maxgap: [number, optional] Maximum length of a consecutive NA run that is filled (default
@@ -57,19 +59,20 @@ def imputets_kalman(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "imputets_kalman: not implemented. The method card is in ./README.md."
+        "impute_kalman: not implemented."
     )
 
 
-def imputets_interpolation(
+def impute_interpolation(
     *,
     x: pd.Series,
     option: Literal["linear", "spline", "stine"] | None = None,
     maxgap: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``imputets_interpolation`` -- METHOD-SELECTION card #80.
+    """Node ``impute_interpolation`` -- method card #80.
 
-    Replacement of missing values (NA) in time series (Kalman/interpolation/seadec + statsNA).
+    Replacement of missing values in time series (Kalman / interpolation / seasonally-decomposed + a
+    missingness report).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -82,11 +85,11 @@ def imputets_interpolation(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "imputets_interpolation: not implemented. The method card is in ./README.md."
+        "impute_interpolation: not implemented."
     )
 
 
-def imputets_seadec(
+def impute_seasonal_decomposed(
     *,
     x: pd.Series,
     algorithm: Literal["interpolation", "locf", "mean", "random", "kalman", "ma"] | None = None,
@@ -94,9 +97,10 @@ def imputets_seadec(
     maxgap: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``imputets_seadec`` -- METHOD-SELECTION card #80.
+    """Node ``impute_seasonal_decomposed`` -- method card #80.
 
-    Replacement of missing values (NA) in time series (Kalman/interpolation/seadec + statsNA).
+    Replacement of missing values in time series (Kalman / interpolation / seasonally-decomposed + a
+    missingness report).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -114,18 +118,19 @@ def imputets_seadec(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "imputets_seadec: not implemented. The method card is in ./README.md."
+        "impute_seasonal_decomposed: not implemented."
     )
 
 
-def imputets_statsna(
+def impute_missing_stats(
     *,
     x: pd.Series,
     bins: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``imputets_statsna`` -- METHOD-SELECTION card #80.
+    """Node ``impute_missing_stats`` -- method card #80.
 
-    Replacement of missing values (NA) in time series (Kalman/interpolation/seadec + statsNA).
+    Replacement of missing values in time series (Kalman / interpolation / seasonally-decomposed + a
+    missingness report).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -138,5 +143,5 @@ def imputets_statsna(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "imputets_statsna: not implemented. The method card is in ./README.md."
+        "impute_missing_stats: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``dynamic_linear`` -- METHOD-SELECTION card #59.
+"""Method wrapper ``dynamic_linear`` -- method card #59.
 
 #59 Dynamic linear models (state space)
 
@@ -7,8 +7,8 @@ Category 10-trend-cycle-statespace; module ``dynamic_linear``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ def dl_local_level(
     seasonal: bool | None = None,
     seasonal_period: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dl_local_level`` -- METHOD-SELECTION card #59.
+    """Node ``dl_local_level`` -- method card #59.
 
     Dynamic linear models (state space).
 
@@ -55,7 +55,7 @@ def dl_local_level(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dl_local_level: not implemented. The method card is in ./README.md."
+        "dl_local_level: not implemented."
     )
 
 
@@ -65,7 +65,7 @@ def dl_local_linear_trend(
     seasonal: bool | None = None,
     seasonal_period: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dl_local_linear_trend`` -- METHOD-SELECTION card #59.
+    """Node ``dl_local_linear_trend`` -- method card #59.
 
     Dynamic linear models (state space).
 
@@ -83,7 +83,7 @@ def dl_local_linear_trend(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dl_local_linear_trend: not implemented. The method card is in ./README.md."
+        "dl_local_linear_trend: not implemented."
     )
 
 
@@ -94,7 +94,7 @@ def dl_trend_cycle(
     seasonal: bool | None = None,
     seasonal_period: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``dl_trend_cycle`` -- METHOD-SELECTION card #59.
+    """Node ``dl_trend_cycle`` -- method card #59.
 
     Dynamic linear models (state space).
 
@@ -113,7 +113,7 @@ def dl_trend_cycle(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dl_trend_cycle: not implemented. The method card is in ./README.md."
+        "dl_trend_cycle: not implemented."
     )
 
 
@@ -123,7 +123,7 @@ def dl_forecast(
     n_ahead: int | None = None,
     level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``dl_forecast`` -- METHOD-SELECTION card #59.
+    """Node ``dl_forecast`` -- method card #59.
 
     Dynamic linear models (state space).
 
@@ -139,5 +139,5 @@ def dl_forecast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dl_forecast: not implemented. The method card is in ./README.md."
+        "dl_forecast: not implemented."
     )

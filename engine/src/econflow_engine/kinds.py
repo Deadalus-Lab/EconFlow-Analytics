@@ -27,12 +27,12 @@ THE THREE RULES PER NODE MODEL (each from verified behaviour):
    has somewhere to land; an explicitly supplied ``None`` is rejected by the
    null guard that wraps every field.
 
-3. NEVER a default in the wire model. the argument adapter assigns the
-   default RAW (``out[[nm]] <- a$default``) while every EXPLICIT value goes
-   through the contract's coercion rules
-   is omitted; a materialised default would be sent explicitly and the node would
-   answer 422. Defaults live in ``NodeMeta.defaults`` -- for form prefill only,
-   and applied in the AUTHORING projection alone.
+3. NEVER a default in the wire model. The argument adapter assigns a default
+   RAW, while every EXPLICIT value goes through the contract's coercion rules --
+   which is why the default is omitted here. A materialised default would be
+   sent explicitly, take a coercion path the raw default never takes, and the
+   node would answer 422. Defaults live in ``NodeMeta.defaults`` -- for form
+   prefill only, and applied in the AUTHORING projection alone.
 """
 
 from __future__ import annotations
@@ -162,7 +162,7 @@ def _formula_leaf(allowed_vars: tuple[str, ...] | None) -> Any:
             return value
         # REASON CODE, measured rather than assumed: the oracle's classifier
         # emits 'other' for the bad-head, parse and depth messages -- those three
-        # codes appear ZERO times in parity-fixtures.v1.json, while
+        # codes appear ZERO times in parity-fixtures.json, while
         # formula-not-string / -not-tilde / -multi-expr / -denied-call / -bad-var
         # all do. The precise diagnosis survives in GateError.detail_code.
         code = result.reason_code or "other"
@@ -241,70 +241,70 @@ def arg_type_for_kind(  # noqa: C901 - the explicitness IS the specification
     resolved pointer on the wire but an edge reference while authoring, and a
     path carries a store uri on the wire but a ticket while authoring.
     """
-    # .mcp_coerce_one: `as.integer(val)`
+    # the contract's 'integer' is a Python int
     if kind == "integer":
         return int
-    # .mcp_coerce_one: `as.numeric(val)`
+    # the contract's 'number' is a Python float
     if kind == "number":
         return float
-    # .mcp_coerce_one: `as.logical(val)`
+    # the contract's 'boolean' is a Python bool
     if kind == "boolean":
         return bool
-    # .mcp_coerce_one: `as.character(val)`
+    # the contract's 'string' is a Python str
     if kind == "string":
         return str
-    # .mcp_coerce_one: `if (is.numeric(argspec$values)) as.numeric(val) else as.character(val)`
-    # -- the TYPE only. Membership is checked by match.arg INSIDE the wrapper, which
-    # is why the contract never produces 'enum-invalid'; we check membership up front.
+    # An enum coerces to the TYPE of its values and nothing more. The frozen
+    # contract checked membership inside the wrapper rather than at the boundary,
+    # which is why it never produces 'enum-invalid'; we check membership up front.
     if kind == "enum":
         if not enum_values:
             raise ValueError("arg_type_for_kind: kind='enum' without values -- the spec is broken.")
         return Literal[tuple(enum_values)]
-    # .mcp_coerce_one: `adapt_forecastfn(val)` -- a CLOSED allowlist; the alternative
-    # would be eval(parse(text = ...)), i.e. remote code execution.
+    # A CLOSED allowlist of forecast functions. The alternative -- assembling the
+    # call from a caller-supplied string and evaluating it -- is remote code execution.
     if kind == "forecastfn_enum":
         return Literal[tuple(FORECASTFN_NAMES)]
-    # .mcp_coerce_one: `as.character(unlist(val, use.names = FALSE))`
+    # a flat, non-empty array of series codes; any element names are discarded
     if kind == "series_codes":
         return Annotated[list[str], MinLen(1)]
-    # .mcp_coerce_one: `as.integer(unlist(val, use.names = FALSE))`
+    # a flat, non-empty array of integers; any element names are discarded
     if kind == "int_array":
         return Annotated[list[int], MinLen(1)]
-    # .mcp_coerce_one: `as.numeric(unlist(val, use.names = FALSE))`
+    # an array coerces element-wise to its item type, with names discarded
     if kind == "num_array":
         return Annotated[list[float], MinLen(1)]
-    # .mcp_coerce_one: `adapt_formula(val, allowed_vars = argspec$allowed_vars)`
+    # a formula, walked against this argument's allowed-variable set
     if kind == "formula":
         return Annotated[Any, BeforeValidator(_formula_leaf(allowed_vars))]
-    # .mcp_coerce_one: falls through to `val` -- passed to the wrapper UNTOUCHED.
+    # passed to the wrapper UNTOUCHED.
     if kind == "raw":
         return Any
-    # .mcp_coerce_one: `.mcp_path_gate(val, argname)`
+    # a path, admitted only by the path gate
     if kind == "path":
         leaf = check_path_uri if projection == "wire" else check_ticket_ref
         return Annotated[str, BeforeValidator(leaf)]
-    # .mcp_coerce_one: `resolve_handle(val, "ts")`
+    # a handle resolved to a regular series
     if kind == "series_handle":
         return _handle_annotation(projection)
-    # .mcp_coerce_one: `resolve_handle(val, "mts")`
+    # a handle resolved to a multi-series panel
     if kind == "multiseries_handle":
         return _handle_annotation(projection)
-    # .mcp_coerce_one: `resolve_handle(val, "matrix")`
+    # a handle resolved to a matrix
     if kind == "matrix_handle":
         return _handle_annotation(projection)
-    # .mcp_coerce_one: `resolve_handle(val, "exog_handle")`
+    # a handle resolved to an exogenous-regressor matrix
     if kind == "exog_handle":
         return _handle_annotation(projection)
-    # .mcp_coerce_one: `resolve_handle(val, "df")`
+    # a handle resolved to a data frame
     if kind == "df_handle":
         return _handle_annotation(projection)
-    # .mcp_coerce_one: `resolve_handle(val, "raw")`
+    # a handle resolved to an opaque object
     if kind == "raw_handle":
         return _handle_annotation(projection)
-    # .mcp_coerce_one: `resolve_handle(val, "zoo")`
+    # a handle resolved to an irregular series
     if kind == "irregular_series_handle":
         return _handle_annotation(projection)
-    # .mcp_coerce_one: `lapply(val, function(h) resolve_handle(h, "raw"))`
+    # an array of handles, each resolved to an opaque object
     if kind == "raw_handle_array":
         array_leaf = _handle_array_leaf if projection == "wire" else _edge_ref_array_leaf
         return Annotated[Any, BeforeValidator(array_leaf), MaxLen(MAX_POINTER_ARRAY)]

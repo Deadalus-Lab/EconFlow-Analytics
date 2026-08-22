@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``markov_switching`` -- METHOD-SELECTION card #30.
+"""Method wrapper ``markov_switching`` -- method card #30.
 
-#30 Markov switching (gaussian/lm)
+#30 Markov switching (gaussian/linear)
 
 Category 06-volatility-regimes; module ``markov_switching``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,24 +23,24 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "msw_fit",
-    "msw_intervals",
-    "msw_residuals",
+    "ms_fit",
+    "ms_intervals",
+    "ms_residuals",
     "NODE_META",
     "wire_model",
 ]
 
 
-def msw_fit(
+def ms_fit(
     *,
     formula: str,
     data: pd.DataFrame,
     k: int | None = None,
     p: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``msw_fit`` -- METHOD-SELECTION card #30.
+    """Node ``ms_fit`` -- method card #30.
 
-    Markov switching (gaussian/lm).
+    Markov switching (gaussian/linear).
 
     Category 06-volatility-regimes; memory class ``heavy``.
 
@@ -56,51 +56,51 @@ def msw_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msw_fit: not implemented. The method card is in ./README.md."
+        "ms_fit: not implemented."
     )
 
 
-def msw_intervals(
+def ms_intervals(
     *,
     fit: Any,
     level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``msw_intervals`` -- METHOD-SELECTION card #30.
+    """Node ``ms_intervals`` -- method card #30.
 
-    Markov switching (gaussian/lm).
+    Markov switching (gaussian/linear).
 
     Category 06-volatility-regimes; memory class ``light``.
 
     Args:
-        fit: [raw_handle, required] Handle to an 'MSM' model (from msw_fit).
+        fit: [raw_handle, required] Handle to an 'MSM' model (from ms_fit).
         level: [number, optional] Confidence level in (0,1) (default 0.95). Default ``0.95``.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msw_intervals: not implemented. The method card is in ./README.md."
+        "ms_intervals: not implemented."
     )
 
 
-def msw_residuals(
+def ms_residuals(
     *,
     fit: Any,
     regime: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``msw_residuals`` -- METHOD-SELECTION card #30.
+    """Node ``ms_residuals`` -- method card #30.
 
-    Markov switching (gaussian/lm).
+    Markov switching (gaussian/linear).
 
     Category 06-volatility-regimes; memory class ``light``.
 
     Args:
-        fit: [raw_handle, required] Handle to an 'MSM' model (from msw_fit).
+        fit: [raw_handle, required] Handle to an 'MSM' model (from ms_fit).
         regime: [integer, optional] Regime 1..k for conditional residuals (default: all).
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msw_residuals: not implemented. The method card is in ./README.md."
+        "ms_residuals: not implemented."
     )

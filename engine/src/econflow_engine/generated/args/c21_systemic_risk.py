@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # ============================================================
 # GENERATED FILE -- DO NOT EDIT.
-# Source: artifacts/node-specs.v1.json (committed) via scripts/gen_schemas.py.
+# Source: artifacts/node-specs.json (committed) via scripts/gen_schemas.py.
 # Rebuild with: python scripts/gen_schemas.py
 # ============================================================
 
-"""Tier 2 for category 21-systemic-risk -- 8 nodes. No descriptions."""
+"""Tier 2 for category 21-systemic-risk -- 14 nodes. No descriptions."""
 
 from functools import cache
 
@@ -24,7 +24,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='build_er_model',
         category='21-systemic-risk',
         card_id=223,
-        contract_hash='c-6e74d36a90283ad2cea198b26739c4831cfb0a0f348ae86d0df29cf24c4ad492',
+        contract_hash='c2-a054850cbc1239ba54dbca0b22196e9bb2fb3c561598023eb522b578458eee45',
         register_field='model',
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -43,7 +43,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='nrm_contagion',
         category='21-systemic-risk',
         card_id=222,
-        contract_hash='c-490a4d768c10381ea5e17908099e5ecfdd676fd451d9fa97b231e9de8dac022c',
+        contract_hash='c2-71e09e90c87e4b4297ef4e299c524c02c69a0826e61f7af678d71e239c794ddf',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -63,7 +63,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='nrm_reconstruct_matrix',
         category='21-systemic-risk',
         card_id=222,
-        contract_hash='c-c2fe4c92687a2b695547c5af3f318dff8cf09dd0a9175bc184ce15e3d2ba5133',
+        contract_hash='c2-cb885d0bfa41e123656d578260caabda475b5ab8dddba2650fb7d0ef3187c0de',
         register_field='exposure_matrix',
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -86,7 +86,7 @@ NODE_META: dict[str, NodeMeta] = {
         fn='sample_interbank_network',
         category='21-systemic-risk',
         card_id=223,
-        contract_hash='c-702afce08261da844a2614bcf86a1c9da6fa1fca8329a40a8f7ace88c1a39da5',
+        contract_hash='c2-cebf83aa48bc3b8315368238b5b7573a5b6d6655ad476628b89380dc8318ecdd',
         register_field='samples',
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='mcmc',
@@ -104,11 +104,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={},
     ),
-    'syr_correlation_network_measures': NodeMeta(
-        fn='syr_correlation_network_measures',
+    'sys_correlation_network_measures': NodeMeta(
+        fn='sys_correlation_network_measures',
         category='21-systemic-risk',
         card_id=221,
-        contract_hash='c-86b98d375a3ce89b0924f1c51099f3b119945283dfa3d612b0fd63311b793e9d',
+        contract_hash='c2-392d0c02067091f1af894de246734689b6ef9c14dacd493e4e29b42d62383e6f',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -118,11 +118,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={},
     ),
-    'syr_covar_delta_covar': NodeMeta(
-        fn='syr_covar_delta_covar',
+    'sys_covar_delta_covar': NodeMeta(
+        fn='sys_covar_delta_covar',
         category='21-systemic-risk',
         card_id=221,
-        contract_hash='c-8af4615363ecb6bd54b93cca1ff8073578f6d2bc1a92ea1bb8f1157debde073c',
+        contract_hash='c2-d2b43e9e0348a60bbcfcf03487911b5eb91058f49bcd574758d366474ac98c20',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -131,11 +131,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={},
     ),
-    'syr_covar_delta_covar_t': NodeMeta(
-        fn='syr_covar_delta_covar_t',
+    'sys_covar_delta_covar_t': NodeMeta(
+        fn='sys_covar_delta_covar_t',
         category='21-systemic-risk',
         card_id=221,
-        contract_hash='c-e0254f37209b07dfbbc26d10e686823fe53189bdf55d8a3484ba523a024d5310',
+        contract_hash='c2-5356af0c2e97647ea5fa9e9e93a4bfcc4b7a0087fb3a80a3367ef1c8f14f14fe',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -145,11 +145,11 @@ NODE_META: dict[str, NodeMeta] = {
         ),
         defaults={},
     ),
-    'syr_scale': NodeMeta(
-        fn='syr_scale',
+    'sys_scale': NodeMeta(
+        fn='sys_scale',
         category='21-systemic-risk',
         card_id=221,
-        contract_hash='c-c599f258b42da83272ed49908bdb0ab8f37916d4ef254f9b37b7c57ae9575edc',
+        contract_hash='c2-0a70ec6600c01923ca54df8e0eaae198a94bc84032546c983e23eb71dfadb0e9',
         register_field=None,
         executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
         memory_class='light',
@@ -157,6 +157,106 @@ NODE_META: dict[str, NodeMeta] = {
         NodeArgMeta(name='x', kind='matrix_handle', required=True),
         ),
         defaults={},
+    ),
+    'sr_mes_srisk': NodeMeta(
+        fn='sr_mes_srisk',
+        category='21-systemic-risk',
+        card_id=553,
+        contract_hash='c2-85e262de8e2c998f91c89c457aac68f3639d10e7f3a2c760eae795ecafb939d3',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='returns', kind='df_handle', required=True),
+        NodeArgMeta(name='market', kind='series_handle', required=True),
+        NodeArgMeta(name='liabilities', kind='series_handle', required=False),
+        NodeArgMeta(name='market_cap', kind='series_handle', required=False),
+        NodeArgMeta(name='crisis_decline', kind='number', required=False),
+        NodeArgMeta(name='prudential_ratio', kind='number', required=False),
+        NodeArgMeta(name='horizon', kind='integer', required=False),
+        NodeArgMeta(name='seed', kind='integer', required=True),
+        ),
+        defaults={'crisis_decline': 0.4, 'prudential_ratio': 0.08, 'horizon': 126},
+    ),
+    'sr_absorption_ratio': NodeMeta(
+        fn='sr_absorption_ratio',
+        category='21-systemic-risk',
+        card_id=554,
+        contract_hash='c2-1ca8ccc2920aa3f168aa2d94cbe9903899a5905005a121cb939308380bb39f0e',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='returns', kind='df_handle', required=True),
+        NodeArgMeta(name='n_components', kind='integer', required=False),
+        NodeArgMeta(name='window', kind='integer', required=False),
+        NodeArgMeta(name='short_window', kind='integer', required=False),
+        ),
+        defaults={'window': 500, 'short_window': 15},
+    ),
+    'sr_granger_network': NodeMeta(
+        fn='sr_granger_network',
+        category='21-systemic-risk',
+        card_id=555,
+        contract_hash='c2-243547f1a450e09c8ee981996ab6227f7d4040e6768e51d9761f392c07ca64ae',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='returns', kind='df_handle', required=True),
+        NodeArgMeta(name='lags', kind='integer', required=False),
+        NodeArgMeta(name='adjust', kind='enum', required=False, enum=('none', 'bonferroni', 'holm', 'fdr', )),
+        NodeArgMeta(name='window', kind='integer', required=False),
+        NodeArgMeta(name='alpha', kind='number', required=False),
+        ),
+        defaults={'lags': 1, 'adjust': 'fdr', 'alpha': 0.05},
+    ),
+    'sr_network_topology': NodeMeta(
+        fn='sr_network_topology',
+        category='21-systemic-risk',
+        card_id=555,
+        contract_hash='c2-e5882203d9fc1fb55a7b2ac970c79024baba8a03c4d15bf461570f7ac5879731',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='adjacency', kind='matrix_handle', required=True),
+        NodeArgMeta(name='measures', kind='series_codes', required=False),
+        ),
+        defaults={},
+    ),
+    'sr_stress_index': NodeMeta(
+        fn='sr_stress_index',
+        category='21-systemic-risk',
+        card_id=556,
+        contract_hash='c2-55f1e713956d0e93f44b6906039e86ca96738d4ae559d091bd978fe108a16fdf',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='indicators', kind='df_handle', required=True),
+        NodeArgMeta(name='segments', kind='series_codes', required=False),
+        NodeArgMeta(name='transform', kind='enum', required=False, enum=('empirical_cdf', 'standardise', 'rank', )),
+        NodeArgMeta(name='recursive', kind='boolean', required=False),
+        NodeArgMeta(name='correlation_window', kind='integer', required=False),
+        ),
+        defaults={'transform': 'empirical_cdf', 'recursive': True, 'correlation_window': 250},
+    ),
+    'sr_correlation_filter': NodeMeta(
+        fn='sr_correlation_filter',
+        category='21-systemic-risk',
+        card_id=557,
+        contract_hash='c2-68692349c70c6e6f5a20cf6843abc7e8cc0f8d5f59f94c8d86db5da190bec5ee',
+        register_field=None,
+        executability=NodeExecutabilityMeta(status='executable', reason_code=None, reason=None, blocked_arg=None),
+        memory_class='light',
+        args=(
+        NodeArgMeta(name='correlation', kind='matrix_handle', required=True),
+        NodeArgMeta(name='method', kind='enum', required=False, enum=('mst', 'pmfg', 'threshold', 'knn', )),
+        NodeArgMeta(name='threshold', kind='number', required=False),
+        NodeArgMeta(name='metric', kind='enum', required=False, enum=('sqrt_2_1_minus_rho', 'one_minus_abs', 'angular', )),
+        ),
+        defaults={'method': 'mst', 'threshold': 0.5, 'metric': 'sqrt_2_1_minus_rho'},
     ),
 }
 
@@ -167,10 +267,16 @@ DEFAULTS: dict[str, dict[str, object]] = {
     'nrm_contagion': {},
     'nrm_reconstruct_matrix': {},
     'sample_interbank_network': {},
-    'syr_correlation_network_measures': {},
-    'syr_covar_delta_covar': {},
-    'syr_covar_delta_covar_t': {},
-    'syr_scale': {},
+    'sys_correlation_network_measures': {},
+    'sys_covar_delta_covar': {},
+    'sys_covar_delta_covar_t': {},
+    'sys_scale': {},
+    'sr_mes_srisk': {'crisis_decline': 0.4, 'prudential_ratio': 0.08, 'horizon': 126},
+    'sr_absorption_ratio': {'window': 500, 'short_window': 15},
+    'sr_granger_network': {'lags': 1, 'adjust': 'fdr', 'alpha': 0.05},
+    'sr_network_topology': {},
+    'sr_stress_index': {'transform': 'empirical_cdf', 'recursive': True, 'correlation_window': 250},
+    'sr_correlation_filter': {'method': 'mst', 'threshold': 0.5, 'metric': 'sqrt_2_1_minus_rho'},
 }
 
 

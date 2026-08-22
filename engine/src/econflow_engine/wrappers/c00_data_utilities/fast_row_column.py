@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``fast_row_column`` -- METHOD-SELECTION card #116.
+"""Method wrapper ``fast_row_column`` -- method card #116.
 
 #116 Fast row/column panel statistics (median/var/sd/quantiles) + a diffusion index (breadth) over a
     numeric wide panel matrix
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``fast_row_column``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def panel_row_stats(
     stat: Literal["median", "var", "sd"] | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``panel_row_stats`` -- METHOD-SELECTION card #116.
+    """Node ``panel_row_stats`` -- method card #116.
 
     Fast row/column panel statistics (median/var/sd/quantiles) + a diffusion index (breadth) over a
     numeric wide panel matrix.
@@ -49,7 +49,7 @@ def panel_row_stats(
 
     Args:
         x: [matrix_handle, required] Handle to a numeric panel matrix (rows=time, cols=series).
-            Plain numeric matrix — NOT ts/mts/DataFrame.
+            Plain numeric matrix — NOT series/panel/DataFrame.
         stat: [enum, optional] Per-period cross-sectional statistic across the series
             (rowMedians/rowVars/rowSds). Default ``'median'``.
         na_rm: [boolean, optional] Ignore NA; False => NA propagates visibly (NOT a silent drop).
@@ -59,7 +59,7 @@ def panel_row_stats(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "panel_row_stats: not implemented. The method card is in ./README.md."
+        "panel_row_stats: not implemented."
     )
 
 
@@ -69,7 +69,7 @@ def panel_col_stats(
     stat: Literal["median", "var", "sd"] | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``panel_col_stats`` -- METHOD-SELECTION card #116.
+    """Node ``panel_col_stats`` -- method card #116.
 
     Fast row/column panel statistics (median/var/sd/quantiles) + a diffusion index (breadth) over a
     numeric wide panel matrix.
@@ -86,7 +86,7 @@ def panel_col_stats(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "panel_col_stats: not implemented. The method card is in ./README.md."
+        "panel_col_stats: not implemented."
     )
 
 
@@ -97,7 +97,7 @@ def panel_quantiles(
     type: int | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``panel_quantiles`` -- METHOD-SELECTION card #116.
+    """Node ``panel_quantiles`` -- method card #116.
 
     Fast row/column panel statistics (median/var/sd/quantiles) + a diffusion index (breadth) over a
     numeric wide panel matrix.
@@ -116,7 +116,7 @@ def panel_quantiles(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "panel_quantiles: not implemented. The method card is in ./README.md."
+        "panel_quantiles: not implemented."
     )
 
 
@@ -125,7 +125,7 @@ def panel_diffusion_index(
     x: np.ndarray,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``panel_diffusion_index`` -- METHOD-SELECTION card #116.
+    """Node ``panel_diffusion_index`` -- method card #116.
 
     Fast row/column panel statistics (median/var/sd/quantiles) + a diffusion index (breadth) over a
     numeric wide panel matrix.
@@ -141,5 +141,5 @@ def panel_diffusion_index(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "panel_diffusion_index: not implemented. The method card is in ./README.md."
+        "panel_diffusion_index: not implemented."
     )

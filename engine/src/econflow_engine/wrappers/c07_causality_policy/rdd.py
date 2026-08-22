@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``rdd`` -- METHOD-SELECTION card #39.
+"""Method wrapper ``rdd`` -- method card #39.
 
 #39 RDD (IK bandwidth, object-oriented; fuzzy->rdd_reg_lm only)
 
@@ -7,8 +7,8 @@ Category 07-causality-policy; module ``rdd``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -20,23 +20,23 @@ from econflow_engine.generated.args.c07_causality_policy import NODE_META, wire_
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "wrap_rdd_bw_ik",
-    "wrap_rdd_data",
-    "wrap_rdd_reg_lm",
-    "wrap_rdd_reg_np",
+    "rd_bandwidth_ik",
+    "rd_prepare_data",
+    "rd_reg_nonparametric",
+    "rd_reg_parametric",
     "NODE_META",
     "wire_model",
 ]
 
 
-def wrap_rdd_data(
+def rd_prepare_data(
     *,
     y: Any,
     x: Any,
     cutpoint: float,
     z: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_rdd_data`` -- METHOD-SELECTION card #39.
+    """Node ``rd_prepare_data`` -- method card #39.
 
     RDD (IK bandwidth, object-oriented; fuzzy->rdd_reg_lm only).
 
@@ -54,25 +54,25 @@ def wrap_rdd_data(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_rdd_data: not implemented. The method card is in ./README.md."
+        "rd_prepare_data: not implemented."
     )
 
 
-def wrap_rdd_reg_lm(
+def rd_reg_parametric(
     *,
     rdd_object: Any,
     order: int | None = None,
     slope: Literal["separate", "same"] | None = None,
     bw: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_rdd_reg_lm`` -- METHOD-SELECTION card #39.
+    """Node ``rd_reg_parametric`` -- method card #39.
 
     RDD (IK bandwidth, object-oriented; fuzzy->rdd_reg_lm only).
 
     Category 07-causality-policy; memory class ``light``.
 
     Args:
-        rdd_object: [raw_handle, required] Handle to an rdd_data object (from wrap_rdd_data).
+        rdd_object: [raw_handle, required] Handle to an rdd_data object (from rd_prepare_data).
         order: [integer, optional] Polynomial degree (default 1). Default ``1``.
         slope: [enum, optional] Slope on each side of the cutpoint (default separate).
         bw: [number, optional] Bandwidth (default: all the data / global).
@@ -81,18 +81,18 @@ def wrap_rdd_reg_lm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_rdd_reg_lm: not implemented. The method card is in ./README.md."
+        "rd_reg_parametric: not implemented."
     )
 
 
-def wrap_rdd_reg_np(
+def rd_reg_nonparametric(
     *,
     rdd_object: Any,
     bw: float | None = None,
     slope: Literal["separate", "same"] | None = None,
     inference: Literal["np", "lm"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_rdd_reg_np`` -- METHOD-SELECTION card #39.
+    """Node ``rd_reg_nonparametric`` -- method card #39.
 
     RDD (IK bandwidth, object-oriented; fuzzy->rdd_reg_lm only).
 
@@ -108,16 +108,16 @@ def wrap_rdd_reg_np(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_rdd_reg_np: not implemented. The method card is in ./README.md."
+        "rd_reg_nonparametric: not implemented."
     )
 
 
-def wrap_rdd_bw_ik(
+def rd_bandwidth_ik(
     *,
     rdd_object: Any,
     kernel: Literal["Triangular", "Uniform", "Normal"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``wrap_rdd_bw_ik`` -- METHOD-SELECTION card #39.
+    """Node ``rd_bandwidth_ik`` -- method card #39.
 
     RDD (IK bandwidth, object-oriented; fuzzy->rdd_reg_lm only).
 
@@ -131,5 +131,5 @@ def wrap_rdd_bw_ik(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "wrap_rdd_bw_ik: not implemented. The method card is in ./README.md."
+        "rd_bandwidth_ik: not implemented."
     )

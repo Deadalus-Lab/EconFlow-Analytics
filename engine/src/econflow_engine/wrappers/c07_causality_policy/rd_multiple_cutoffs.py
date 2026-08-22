@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``rd_multiple_cutoffs`` -- METHOD-SELECTION card #169.
+"""Method wrapper ``rd_multiple_cutoffs`` -- method card #169.
 
 #169 RD with multiple cutoffs / multiple scores (multi-cutoff & multi-score RD, robust
     bias-corrected)
@@ -8,8 +8,8 @@ Category 07-causality-policy; module ``rd_multiple_cutoffs``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -22,14 +22,14 @@ from econflow_engine.generated.args.c07_causality_policy import NODE_META, wire_
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "rdmc_fit",
-    "rdms_fit",
+    "rd_multi_cutoff",
+    "rd_multi_score",
     "NODE_META",
     "wire_model",
 ]
 
 
-def rdmc_fit(
+def rd_multi_cutoff(
     *,
     Y: Sequence[float],
     X: Sequence[float],
@@ -57,7 +57,7 @@ def rdmc_fit(
     level: float | None = None,
     conventional: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rdmc_fit`` -- METHOD-SELECTION card #169.
+    """Node ``rd_multi_cutoff`` -- method card #169.
 
     RD with multiple cutoffs / multiple scores (multi-cutoff & multi-score RD, robust
     bias-corrected).
@@ -83,11 +83,11 @@ def rdmc_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rdmc_fit: not implemented. The method card is in ./README.md."
+        "rd_multi_cutoff: not implemented."
     )
 
 
-def rdms_fit(
+def rd_multi_score(
     *,
     Y: Sequence[float],
     X: Sequence[float],
@@ -116,7 +116,7 @@ def rdms_fit(
     level: float | None = None,
     conventional: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rdms_fit`` -- METHOD-SELECTION card #169.
+    """Node ``rd_multi_score`` -- method card #169.
 
     RD with multiple cutoffs / multiple scores (multi-cutoff & multi-score RD, robust
     bias-corrected).
@@ -143,5 +143,5 @@ def rdms_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rdms_fit: not implemented. The method card is in ./README.md."
+        "rd_multi_score: not implemented."
     )

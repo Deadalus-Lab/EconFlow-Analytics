@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``fast_lead_lag`` -- METHOD-SELECTION card #108.
+"""Method wrapper ``fast_lead_lag`` -- method card #108.
 
-#108 Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, froll family,
-    frollapply closed reducer set)
+#108 Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, rolling family,
+    closed rolling-reducer set)
 
 Category 00-data-utilities; module ``fast_lead_lag``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,25 +25,25 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "dt_roll",
-    "dt_roll_apply",
-    "dt_shift",
+    "fl_roll",
+    "fl_roll_apply",
+    "fl_shift",
     "NODE_META",
     "wire_model",
 ]
 
 
-def dt_shift(
+def fl_shift(
     *,
     x: pd.Series,
     n: Sequence[int] | None = None,
     type: Literal["lag", "lead", "shift", "cyclic"] | None = None,
     fill: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``dt_shift`` -- METHOD-SELECTION card #108.
+    """Node ``fl_shift`` -- method card #108.
 
-    Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, froll family,
-    frollapply closed reducer set).
+    Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, rolling family,
+    closed rolling-reducer set).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -59,11 +59,11 @@ def dt_shift(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dt_shift: not implemented. The method card is in ./README.md."
+        "fl_shift: not implemented."
     )
 
 
-def dt_roll(
+def fl_roll(
     *,
     x: pd.Series,
     n: Sequence[int],
@@ -73,10 +73,10 @@ def dt_roll(
     na_rm: bool | None = None,
     adaptive: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dt_roll`` -- METHOD-SELECTION card #108.
+    """Node ``fl_roll`` -- method card #108.
 
-    Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, froll family,
-    frollapply closed reducer set).
+    Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, rolling family,
+    closed rolling-reducer set).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -95,11 +95,11 @@ def dt_roll(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dt_roll: not implemented. The method card is in ./README.md."
+        "fl_roll: not implemented."
     )
 
 
-def dt_roll_apply(
+def fl_roll_apply(
     *,
     x: pd.Series,
     n: int,
@@ -122,10 +122,10 @@ def dt_roll_apply(
     align: Literal["right", "left", "center"] | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dt_roll_apply`` -- METHOD-SELECTION card #108.
+    """Node ``fl_roll_apply`` -- method card #108.
 
-    Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, froll family,
-    frollapply closed reducer set).
+    Fast (C) lead/lag + rolling-window aggregates + rolling robust reducers (shift, rolling family,
+    closed rolling-reducer set).
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -142,5 +142,5 @@ def dt_roll_apply(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dt_roll_apply: not implemented. The method card is in ./README.md."
+        "fl_roll_apply: not implemented."
     )

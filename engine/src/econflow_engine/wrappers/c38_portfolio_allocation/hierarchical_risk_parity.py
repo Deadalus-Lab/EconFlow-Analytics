@@ -1,0 +1,84 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``hierarchical_risk_parity`` -- method card #328.
+
+#328 Hierarchical risk parity and hierarchical equal risk contribution
+
+Category 38-portfolio-allocation; module ``hierarchical_risk_parity``.
+
+Reference implementation: riskfolio-lib.
+
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c38_portfolio_allocation import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "pf_herc",
+    "pf_hrp",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def pf_hrp(
+    *,
+    returns: pd.DataFrame,
+    linkage: Literal["single", "complete", "average", "ward"] | None = None,
+    distance: Literal["correlation", "absolute_correlation", "distance_correlation"] | None = None,
+    risk_measure: Literal["variance", "mad", "cvar", "cdar"] | None = None,
+) -> dict[str, Any]:
+    """Node ``pf_hrp`` -- method card #328.
+
+    Hierarchical risk parity and hierarchical equal risk contribution.
+
+    Category 38-portfolio-allocation; memory class ``light``.
+
+    Args:
+        returns: [df_handle, required] Asset return panel.
+        linkage: [enum, optional] Hierarchical linkage. Default ``'ward'``.
+        distance: [enum, optional] Distance metric on correlations. Default ``'correlation'``.
+        risk_measure: [enum, optional] Risk measure used at each split. Default ``'variance'``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "pf_hrp: not implemented."
+    )
+
+
+def pf_herc(
+    *,
+    returns: pd.DataFrame,
+    linkage: Literal["single", "complete", "average", "ward"] | None = None,
+    n_clusters: int | None = None,
+    risk_measure: Literal["variance", "mad", "cvar", "cdar"] | None = None,
+) -> dict[str, Any]:
+    """Node ``pf_herc`` -- method card #328.
+
+    Hierarchical risk parity and hierarchical equal risk contribution.
+
+    Category 38-portfolio-allocation; memory class ``light``.
+
+    Args:
+        returns: [df_handle, required] Asset return panel.
+        linkage: [enum, optional] Hierarchical linkage. Default ``'ward'``.
+        n_clusters: [integer, optional] Clusters to cut the tree at; omitted = gap statistic.
+        risk_measure: [enum, optional] Risk measure used at each split. Default ``'variance'``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "pf_herc: not implemented."
+    )

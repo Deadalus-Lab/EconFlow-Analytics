@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``static_panel_estimators`` -- METHOD-SELECTION cards #46, #47.
+"""Method wrapper ``static_panel_estimators`` -- method cards #46, #47.
 
 #46 Static panel estimators (FE/RE/pooling/between/FD) + Hausman/LM/F
 #47 Dynamic panel GMM (Arellano-Bond difference / Blundell-Bond system)
@@ -8,8 +8,8 @@ Category 08-panel-data; module ``static_panel_estimators``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def pd_fit(
     effect: Literal["individual", "time", "twoways", "nested"] | None = None,
     model: Literal["within", "random", "ht", "between", "pooling", "fd"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``pd_fit`` -- METHOD-SELECTION card #46.
+    """Node ``pd_fit`` -- method card #46.
 
     Static panel estimators (FE/RE/pooling/between/FD) + Hausman/LM/F.
 
@@ -64,7 +64,7 @@ def pd_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_fit: not implemented. The method card is in ./README.md."
+        "pd_fit: not implemented."
     )
 
 
@@ -75,7 +75,7 @@ def pd_hausman_test(
     effect: Literal["individual", "time", "twoways"] | None = None,
     method: Literal["chisq", "aux"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``pd_hausman_test`` -- METHOD-SELECTION card #46.
+    """Node ``pd_hausman_test`` -- method card #46.
 
     Static panel estimators (FE/RE/pooling/between/FD) + Hausman/LM/F.
 
@@ -91,7 +91,7 @@ def pd_hausman_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_hausman_test: not implemented. The method card is in ./README.md."
+        "pd_hausman_test: not implemented."
     )
 
 
@@ -102,7 +102,7 @@ def pd_poolability_test(
     effect: Literal["individual", "time", "twoways"] | None = None,
     type: Literal["honda", "bp", "ghm", "kw"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``pd_poolability_test`` -- METHOD-SELECTION card #46.
+    """Node ``pd_poolability_test`` -- method card #46.
 
     Static panel estimators (FE/RE/pooling/between/FD) + Hausman/LM/F.
 
@@ -118,7 +118,7 @@ def pd_poolability_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_poolability_test: not implemented. The method card is in ./README.md."
+        "pd_poolability_test: not implemented."
     )
 
 
@@ -128,7 +128,7 @@ def pd_effects_ftest(
     data: pd.DataFrame,
     effect: Literal["individual", "time", "twoways"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``pd_effects_ftest`` -- METHOD-SELECTION card #46.
+    """Node ``pd_effects_ftest`` -- method card #46.
 
     Static panel estimators (FE/RE/pooling/between/FD) + Hausman/LM/F.
 
@@ -143,7 +143,7 @@ def pd_effects_ftest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_effects_ftest: not implemented. The method card is in ./README.md."
+        "pd_effects_ftest: not implemented."
     )
 
 
@@ -152,14 +152,14 @@ def pd_fixed_effects(
     object: Any,
     type: Literal["level", "dfirst", "dmean"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``pd_fixed_effects`` -- METHOD-SELECTION card #46.
+    """Node ``pd_fixed_effects`` -- method card #46.
 
     Static panel estimators (FE/RE/pooling/between/FD) + Hausman/LM/F.
 
     Category 08-panel-data; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to a 'within' plm model (from pd_fit with
+        object: [raw_handle, required] Handle to a 'within' panel model (from pd_fit with
             model='within').
         type: [enum, optional] Effects coding (default level).
 
@@ -167,7 +167,7 @@ def pd_fixed_effects(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_fixed_effects: not implemented. The method card is in ./README.md."
+        "pd_fixed_effects: not implemented."
     )
 
 
@@ -175,21 +175,21 @@ def pd_random_effects(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``pd_random_effects`` -- METHOD-SELECTION card #46.
+    """Node ``pd_random_effects`` -- method card #46.
 
     Static panel estimators (FE/RE/pooling/between/FD) + Hausman/LM/F.
 
     Category 08-panel-data; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to a 'random' plm model (from pd_fit with
+        object: [raw_handle, required] Handle to a 'random' panel model (from pd_fit with
             model='random').
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_random_effects: not implemented. The method card is in ./README.md."
+        "pd_random_effects: not implemented."
     )
 
 
@@ -201,7 +201,7 @@ def pd_gmm_fit(
     model: Literal["onestep", "twosteps"] | None = None,
     transformation: Literal["d", "ld"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``pd_gmm_fit`` -- METHOD-SELECTION card #47.
+    """Node ``pd_gmm_fit`` -- method card #47.
 
     Dynamic panel GMM (Arellano-Bond difference / Blundell-Bond system).
 
@@ -221,7 +221,7 @@ def pd_gmm_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_gmm_fit: not implemented. The method card is in ./README.md."
+        "pd_gmm_fit: not implemented."
     )
 
 
@@ -230,7 +230,7 @@ def pd_gmm_autocorr_test(
     object: Any,
     order: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pd_gmm_autocorr_test`` -- METHOD-SELECTION card #47.
+    """Node ``pd_gmm_autocorr_test`` -- method card #47.
 
     Dynamic panel GMM (Arellano-Bond difference / Blundell-Bond system).
 
@@ -245,7 +245,7 @@ def pd_gmm_autocorr_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_gmm_autocorr_test: not implemented. The method card is in ./README.md."
+        "pd_gmm_autocorr_test: not implemented."
     )
 
 
@@ -254,7 +254,7 @@ def pd_gmm_sargan_test(
     object: Any,
     weights: Literal["twosteps", "onestep"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``pd_gmm_sargan_test`` -- METHOD-SELECTION card #47.
+    """Node ``pd_gmm_sargan_test`` -- method card #47.
 
     Dynamic panel GMM (Arellano-Bond difference / Blundell-Bond system).
 
@@ -268,5 +268,5 @@ def pd_gmm_sargan_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pd_gmm_sargan_test: not implemented. The method card is in ./README.md."
+        "pd_gmm_sargan_test: not implemented."
     )

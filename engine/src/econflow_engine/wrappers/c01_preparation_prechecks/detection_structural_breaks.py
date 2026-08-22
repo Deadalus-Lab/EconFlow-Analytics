@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``detection_structural_breaks`` -- METHOD-SELECTION card #128.
+"""Method wrapper ``detection_structural_breaks`` -- method card #128.
 
 #128 Detection of structural breaks in the trend & seasonality of seasonal time series (BFAST:
     iterative STL + breakpoints) + near-real-time disturbance monitoring
@@ -8,8 +8,8 @@ Category 01-preparation-prechecks; module ``detection_structural_breaks``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,14 +25,14 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "bf_bfast",
-    "bf_monitor",
+    "bfast_detect",
+    "bfast_monitor",
     "NODE_META",
     "wire_model",
 ]
 
 
-def bf_bfast(
+def bfast_detect(
     *,
     Yt: pd.Series,
     h: float | None = None,
@@ -42,7 +42,7 @@ def bf_bfast(
     level: Sequence[float] | None = None,
     decomp: Literal["stl", "stlplus"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bf_bfast`` -- METHOD-SELECTION card #128.
+    """Node ``bfast_detect`` -- method card #128.
 
     Detection of structural breaks in the trend & seasonality of seasonal time series (BFAST:
     iterative STL + breakpoints) + near-real-time disturbance monitoring.
@@ -71,11 +71,11 @@ def bf_bfast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bf_bfast: not implemented. The method card is in ./README.md."
+        "bfast_detect: not implemented."
     )
 
 
-def bf_monitor(
+def bfast_monitor(
     *,
     data: pd.Series,
     start: Sequence[float],
@@ -84,7 +84,7 @@ def bf_monitor(
     h: float | None = None,
     level: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``bf_monitor`` -- METHOD-SELECTION card #128.
+    """Node ``bfast_monitor`` -- method card #128.
 
     Detection of structural breaks in the trend & seasonality of seasonal time series (BFAST:
     iterative STL + breakpoints) + near-real-time disturbance monitoring.
@@ -109,5 +109,5 @@ def bf_monitor(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bf_monitor: not implemented. The method card is in ./README.md."
+        "bfast_monitor: not implemented."
     )

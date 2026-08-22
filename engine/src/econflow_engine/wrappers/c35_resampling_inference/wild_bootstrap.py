@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``wild_bootstrap`` -- method card #304.
+
+#304 Wild bootstrap with Rademacher, Mammen and Webb weights
+
+Category 35-resampling-inference; module ``wild_bootstrap``.
+
+Reference implementation: wildboottest.
+
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Literal
+
+from econflow_engine.generated.args.c35_resampling_inference import NODE_META, wire_model
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "rs_wild_bootstrap",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def rs_wild_bootstrap(
+    *,
+    fit: Any,
+    restriction: str,
+    weights: Literal["rademacher", "mammen", "webb", "normal"] | None = None,
+    impose_null: bool | None = None,
+    nboot: int | None = None,
+    seed: int,
+    conf_level: float | None = None,
+) -> dict[str, Any]:
+    """Node ``rs_wild_bootstrap`` -- method card #304.
+
+    Wild bootstrap with Rademacher, Mammen and Webb weights.
+
+    Category 35-resampling-inference; memory class ``heavy``.
+
+    Args:
+        fit: [raw_handle, required] Handle to a fitted regression.
+        restriction: [formula, required] Restriction tested under the null.
+        weights: [enum, optional] Auxiliary weight distribution. Default ``'rademacher'``.
+        impose_null: [boolean, optional] Impose the null when resampling. Default ``True``.
+        nboot: [integer, optional] Number of bootstrap replications. Default ``999``.
+        seed: [integer, required] Seed for the random number generator; required for
+            reproducibility.
+        conf_level: [number, optional] Confidence level for intervals. Default ``0.95``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "rs_wild_bootstrap: not implemented."
+    )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``non_parametric_trend`` -- METHOD-SELECTION card #131.
+"""Method wrapper ``non_parametric_trend`` -- method card #131.
 
 #131 Non-parametric trend & change-point tests (Mann-Kendall / Theil-Sen slope / Pettitt / Seasonal
     MK)
@@ -8,8 +8,8 @@ Category 01-preparation-prechecks; module ``non_parametric_trend``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,23 +24,23 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "tr_mk",
+    "tr_mann_kendall",
     "tr_pettitt",
-    "tr_sens",
-    "tr_smk",
+    "tr_seasonal_mann_kendall",
+    "tr_theil_sen",
     "NODE_META",
     "wire_model",
 ]
 
 
-def tr_mk(
+def tr_mann_kendall(
     *,
     x: pd.Series,
     alternative: Literal["two.sided", "greater", "less"] | None = None,
     continuity: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``tr_mk`` -- METHOD-SELECTION card #131.
+    """Node ``tr_mann_kendall`` -- method card #131.
 
     Non-parametric trend & change-point tests (Mann-Kendall / Theil-Sen slope / Pettitt / Seasonal
     MK).
@@ -60,17 +60,17 @@ def tr_mk(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tr_mk: not implemented. The method card is in ./README.md."
+        "tr_mann_kendall: not implemented."
     )
 
 
-def tr_sens(
+def tr_theil_sen(
     *,
     x: pd.Series,
     conf_level: float | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``tr_sens`` -- METHOD-SELECTION card #131.
+    """Node ``tr_theil_sen`` -- method card #131.
 
     Non-parametric trend & change-point tests (Mann-Kendall / Theil-Sen slope / Pettitt / Seasonal
     MK).
@@ -89,7 +89,7 @@ def tr_sens(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tr_sens: not implemented. The method card is in ./README.md."
+        "tr_theil_sen: not implemented."
     )
 
 
@@ -98,7 +98,7 @@ def tr_pettitt(
     x: pd.Series,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``tr_pettitt`` -- METHOD-SELECTION card #131.
+    """Node ``tr_pettitt`` -- method card #131.
 
     Non-parametric trend & change-point tests (Mann-Kendall / Theil-Sen slope / Pettitt / Seasonal
     MK).
@@ -115,11 +115,11 @@ def tr_pettitt(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tr_pettitt: not implemented. The method card is in ./README.md."
+        "tr_pettitt: not implemented."
     )
 
 
-def tr_smk(
+def tr_seasonal_mann_kendall(
     *,
     x: pd.Series,
     frequency: int | None = None,
@@ -127,7 +127,7 @@ def tr_smk(
     continuity: bool | None = None,
     alpha: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``tr_smk`` -- METHOD-SELECTION card #131.
+    """Node ``tr_seasonal_mann_kendall`` -- method card #131.
 
     Non-parametric trend & change-point tests (Mann-Kendall / Theil-Sen slope / Pettitt / Seasonal
     MK).
@@ -137,7 +137,7 @@ def tr_smk(
     Args:
         x: [series_handle, required] Handle to a seasonal ts with frequency>1 (or numeric +
             frequency)· no NA, non-constant.
-        frequency: [integer, optional] Seasonal period >1· MANDATORY if x is not a ts (e.g.
+        frequency: [integer, optional] Seasonal period >1· MANDATORY if x is not a series (e.g.
             12=monthly, 4=quarterly).
         alternative: [enum, optional] Alternative hypothesis (default two.sided).
         continuity: [boolean, optional] Continuity correction (default True). Default ``True``.
@@ -147,5 +147,5 @@ def tr_smk(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "tr_smk: not implemented. The method card is in ./README.md."
+        "tr_seasonal_mann_kendall: not implemented."
     )

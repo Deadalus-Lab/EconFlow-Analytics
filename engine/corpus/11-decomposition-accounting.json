@@ -1,0 +1,1978 @@
+{
+ "category": "11-decomposition-accounting",
+ "cards": [
+  {
+   "id": 62,
+   "method": "productivity (TFP / Malmquist / DEA)",
+   "wrapper_file": "c11_decomposition_accounting/productivity.py",
+   "tool_fns": [
+    "prod_malmquist",
+    "prod_fare_primont"
+   ],
+   "when": "a balanced DMU×period panel with inputs (K,L,materials) & outputs (GDP); non-parametric TFP: malm=change, fareprim=levels (multilateral transitive)",
+   "when_not": "a single time series for one DMU; an unbalanced panel; parametric/SFA with noise; decomposition of forecast variance (→ FEVD, cat. 04)",
+   "alternatives": [
+    {
+     "alt": "prod_fare_primont (transitive levels)",
+     "criterion": "you want comparable TFP LEVELS across many DMU/years at once (multilateral); the only transitive+complete index (O'Donnell 2012)"
+    },
+    {
+     "alt": "prod_malmquist (change)",
+     "criterion": "you want the CHANGE in TFP between adjacent periods (Solow-style, quantity-only, effch×tech)"
+    },
+    {
+     "alt": "SFA (stochastic frontier)",
+     "criterion": "you want to separate inefficiency from random noise (DEA attributes everything to inefficiency) and you accept a functional form"
+    },
+    {
+     "alt": "hicksmoorsteen/lowe/fisher/laspeyres/paasche",
+     "criterion": "excluded (charter §4): non-transitive or price-based, redundant next to malm+fareprim"
+    }
+   ],
+   "output_key_fields": [
+    "Changes.malmquist: the TFP change index; >1=improvement, <1=deterioration (the same under both orientations)",
+    "Changes.effch: efficiency change (catching up to the frontier); malmquist=effch×tech",
+    "Changes.tech: technological change (a shift of the frontier); obtech/ibtech/matech are its components",
+    "TFP in Levels (prod_fare_primont): the TFP level, transitive → directly comparable across units and periods",
+    "TFPE = TFP/MP ∈ (0,1] in Levels; OTE/OSE/OME: technical/scale/mix efficiency (output-oriented)",
+    "REV/COST/PROF in Levels: profitability, ONLY when prices are supplied (w_vars/p_vars)",
+    "Changes (prod_fare_primont): the changes are prefixed with 'd' (dTFP, dOTE, dPROF); Shadowp only when shadow=True"
+   ],
+   "interpretation_traps": [
+    "efficiency scores ∈(0,1]; a value=1 = best-in-sample frontier, NOT absolutely perfect (DEA is relative/deterministic)",
+    "zero/negative inputs/outputs → SILENT garbage (a zero output → malmquist ~1e30); the gate requires strictly >0",
+    "a categorical time variable → DEA sorts by category order rather than chronologically → a SILENTLY sign-flipped TFP change",
+    "the Levels/Changes/Shadowp accessors are unreliable; read the Levels and Changes blocks directly",
+    "DEA has no noise term: outliers/measurement error shift the frontier & distort every score",
+    "an unbalanced panel is not supported; prod_malmquist needs >=2 periods, prod_fare_primont >=1"
+   ],
+   "sources": [
+    "productivity (help malm/fareprim, live-verified 1.1.0)",
+    "Färe & Grosskopf 1996 Intertemporal Production Frontiers (Malmquist decomposition)",
+    "O'Donnell 2011/2012 AJAE 94(4):873-890 (Färe-Primont transitivity & complete decomposition)",
+    "Caves-Christensen-Diewert 1982 (Malmquist index)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 63,
+   "method": "oaxaca (Blinder-Oaxaca decomposition)",
+   "wrapper_file": "c11_decomposition_accounting/oaxaca.py",
+   "tool_fns": [
+    "ox_decompose"
+   ],
+   "when": "cross-section; decomposing the MEAN gap of a continuous outcome between TWO groups (0/1) into explained/endowments vs unexplained/coefficients (+interaction, three-fold)",
+   "when_not": ">2 groups; a causal claim (unexplained ≠ discrimination); a non-linear/binary outcome; a time-series/panel gap",
+   "alternatives": [
+    {
+     "alt": "three-fold decomposition",
+     "criterion": "you want an explicit interaction term + a complete accounting split with no reference choice (Jann 2008)"
+    },
+    {
+     "alt": "two-fold (reference-coefficient scheme)",
+     "criterion": "you want 'how much of the gap closes if we equalised X'; choose group_weight (pooled or A/B)"
+    },
+    {
+     "alt": "quantile / RIF decomposition (Firpo-Fortin-Lemieux)",
+     "criterion": "the gap varies across the DISTRIBUTION (glass ceiling/sticky floor), not only at the mean"
+    },
+    {
+     "alt": "non-linear Oaxaca (Fairlie/Yun)",
+     "criterion": "a binary or count outcome; outside this wrapper (the regression function is locked to least squares)"
+    }
+   ],
+   "output_key_fields": [
+    "twofold: overall per reference weight (group_weight); coef_explained/se_explained (endowments), coef_unexplained/se_unexplained (+_A/_B)",
+    "twofold_variables: the decomposition per regressor (column variable)",
+    "threefold: coef_endowments, coef_coefficients, coef_interaction (+SEs)",
+    "threefold_variables: three-fold per regressor",
+    "x_means: mean_A/mean_B/mean_diff per regressor (the raw material of the endowments effect)",
+    "y: y_A/y_B/y_diff — mean outcomes & the total gap (= the sum of the components)",
+    "n: n_A/n_B/n_pooled; n_dropped: the rows silently dropped for missing values"
+   ],
+   "interpretation_traps": [
+    "an invalid group, input or formula makes the decomposition emit a message and return nothing at all rather than raising — hence a pre-gate and a post-gate that the result is non-empty",
+    "a degenerate fit: a per-group least-squares fit that is rank-deficient or has df_residual<=0 comes back with misleading coefficients and NO error; hence a post-gate on each group regression",
+    "'unexplained' ≠ discrimination: it absorbs omitted variables & functional-form error (Jann 2008); NOT causal",
+    "sign: y_diff=y_A−y_B (group=0 → A); check which group is 0/1 before interpreting; the components sum to y_diff",
+    "the two-fold split depends on the reference group_weight; a different weight → a different explained/unexplained split",
+    "the bootstrap standard errors are stochastic → the generator is seeded before the call (the same seed → an identical split)",
+    "rows with missing values are dropped silently → n_dropped reports them"
+   ],
+   "sources": [
+    "oaxaca (help oaxaca, live-verified 0.1.5)",
+    "Blinder 1973 J. Human Resources; Oaxaca 1973 Int. Economic Review (the original decompositions)",
+    "Jann 2008 Stata Journal 8(4):453-479 (two-fold reference schemes, three-fold, unexplained≠discrimination)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 190,
+   "method": "Price index numbers (bilateral/multilateral/spliced) + CPI-subindex contribution decompositions",
+   "wrapper_file": "c11_decomposition_accounting/price_index_numbers.py",
+   "tool_fns": [
+    "pi_bilateral",
+    "pi_multilateral",
+    "pi_splice",
+    "pi_contributions"
+   ],
+   "when": "long-format scanner/CPI micro data (time,prices,quantities,prodID); you want a price index (bilateral or multilateral) or a decomposition of the change in the value of a CPI subindex into price/quantity contributions per product",
+   "when_not": "you already have a finished index-level series (an index level ts) — that is a transform/growth-rate task, not index-number construction; a macro aggregate without product-level micro data; a need for SPQ/model-based or chained bilateral batch indices (outside the curated surface)",
+   "alternatives": [
+    {
+     "alt": "pi_multilateral (GEKS/CCDI/GK/TPD)",
+     "criterion": "high product turnover / new-goods bias — the bilateral indices (Laspeyres/Paasche) suffer chain drift; you want a transitive multilateral index"
+    },
+    {
+     "alt": "pi_splice",
+     "criterion": "you want a non-revisable extending multilateral series beyond a fixed window (a rolling-window splice)"
+    },
+    {
+     "alt": "#62 prod_fare_primont (productivity)",
+     "criterion": "you want a TFP/quantity index (Färe-Primont) rather than a price index"
+    }
+   ],
+   "output_key_fields": [
+    "pi_bilateral: index (a scalar, or a vector when interval=True); formula; dates (the month labels when an interval is used)",
+    "pi_multilateral: index (a scalar, end vs start over the window); method; window; wstart",
+    "pi_splice: index (a scalar, or the full series when interval=True); method; splice; dates",
+    "aggregate (pi_contributions): one row {Value_difference, Price_indicator, Quantity_indicator} — the identity value = price + quantity",
+    "contributions (pi_contributions): a per-product frame {prodID, value_differences, price_contributions, quantity_contributions}; plus n_products"
+   ],
+   "interpretation_traps": [
+    "start > end SILENTLY returns a wrong, inverted index — the wrapper blocks it with a gate; always keep start <= end",
+    "bilateral Laspeyres/Paasche over/understate because of substitution bias; Fisher/Törnqvist (superlative) is the correct baseline; a large Laspeyres–Paasche gap => move to multilateral",
+    "gk = Geary-Khamis rolling window (the default here); it differs from geary_khamis (fixed base, not exposed); do not confuse them",
+    "window (multilateral/splice): an integer >= 2 months; too small a window => noise, too large => the composition becomes out of date",
+    "pi_contributions: the price_contributions of a product can be 0 when its price did not change — the quantity is a contribution to the value DIFFERENCE (an indicator, not an index ratio)",
+    "interval=False gives a single index, end against start (with the base at start = 1); interval=True gives a dated series for a chart"
+   ],
+   "sources": [
+    "ILO/IMF/OECD/Eurostat/UNECE/World Bank (2004, 2020) Consumer Price Index Manual: Theory and Practice",
+    "Diewert (1976) Exact and superlative index numbers, J. Econometrics 4:115",
+    "Bennet (1920) The theory of measurement of changes in cost of living, JRSS 83:455; Montgomery (1937)",
+    "Krsinich (2016) The FEWS index: Fixed Effects with a Window Splice (UNECE-ILO); de Haan & Krsinich (2014) multilateral GEKS"
+   ],
+   "precondition_tools": [
+    "pi_bilateral (the bilateral baseline; check the Laspeyres vs Paasche drift before choosing multilateral)",
+    "pi_multilateral (GEKS/CCDI/GK/TPD; a transitive base for splicing)",
+    "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the long-format CSV micro data)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 484,
+   "method": "Growth accounting and Tornqvist-Divisia total factor productivity",
+   "wrapper_file": "c11_decomposition_accounting/growth_accounting.py",
+   "tool_fns": [
+    "da_growth_accounting"
+   ],
+   "when": "splitting output growth into contributions from measured inputs and the residual, which is the standard framing for productivity analysis",
+   "when_not": "the input shares are unavailable; the residual would absorb so much that it explains nothing",
+   "alternatives": [
+    {
+     "alt": "Solow residual with fixed shares",
+     "criterion": "shares are stable"
+    },
+    {
+     "alt": "Tornqvist-Divisia index",
+     "criterion": "shares move and you want a superlative index"
+    },
+    {
+     "alt": "production-function estimation",
+     "criterion": "you want elasticities rather than shares"
+    }
+   ],
+   "output_key_fields": [
+    "tfp_growth: the residual",
+    "contributions: growth attributed to each input",
+    "shares: the factor shares used, period by period",
+    "index: the Tornqvist or Divisia index level"
+   ],
+   "interpretation_traps": [
+    "THE SOLOW RESIDUAL IS A RESIDUAL: it absorbs measurement error, capacity utilisation, markups and mismeasured input quality, and calling it technology is an interpretation",
+    "using fixed shares when shares actually move introduces a substitution bias that the Tornqvist index exists to remove",
+    "capital services and the capital stock are different concepts; using the stock understates input growth"
+   ],
+   "sources": [
+    "Solow 1957 (Review of Economics and Statistics 39:312-320)",
+    "Diewert 1976 (Journal of Econometrics 4:115)",
+    "OECD 2001, Measuring Productivity"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 485,
+   "method": "Stochastic frontier analysis",
+   "wrapper_file": "c11_decomposition_accounting/stochastic_frontier.py",
+   "tool_fns": [
+    "da_stochastic_frontier"
+   ],
+   "when": "separating inefficiency from noise when measuring how far a unit is from best practice, which a simple residual cannot do",
+   "when_not": "there is no reason to expect one-sided inefficiency; the sample is too small to identify the two error components",
+   "alternatives": [
+    {
+     "alt": "data envelopment analysis",
+     "criterion": "you want a deterministic, non-parametric frontier"
+    },
+    {
+     "alt": "stochastic frontier",
+     "criterion": "noise must be separated from inefficiency"
+    },
+    {
+     "alt": "ordinary regression",
+     "criterion": "efficiency is not the question"
+    }
+   ],
+   "output_key_fields": [
+    "params: frontier coefficients",
+    "efficiency: per-unit technical efficiency scores",
+    "lambda_: ratio of inefficiency to noise variance -- the identification diagnostic",
+    "one_sided_test: test that inefficiency is present at all"
+   ],
+   "interpretation_traps": [
+    "IF LAMBDA IS NEAR ZERO THE INEFFICIENCY COMPONENT IS NOT IDENTIFIED and the efficiency scores are noise dressed as estimates",
+    "the test of no inefficiency sits on the boundary of the parameter space, so the naive p-value is wrong and a mixture distribution is required",
+    "efficiency scores depend on the assumed inefficiency distribution -- half-normal, truncated normal, exponential -- and rankings change with it"
+   ],
+   "sources": [
+    "Aigner, Lovell & Schmidt 1977 (Journal of Econometrics 6:21-37)",
+    "Battese & Coelli 1995 (Empirical Economics 20:325)",
+    "pystoned"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 486,
+   "method": "Data envelopment analysis with scale and technical decomposition",
+   "wrapper_file": "c11_decomposition_accounting/dea.py",
+   "tool_fns": [
+    "da_dea"
+   ],
+   "when": "measuring efficiency against a deterministic best-practice frontier built from the data, with no functional form assumed",
+   "when_not": "the data contain material noise, which DEA attributes entirely to inefficiency; the sample is small relative to the number of inputs and outputs",
+   "alternatives": [
+    {
+     "alt": "stochastic frontier",
+     "criterion": "noise must be separated"
+    },
+    {
+     "alt": "DEA with constant returns",
+     "criterion": "scale efficiency is not of interest"
+    },
+    {
+     "alt": "DEA with variable returns",
+     "criterion": "you want to separate pure technical from scale efficiency"
+    }
+   ],
+   "output_key_fields": [
+    "efficiency: per-unit scores",
+    "technical, scale: the decomposition under variable returns",
+    "peers: the reference units defining each unit's frontier segment",
+    "returns_to_scale: increasing, constant or decreasing per unit"
+   ],
+   "interpretation_traps": [
+    "DEA ATTRIBUTES ALL DEVIATION TO INEFFICIENCY; a single mismeasured unit can shift the frontier and change every other unit's score",
+    "with many inputs and outputs relative to units, almost everything is efficient by construction -- the dimensionality rule of thumb is not optional",
+    "scores are relative to the sample, so adding or removing units changes them"
+   ],
+   "sources": [
+    "Charnes, Cooper & Rhodes 1978 (European Journal of Operational Research 2:429-444)",
+    "Banker, Charnes & Cooper 1984 (Management Science 30:1078)",
+    "Pyfrontier"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 487,
+   "method": "Multilateral and scanner-data price indices: GEKS and time-product dummy",
+   "wrapper_file": "c11_decomposition_accounting/multilateral_indices.py",
+   "tool_fns": [
+    "da_multilateral_index"
+   ],
+   "when": "high-frequency scanner data where products enter and leave constantly, and a bilateral index chains drift badly",
+   "when_not": "the product set is stable, where a bilateral index is fine; the data have no expenditure weights",
+   "alternatives": [
+    {
+     "alt": "bilateral chained index",
+     "criterion": "stable product set"
+    },
+    {
+     "alt": "GEKS",
+     "criterion": "multilateral, transitive by construction"
+    },
+    {
+     "alt": "time-product dummy",
+     "criterion": "a regression-based multilateral index"
+    }
+   ],
+   "output_key_fields": [
+    "index: the price index series",
+    "method: which multilateral form produced it",
+    "window: the estimation window and the splicing method",
+    "churn: product entry and exit rates, which motivate the method"
+   ],
+   "interpretation_traps": [
+    "CHAIN DRIFT is the problem these methods solve: a bilateral chained index over high-frequency scanner data can drift by tens of percent with no underlying price change",
+    "multilateral indices must be extended over time by splicing, and the splicing choice -- movement, window, mean -- changes the series",
+    "the estimation window length trades transitivity against responsiveness and is a substantive choice"
+   ],
+   "sources": [
+    "Ivancic, Diewert & Fox 2011 (Journal of Econometrics 161:24-35)",
+    "de Haan & Krsinich 2014 (Journal of Business and Economic Statistics 32:341)",
+    "PriceIndexCalc"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 488,
+   "method": "Shift-share regional growth decomposition",
+   "wrapper_file": "c11_decomposition_accounting/shift_share.py",
+   "tool_fns": [
+    "da_shift_share"
+   ],
+   "when": "splitting a region's growth into what national growth, its industry mix and its own competitiveness contributed",
+   "when_not": "the industry classification is inconsistent over the period; there is no national benchmark to compare against",
+   "alternatives": [
+    {
+     "alt": "classic three-way shift-share",
+     "criterion": "the standard decomposition"
+    },
+    {
+     "alt": "dynamic shift-share",
+     "criterion": "weights update over time"
+    },
+    {
+     "alt": "shift-share instrument (Bartik)",
+     "criterion": "you want an instrument rather than a decomposition"
+    }
+   ],
+   "output_key_fields": [
+    "national, industry_mix, competitive: the three contributions",
+    "total: the sum, which must equal observed regional growth",
+    "by_industry: contributions per industry",
+    "residual: zero by construction in the classic form"
+   ],
+   "interpretation_traps": [
+    "THE COMPETITIVE COMPONENT IS A RESIDUAL and absorbs everything the classification does not capture -- it is not a measure of competitiveness in any causal sense",
+    "the decomposition is sensitive to the level of industry aggregation; finer classifications shift variation from competitive to industry mix",
+    "using shift-share as an instrument requires an entirely separate exogeneity argument about the initial shares"
+   ],
+   "sources": [
+    "Dunn 1960 (Papers of the Regional Science Association 6:97-112)",
+    "Goldsmith, Sragovicz & Varela 2020 (American Economic Review 110:2586)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 489,
+   "method": "Reweighting decompositions: DiNardo-Fortin-Lemieux and RIF",
+   "wrapper_file": "c11_decomposition_accounting/reweighting_decomposition.py",
+   "tool_fns": [
+    "da_reweighting_decomposition"
+   ],
+   "when": "decomposing a gap between two distributions into what composition explains and what returns explain, at any quantile rather than just the mean",
+   "when_not": "the two groups have no common support in covariates; only the mean gap matters and a simple decomposition suffices",
+   "alternatives": [
+    {
+     "alt": "Oaxaca-Blinder",
+     "criterion": "mean gaps only"
+    },
+    {
+     "alt": "DiNardo-Fortin-Lemieux reweighting",
+     "criterion": "distributional gaps, no functional form"
+    },
+    {
+     "alt": "RIF regression",
+     "criterion": "you want detailed contributions per covariate at a quantile"
+    }
+   ],
+   "output_key_fields": [
+    "composition, structure: the two components at each quantile",
+    "detailed: per-covariate contributions, where RIF is used",
+    "common_support: units dropped for lack of overlap",
+    "reweighting_factors: the DFL weights"
+   ],
+   "interpretation_traps": [
+    "THE DETAILED DECOMPOSITION DEPENDS ON THE OMITTED CATEGORY of every categorical variable; the aggregate split does not, but the per-covariate numbers do",
+    "reweighting requires common support; without it the counterfactual distribution is an extrapolation",
+    "RIF regressions are a local approximation and can be poor away from the evaluated quantile"
+   ],
+   "sources": [
+    "DiNardo, Fortin & Lemieux 1996 (Econometrica 64:1001-1044)",
+    "Firpo, Fortin & Lemieux 2009 (Econometrica 77:953)",
+    "Fortin, Lemieux & Firpo 2011 (Handbook of Labor Economics 4A)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 490,
+   "method": "Structural decomposition analysis of input-output tables",
+   "wrapper_file": "c11_decomposition_accounting/structural_decomposition.py",
+   "tool_fns": [
+    "da_structural_decomposition"
+   ],
+   "when": "attributing a change in output, emissions or value added to changes in technology, final demand structure and demand level, through the supply chain",
+   "when_not": "you only have aggregate factors (-> index decomposition); the tables are not comparable between the two periods",
+   "alternatives": [
+    {
+     "alt": "index decomposition",
+     "criterion": "aggregate factors only, no supply chain"
+    },
+    {
+     "alt": "structural decomposition",
+     "criterion": "input-output tables for both periods"
+    },
+    {
+     "alt": "hybrid approaches",
+     "criterion": "partial table detail"
+    }
+   ],
+   "output_key_fields": [
+    "contributions: change attributed to technology, demand structure and demand level",
+    "residual: interaction terms not attributed",
+    "decomposition_form: which of the many equivalent forms was used",
+    "by_sector: sectoral detail of each contribution"
+   ],
+   "interpretation_traps": [
+    "THERE ARE MANY EQUIVALENT DECOMPOSITION FORMS and they give different answers; the convention is to average over polar forms, and the form used must be stated",
+    "the two tables must be in constant prices and on the same classification, or the decomposition attributes price and classification changes to technology",
+    "the number of decomposition terms grows factorially with the number of factors, which is why averaging is used"
+   ],
+   "sources": [
+    "Dietzenbacher & Los 1998 (Economic Systems Research 10:307-324)",
+    "Rose & Casler 1996 (Economic Systems Research 8:33)",
+    "pymrio"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "ox_decompose",
+   "card_id": 63,
+   "register": null,
+   "input_example": {
+    "formula": "y ~ x",
+    "data": "<df_handle>",
+    "n_bootstrap": 100,
+    "seed": 42
+   },
+   "arguments": [
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": true,
+     "description": "Formula 'y ~ x1 + x2 +... | group'· group binary 0/1.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a cross-section DataFrame.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_bootstrap",
+     "kind": "integer",
+     "required": false,
+     "description": "Bootstrap replications for SE (positive integer· default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Reproducibility seed of the bootstrap (default 42).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 42,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "pi_bilateral",
+   "card_id": 190,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "start": "...",
+    "end": "...",
+    "interval": false
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to long-format micro-data (columns time,prices,quantities,prodID).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "start",
+     "kind": "string",
+     "required": true,
+     "description": "Period start 'YYYY-MM' (base = start = 1).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "end",
+     "kind": "string",
+     "required": true,
+     "description": "Period end 'YYYY-MM' (must be start <= end).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "formula",
+     "kind": "enum",
+     "required": false,
+     "description": "Bilateral index formula (default jevons· fisher/tornqvist = superlative baseline).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "jevons",
+      "dutot",
+      "carli",
+      "laspeyres",
+      "paasche",
+      "fisher",
+      "tornqvist",
+      "walsh"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "interval",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> full monthly series with dates· False -> a single end-vs-start index (default).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "pi_contributions",
+   "card_id": 190,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "start": "...",
+    "end": "...",
+    "matched": false,
+    "interval": false,
+    "prec": 2
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to long-format micro-data (time,prices,quantities,prodID).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "start",
+     "kind": "string",
+     "required": true,
+     "description": "Start 'YYYY-MM'.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "end",
+     "kind": "string",
+     "required": true,
+     "description": "End 'YYYY-MM' (start <= end).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Value-change decomposition indicator (default bennet· identity value=price+quantity).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bennet",
+      "montgomery"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "matched",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> only products matched in both periods (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "interval",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> per-month contributions· False -> cumulative end-vs-start (default).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "prec",
+     "kind": "integer",
+     "required": false,
+     "description": "Rounding decimal digits of the contributions (>=0· default 2).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "pi_multilateral",
+   "card_id": 190,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "start": "...",
+    "end": "...",
+    "window": 13
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to long-format micro-data (time,prices,quantities,prodID).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "start",
+     "kind": "string",
+     "required": true,
+     "description": "Start 'YYYY-MM'.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "end",
+     "kind": "string",
+     "required": true,
+     "description": "End 'YYYY-MM' (start <= end).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Multilateral method (default geks· gk = rolling Geary-Khamis).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "geks",
+      "ccdi",
+      "gk",
+      "tpd"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "window",
+     "kind": "integer",
+     "required": false,
+     "description": "Rolling window length in months (>=2· default 13· <= available months).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 13,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "wstart",
+     "kind": "string",
+     "required": false,
+     "description": "Estimation window start 'YYYY-MM' (default None = start of the data).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "pi_splice",
+   "card_id": 190,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "start": "...",
+    "end": "...",
+    "window": 13,
+    "interval": false
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to long-format micro-data (time,prices,quantities,prodID).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "start",
+     "kind": "string",
+     "required": true,
+     "description": "Start 'YYYY-MM'.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "end",
+     "kind": "string",
+     "required": true,
+     "description": "End 'YYYY-MM' (start <= end).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Multilateral base for splicing (default geks).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "geks",
+      "ccdi",
+      "gk",
+      "tpd"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "window",
+     "kind": "integer",
+     "required": false,
+     "description": "Rolling window length in months (>=2· default 13).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 13,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "splice",
+     "kind": "enum",
+     "required": false,
+     "description": "Splicing method of the multilateral series (default movement).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "movement",
+      "window",
+      "half",
+      "mean",
+      "window_published",
+      "half_published",
+      "mean_published"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "interval",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> full spliced series with dates· False -> a single index (default).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "prod_fare_primont",
+   "card_id": 62,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "id_var": "...",
+    "time_var": "...",
+    "x_vars": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "y_vars": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "tech_change": true,
+    "tech_reg": true,
+    "scaled": true,
+    "shadow": false
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a balanced panel DataFrame (DMU × period).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "id_var",
+     "kind": "string",
+     "required": true,
+     "description": "DMU identifier column name.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time_var",
+     "kind": "string",
+     "required": true,
+     "description": "Period column name (NOT factor).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x_vars",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Input column names· ALL > 0.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_vars",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Output column names· ALL > 0.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "w_vars",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Input price column names (both-or-neither with p.vars· 1 per input).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "p_vars",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Output price column names (both-or-neither with w.vars· 1 per output).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tech_change",
+     "kind": "boolean",
+     "required": false,
+     "description": "Technological change over time is allowed (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "tech_reg",
+     "kind": "boolean",
+     "required": false,
+     "description": "Technological regress is allowed (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "rts",
+     "kind": "enum",
+     "required": false,
+     "description": "Returns-to-scale (default vrs).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "vrs",
+      "crs",
+      "nirs",
+      "ndrs"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "orientation",
+     "kind": "enum",
+     "required": false,
+     "description": "Orientation (default out).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "out",
+      "in",
+      "in-out"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "scaled",
+     "kind": "boolean",
+     "required": false,
+     "description": "Data scaling (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "shadow",
+     "kind": "boolean",
+     "required": false,
+     "description": "Return shadow prices (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "prod_malmquist",
+   "card_id": 62,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "id_var": "...",
+    "time_var": "...",
+    "x_vars": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "y_vars": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "tech_reg": true,
+    "scaled": true
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a balanced panel DataFrame (DMU × period).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "id_var",
+     "kind": "string",
+     "required": true,
+     "description": "DMU identifier column name (e.g. country/region).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time_var",
+     "kind": "string",
+     "required": true,
+     "description": "Period column name (NOT factor· integer/numeric/Date/character).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x_vars",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Input column names (K, L,...)· ALL > 0.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_vars",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Output column names (GDP/value added,...)· ALL > 0.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "rts",
+     "kind": "enum",
+     "required": false,
+     "description": "Returns-to-scale (default vrs).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "vrs",
+      "crs",
+      "nirs",
+      "ndrs"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "orientation",
+     "kind": "enum",
+     "required": false,
+     "description": "Efficiency orientation (default out).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "out",
+      "in"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "tech_reg",
+     "kind": "boolean",
+     "required": false,
+     "description": "Technological regress of the frontier is allowed (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "scaled",
+     "kind": "boolean",
+     "required": false,
+     "description": "Data scaling for numerical stability (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "da_growth_accounting",
+   "card_id": 484,
+   "register": null,
+   "input_example": {
+    "output": "<series_handle>",
+    "inputs": "<multiseries_handle>",
+    "index": "tornqvist"
+   },
+   "arguments": [
+    {
+     "name": "output",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Output series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "inputs",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Input series, one column each.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "shares",
+     "kind": "multiseries_handle",
+     "required": false,
+     "description": "Factor shares; omitted = estimated from cost data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "index",
+     "kind": "enum",
+     "required": false,
+     "description": "Index form.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "tornqvist",
+      "divisia",
+      "laspeyres",
+      "fixed_share"
+     ],
+     "allowed_vars": null,
+     "default": "tornqvist",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "da_stochastic_frontier",
+   "card_id": 485,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "frontier": "production",
+    "distribution": "half_normal",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Output or cost.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Input table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "frontier",
+     "kind": "enum",
+     "required": false,
+     "description": "Frontier type.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "production",
+      "cost"
+     ],
+     "allowed_vars": null,
+     "default": "production",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "distribution",
+     "kind": "enum",
+     "required": false,
+     "description": "Inefficiency distribution.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "half_normal",
+      "truncated_normal",
+      "exponential",
+      "gamma"
+     ],
+     "allowed_vars": null,
+     "default": "half_normal",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "inefficiency_covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariates explaining inefficiency.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "da_dea",
+   "card_id": 486,
+   "register": null,
+   "input_example": {
+    "inputs": "<df_handle>",
+    "outputs": "<df_handle>",
+    "returns": "vrs",
+    "orientation": "input",
+    "decompose": true
+   },
+   "arguments": [
+    {
+     "name": "inputs",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Input table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "outputs",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Output table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "returns",
+     "kind": "enum",
+     "required": false,
+     "description": "Returns to scale.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "crs",
+      "vrs",
+      "nirs",
+      "ndrs"
+     ],
+     "allowed_vars": null,
+     "default": "vrs",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "orientation",
+     "kind": "enum",
+     "required": false,
+     "description": "Orientation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "input",
+      "output"
+     ],
+     "allowed_vars": null,
+     "default": "input",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "decompose",
+     "kind": "boolean",
+     "required": false,
+     "description": "Separate technical and scale efficiency.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "da_multilateral_index",
+   "card_id": 487,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "product": "...",
+    "period": "...",
+    "price": "...",
+    "method": "geks",
+    "window": 13,
+    "splice": "movement"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Transaction data: product, period, price and quantity.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "product",
+     "kind": "string",
+     "required": true,
+     "description": "Product identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "period",
+     "kind": "string",
+     "required": true,
+     "description": "Period identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "price",
+     "kind": "string",
+     "required": true,
+     "description": "Price column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "quantity",
+     "kind": "string",
+     "required": false,
+     "description": "Quantity column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Index method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "geks",
+      "tpd",
+      "gk",
+      "tornqvist",
+      "jevons"
+     ],
+     "allowed_vars": null,
+     "default": "geks",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "window",
+     "kind": "integer",
+     "required": false,
+     "description": "Estimation window in periods.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 13,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "splice",
+     "kind": "enum",
+     "required": false,
+     "description": "Splicing method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "movement",
+      "window",
+      "half",
+      "mean"
+     ],
+     "allowed_vars": null,
+     "default": "movement",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "da_shift_share",
+   "card_id": 488,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "region": "...",
+    "industry": "...",
+    "value": "...",
+    "time": "...",
+    "dynamic": false
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Region-by-industry employment or output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "region",
+     "kind": "string",
+     "required": true,
+     "description": "Region identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "industry",
+     "kind": "string",
+     "required": true,
+     "description": "Industry identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "value",
+     "kind": "string",
+     "required": true,
+     "description": "Value column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Period identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dynamic",
+     "kind": "boolean",
+     "required": false,
+     "description": "Update weights over time.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "da_reweighting_decomposition",
+   "card_id": 489,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "outcome": "...",
+    "group": "...",
+    "method": "dfl",
+    "quantiles": [
+     0.1,
+     0.5,
+     0.9
+    ],
+    "nboot": 999,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Pooled data for both groups.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "outcome",
+     "kind": "string",
+     "required": true,
+     "description": "Outcome column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "group",
+     "kind": "string",
+     "required": true,
+     "description": "Group indicator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "covariates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Covariate columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Decomposition method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "dfl",
+      "rif",
+      "oaxaca_blinder"
+     ],
+     "allowed_vars": null,
+     "default": "dfl",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "quantiles",
+     "kind": "num_array",
+     "required": false,
+     "description": "Quantiles to decompose.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.1,
+      0.5,
+      0.9
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "da_structural_decomposition",
+   "card_id": 490,
+   "register": null,
+   "input_example": {
+    "table_start": "<raw_handle>",
+    "table_end": "<raw_handle>",
+    "form": "average_polar"
+   },
+   "arguments": [
+    {
+     "name": "table_start",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to the earlier table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "table_end",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to the later table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "extension",
+     "kind": "string",
+     "required": false,
+     "description": "Environmental extension to decompose.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "form",
+     "kind": "enum",
+     "required": false,
+     "description": "Decomposition form.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "average_polar",
+      "first_polar",
+      "second_polar",
+      "all_forms"
+     ],
+     "allowed_vars": null,
+     "default": "average_polar",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  }
+ ]
+}

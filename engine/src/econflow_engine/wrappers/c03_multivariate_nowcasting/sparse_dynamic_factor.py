@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``sparse_dynamic_factor`` -- METHOD-SELECTION card #144.
+"""Method wrapper ``sparse_dynamic_factor`` -- method card #144.
 
 #144 Sparse Dynamic Factor Model (EM with LASSO sparse loadings; arbitrary missing data /
     ragged-edge nowcasting; PCA/2Stage/EM/EM-sparse)
@@ -8,8 +8,8 @@ Category 03-multivariate-nowcasting; module ``sparse_dynamic_factor``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def sdf_fit(
     max_iter: int | None = None,
     threshold: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``sdf_fit`` -- METHOD-SELECTION card #144.
+    """Node ``sdf_fit`` -- method card #144.
 
     Sparse Dynamic Factor Model (EM with LASSO sparse loadings; arbitrary missing data / ragged-edge
     nowcasting; PCA/2Stage/EM/EM-sparse).
@@ -75,7 +75,7 @@ def sdf_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sdf_fit: not implemented. The method card is in ./README.md."
+        "sdf_fit: not implemented."
     )
 
 
@@ -85,7 +85,7 @@ def sdf_predict(
     h: int | None = None,
     standardize: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``sdf_predict`` -- METHOD-SELECTION card #144.
+    """Node ``sdf_predict`` -- method card #144.
 
     Sparse Dynamic Factor Model (EM with LASSO sparse loadings; arbitrary missing data / ragged-edge
     nowcasting; PCA/2Stage/EM/EM-sparse).
@@ -103,7 +103,7 @@ def sdf_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sdf_predict: not implemented. The method card is in ./README.md."
+        "sdf_predict: not implemented."
     )
 
 
@@ -111,7 +111,7 @@ def sdf_factors(
     *,
     model: Any,
 ) -> dict[str, Any]:
-    """Node ``sdf_factors`` -- METHOD-SELECTION card #144.
+    """Node ``sdf_factors`` -- method card #144.
 
     Sparse Dynamic Factor Model (EM with LASSO sparse loadings; arbitrary missing data / ragged-edge
     nowcasting; PCA/2Stage/EM/EM-sparse).
@@ -126,5 +126,5 @@ def sdf_factors(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "sdf_factors: not implemented. The method card is in ./README.md."
+        "sdf_factors: not implemented."
     )

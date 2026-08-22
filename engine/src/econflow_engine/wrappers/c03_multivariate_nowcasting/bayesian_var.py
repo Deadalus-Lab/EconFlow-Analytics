@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_var`` -- METHOD-SELECTION card #12.
+"""Method wrapper ``bayesian_var`` -- method card #12.
 
 #12 Bayesian VAR (Minnesota prior)
 
@@ -7,8 +7,8 @@ Category 03-multivariate-nowcasting; module ``bayesian_var``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -44,7 +44,7 @@ def bvar_estimate(
     lambda_: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvar_estimate`` -- METHOD-SELECTION card #12.
+    """Node ``bvar_estimate`` -- method card #12.
 
     Bayesian VAR (Minnesota prior).
 
@@ -66,7 +66,7 @@ def bvar_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvar_estimate: not implemented. The method card is in ./README.md."
+        "bvar_estimate: not implemented."
     )
 
 
@@ -76,7 +76,7 @@ def bvar_predict(
     horizon: int | None = None,
     conf_bands: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvar_predict`` -- METHOD-SELECTION card #12.
+    """Node ``bvar_predict`` -- method card #12.
 
     Bayesian VAR (Minnesota prior).
 
@@ -91,7 +91,7 @@ def bvar_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvar_predict: not implemented. The method card is in ./README.md."
+        "bvar_predict: not implemented."
     )
 
 
@@ -102,7 +102,7 @@ def bvar_irf(
     identification: bool | None = None,
     fevd: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvar_irf`` -- METHOD-SELECTION card #12.
+    """Node ``bvar_irf`` -- method card #12.
 
     Bayesian VAR (Minnesota prior).
 
@@ -120,7 +120,7 @@ def bvar_irf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvar_irf: not implemented. The method card is in ./README.md."
+        "bvar_irf: not implemented."
     )
 
 
@@ -129,7 +129,7 @@ def bvar_fevd(
     model: Any,
     horizon: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``bvar_fevd`` -- METHOD-SELECTION card #12.
+    """Node ``bvar_fevd`` -- method card #12.
 
     Bayesian VAR (Minnesota prior).
 
@@ -143,7 +143,7 @@ def bvar_fevd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvar_fevd: not implemented. The method card is in ./README.md."
+        "bvar_fevd: not implemented."
     )
 
 
@@ -151,7 +151,7 @@ def bvar_companion(
     *,
     model: Any,
 ) -> dict[str, Any]:
-    """Node ``bvar_companion`` -- METHOD-SELECTION card #12.
+    """Node ``bvar_companion`` -- method card #12.
 
     Bayesian VAR (Minnesota prior).
 
@@ -164,7 +164,7 @@ def bvar_companion(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvar_companion: not implemented. The method card is in ./README.md."
+        "bvar_companion: not implemented."
     )
 
 
@@ -172,7 +172,7 @@ def bvar_summary(
     *,
     model: Any,
 ) -> dict[str, Any]:
-    """Node ``bvar_summary`` -- METHOD-SELECTION card #12.
+    """Node ``bvar_summary`` -- method card #12.
 
     Bayesian VAR (Minnesota prior).
 
@@ -186,5 +186,5 @@ def bvar_summary(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "bvar_summary: not implemented. The method card is in ./README.md."
+        "bvar_summary: not implemented."
     )

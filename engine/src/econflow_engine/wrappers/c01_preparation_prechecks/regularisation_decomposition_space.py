@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``regularisation_decomposition_space`` -- METHOD-SELECTION card #129.
+"""Method wrapper ``regularisation_decomposition_space`` -- method card #129.
 
 #129 Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a
     full descriptive table including normality; diff/LOESS trend-seasonal decomposition)
@@ -8,8 +8,8 @@ Category 01-preparation-prechecks; module ``regularisation_decomposition_space``
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,19 +25,19 @@ if TYPE_CHECKING:
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
     "ps_decompose",
-    "ps_stat_desc",
-    "ps_turnpoints",
+    "ps_descriptives",
+    "ps_turning_points",
     "NODE_META",
     "wire_model",
 ]
 
 
-def ps_turnpoints(
+def ps_turning_points(
     *,
     x: pd.Series,
     calc_proba: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ps_turnpoints`` -- METHOD-SELECTION card #129.
+    """Node ``ps_turning_points`` -- method card #129.
 
     Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a
     full descriptive table including normality; diff/LOESS trend-seasonal decomposition).
@@ -54,11 +54,11 @@ def ps_turnpoints(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ps_turnpoints: not implemented. The method card is in ./README.md."
+        "ps_turning_points: not implemented."
     )
 
 
-def ps_stat_desc(
+def ps_descriptives(
     *,
     x: pd.Series,
     basic: bool | None = None,
@@ -66,7 +66,7 @@ def ps_stat_desc(
     norm: bool | None = None,
     p: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``ps_stat_desc`` -- METHOD-SELECTION card #129.
+    """Node ``ps_descriptives`` -- method card #129.
 
     Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a
     full descriptive table including normality; diff/LOESS trend-seasonal decomposition).
@@ -88,7 +88,7 @@ def ps_stat_desc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ps_stat_desc: not implemented. The method card is in ./README.md."
+        "ps_descriptives: not implemented."
     )
 
 
@@ -107,7 +107,7 @@ def ps_decompose(
     robust: bool | None = None,
     trend: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ps_decompose`` -- METHOD-SELECTION card #129.
+    """Node ``ps_decompose`` -- method card #129.
 
     Regularisation/decomposition & analysis of space-time series (turning points + Kendall info; a
     full descriptive table including normality; diff/LOESS trend-seasonal decomposition).
@@ -139,5 +139,5 @@ def ps_decompose(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ps_decompose: not implemented. The method card is in ./README.md."
+        "ps_decompose: not implemented."
     )

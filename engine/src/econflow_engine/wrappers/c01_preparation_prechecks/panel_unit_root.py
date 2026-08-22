@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``panel_unit_root`` -- METHOD-SELECTION card #6.
+"""Method wrapper ``panel_unit_root`` -- method card #6.
 
 #6 Panel unit-root (LLC/IPS/Fisher/Hadri + Pesaran CIPS)
 
@@ -7,8 +7,8 @@ Category 01-preparation-prechecks; module ``panel_unit_root``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,15 +24,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "make_pdata_frame",
+    "make_panel_frame",
     "run_cipstest",
-    "run_purtest",
+    "run_panel_unit_root",
     "NODE_META",
     "wire_model",
 ]
 
 
-def run_purtest(
+def run_panel_unit_root(
     *,
     object: pd.DataFrame,
     test: Literal["levinlin", "ips", "madwu", "Pm", "invnormal", "logit", "hadri"] | None = None,
@@ -40,7 +40,7 @@ def run_purtest(
     lags: Literal["SIC", "AIC", "Hall"] | None = None,
     pmax: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_purtest`` -- METHOD-SELECTION card #6.
+    """Node ``run_panel_unit_root`` -- method card #6.
 
     Panel unit-root (LLC/IPS/Fisher/Hadri + Pesaran CIPS).
 
@@ -58,7 +58,7 @@ def run_purtest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_purtest: not implemented. The method card is in ./README.md."
+        "run_panel_unit_root: not implemented."
     )
 
 
@@ -70,7 +70,7 @@ def run_cipstest(
     model: Literal["cmg", "mg", "dmg"] | None = None,
     truncated: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_cipstest`` -- METHOD-SELECTION card #6.
+    """Node ``run_cipstest`` -- method card #6.
 
     Panel unit-root (LLC/IPS/Fisher/Hadri + Pesaran CIPS).
 
@@ -89,17 +89,17 @@ def run_cipstest(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_cipstest: not implemented. The method card is in ./README.md."
+        "run_cipstest: not implemented."
     )
 
 
-def make_pdata_frame(
+def make_panel_frame(
     *,
     x: pd.DataFrame,
     index: Sequence[str] | None = None,
     drop_index: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``make_pdata_frame`` -- METHOD-SELECTION card #6.
+    """Node ``make_panel_frame`` -- method card #6.
 
     Panel unit-root (LLC/IPS/Fisher/Hadri + Pesaran CIPS).
 
@@ -115,5 +115,5 @@ def make_pdata_frame(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "make_pdata_frame: not implemented. The method card is in ./README.md."
+        "make_panel_frame: not implemented."
     )

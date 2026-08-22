@@ -1,2 +1,2 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Wrappers for METHOD-SELECTION category 28-trade-gravity."""
+"""Wrappers for category 28-trade-gravity."""

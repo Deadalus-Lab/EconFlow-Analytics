@@ -1,0 +1,4632 @@
+{
+ "category": "02-univariate-forecasting",
+ "cards": [
+  {
+   "id": 7,
+   "method": "Classical univariate forecasting: ARIMA, ETS, Theta and TBATS",
+   "wrapper_file": "c02_univariate_forecasting/classical_univariate_forecasting.py",
+   "tool_fns": [
+    "run_auto_arima",
+    "run_ets",
+    "run_theta",
+    "run_tbats"
+   ],
+   "when": "univariate forecasting of one ts with automatic ARIMA/ETS, a robust Theta baseline, or TBATS for multiple/non-integer seasonalities",
+   "when_not": "multivariate structure (VAR/VECM), calendar holidays (prophet), intermittent/non-gaussian (smooth/ADAM)",
+   "alternatives": [
+    {
+     "alt": "#8 grouped ARIMA/ETS",
+     "criterion": "you want a keyed indexed-table workflow, distribution-valued forecasts, or several models fitted at once"
+    },
+    {
+     "alt": "#10 smooth ADAM",
+     "criterion": "you need ETS+ARIMA+regression unified or a non-gaussian error"
+    },
+    {
+     "alt": "#9 prophet",
+     "criterion": "holidays/calendar effects dominate"
+    }
+   ],
+   "output_key_fields": [
+    "mean: point forecasts (ts -> {values,start,frequency})",
+    "lower/upper: prediction interval bounds per level (matrix)",
+    "level: confidence levels (80,95)",
+    "fitted/residuals: in-sample one-step values for diagnostics",
+    "accuracy: training-set measures (RMSE,MAE,MAPE,MASE,ACF1)",
+    "model: fitted object (compact stub in to_mcp)"
+   ],
+   "interpretation_traps": [
+    "accuracy(fc) is in-sample (training-set), NOT out-of-sample generalisation — for OOS use 15-model-evaluation (tsCV/DM) or a holdout",
+    "MAPE is unstable/infinite when y≈0 (growth rates) — prefer MASE (<1 = better than naive)",
+    "ETS/ARIMA prediction intervals assume gaussian innovations — they understate under heavy tails",
+    "run_auto_arima gate: exog_handle not a data frame + NROW(exog_handle)==length(y); run_tbats gate: NCOL(y)==1",
+    "y must be a series with the correct frequency, otherwise a non-seasonal fit results"
+   ],
+   "sources": [
+    "Hyndman & Athanasopoulos FPP3 (ARIMA/ETS)",
+    "Hyndman & Khandakar 2008 JSS 27(3) (automatic ARIMA order selection)",
+    "Assimakopoulos & Nikolopoulos 2000 (Theta); Hyndman & Billah 2003 (Theta=SES+drift)",
+    "De Livera, Hyndman & Snyder 2011 JASA (TBATS)",
+    "Hyndman, Koehler, Ord & Snyder 2008 (ETS state-space)",
+    "forecast reference manual"
+   ],
+   "precondition_tools": [
+    "c01_preparation_prechecks/unit_root_normality.run_adf_test"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 8,
+   "method": "Tidy ARIMA and ETS forecasting over grouped series",
+   "wrapper_file": "c02_univariate_forecasting/grouped_arima_ets.py",
+   "tool_fns": [
+    "run_grouped_arima",
+    "run_grouped_ets"
+   ],
+   "when": "ARIMA/ETS over many keyed series at once (an indexed table + a model formula) with distribution-valued forecasts, manual pdq/PDQ orders, or the ETS state components",
+   "when_not": "a single plain series without the keyed-table overhead (-> #7); Theta/TBATS/multiple seasonality (-> #7); non-gaussian (-> #10); intermittent demand (-> #135)",
+   "alternatives": [
+    {
+     "alt": "#7 forecast",
+     "criterion": "non-long-format quick use or Theta/TBATS"
+    },
+    {
+     "alt": "#10 smooth ADAM",
+     "criterion": "ETS+ARIMA+exog_handle together or a different error distribution"
+    }
+   ],
+   "output_key_fields": [
+    "forecast: a table carrying a distribution column -> quantile grid (probs+mean+sd); median≈point",
+    "glance: 1-row sigma2/log_lik/AIC/AICc/BIC + ar_roots/ma_roots (complex -> {re,im})",
+    "long-format: coefficients (term,estimate,std_error,statistic,p_value)",
+    "components: ETS-only dable with states (level,slope,season)",
+    "fitted/residuals: in-sample (type innovation vs regression)"
+   ],
+   "interpretation_traps": [
+    "<distribution> is NOT a number — take median or mean, not the raw cell",
+    "ar_roots/ma_roots are complex; stationarity/invertibility ⇒ modulus>1 (sqrt(re^2+im^2))",
+    "glance does NOT compute accuracy — for OOS you need new_data + accuracy (15-model-evaluation)",
+    "missing values: ETS is a hard error (the gate rejects any gap), ARIMA reverts with a warning — do not confuse the two"
+   ],
+   "sources": [
+    "Hyndman & Athanasopoulos, Forecasting: Principles and Practice, 3rd ed.",
+    "Hyndman, Koehler, Ord & Snyder 2008, Forecasting with Exponential Smoothing: the State Space Approach"
+   ],
+   "precondition_tools": [
+    "c00_data_utilities/replacement_missing_values.impute_kalman (for ETS, if anyNA)",
+    "c01_preparation_prechecks/unit_root_normality.run_adf_test"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 9,
+   "method": "Additive/logistic-trend forecasting with holidays and multiple seasonalities (Prophet)",
+   "wrapper_file": "c02_univariate_forecasting/prophet.py",
+   "tool_fns": [
+    "run_prophet",
+    "run_prophet_cv"
+   ],
+   "when": "decomposable additive trend+seasonality(Fourier)+holidays+regressors with automatic changepoints; calendar effects, gaps/irregular index, an interpretable decomposition",
+   "when_not": "clean monthly/quarterly macro series without a calendar (ARIMA/ETS are more accurate); autoregressive dynamics; a very short series",
+   "alternatives": [
+    {
+     "alt": "#7/#8 ARIMA/ETS",
+     "criterion": "clean low-frequency macro series without calendar structure"
+    },
+    {
+     "alt": "#10 smooth ADAM",
+     "criterion": "explanatory regressors with state-space rigour"
+    },
+    {
+     "alt": "18-intervention/structural",
+     "criterion": "the objective is causal impact, not a forecast"
+    }
+   ],
+   "output_key_fields": [
+    "forecast: df records; ds,yhat(point),yhat_lower/upper(interval),trend,*_terms(components)",
+    "future: the future df (ds + regressors)",
+    "regressor_coefficients: center/coef per regressor (only with regressors)",
+    "cv: per cutoff yhat,y(actual),cutoff,ds,horizon (run_prophet_cv)",
+    "metrics: horizon + mse/rmse/mae/mape/mdape/smape/coverage"
+   ],
+   "interpretation_traps": [
+    "the default interval_width=0.8 ⇒ 80% intervals, NOT 95%",
+    "without mcmc_samples>0 the intervals capture trend uncertainty only (MAP) — they understate",
+    "run_prophet_cv is expensive (many re-fits)",
+    "horizon/units in cross_validation are time units (180 days ≠ 180 monthly periods)",
+    "coverage in metrics must be ≈ interval_width for calibrated intervals",
+    "gates: seasonality_mode∈{additive,multiplicative}; logistic->cap; regressors->an explicit future with the columns; macro spacing>=28d auto-disables weekly/daily"
+   ],
+   "sources": [
+    "Taylor & Letham 2018 Forecasting at scale (The American Statistician)",
+    "prophet reference manual + Facebook Prophet docs"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 10,
+   "method": "ADAM and exponential-smoothing state-space variants",
+   "wrapper_file": "c02_univariate_forecasting/adam_exponential_smoothing.py",
+   "tool_fns": [
+    "run_adam",
+    "run_auto_adam",
+    "run_ces",
+    "run_auto_ces"
+   ],
+   "when": "ADAM unifies ETS+ARIMA+regression in state space with a non-gaussian error (dlaplace/ds/dgamma/..) or intermittent demand (occurrence); CES when trend/season are hard to separate",
+   "when_not": "a plain gaussian monthly series (-> #7, ETS/automatic ARIMA suffices); holidays (-> #9); distribution-valued forecasts over keyed series (-> #8)",
+   "alternatives": [
+    {
+     "alt": "#7 ETS / automatic ARIMA",
+     "criterion": "the classic gaussian path, lighter"
+    },
+    {
+     "alt": "#8 grouped ARIMA/ETS",
+     "criterion": "long-format workflow"
+    },
+    {
+     "alt": "#9 prophet",
+     "criterion": "calendar effects"
+    }
+   ],
+   "output_key_fields": [
+    "mean: point forecasts (conditional mean, ts)",
+    "lower/upper: bounds of interval=prediction at level=0.95 (side both)",
+    "level/interval: the level + a binary flag for whether an interval was produced",
+    "accuracy: automatic holdout (MASE/RMSSE) when holdout=True, otherwise in-sample",
+    "model: adam/ces object (states,persistence,phi,complex params) compact stub",
+    "fitted/residuals: in-sample"
+   ],
+   "interpretation_traps": [
+    "fit-time level=0.99 is the outlier-detection level, NOT forecast confidence (that is interval_level 0.95)",
+    "h/holdout are fit-time; the forecast horizon is the separate forecast_h (explicit->fit h if >0->10)",
+    "accuracy is holdout (OOS) only if holdout=True, otherwise in-sample",
+    "in run_auto_adam the distribution and in run_auto_ces the seasonality are lists of candidates to be tried, not a single enumerated choice",
+    "gate: holdout=True requires h>0 (in all 4)"
+   ],
+   "sources": [
+    "Svetunkov 2023 Forecasting and Analytics with the ADAM (openforecast.org monograph)",
+    "Svetunkov & Kourentzes (CES / complex exponential smoothing)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 133,
+   "method": "Neural-network univariate forecasting: MLP ensemble and extreme learning machine",
+   "wrapper_file": "c02_univariate_forecasting/neural_network_forecasting.py",
+   "tool_fns": [
+    "nn_mlp",
+    "nn_elm"
+   ],
+   "when": "non-linear univariate forecasting; nn_mlp=an MLP ensemble (backprop), nn_elm=an Extreme Learning Machine (random hidden weights, output lasso/ridge/step/lm); automatic lag selection + differencing + seasonal dummies; an ensemble of reps networks",
+   "when_not": "a small sample/interpretability/a linear DGP -> #7 forecast or #10 smooth; multivariate -> 03-multivariate-nowcasting; without a seed it is uncacheable (forbidden)",
+   "alternatives": [
+    {
+     "alt": "02-univariate-forecasting/forecast-run_auto_arima",
+     "criterion": "the linear/interpretable path with analytic PI (lightweight)"
+    },
+    {
+     "alt": "02-univariate-forecasting/smooth-run_adam",
+     "criterion": "state-space ETS+ARIMA (non-gaussian/intermittent)"
+    },
+    {
+     "alt": "nn_elm",
+     "criterion": "speed (closed-form output weights, no backprop) rather than full MLP training"
+    }
+   ],
+   "output_key_fields": [
+    "mean: point forecasts (the ensemble combination via comb, ts)",
+    "all_mean: h x reps — ALL the ensemble members",
+    "lower/upper: EMPIRICAL PI (per-horizon quantiles of the members; NOT analytic; it needs reps>1)",
+    "accuracy: the in-sample ME/RMSE/MAE/MAPE, computed here because the network forecast does not report them",
+    "model: the mlp/elm object -> producer register field=model bucket=rds; a compact stub in to_mcp",
+    "hd/lags/difforder/reps/seed/n: the selections + the pinned seed (cache key)"
+   ],
+   "interpretation_traps": [
+    "the seed is MANDATORY & part of the cache key — the same seed gives identical output, a different one a different forecast (live-verified)",
+    "the PI are empirical ensemble quantiles, NOT frequentist/Bayesian intervals",
+    "exog_handle must cover in-sample + horizon (length >= n+h)",
+    "the defaults reps=2/hd=3 are curated to be cheap (the docs use reps=20); raise them deliberately",
+    "gate: y must be ts/msts (a plain vector is rejected); hd/reps positive integers; level in (0,100); exog_handle not a data_frame"
+   ],
+   "sources": [
+    "Ord, Fildes & Kourentzes 2017 Principles of Business Forecasting 2e Ch.10",
+    "Kourentzes, Barrow & Crone 2014 neural network ensemble operators (Expert Systems with Applications 41(9))",
+    "Huang, Zhou & Ding 2006 Extreme Learning Machine (Neurocomputing 70(1))"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 134,
+   "method": "Recursive autoregressive machine-learning forecasting with conformal prediction intervals",
+   "wrapper_file": "c02_univariate_forecasting/recursive_ml_forecasting.py",
+   "tool_fns": [
+    "rml_fit",
+    "rml_conformal",
+    "rml_variable_importance"
+   ],
+   "when": "univariate forecasting with an ML learner on lagged+fourier features (recursive AR); rml_fit=ARml+forecast (point+PI), rml_conformal=distribution-free conformal PI, rml_variable_importance=variable importance; a CLOSED whitelist of light learners (least squares, elastic net, ridge, lasso)",
+   "when_not": "a full neural network -> #133; a linear, interpretable model with analytic intervals -> #7; state-space ETS and ARIMA -> #10; multivariate -> category 03; a free choice of learner is NOT allowed (security and cost); without a seed the node is uncacheable",
+   "alternatives": [
+    {
+     "alt": "02-univariate-forecasting/nn_mlp",
+     "criterion": "a full/ELM NN for non-linearities rather than regularized ML"
+    },
+    {
+     "alt": "02-univariate-forecasting/forecast-run_auto_arima",
+     "criterion": "the linear/interpretable path with analytic PI (lightweight)"
+    },
+    {
+     "alt": "rml_conformal",
+     "criterion": "you need explicitly distribution-free (residual-based) PI rather than the parametric ones of rml_fit"
+    }
+   ],
+   "output_key_fields": [
+    "mean: point forecasts (ts, recursive AR)",
+    "lower/upper: the h x length(level) PI of forecast.ARml (conformal-calibrated)",
+    "accuracy: in-sample ME/RMSE/MAE/MAPE (computed here from residuals/fitted)",
+    "model: the ARml object -> producer register field=model bucket=rds; a compact stub in to_mcp",
+    "learner_method/max_lag/seed/n: the public learner token + the pinned values (cache key)",
+    "rml_conformal: the lower/upper conformal bounds + confidence + n_calibration; rml_variable_importance: an importance df (variable/overall)"
+   ],
+   "interpretation_traps": [
+    "the seed is MANDATORY and part of the cache key — the same seed gives identical output (live-verified); the resampling is stochastic",
+    "the public learner token is mapped INTERNALLY (ridge and lasso become an elastic net at a fixed alpha); it is NOT a free-form string",
+    "an exog_handle at fit time requires a future newxreg (nrow==h) for the forecast",
+    "conformal PI are distribution-free (residual-based), NOT gaussian; rml_conformal is a separate tool",
+    "gate: y must be a univariate series longer than max_lag+1; cv=False is rejected; the learner is a closed whitelist; level in (0,100); confidence in (0,1)"
+   ],
+   "sources": [
+    "Vovk, Gammerman & Shafer 2005, Algorithmic Learning in a Random World (conformal prediction)",
+    "Bostrom 2022 crepes: a Python Package for Generating Conformal Regressors (PMLR 179)",
+    "Hyndman & Athanasopoulos Forecasting: Principles and Practice 3e (fourier/recursive forecasting)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 135,
+   "method": "Intermittent / sparse-demand forecasting (Croston + SBA/SBJ variants, TSB, iMAPA auto-selection, Croston decomposition)",
+   "wrapper_file": "c02_univariate_forecasting/intermittent_sparse_demand.py",
+   "tool_fns": [
+    "tsi_croston",
+    "tsi_tsb",
+    "tsi_imapa",
+    "tsi_decomp"
+   ],
+   "when": "demand series with many zeros (spare parts / rare events); a constant out-of-sample demand rate; automatic model selection (imapa) or a demand/interval decomposition",
+   "when_not": "a dense series with no zeros -> #7; charts (the frontend; plotting is off); continuous macro series",
+   "alternatives": [
+    {
+     "alt": "tsi_croston (type=sba)",
+     "criterion": "bias-corrected Croston (SBA/SBJ) — less positive bias"
+    },
+    {
+     "alt": "tsi_tsb",
+     "criterion": "declining demand / obsolescence (it models the demand probability, not the interval)"
+    },
+    {
+     "alt": "tsi_imapa",
+     "criterion": "automatic robust model selection (a combination across aggregation levels)"
+    },
+    {
+     "alt": "02-univariate-forecasting/forecast-run_ets",
+     "criterion": "the series is NOT intermittent (it is dense)"
+    }
+   ],
+   "output_key_fields": [
+    "forecast: the out-of-sample demand RATE (length h; a constant per-period rate, NOT discrete events)",
+    "fitted: the in-sample demand rate (with leading blanks); weights/initial: the smoothing and initialisation parameters; model: the selected model",
+    "the iMAPA summary: a matrix per aggregation level (level/n/p/cv2/model — 1=Croston, 2=SBA, 3=SES — and whether it was used); model_fit: the parameters per level",
+    "the Croston components: the in-sample and out-of-sample demand and interval, plus the SBA/SBJ scaling coefficient; decomp: demand + interval, of equal length"
+   ],
+   "interpretation_traps": [
+    "forecast = a demand RATE per period (e.g. 0.19 units/period), NOT a forecast of an individual order — sum it for total demand",
+    "tsi_croston does NOT validate the type -> silently wrong; negative values are silently accepted -> a non-negativity gate; h<=0 gives a silently empty forecast",
+    "intermittency gate: >=1 zero (otherwise it is dense -> #7) AND >=2 non-zero values; imapa ALs with use=0 (<4 obs) are ignored; deterministic (no seed)"
+   ],
+   "sources": [
+    "Kourentzes 2014, On intermittent demand model optimisation and selection, IJPE 156:180-190 (doi:10.1016/j.ijpe.2014.06.007)",
+    "Petropoulos & Kourentzes 2015, Forecast Combinations for Intermittent Demand, JORS (doi:10.1057/jors.2014.62)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 136,
+   "method": "Long memory / fractional integration ARFIMA(p,d,q) (ML fit + GPH/Sperio semiparametric d + fractional differencing)",
+   "wrapper_file": "c02_univariate_forecasting/long_memory_fractional.py",
+   "tool_fns": [
+    "arfima_fit",
+    "arfima_gph",
+    "arfima_sperio",
+    "arfima_difference"
+   ],
+   "when": "a slowly decaying ACF, between I(0) and I(1); estimating the memory parameter d (semiparametric GPH/Sperio or parametric ARFIMA ML) + fractional differencing to I(0)",
+   "when_not": "integer differencing -> ADF/KPSS plus differencing, category 01; a forecast object -> #7-#10; long-memory volatility -> GARCH, category 06",
+   "alternatives": [
+    {
+     "alt": "arfima_gph",
+     "criterion": "a fast semiparametric estimate of d (GPH log-periodogram) — the exploration default"
+    },
+    {
+     "alt": "arfima_sperio",
+     "criterion": "a more robust semiparametric d (smoothed periodogram, Parzen window) under short-run dynamics/noise"
+    },
+    {
+     "alt": "arfima_fit",
+     "criterion": "a full parametric ARFIMA(p,d,q) ML (d+AR/MA+SE together) when you need a model, not just d"
+    }
+   ],
+   "output_key_fields": [
+    "d + d_reading: d≈0 short memory (I0), d<0 anti-persistent, 0<d<0.5 stationary long memory, d>=0.5 non-stationary",
+    "arfima_gph/arfima_sperio: sd_asymptotic/sd_regression (two SE estimators for d -> a CI/significance of d!=0)",
+    "arfima_fit: d/ar/ma/sigma/log_likelihood/std_errors(order d,ar,ma)/covariance/correlation + model (a producer, rds)",
+    "arfima_difference: series (fractionally differenced; it preserves the ts attributes) + d + n"
+   ],
+   "interpretation_traps": [
+    "the arfima_fit drange default c(0,0.5) CONSTRAINS d to [0,0.5] — for d>=0.5 (non-stationary) widen drange explicitly",
+    "MA sign: this estimator uses the convention with REVERSED MA signs relative to the usual ARIMA parameterisation — do not compare the coefficients directly",
+    "BANDWIDTH GATE: arfima_gph and arfima_sperio with a zero bandwidth exponent return a blank d and an infinite standard error SILENTLY (silently wrong) -> a hard gate, 0 < bandwidth < 1",
+    "the covariance and standard errors of the ML fit can be inaccurate (a documented warning) — prefer the semiparametric standard error for inference on d"
+   ],
+   "sources": [
+    "Haslett & Raftery 1989 (Applied Statistics 38:1-50, ML approximation)",
+    "Geweke & Porter-Hudak 1983 (J. Time Series Analysis 4(4):221-238, GPH)",
+    "Reisen 1994 (J. Time Series Analysis 15(1):335-350, smoothed periodogram)",
+    "Jensen & Nielsen 2014 (J. Time Series Analysis 35(5):428-436, fast fractional difference, doi:10.1111/jtsa.12074)"
+   ],
+   "precondition_tools": [
+    "the series precheck (a univariate numeric series with no gaps, NaN or infinities)",
+    "c00_data_utilities/descriptive_statistics.desc_acf (a slowly/linearly decaying ACF => evidence of long memory)",
+    "c01_preparation_prechecks/unit_root_suite.unitroot_adf (ADF non-rejection + ambiguous stationarity => possible fractional integration)",
+    "c01_preparation_prechecks/unit_root_suite.unitroot_kpss (KPSS alongside ADF for an ambiguous I(0)/I(1))",
+    "c00_data_utilities/replacement_missing_values.impute_kalman (fill the gaps before the fit, if needed)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 137,
+   "method": "Distributed-lag & ARDL regression (finite DL / Koyck geometric / autoregressive DL / Almon polynomial DL)",
+   "wrapper_file": "c02_univariate_forecasting/distributed_lag_ardl.py",
+   "tool_fns": [
+    "dlag_finite",
+    "dlag_koyck",
+    "dlag_ardl",
+    "dlag_almon"
+   ],
+   "when": "a lag-distributed effect of a predictor X on Y (short/long-run multipliers): a finite q, an infinite geometric decay (Koyck), an autoregressive DL(p,q), Almon polynomial smoothing of the lag weights",
+   "when_not": "pure univariate forecasting without X -> #7/#8; non-linear relations; I(1) long-run cointegration/ECM -> ARDL bounds (05); structural shocks/IRF -> 04",
+   "alternatives": [
+    {
+     "alt": "05-cointegration/ardl_bounds_f",
+     "criterion": "x,y are I(1): a bounds test for long-run cointegration + an ECM instead of a level DL regression"
+    },
+    {
+     "alt": "dlag_koyck",
+     "criterion": "an infinite geometric decay of the lag weights (a single rate phi, parsimony) rather than an explicit finite q"
+    },
+    {
+     "alt": "dlag_almon",
+     "criterion": "many lags with multicollinearity -> Almon polynomial smoothing of the lag weights"
+    },
+    {
+     "alt": "dlag_ardl",
+     "criterion": "you need AR dynamics in Y (autoregressive) alongside the distributed lags of X"
+    }
+   ],
+   "output_key_fields": [
+    "coefficients: named numeric (intercept + lag terms); fitted/residuals: numeric",
+    "diagnostics: r_squared/adj_r_squared/sigma/df_residual/nobs/aic/bic (aic and bic are blank for the Koyck IV fit)",
+    "method-specific: q/k (finite/poly); order=c(p,q) (ardl); geometric_coefficients alpha/beta/phi (koyck); beta+beta_tvalue/beta_pvalue (poly); formula/removed (multi-formula mode)"
+   ],
+   "interpretation_traps": [
+    "Koyck: interpret the geometric_coefficients (alpha/beta/phi, with phi the decay rate), NOT the raw IV delta coefficients; aic and bic are blank because the IV fit has no log-likelihood — do not compare it with least-squares models",
+    "poly: beta (the original per-lag weights) is the interpretable quantity; the coefficients are the gamma of the z-transformed polynomial, NOT per-lag effects",
+    "q loses q initial observations (nobs = n - q); a length mismatch between x and y would be accepted SILENTLY -> a hard gate",
+    "closed formula: it is built from y_col ~ x_cols (reformulate), NEVER a free formula string; k>q -> singular (hard gate)"
+   ],
+   "sources": [
+    "Hill, Griffiths & Judge, Undergraduate Econometrics (Wiley); Baltagi, Econometrics 5th ed. (Springer)"
+   ],
+   "precondition_tools": [
+    "c01_preparation_prechecks/unit_root_normality.run_adf_test (stationarity of x & y first — a level DL regression on non-cointegrated I(1) series is spurious)",
+    "c01_preparation_prechecks/unit_root_normality.run_kpss_test (confirmatory stationarity, the opposite H0)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 138,
+   "method": "Maximum Entropy Bootstrap for time series (dependence/non-stationarity preserved)",
+   "wrapper_file": "c02_univariate_forecasting/maximum_entropy_bootstrap.py",
+   "tool_fns": [
+    "meb_ensemble"
+   ],
+   "when": "bootstrap ensemble replicates of a series for downstream inference/confidence bands WITHOUT assuming stationarity or tuning a block length (it preserves dependence/non-stationarity)",
+   "when_not": "parametric prediction intervals from a correctly specified model -> forecast #7; charts (frontend); panel pdata_frame ensembles (out of scope)",
+   "alternatives": [
+    {
+     "alt": "02-univariate-forecasting/forecast-run_auto_arima",
+     "criterion": "a well-specified parametric model exists -> model-based prediction intervals instead of resampling"
+    },
+    {
+     "alt": "force_clt=True (default)",
+     "criterion": "preserve the CLT for the ensemble mean; False for non-gaussian tails, or for a trim with an xmin=0 non-negativity constraint"
+    }
+   ],
+   "output_key_fields": [
+    "ensemble: an n x reps matrix of replicates (nested rows) — the data and producer field",
+    "x: the original series (as input); xx: the ordered order statistics; z: the class-interval limits",
+    "xmin/xmax: the left/right tail limits; dvtrim: the trimmed mean deviations; kappa: the scale adjustment",
+    "n/reps/trim/seed: metadata + the applied arguments (the seed for reproducibility)"
+   ],
+   "interpretation_traps": [
+    "STOCHASTIC: the seed is MANDATORY (the generator is seeded before the draw); without a pinned seed the node is uncacheable",
+    "reps<10, or a trim outside [0,0.5), would be accepted SILENTLY -> hard gates here (silently wrong)",
+    "force_clt=True alters the ensemble so that its mean satisfies the CLT — it is NOT a raw resample",
+    "the elapsed-time report is forced off and omitted — it is non-deterministic and breaks caching"
+   ],
+   "sources": [
+    "Vinod, H.D. (2006) Maximum Entropy Ensembles for Time Series Inference in Economics, J. Asian Economics 17(6):955-978",
+    "Vinod, H.D. (2013) Maximum Entropy Bootstrap Algorithm Enhancements, SSRN 2285041",
+    "Vinod & López-de-Lacalle 2009 JSS 29(5) (maximum entropy bootstrap for time series)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 407,
+   "method": "Benchmark forecasters: naive, seasonal naive, drift, mean and window average",
+   "wrapper_file": "c02_univariate_forecasting/benchmark_forecasters.py",
+   "tool_fns": [
+    "uf_benchmark_forecast"
+   ],
+   "when": "every skill-based accuracy metric and every 'does the model beat a random walk' claim needs these as the denominator",
+   "when_not": "you already have a benchmark and only need the sophisticated model",
+   "alternatives": [
+    {
+     "alt": "seasonal naive",
+     "criterion": "the series is seasonal"
+    },
+    {
+     "alt": "drift",
+     "criterion": "the series trends and a random walk with drift is the honest baseline"
+    },
+    {
+     "alt": "window average",
+     "criterion": "the series is noisy and mean reverting"
+    }
+   ],
+   "output_key_fields": [
+    "forecast: the benchmark path",
+    "intervals: prediction intervals, which for a naive forecast widen with the square root of the horizon",
+    "method: which benchmark produced it",
+    "residuals: in-sample errors, the scale MASE is computed against"
+   ],
+   "interpretation_traps": [
+    "a model that fails to beat SEASONAL NAIVE on seasonal data has no value, however sophisticated it looks",
+    "naive prediction intervals assume independent errors; with autocorrelated residuals they are far too narrow",
+    "MASE is scaled by the in-sample naive error, so a benchmark computed on a different sample makes the metric incomparable"
+   ],
+   "sources": [
+    "Hyndman & Athanasopoulos 2021, Forecasting: Principles and Practice, 3rd ed., ch.5",
+    "Hyndman & Koehler 2006 (International Journal of Forecasting 22:679-688)",
+    "statsforecast"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 408,
+   "method": "Dynamic regression and regARIMA with exogenous regressors",
+   "wrapper_file": "c02_univariate_forecasting/dynamic_regression.py",
+   "tool_fns": [
+    "uf_dynamic_regression",
+    "uf_dynamic_regression_forecast"
+   ],
+   "when": "the series is driven by observable exogenous variables and the residual dynamics still need an ARIMA structure",
+   "when_not": "the exogenous variables are not available over the forecast horizon; the relationship is a cointegrating one and belongs in an error-correction model",
+   "alternatives": [
+    {
+     "alt": "plain ARIMA",
+     "criterion": "no useful exogenous information"
+    },
+    {
+     "alt": "regARIMA",
+     "criterion": "regressors plus autocorrelated errors"
+    },
+    {
+     "alt": "transfer function",
+     "criterion": "the regressor's effect is distributed over time"
+    }
+   ],
+   "output_key_fields": [
+    "params: regression coefficients and ARIMA parameters",
+    "forecast: conditional on supplied future regressors",
+    "residual_diagnostics: whiteness of what remains after both parts",
+    "aic, bic"
+   ],
+   "interpretation_traps": [
+    "forecasting requires FUTURE VALUES of every regressor; using actuals produces an in-sample illusion, and forecasting the regressors adds their error to yours",
+    "regressors and ARIMA errors compete to explain the same variation; the coefficient changes materially with the error specification",
+    "differencing applies to the regressors too, and applying it to only one side breaks the relationship"
+   ],
+   "sources": [
+    "Hyndman & Athanasopoulos 2021, ch.10",
+    "Box, Jenkins, Reinsel & Ljung 2015, Time Series Analysis, 5th ed.",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 409,
+   "method": "Intervention analysis and transfer functions",
+   "wrapper_file": "c02_univariate_forecasting/intervention_analysis.py",
+   "tool_fns": [
+    "uf_intervention"
+   ],
+   "when": "measuring the effect of a dated event -- a policy change, a strike, a methodology break -- on the level or dynamics of a series",
+   "when_not": "the event date is unknown (-> break tests); there are so many interventions that the model is unidentified",
+   "alternatives": [
+    {
+     "alt": "step intervention",
+     "criterion": "a permanent level shift"
+    },
+    {
+     "alt": "pulse intervention",
+     "criterion": "a one-off effect"
+    },
+    {
+     "alt": "transfer function",
+     "criterion": "the effect builds and decays over several periods"
+    }
+   ],
+   "output_key_fields": [
+    "effect: the estimated intervention effect and its shape over time",
+    "params: intervention and ARIMA parameters together",
+    "counterfactual: the path implied without the intervention",
+    "significance: test of a zero effect"
+   ],
+   "interpretation_traps": [
+    "the intervention SHAPE -- step, pulse, gradual -- is imposed, not estimated; the wrong shape can make a real effect insignificant",
+    "an intervention at the very end of the sample is barely identified because there is almost no post-event data",
+    "pre-intervention model misspecification loads onto the intervention estimate, which is why the pre-period fit must be checked first"
+   ],
+   "sources": [
+    "Box & Tiao 1975 (JASA 70:70-79)",
+    "Enders 2015, Applied Econometric Time Series, 4th ed., ch.5",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 410,
+   "method": "Simulation-based fan charts and scenario paths",
+   "wrapper_file": "c02_univariate_forecasting/fan_charts.py",
+   "tool_fns": [
+    "uf_fan_chart"
+   ],
+   "when": "communicating forecast uncertainty as a distribution of paths rather than a point, and imposing scenarios on that distribution",
+   "when_not": "the model's analytic intervals are adequate and the extra simulation adds nothing",
+   "alternatives": [
+    {
+     "alt": "analytic prediction intervals",
+     "criterion": "the model has closed-form intervals and errors are Gaussian"
+    },
+    {
+     "alt": "simulated fan chart",
+     "criterion": "the model is nonlinear or errors are non-Gaussian"
+    },
+    {
+     "alt": "scenario-conditioned paths",
+     "criterion": "you want paths consistent with a stated future"
+    }
+   ],
+   "output_key_fields": [
+    "fan: quantile bands per horizon",
+    "paths: the simulated trajectories",
+    "scenario_paths: paths conditioned on a stated future",
+    "n_simulations: draws behind the bands"
+   ],
+   "interpretation_traps": [
+    "a fan of quantiles taken HORIZON BY HORIZON is not a set of plausible paths -- no single trajectory follows the median band, and reading it as one is a standard error",
+    "bootstrapped innovations preserve non-normality but assume the residuals are independent",
+    "conditioning on a scenario changes the distribution of everything else in the model; ignoring that gives paths that are internally inconsistent"
+   ],
+   "sources": [
+    "Britton, Fisher & Whitley 1998 (Bank of England Quarterly Bulletin 38:30-37)",
+    "Hyndman & Athanasopoulos 2021, ch.5",
+    "statsforecast"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 411,
+   "method": "Global pooled tree forecasting with lag features",
+   "wrapper_file": "c02_univariate_forecasting/global_tree_forecasting.py",
+   "tool_fns": [
+    "uf_global_forecast"
+   ],
+   "when": "many related series, where one model fitted across all of them beats a separate model per series -- the standard modern approach for large forecast portfolios",
+   "when_not": "you have one series, where a global model has nothing to pool; the series are unrelated and pooling imposes false commonality",
+   "alternatives": [
+    {
+     "alt": "local models per series",
+     "criterion": "few series, each with long history"
+    },
+    {
+     "alt": "global tree model",
+     "criterion": "many short related series"
+    },
+    {
+     "alt": "global neural model",
+     "criterion": "very many series and nonlinear cross-series structure"
+    }
+   ],
+   "output_key_fields": [
+    "forecast: paths per series",
+    "feature_importance: which lags and features drive the model",
+    "cv_score: cross-validated accuracy over the horizon",
+    "n_series: how many series were pooled"
+   ],
+   "interpretation_traps": [
+    "tree models CANNOT EXTRAPOLATE beyond the range of the training target; a trending series must be differenced or detrended first or forecasts flatten",
+    "feature construction must respect the forecast origin -- a lag shorter than the horizon is unavailable at prediction time and leaks",
+    "pooling assumes the series share dynamics; scale differences must be handled or large series dominate the fit"
+   ],
+   "sources": [
+    "Januschowski et al. 2020 (International Journal of Forecasting 36:167-177)",
+    "Makridakis, Spiliotis & Assimakopoulos 2020 (International Journal of Forecasting 36:54)",
+    "mlforecast"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 412,
+   "method": "Bagged and bootstrap-aggregated forecasts with STL and block bootstrap",
+   "wrapper_file": "c02_univariate_forecasting/bagged_forecasts.py",
+   "tool_fns": [
+    "uf_bagged_forecast"
+   ],
+   "when": "reducing forecast variance by averaging over bootstrap replicates of the series, which usually beats the single fitted model",
+   "when_not": "the series is short, where the bootstrap replicates are nearly identical and bagging adds cost without benefit",
+   "alternatives": [
+    {
+     "alt": "single fitted model",
+     "criterion": "the model is stable and the series is long"
+    },
+    {
+     "alt": "bagged forecasts",
+     "criterion": "the model is unstable or the series is short"
+    },
+    {
+     "alt": "forecast combination",
+     "criterion": "you have several different models rather than replicates"
+    }
+   ],
+   "output_key_fields": [
+    "forecast: the bagged mean or median path",
+    "replicate_forecasts: the individual paths, which give an empirical interval",
+    "n_replicates: how many were generated",
+    "variance_reduction: spread of replicates against the single fit"
+   ],
+   "interpretation_traps": [
+    "bagging reduces VARIANCE, not bias; a systematically wrong model bagged many times is still systematically wrong",
+    "the bootstrap must preserve serial dependence -- an iid bootstrap of the series destroys exactly what is being forecast",
+    "the spread of replicate forecasts is not a prediction interval; it omits innovation uncertainty entirely"
+   ],
+   "sources": [
+    "Bergmeir, Hyndman & Benitez 2016 (International Journal of Forecasting 32:303-312)",
+    "Petropoulos, Hyndman & Bergmeir 2018 (European Journal of Operational Research 268:545)",
+    "statsforecast"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 413,
+   "method": "Direct multi-step reduction forecasting",
+   "wrapper_file": "c02_univariate_forecasting/direct_multistep.py",
+   "tool_fns": [
+    "uf_direct_multistep"
+   ],
+   "when": "forecasting each horizon with its own model trained directly on that horizon's target, avoiding the error accumulation of recursive iteration",
+   "when_not": "the horizon is one; the sample is too short to train a separate model per horizon",
+   "alternatives": [
+    {
+     "alt": "recursive forecasting",
+     "criterion": "one model iterated forward, efficient but accumulates error"
+    },
+    {
+     "alt": "direct forecasting",
+     "criterion": "one model per horizon, no accumulation but more models"
+    },
+    {
+     "alt": "hybrid rectify strategies",
+     "criterion": "you want a compromise"
+    }
+   ],
+   "output_key_fields": [
+    "forecast: the path assembled from per-horizon models",
+    "models: one fitted model per horizon",
+    "horizon_scores: accuracy per horizon, which reveals where the strategy pays",
+    "strategy: which reduction was used"
+   ],
+   "interpretation_traps": [
+    "DIRECT and RECURSIVE forecasts differ systematically: recursive accumulates model error, direct loses efficiency by fitting each horizon separately -- neither dominates",
+    "the direct strategy fits a different model per horizon, so the resulting path can be non-smooth or even non-monotone in ways a single model would not produce",
+    "each horizon's training set is shorter than the last, so late horizons are fitted on less data"
+   ],
+   "sources": [
+    "Ben Taieb, Bontempi, Atiya & Sorjamaa 2012 (Expert Systems with Applications 39:7067-7083)",
+    "Chevillon 2007 (Journal of Economic Surveys 21:746)",
+    "sktime"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 414,
+   "method": "Conformal prediction intervals for forecasts",
+   "wrapper_file": "c02_univariate_forecasting/conformal_intervals.py",
+   "tool_fns": [
+    "uf_conformal_intervals"
+   ],
+   "when": "prediction intervals with a finite-sample coverage guarantee that does not depend on the model being correctly specified",
+   "when_not": "the residuals are not exchangeable in a way any conformal variant can handle; you need a full predictive density rather than an interval",
+   "alternatives": [
+    {
+     "alt": "model-based intervals",
+     "criterion": "the model is correct and you want efficiency"
+    },
+    {
+     "alt": "split conformal",
+     "criterion": "you want a guarantee and have data to spare"
+    },
+    {
+     "alt": "adaptive conformal",
+     "criterion": "the error distribution shifts over time"
+    }
+   ],
+   "output_key_fields": [
+    "intervals: lower and upper bounds per horizon",
+    "coverage_guarantee: the nominal level the construction guarantees",
+    "empirical_coverage: realised coverage on the calibration set",
+    "width: interval width, the price of the guarantee"
+   ],
+   "interpretation_traps": [
+    "standard conformal guarantees rest on EXCHANGEABILITY, which time series violate; the time-series variants weaken this and their guarantee is correspondingly weaker",
+    "the guarantee is MARGINAL over the calibration distribution -- it does not hold conditionally on a particular covariate value or regime",
+    "a wide conformal interval is the method telling you the model is poor, not a defect of the method"
+   ],
+   "sources": [
+    "Vovk, Gammerman & Shafer 2005, Algorithmic Learning in a Random World",
+    "Stankeviciute, Alaa & van der Schaar 2021, Conformal time-series forecasting (NeurIPS 34)",
+    "Gibbs & Candes 2021 (NeurIPS 34)",
+    "mapie"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 415,
+   "method": "Automatic family selection and forecaster multiplexing",
+   "wrapper_file": "c02_univariate_forecasting/auto_selection.py",
+   "tool_fns": [
+    "uf_auto_select"
+   ],
+   "when": "choosing among forecasting families by a stated cross-validated rule instead of by habit, over many series at once",
+   "when_not": "theory or convention fixes the model; the series is too short for time-series cross-validation to leave usable folds",
+   "alternatives": [
+    {
+     "alt": "information criteria",
+     "criterion": "within one family, cheap"
+    },
+    {
+     "alt": "time-series cross-validation",
+     "criterion": "across families, honest but expensive"
+    },
+    {
+     "alt": "forecast combination",
+     "criterion": "you would rather average than select"
+    }
+   ],
+   "output_key_fields": [
+    "selected: the chosen model per series",
+    "cv_scores: cross-validated accuracy per candidate",
+    "selection_stability: how often the choice changes across folds",
+    "forecast: the path from the selected model"
+   ],
+   "interpretation_traps": [
+    "selecting on the SAME data used to report accuracy overstates performance; the selection must sit inside the evaluation loop, not outside it",
+    "a selection that flips between families across folds is telling you the candidates are indistinguishable -- combination is usually better than picking",
+    "cross-validation folds must respect time order; a random split leaks the future into the past"
+   ],
+   "sources": [
+    "Hyndman & Khandakar 2008 (Journal of Statistical Software 27:1-22)",
+    "Bergmeir & Benitez 2012 (Information Sciences 191:192-213)",
+    "sktime"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "rml_fit",
+   "card_id": 134,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts (the series to forecast).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED seed (seeded before resampling; cache key; uncacheable without it).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "max_lag",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum lag of the autoregressive features (positive integer; default 5; length(y)>max_lag+1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "learner_method",
+     "kind": "enum",
+     "required": false,
+     "description": "CLOSED whitelist of lightweight learners (default lm); maps internally to the learner method and tuning grid; NEVER a free string.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lm",
+      "elastic_net",
+      "ridge",
+      "lasso"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "pre_process",
+     "kind": "raw",
+     "required": false,
+     "description": "Optional preprocessing steps (center/scale/range/BoxCox etc.; gated to an allowed set; None=none).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cv",
+     "kind": "boolean",
+     "required": false,
+     "description": "Model selection with time-slice CV (default True; cv=False is rejected — requires a forbidden tuning grid).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cv_horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of consecutive values in the test set of each resample (positive integer; default 4).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seasonal",
+     "kind": "boolean",
+     "required": false,
+     "description": "Fourier terms for seasonality (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exog",
+     "kind": "exog_handle",
+     "required": false,
+     "description": "In-sample exogenous regressors (matrix, nrow==length(y); NOT a data frame).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "new_exog",
+     "kind": "exog_handle",
+     "required": false,
+     "description": "Future exogenous regressors for the forecast (nrow==h, same columns as exog_handle; required if exog_handle is given).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (positive integer; None -> frequency(y)).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "rml_conformal",
+   "card_id": 134,
+   "register": null,
+   "input_example": {
+    "model": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "model",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an ARml model (rml_fit.model) — conformal PI from its in-sample residuals.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (positive integer; None -> frequency(model.y)).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "confidence",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level of the conformal interval ∈ (0,1) (default 0.95).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "new_exog",
+     "kind": "exog_handle",
+     "required": false,
+     "description": "Future regressors if the model was trained with exog_handle (NOT a data frame).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_min",
+     "kind": "number",
+     "required": false,
+     "description": "Lower clip of the intervals (default -Inf).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_max",
+     "kind": "number",
+     "required": false,
+     "description": "Upper clip of the intervals (> y_min; default Inf).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "rml_variable_importance",
+   "card_id": 134,
+   "register": null,
+   "input_example": {
+    "model": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "model",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an ARml or forecast object (rml_fit) — variable importance of the lags/regressors.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dlag_ardl",
+   "card_id": 137,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "p": 1,
+    "q": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Handle to predictor series X (vector mode).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Handle to dependent series Y (vector mode).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Handle to a DataFrame (closed formula mode; requires y_col+x_cols).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_col",
+     "kind": "string",
+     "required": false,
+     "description": "Response column name (formula mode).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x_cols",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Predictor column names >=1 (formula mode).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "p",
+     "kind": "integer",
+     "required": false,
+     "description": "Lag length of predictor X (positive integer >=1, < nobs).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "q",
+     "kind": "integer",
+     "required": false,
+     "description": "AR order of dependent Y (positive integer >=1, < nobs).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "remove",
+     "kind": "raw",
+     "required": false,
+     "description": "list(p=, q=) of lags to remove (optional).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dlag_finite",
+   "card_id": 137,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "q": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Handle to predictor series X (vector mode; numeric >=3, without NA/Inf).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Handle to dependent series Y (vector mode; same length as x).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Handle to a DataFrame (closed formula mode; requires y_col+x_cols).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_col",
+     "kind": "string",
+     "required": false,
+     "description": "Response column name (formula mode).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x_cols",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Predictor column names >=1 (formula mode; closed, without a free formula string).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "q",
+     "kind": "integer",
+     "required": true,
+     "description": "Finite lag length (positive integer >=1, < nobs).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "remove",
+     "kind": "raw",
+     "required": false,
+     "description": "list of lags to remove per predictor (optional).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dlag_koyck",
+   "card_id": 137,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "x": "<series_handle>",
+    "y": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to predictor series X (numeric >=3).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to dependent series Y (same length as x).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "intercept",
+     "kind": "boolean",
+     "required": false,
+     "description": "Inclusion of intercept in the Koyck-transformed model (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "dlag_almon",
+   "card_id": 137,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "x": "<series_handle>",
+    "y": "<series_handle>",
+    "q": 1,
+    "k": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to predictor series X (numeric >=3).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to dependent series Y (same length as x).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "q",
+     "kind": "integer",
+     "required": true,
+     "description": "Finite lag length (positive integer >=1, < nobs).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "k",
+     "kind": "integer",
+     "required": true,
+     "description": "Almon polynomial order (positive integer >=1, k <= q).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "show_beta",
+     "kind": "boolean",
+     "required": false,
+     "description": "Return of original beta lag weights + t-tests (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "arfima_difference",
+   "card_id": 136,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>",
+    "d": 0.5
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts/numeric.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "d",
+     "kind": "number",
+     "required": true,
+     "description": "Fractional differencing order (a single finite number).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "arfima_fit",
+   "card_id": 136,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "x": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts/numeric (the series for the ARFIMA fit).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nar",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of AR parameters p (non-negative integer; default 0).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nma",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of MA parameters q (non-negative integer; default 0).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "M",
+     "kind": "integer",
+     "required": false,
+     "description": "Terms in the likelihood approximation (Haslett-Raftery; default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "arfima_gph",
+   "card_id": 136,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts/numeric.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bandw_exp",
+     "kind": "number",
+     "required": false,
+     "description": "Bandwidth exponent bw=trunc(n^bandw.exp); strictly in (0,1); default 0.5.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "arfima_sperio",
+   "card_id": 136,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts/numeric.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bandw_exp",
+     "kind": "number",
+     "required": false,
+     "description": "Bandwidth exponent; strictly in (0,1); default 0.5.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "beta",
+     "kind": "number",
+     "required": false,
+     "description": "Bandwidth exponent of the Parzen lag window; strictly in (0,1); default 0.9.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "meb_ensemble",
+   "card_id": 138,
+   "register": {
+    "field": "ensemble"
+   },
+   "input_example": {
+    "x": "<series_handle>",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate series (numeric/ts; fully finite, length>=2).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed (REQUIRED; stochastic — seeded before the draw; reproducibility/caching).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "reps",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replicates (default 999; gate reps>=10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "trim",
+     "kind": "number",
+     "required": false,
+     "description": "Trimming proportion of the tails (default 0.10; gate 0<=trim<0.5).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "reachbnd",
+     "kind": "boolean",
+     "required": false,
+     "description": "Reached-bounds draws at the 0/1 edges (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "expand_sd",
+     "kind": "boolean",
+     "required": false,
+     "description": "Widening of the ensemble's SD (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "force_clt",
+     "kind": "boolean",
+     "required": false,
+     "description": "Forcing of CLT on the ensemble mean (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "scl_adjustment",
+     "kind": "boolean",
+     "required": false,
+     "description": "Scale adjustment so that var(ensemble)=var(x) (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "sym",
+     "kind": "boolean",
+     "required": false,
+     "description": "Symmetric ME density adjustment (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "nn_elm",
+   "card_id": 133,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts/msts.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED seed (seeded before the random hidden weights; cache key).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (positive integer; None -> frequency(y)).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "hd",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of hidden nodes (small default 3).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "required": false,
+     "description": "Estimation of output-layer weights (default lasso).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lasso",
+      "ridge",
+      "step",
+      "lm"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "reps",
+     "kind": "integer",
+     "required": false,
+     "description": "Ensemble size (default 2).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "comb",
+     "kind": "enum",
+     "required": false,
+     "description": "Ensemble combination operator (default median).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "median",
+      "mean",
+      "mode"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "sel_lag",
+     "kind": "boolean",
+     "required": false,
+     "description": "Automatic lag selection (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "direct",
+     "kind": "boolean",
+     "required": false,
+     "description": "Direct input-output connections for linear effects (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "det_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Type of deterministic seasonal dummies (default auto).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "auto",
+      "bin",
+      "trg"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exog",
+     "kind": "exog_handle",
+     "required": false,
+     "description": "Exogenous regressors (matrix, length >= n+h; NOT a data frame).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "nn_mlp",
+   "card_id": 133,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts/msts (the series to forecast).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED seed (seeded before the random weights; cache key; uncacheable without it).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (positive integer; None -> frequency(y)).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "hd",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of hidden nodes (small default 3; keeps the node cheap).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "reps",
+     "kind": "integer",
+     "required": false,
+     "description": "Ensemble size (number of networks; default 2; docs 20).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "comb",
+     "kind": "enum",
+     "required": false,
+     "description": "Ensemble combination operator (default median).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "median",
+      "mean",
+      "mode"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "sel_lag",
+     "kind": "boolean",
+     "required": false,
+     "description": "Automatic lag selection (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "det_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Type of deterministic seasonal dummies (default auto).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "auto",
+      "bin",
+      "trg"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exog",
+     "kind": "exog_handle",
+     "required": false,
+     "description": "Exogenous regressors (matrix, length >= n+h; NOT a data frame).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_adam",
+   "card_id": 10,
+   "register": null,
+   "input_example": {
+    "data": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a series (1st column = response; data-agnostic passthrough).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "string",
+     "required": false,
+     "description": "ETS spec E/T/S (default 'ZXZ'; Z=auto, X=pure additive selection).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Fit-time horizon (for holdout; default 0).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "holdout",
+     "kind": "boolean",
+     "required": false,
+     "description": "Keep the last h points as holdout (requires h>0; default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "loss",
+     "kind": "enum",
+     "required": false,
+     "description": "Loss function (default likelihood).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "likelihood",
+      "MSE",
+      "MAE",
+      "HAM",
+      "LASSO",
+      "RIDGE",
+      "MSEh",
+      "TMSE",
+      "GTMSE",
+      "MSCE",
+      "GPL"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ic",
+     "kind": "enum",
+     "required": false,
+     "description": "Information criterion (default AICc).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "AICc",
+      "AIC",
+      "BIC",
+      "BICc"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "forecast_h",
+     "kind": "integer",
+     "required": false,
+     "description": "Horizon of the forecast step (None -> fit h if >0, otherwise 10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_auto_adam",
+   "card_id": 10,
+   "register": null,
+   "input_example": {
+    "data": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a series (auto.adam tries multiple distributions).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "string",
+     "required": false,
+     "description": "ETS spec E/T/S (default 'ZXZ').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Fit-time horizon (default 0).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "holdout",
+     "kind": "boolean",
+     "required": false,
+     "description": "Holdout of the last h (requires h>0; default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ic",
+     "kind": "enum",
+     "required": false,
+     "description": "Information criterion (default AICc).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "AICc",
+      "AIC",
+      "BIC",
+      "BICc"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "forecast_h",
+     "kind": "integer",
+     "required": false,
+     "description": "Horizon of the forecast step.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_auto_arima",
+   "card_id": 7,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts (the series to forecast).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (number of steps; None -> documented default).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ic",
+     "kind": "enum",
+     "required": false,
+     "description": "Information criterion for the selection (default aicc).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "aicc",
+      "aic",
+      "bic"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "stepwise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Stepwise search (default True; False = exhaustive, slow).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seasonal",
+     "kind": "boolean",
+     "required": false,
+     "description": "Allow seasonal ARIMA terms (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exog",
+     "kind": "exog_handle",
+     "required": false,
+     "description": "Handle to exogenous regressors (matrix, same rows as y; NOT a data frame).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_auto_ces",
+   "card_id": 10,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a series (auto.ces tries the seasonality types).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ic",
+     "kind": "enum",
+     "required": false,
+     "description": "Information criterion (default AICc).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "AICc",
+      "AIC",
+      "BIC",
+      "BICc"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "loss",
+     "kind": "enum",
+     "required": false,
+     "description": "Loss function (default likelihood).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "likelihood",
+      "MSE",
+      "MAE",
+      "HAM",
+      "MSEh",
+      "TMSE",
+      "GTMSE",
+      "MSCE",
+      "GPL"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Fit-time horizon (default 0).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "holdout",
+     "kind": "boolean",
+     "required": false,
+     "description": "Holdout of the last h (requires h>0; default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "forecast_h",
+     "kind": "integer",
+     "required": false,
+     "description": "Horizon of the forecast step.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_ces",
+   "card_id": 10,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a series (univariate response).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seasonality",
+     "kind": "enum",
+     "required": false,
+     "description": "Type of complex seasonality (default none).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "simple",
+      "partial",
+      "full"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "loss",
+     "kind": "enum",
+     "required": false,
+     "description": "Loss function (default likelihood).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "likelihood",
+      "MSE",
+      "MAE",
+      "HAM",
+      "MSEh",
+      "TMSE",
+      "GTMSE",
+      "MSCE",
+      "GPL"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Fit-time horizon (default 0).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "holdout",
+     "kind": "boolean",
+     "required": false,
+     "description": "Holdout of the last h (requires h>0; default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "forecast_h",
+     "kind": "integer",
+     "required": false,
+     "description": "Horizon of the forecast step.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_ets",
+   "card_id": 7,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "string",
+     "required": false,
+     "description": "ETS spec, 3 letters E/T/S (default 'ZZZ' = automatic selection).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "damped",
+     "kind": "boolean",
+     "required": false,
+     "description": "Damped trend (None -> auto; True/False forces it).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ic",
+     "kind": "enum",
+     "required": false,
+     "description": "Information criterion (default aicc).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "aicc",
+      "aic",
+      "bic"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_grouped_arima",
+   "card_id": 8,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "formula": "y ~ x"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a series (index + value variable).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": true,
+     "description": "Model spec, e.g. 'value ~ 1' (automatic order selection). NOTE: the special order functions pdq/PDQ are NOT allowed by the security allowlist.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ic",
+     "kind": "enum",
+     "required": false,
+     "description": "Information criterion (default aicc).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "aicc",
+      "aic",
+      "bic"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "stepwise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Stepwise search (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_grouped_ets",
+   "card_id": 8,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "formula": "y ~ x"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a series (WITHOUT missing values — ETS does not support them).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": true,
+     "description": "ETS model spec; NOTE: the order functions error/trend/season are NOT allowed by the security allowlist.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "opt_crit",
+     "kind": "enum",
+     "required": false,
+     "description": "Optimization criterion (default lik).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lik",
+      "amse",
+      "mse",
+      "sigma",
+      "mae"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ic",
+     "kind": "enum",
+     "required": false,
+     "description": "Information criterion (default aicc).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "aicc",
+      "aic",
+      "bic"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_prophet",
+   "card_id": 9,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "df": "<df_handle>"
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a DataFrame; either ds/y or long-format (date_col/value_col).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "growth",
+     "kind": "enum",
+     "required": false,
+     "description": "Trend growth (default linear; 'logistic' requires a cap column).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "linear",
+      "logistic",
+      "flat"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seasonality_mode",
+     "kind": "enum",
+     "required": false,
+     "description": "Seasonality mode (default additive).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "additive",
+      "multiplicative"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "date_col",
+     "kind": "string",
+     "required": false,
+     "description": "Date column name for mapping to ds (default 'period').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "value_col",
+     "kind": "string",
+     "required": false,
+     "description": "Value column name for mapping to y (default 'value').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "periods",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (future steps; default 0).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "freq",
+     "kind": "string",
+     "required": false,
+     "description": "Frequency of future dates (e.g. 'month'; None -> auto-infer).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_prophet_cv",
+   "card_id": 9,
+   "register": null,
+   "input_example": {
+    "model": "<raw_handle>",
+    "horizon": 1,
+    "units": "..."
+   },
+   "arguments": [
+    {
+     "name": "model",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted prophet model (from run_prophet).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": true,
+     "description": "Horizon of each fold (in 'units').",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "units",
+     "kind": "string",
+     "required": true,
+     "description": "Time unit (e.g. 'days', 'weeks').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "period",
+     "kind": "integer",
+     "required": false,
+     "description": "Cutoff spacing (units; None -> 0.5*horizon).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "initial",
+     "kind": "integer",
+     "required": false,
+     "description": "Initial training window (units; None -> 3*horizon).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "rolling_window",
+     "kind": "number",
+     "required": false,
+     "description": "Aggregation window of the performance metrics (default 0.1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_tbats",
+   "card_id": 7,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts (univariate only; multiple seasonal periods possible).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "use_box_cox",
+     "kind": "boolean",
+     "required": false,
+     "description": "Box-Cox transformation (None -> auto).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "use_trend",
+     "kind": "boolean",
+     "required": false,
+     "description": "Inclusion of trend (None -> auto).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "use_damped_trend",
+     "kind": "boolean",
+     "required": false,
+     "description": "Damped trend (None -> auto).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "use_arma_errors",
+     "kind": "boolean",
+     "required": false,
+     "description": "ARMA errors on the residuals (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "run_theta",
+   "card_id": 7,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate ts.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tsi_croston",
+   "card_id": 135,
+   "register": null,
+   "input_example": {
+    "data": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate intermittent-demand series (non-negative, with zeros).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (positive integer; default 10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "required": false,
+     "description": "Croston variant (default croston; sba/sbj = bias-corrected).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "croston",
+      "sba",
+      "sbj"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "init",
+     "kind": "enum",
+     "required": false,
+     "description": "Initial demand/interval values (default mean).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mean",
+      "naive"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cost",
+     "kind": "enum",
+     "required": false,
+     "description": "Optimization cost function (default mar).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mar",
+      "msr",
+      "mae",
+      "mse"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nop",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of parameters: 1 (shared) or 2 (default, separate demand/interval).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "w",
+     "kind": "raw",
+     "required": false,
+     "description": "Smoothing parameters (None -> optimise; 1 or 2 values).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "init_opt",
+     "kind": "boolean",
+     "required": false,
+     "description": "Optimization of initial values (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "na_rm",
+     "kind": "boolean",
+     "required": false,
+     "description": "Removal of NA before the fit (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tsi_decomp",
+   "card_id": 135,
+   "register": null,
+   "input_example": {
+    "data": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate intermittent-demand series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "init",
+     "kind": "enum",
+     "required": false,
+     "description": "Initial interval value (default naive — CAUTION: reverse order from crost/tsb).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "naive",
+      "mean"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tsi_imapa",
+   "card_id": 135,
+   "register": null,
+   "input_example": {
+    "data": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate intermittent-demand series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (positive integer; default 10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "comb",
+     "kind": "enum",
+     "required": false,
+     "description": "Combination operator over the aggregation levels (default mean).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mean",
+      "median"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "minimumAL",
+     "kind": "integer",
+     "required": false,
+     "description": "Lowest aggregation level (default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "maximumAL",
+     "kind": "integer",
+     "required": false,
+     "description": "Highest aggregation level (None -> maximum interval).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "w",
+     "kind": "raw",
+     "required": false,
+     "description": "Smoothing parameters (None -> optimise).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "init_opt",
+     "kind": "boolean",
+     "required": false,
+     "description": "Optimization of Croston/SBA initial values (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "na_rm",
+     "kind": "boolean",
+     "required": false,
+     "description": "Removal of NA (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "tsi_tsb",
+   "card_id": 135,
+   "register": null,
+   "input_example": {
+    "data": "<series_handle>"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Handle to a univariate intermittent-demand series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (positive integer; default 10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "init",
+     "kind": "enum",
+     "required": false,
+     "description": "Initial values (default mean).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mean",
+      "naive"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cost",
+     "kind": "enum",
+     "required": false,
+     "description": "Cost function (default mar).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mar",
+      "msr",
+      "mae",
+      "mse"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "w",
+     "kind": "raw",
+     "required": false,
+     "description": "Smoothing (demand, demand-probability)· None -> optimise.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "init_opt",
+     "kind": "boolean",
+     "required": false,
+     "description": "Optimization of initial values (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "na_rm",
+     "kind": "boolean",
+     "required": false,
+     "description": "Removal of NA (default False).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uf_benchmark_forecast",
+   "card_id": 407,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "h": 1,
+    "method": "seasonal_naive",
+    "season_length": 1,
+    "window": 12,
+    "levels": [
+     0.8,
+     0.95
+    ]
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Series to forecast.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": true,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Benchmark method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "naive",
+      "seasonal_naive",
+      "drift",
+      "mean",
+      "window_average",
+      "random_walk_drift"
+     ],
+     "allowed_vars": null,
+     "default": "seasonal_naive",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "season_length",
+     "kind": "integer",
+     "required": false,
+     "description": "Seasonal period.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "window",
+     "kind": "integer",
+     "required": false,
+     "description": "Window for the window average.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 12,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "levels",
+     "kind": "num_array",
+     "required": false,
+     "description": "Prediction interval levels.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.8,
+      0.95
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    }
+   ]
+  },
+  {
+   "fn": "uf_dynamic_regression",
+   "card_id": 408,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "exog": "<exog_handle>",
+    "order": [
+     1,
+     0,
+     0
+    ],
+    "season_length": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Dependent series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exog",
+     "kind": "exog_handle",
+     "required": true,
+     "description": "Exogenous regressors.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "order",
+     "kind": "int_array",
+     "required": false,
+     "description": "ARIMA order.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      1,
+      0,
+      0
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "seasonal_order",
+     "kind": "int_array",
+     "required": false,
+     "description": "Seasonal ARIMA order.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "season_length",
+     "kind": "integer",
+     "required": false,
+     "description": "Seasonal period.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "uf_dynamic_regression_forecast",
+   "card_id": 408,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "exog_future": "<exog_handle>",
+    "h": 1,
+    "levels": [
+     0.8,
+     0.95
+    ]
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "exog_future",
+     "kind": "exog_handle",
+     "required": true,
+     "description": "Future regressor values.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": true,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "levels",
+     "kind": "num_array",
+     "required": false,
+     "description": "Prediction interval levels.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.8,
+      0.95
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    }
+   ]
+  },
+  {
+   "fn": "uf_intervention",
+   "card_id": 409,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "intervention_date": "...",
+    "shape": "step",
+    "decay": 0.5,
+    "order": [
+     1,
+     0,
+     0
+    ],
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "intervention_date",
+     "kind": "string",
+     "required": true,
+     "description": "Date the intervention begins.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "shape",
+     "kind": "enum",
+     "required": false,
+     "description": "Intervention shape.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "step",
+      "pulse",
+      "ramp",
+      "decaying_pulse"
+     ],
+     "allowed_vars": null,
+     "default": "step",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "decay",
+     "kind": "number",
+     "required": false,
+     "description": "Decay parameter for a gradual response.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "order",
+     "kind": "int_array",
+     "required": false,
+     "description": "ARIMA order.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      1,
+      0,
+      0
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "uf_fan_chart",
+   "card_id": 410,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "h": 1,
+    "n_simulations": 1000,
+    "innovations": "bootstrap",
+    "quantiles": [
+     0.05,
+     0.25,
+     0.5,
+     0.75,
+     0.95
+    ],
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted forecasting model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": true,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_simulations",
+     "kind": "integer",
+     "required": false,
+     "description": "Simulated paths.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "innovations",
+     "kind": "enum",
+     "required": false,
+     "description": "Innovation source.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "parametric",
+      "bootstrap"
+     ],
+     "allowed_vars": null,
+     "default": "bootstrap",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "quantiles",
+     "kind": "num_array",
+     "required": false,
+     "description": "Fan quantiles.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.05,
+      0.25,
+      0.5,
+      0.75,
+      0.95
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uf_global_forecast",
+   "card_id": 411,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "id": "...",
+    "time": "...",
+    "value": "...",
+    "h": 1,
+    "lags": [
+     1,
+     2,
+     3,
+     12
+    ],
+    "model": "lightgbm",
+    "difference": 0
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Long-format panel: series id, time and value.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "id",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the series.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the time index.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "value",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the value.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": true,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lags",
+     "kind": "int_array",
+     "required": false,
+     "description": "Lag features to construct.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      1,
+      2,
+      3,
+      12
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Learner.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lightgbm",
+      "random_forest",
+      "gradient_boosting",
+      "linear"
+     ],
+     "allowed_vars": null,
+     "default": "lightgbm",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "difference",
+     "kind": "integer",
+     "required": false,
+     "description": "Differencing applied before fitting.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uf_bagged_forecast",
+   "card_id": 412,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "h": 1,
+    "n_replicates": 100,
+    "bootstrap": "stl_block",
+    "base_model": "auto_ets",
+    "aggregate": "mean",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Series to forecast.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": true,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_replicates",
+     "kind": "integer",
+     "required": false,
+     "description": "Bootstrap replicates.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "bootstrap",
+     "kind": "enum",
+     "required": false,
+     "description": "Bootstrap scheme.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "stl_block",
+      "moving_block",
+      "stationary"
+     ],
+     "allowed_vars": null,
+     "default": "stl_block",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "base_model",
+     "kind": "enum",
+     "required": false,
+     "description": "Model fitted to each replicate.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "auto_arima",
+      "auto_ets",
+      "theta",
+      "naive"
+     ],
+     "allowed_vars": null,
+     "default": "auto_ets",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "aggregate",
+     "kind": "enum",
+     "required": false,
+     "description": "Aggregation across replicates.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mean",
+      "median"
+     ],
+     "allowed_vars": null,
+     "default": "mean",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uf_direct_multistep",
+   "card_id": 413,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "h": 1,
+    "strategy": "direct",
+    "window_length": 12,
+    "model": "gradient_boosting"
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Series to forecast.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": true,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "strategy",
+     "kind": "enum",
+     "required": false,
+     "description": "Reduction strategy.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "direct",
+      "recursive",
+      "dirrec",
+      "multioutput"
+     ],
+     "allowed_vars": null,
+     "default": "direct",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "window_length",
+     "kind": "integer",
+     "required": false,
+     "description": "Lag window used as features.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 12,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Base regressor.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "linear",
+      "ridge",
+      "random_forest",
+      "gradient_boosting"
+     ],
+     "allowed_vars": null,
+     "default": "gradient_boosting",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "uf_conformal_intervals",
+   "card_id": 414,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "y_calibration": "<series_handle>",
+    "h": 1,
+    "method": "enbpi",
+    "levels": [
+     0.8,
+     0.95
+    ]
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted forecasting model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y_calibration",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Held-out calibration series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": true,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Conformal variant.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "split",
+      "cv_plus",
+      "jackknife_plus",
+      "enbpi",
+      "adaptive"
+     ],
+     "allowed_vars": null,
+     "default": "enbpi",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "levels",
+     "kind": "num_array",
+     "required": false,
+     "description": "Coverage levels.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.8,
+      0.95
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    }
+   ]
+  },
+  {
+   "fn": "uf_auto_select",
+   "card_id": 415,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "h": 1,
+    "n_folds": 5,
+    "metric": "mase",
+    "season_length": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Series to forecast.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": true,
+     "description": "Forecast horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "candidates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Candidate families; omitted = the standard set.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_folds",
+     "kind": "integer",
+     "required": false,
+     "description": "Cross-validation folds.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "metric",
+     "kind": "enum",
+     "required": false,
+     "description": "Selection metric.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mase",
+      "rmse",
+      "mae",
+      "smape",
+      "rmsse"
+     ],
+     "allowed_vars": null,
+     "default": "mase",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "season_length",
+     "kind": "integer",
+     "required": false,
+     "description": "Seasonal period.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  }
+ ]
+}

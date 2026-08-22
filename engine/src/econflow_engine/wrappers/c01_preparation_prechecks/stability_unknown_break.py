@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+"""Method wrapper ``stability_unknown_break`` -- method card #399.
+
+#399 Stability without a known break date: Nyblom-Hansen, Andrews-Ploberger and Quandt-Andrews
+
+Category 01-preparation-prechecks; module ``stability_unknown_break``.
+
+Reference implementation: statsmodels.
+
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Literal
+
+from econflow_engine.generated.args.c01_preparation_prechecks import NODE_META, wire_model
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
+# read kinds and defaults from ``NODE_META[fn]`` without another import.
+__all__ = [
+    "pp_stability_test",
+    "NODE_META",
+    "wire_model",
+]
+
+
+def pp_stability_test(
+    *,
+    y: pd.Series,
+    x: pd.DataFrame | None = None,
+    test: Literal["sup_wald", "ave_wald", "exp_wald", "nyblom_hansen"] | None = None,
+    trim: float | None = None,
+    alpha: float | None = None,
+) -> dict[str, Any]:
+    """Node ``pp_stability_test`` -- method card #399.
+
+    Stability without a known break date: Nyblom-Hansen, Andrews-Ploberger and Quandt-Andrews.
+
+    Category 01-preparation-prechecks; memory class ``light``.
+
+    Args:
+        y: [series_handle, required] Dependent variable.
+        x: [multiseries_handle, optional] Regressors; omitted = a mean-only model.
+        test: [enum, optional] Test variant. Default ``'sup_wald'``.
+        trim: [number, optional] Fraction trimmed from each end of the search. Default ``0.15``.
+        alpha: [number, optional] Significance level. Default ``0.05``.
+
+    Returns:
+        A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+    """
+    raise NotImplementedError(
+        "pp_stability_test: not implemented."
+    )

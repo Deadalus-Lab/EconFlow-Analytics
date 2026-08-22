@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``har_realized_volatility`` -- METHOD-SELECTION card #157.
+"""Method wrapper ``har_realized_volatility`` -- method card #157.
 
 #157 HAR realized-volatility models (HAR/HARJ/HARQ/HARQ-J) — estimation, rolling OOS forecasting,
     simulation
@@ -8,8 +8,8 @@ Category 06-volatility-regimes; module ``har_realized_volatility``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def har_estimate(
     insanityFilter: bool | None = None,
     h: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``har_estimate`` -- METHOD-SELECTION card #157.
+    """Node ``har_estimate`` -- method card #157.
 
     HAR realized-volatility models (HAR/HARJ/HARQ/HARQ-J) — estimation, rolling OOS forecasting,
     simulation.
@@ -72,7 +72,7 @@ def har_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "har_estimate: not implemented. The method card is in ./README.md."
+        "har_estimate: not implemented."
     )
 
 
@@ -91,7 +91,7 @@ def har_forecast(
     insanityFilter: bool | None = None,
     h: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``har_forecast`` -- METHOD-SELECTION card #157.
+    """Node ``har_forecast`` -- method card #157.
 
     HAR realized-volatility models (HAR/HARJ/HARQ/HARQ-J) — estimation, rolling OOS forecasting,
     simulation.
@@ -121,7 +121,7 @@ def har_forecast(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "har_forecast: not implemented. The method card is in ./README.md."
+        "har_forecast: not implemented."
     )
 
 
@@ -133,7 +133,7 @@ def har_simulate(
     errorTermSD: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``har_simulate`` -- METHOD-SELECTION card #157.
+    """Node ``har_simulate`` -- method card #157.
 
     HAR realized-volatility models (HAR/HARJ/HARQ/HARQ-J) — estimation, rolling OOS forecasting,
     simulation.
@@ -154,5 +154,5 @@ def har_simulate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "har_simulate: not implemented. The method card is in ./README.md."
+        "har_simulate: not implemented."
     )

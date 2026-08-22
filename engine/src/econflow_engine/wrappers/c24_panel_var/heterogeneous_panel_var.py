@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``heterogeneous_panel_var`` -- METHOD-SELECTION card #230.
+"""Method wrapper ``heterogeneous_panel_var`` -- method card #230.
 
 #230 Heterogeneous-panel VAR/SVAR: (P)MG estimation, panel cointegration rank tests, structural
     identification (+MG-IRF/MG-FEVD), bootstrap IRF confidence bands
@@ -8,8 +8,8 @@ Category 24-panel-var; module ``heterogeneous_panel_var``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ def pv_estimate(
     n_factors: int | None = None,
     n_iterations: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pv_estimate`` -- METHOD-SELECTION card #230.
+    """Node ``pv_estimate`` -- method card #230.
 
     Heterogeneous-panel VAR/SVAR: (P)MG estimation, panel cointegration rank tests, structural
     identification (+MG-IRF/MG-FEVD), bootstrap IRF confidence bands.
@@ -76,7 +76,7 @@ def pv_estimate(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pv_estimate: not implemented. The method card is in ./README.md."
+        "pv_estimate: not implemented."
     )
 
 
@@ -90,7 +90,7 @@ def pv_cointegration(
     det_case: Literal["Case1", "Case2", "Case3", "Case4"] | None = None,
     n_factors: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pv_cointegration`` -- METHOD-SELECTION card #230.
+    """Node ``pv_cointegration`` -- method card #230.
 
     Heterogeneous-panel VAR/SVAR: (P)MG estimation, panel cointegration rank tests, structural
     identification (+MG-IRF/MG-FEVD), bootstrap IRF confidence bands.
@@ -114,7 +114,7 @@ def pv_cointegration(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pv_cointegration: not implemented. The method card is in ./README.md."
+        "pv_cointegration: not implemented."
     )
 
 
@@ -134,7 +134,7 @@ def pv_identify(
     n_factors: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pv_identify`` -- METHOD-SELECTION card #230.
+    """Node ``pv_identify`` -- method card #230.
 
     Heterogeneous-panel VAR/SVAR: (P)MG estimation, panel cointegration rank tests, structural
     identification (+MG-IRF/MG-FEVD), bootstrap IRF confidence bands.
@@ -144,7 +144,7 @@ def pv_identify(
     Registers its result under ``fit``, so a later node can consume it as a handle.
 
     Args:
-        fit: [raw_handle, required] Handle to an UNIDENTIFIED panel VAR/VEC (pv_estimate$fit).
+        fit: [raw_handle, required] Handle to an UNIDENTIFIED panel VAR/VEC (pv_estimate.fit).
         method: [enum, optional] Identification (default chol): chol=recursive/Cholesky;
             cvm=Cramer-von Mises ICA· dc=distance-covariance ICA· iv=proxy/IV; grt=SVEC
             long/short-run (REQUIRES a VEC fit).
@@ -169,7 +169,7 @@ def pv_identify(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pv_identify: not implemented. The method card is in ./README.md."
+        "pv_identify: not implemented."
     )
 
 
@@ -185,7 +185,7 @@ def pv_bootstrap(
     level: float | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``pv_bootstrap`` -- METHOD-SELECTION card #230.
+    """Node ``pv_bootstrap`` -- method card #230.
 
     Heterogeneous-panel VAR/SVAR: (P)MG estimation, panel cointegration rank tests, structural
     identification (+MG-IRF/MG-FEVD), bootstrap IRF confidence bands.
@@ -193,7 +193,7 @@ def pv_bootstrap(
     Category 24-panel-var; memory class ``heavy``.
 
     Args:
-        fit: [raw_handle, required] Handle to an IDENTIFIED panel SVAR (pv_identify$fit).
+        fit: [raw_handle, required] Handle to an IDENTIFIED panel SVAR (pv_identify.fit).
         method: [enum, optional] Bands (default pmb): pmb=panel moving-block bootstrap·
             mg=mean-group inference (spread of N individuals); mb=individual moving-block bootstrap
             of one individual.
@@ -213,5 +213,5 @@ def pv_bootstrap(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "pv_bootstrap: not implemented. The method card is in ./README.md."
+        "pv_bootstrap: not implemented."
     )

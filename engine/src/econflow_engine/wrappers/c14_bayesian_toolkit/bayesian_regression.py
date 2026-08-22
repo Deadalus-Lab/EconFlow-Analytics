@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``bayesian_regression`` -- METHOD-SELECTION card #69.
+"""Method wrapper ``bayesian_regression`` -- method card #69.
 
 #69 Bayesian regression models
 
@@ -7,8 +7,8 @@ Category 14-bayesian-toolkit; module ``bayesian_regression``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,15 +23,15 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "br_fit",
-    "br_make_formula",
-    "br_set_prior",
+    "breg_fit",
+    "breg_make_formula",
+    "breg_set_prior",
     "NODE_META",
     "wire_model",
 ]
 
 
-def br_fit(
+def breg_fit(
     *,
     formula: str,
     data: pd.DataFrame,
@@ -55,7 +55,7 @@ def br_fit(
     neff_ratio_threshold: float | None = None,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``br_fit`` -- METHOD-SELECTION card #69.
+    """Node ``breg_fit`` -- method card #69.
 
     Bayesian regression models.
 
@@ -68,7 +68,7 @@ def br_fit(
             NA in the model columns).
         family: [enum, optional] Family AS A STRING (default gaussian· Gamma uses the LOG link, not
             INVERSE).
-        prior: [raw_handle, optional] Handle to a 'brmsprior' (from br_set_prior)· optional.
+        prior: [raw_handle, optional] Handle to a 'brmsprior' (from breg_set_prior)· optional.
         seed: [integer, required] REQUIRED seed (Stan RNG· default RANDOM).
         chains: [integer, optional] Number of chains (default 2). Default ``2``.
         iter: [integer, optional] Iterations per chain (default 1000, warmup=iter/2). Default
@@ -83,16 +83,16 @@ def br_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "br_fit: not implemented. The method card is in ./README.md."
+        "breg_fit: not implemented."
     )
 
 
-def br_set_prior(
+def breg_set_prior(
     *,
     prior: str,
     class_: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``br_set_prior`` -- METHOD-SELECTION card #69.
+    """Node ``breg_set_prior`` -- method card #69.
 
     Bayesian regression models.
 
@@ -108,15 +108,15 @@ def br_set_prior(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "br_set_prior: not implemented. The method card is in ./README.md."
+        "breg_set_prior: not implemented."
     )
 
 
-def br_make_formula(
+def breg_make_formula(
     *,
     formula: str,
 ) -> dict[str, Any]:
-    """Node ``br_make_formula`` -- METHOD-SELECTION card #69.
+    """Node ``breg_make_formula`` -- method card #69.
 
     Bayesian regression models.
 
@@ -130,5 +130,5 @@ def br_make_formula(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "br_make_formula: not implemented. The method card is in ./README.md."
+        "breg_make_formula: not implemented."
     )

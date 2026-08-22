@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``analytic_ols_closed`` -- METHOD-SELECTION card #121.
+"""Method wrapper ``analytic_ols_closed`` -- method card #121.
 
 #121 Analytic OLS on a CLOSED formula: a deterministic time trend (linear/quadratic) + the detrended
-    series, or response ~ named numeric predictor columns (lm + broom tidy/glance)
+    series, or response ~ named numeric predictor columns
 
 Category 00-data-utilities; module ``analytic_ols_closed``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -37,10 +37,10 @@ def ols_trend(
     y: pd.Series,
     trend: Literal["linear", "quadratic"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``ols_trend`` -- METHOD-SELECTION card #121.
+    """Node ``ols_trend`` -- method card #121.
 
     Analytic OLS on a CLOSED formula: a deterministic time trend (linear/quadratic) + the detrended
-    series, or response ~ named numeric predictor columns (lm + broom tidy/glance).
+    series, or response ~ named numeric predictor columns.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -57,7 +57,7 @@ def ols_trend(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ols_trend: not implemented. The method card is in ./README.md."
+        "ols_trend: not implemented."
     )
 
 
@@ -67,10 +67,10 @@ def ols_regress(
     response: str,
     predictors: Sequence[str],
 ) -> dict[str, Any]:
-    """Node ``ols_regress`` -- METHOD-SELECTION card #121.
+    """Node ``ols_regress`` -- method card #121.
 
     Analytic OLS on a CLOSED formula: a deterministic time trend (linear/quadratic) + the detrended
-    series, or response ~ named numeric predictor columns (lm + broom tidy/glance).
+    series, or response ~ named numeric predictor columns.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -89,5 +89,5 @@ def ols_regress(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ols_regress: not implemented. The method card is in ./README.md."
+        "ols_regress: not implemented."
     )

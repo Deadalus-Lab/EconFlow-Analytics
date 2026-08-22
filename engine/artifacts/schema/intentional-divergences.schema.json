@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Deadalus-Lab/EconFlow-Analytics/engine/artifacts/schema/intentional-divergences.schema.json",
+  "title": "intentional-divergences",
+  "description": "The enumerated list of places where the typed schema is DELIBERATELY stricter than the corpus it is checked against. Every entry is a decision someone made and must defend; the suite asserts each one is still live, so a divergence that stops occurring fails as a dead entry rather than quietly widening what the engine accepts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "note", "key_scheme", "oracle", "divergences"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "note": { "type": "string", "minLength": 1 },
+    "key_scheme": {
+      "description": "How to read `members`. They are CLASSES, not fixture ids, and reading them as ids silently matches nothing.",
+      "type": "string",
+      "minLength": 1
+    },
+    "oracle": { "type": "string", "minLength": 1 },
+    "divergences": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "reason", "rationale", "since", "members"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": {
+            "description": "The argument kind this divergence applies to. `*` means every kind, and a pipe-separated list means several -- both forms occur.",
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": { "type": "string", "minLength": 1 },
+          "rationale": {
+            "description": "WHY the strictness is wanted. An entry without one is an undocumented behaviour difference, which is exactly what this file exists to prevent.",
+            "type": "string",
+            "minLength": 1
+          },
+          "since": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          },
+          "members": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

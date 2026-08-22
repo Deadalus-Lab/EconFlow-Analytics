@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``parametric_distribution_fitting`` -- METHOD-SELECTION card #196.
+"""Method wrapper ``parametric_distribution_fitting`` -- method card #196.
 
 #196 Parametric distribution fitting (fit/GOF/Cullen-Frey/bootstrap CIs)
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``parametric_distribution_fitting``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -21,10 +21,10 @@ from econflow_engine.generated.args.c12_distribution_risk import NODE_META, wire
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "fd_bootdist",
-    "fd_descdist",
+    "fd_bootstrap_ci",
+    "fd_cullen_frey",
     "fd_fit",
-    "fd_gof",
+    "fd_goodness_of_fit",
     "NODE_META",
     "wire_model",
 ]
@@ -51,7 +51,7 @@ def fd_fit(
     gof: Literal["CvM", "KS", "AD", "ADR", "ADL", "AD2R", "AD2L", "AD2"] | None = None,
     fix_arg: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``fd_fit`` -- METHOD-SELECTION card #196.
+    """Node ``fd_fit`` -- method card #196.
 
     Parametric distribution fitting (fit/GOF/Cullen-Frey/bootstrap CIs).
 
@@ -77,15 +77,15 @@ def fd_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fd_fit: not implemented. The method card is in ./README.md."
+        "fd_fit: not implemented."
     )
 
 
-def fd_gof(
+def fd_goodness_of_fit(
     *,
     object: Any,
 ) -> dict[str, Any]:
-    """Node ``fd_gof`` -- METHOD-SELECTION card #196.
+    """Node ``fd_goodness_of_fit`` -- method card #196.
 
     Parametric distribution fitting (fit/GOF/Cullen-Frey/bootstrap CIs).
 
@@ -99,11 +99,11 @@ def fd_gof(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fd_gof: not implemented. The method card is in ./README.md."
+        "fd_goodness_of_fit: not implemented."
     )
 
 
-def fd_descdist(
+def fd_cullen_frey(
     *,
     data: Sequence[float],
     discrete: bool | None = None,
@@ -111,7 +111,7 @@ def fd_descdist(
     boot: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fd_descdist`` -- METHOD-SELECTION card #196.
+    """Node ``fd_cullen_frey`` -- method card #196.
 
     Parametric distribution fitting (fit/GOF/Cullen-Frey/bootstrap CIs).
 
@@ -132,18 +132,18 @@ def fd_descdist(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fd_descdist: not implemented. The method card is in ./README.md."
+        "fd_cullen_frey: not implemented."
     )
 
 
-def fd_bootdist(
+def fd_bootstrap_ci(
     *,
     object: Any,
     bootmethod: Literal["param", "nonparam"] | None = None,
     niter: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fd_bootdist`` -- METHOD-SELECTION card #196.
+    """Node ``fd_bootstrap_ci`` -- method card #196.
 
     Parametric distribution fitting (fit/GOF/Cullen-Frey/bootstrap CIs).
 
@@ -162,5 +162,5 @@ def fd_bootdist(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fd_bootdist: not implemented. The method card is in ./README.md."
+        "fd_bootstrap_ci: not implemented."
     )

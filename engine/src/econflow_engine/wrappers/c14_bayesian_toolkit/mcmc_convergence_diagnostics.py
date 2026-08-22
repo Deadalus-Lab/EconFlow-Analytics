@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``mcmc_convergence_diagnostics`` -- METHOD-SELECTION card #72.
+"""Method wrapper ``mcmc_convergence_diagnostics`` -- method card #72.
 
 #72 MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF)
 
@@ -7,8 +7,8 @@ Category 14-bayesian-toolkit; module ``mcmc_convergence_diagnostics``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -20,26 +20,26 @@ from econflow_engine.generated.args.c14_bayesian_toolkit import NODE_META, wire_
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "coda_autocorr",
-    "coda_diagnostics",
-    "coda_effective_size",
-    "coda_gelman",
-    "coda_geweke",
-    "coda_heidel",
-    "coda_hpd_interval",
-    "coda_raftery",
+    "mcmc_autocorr",
+    "mcmc_diagnostics",
+    "mcmc_effective_size",
+    "mcmc_gelman",
+    "mcmc_geweke",
+    "mcmc_heidel",
+    "mcmc_hpd_interval",
+    "mcmc_raftery",
     "NODE_META",
     "wire_model",
 ]
 
 
-def coda_diagnostics(
+def mcmc_diagnostics(
     *,
     chains: Any,
     confidence: float | None = None,
     prob: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``coda_diagnostics`` -- METHOD-SELECTION card #72.
+    """Node ``mcmc_diagnostics`` -- method card #72.
 
     MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF).
 
@@ -57,16 +57,16 @@ def coda_diagnostics(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "coda_diagnostics: not implemented. The method card is in ./README.md."
+        "mcmc_diagnostics: not implemented."
     )
 
 
-def coda_gelman(
+def mcmc_gelman(
     *,
     chains: Any,
     confidence: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``coda_gelman`` -- METHOD-SELECTION card #72.
+    """Node ``mcmc_gelman`` -- method card #72.
 
     MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF).
 
@@ -82,17 +82,17 @@ def coda_gelman(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "coda_gelman: not implemented. The method card is in ./README.md."
+        "mcmc_gelman: not implemented."
     )
 
 
-def coda_geweke(
+def mcmc_geweke(
     *,
     chains: Any,
     frac1: float | None = None,
     frac2: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``coda_geweke`` -- METHOD-SELECTION card #72.
+    """Node ``mcmc_geweke`` -- method card #72.
 
     MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF).
 
@@ -109,15 +109,15 @@ def coda_geweke(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "coda_geweke: not implemented. The method card is in ./README.md."
+        "mcmc_geweke: not implemented."
     )
 
 
-def coda_effective_size(
+def mcmc_effective_size(
     *,
     chains: Any,
 ) -> dict[str, Any]:
-    """Node ``coda_effective_size`` -- METHOD-SELECTION card #72.
+    """Node ``mcmc_effective_size`` -- method card #72.
 
     MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF).
 
@@ -131,16 +131,16 @@ def coda_effective_size(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "coda_effective_size: not implemented. The method card is in ./README.md."
+        "mcmc_effective_size: not implemented."
     )
 
 
-def coda_hpd_interval(
+def mcmc_hpd_interval(
     *,
     chains: Any,
     prob: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``coda_hpd_interval`` -- METHOD-SELECTION card #72.
+    """Node ``mcmc_hpd_interval`` -- method card #72.
 
     MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF).
 
@@ -156,18 +156,18 @@ def coda_hpd_interval(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "coda_hpd_interval: not implemented. The method card is in ./README.md."
+        "mcmc_hpd_interval: not implemented."
     )
 
 
-def coda_raftery(
+def mcmc_raftery(
     *,
     chain: Any,
     q: float | None = None,
     r: float | None = None,
     s: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``coda_raftery`` -- METHOD-SELECTION card #72.
+    """Node ``mcmc_raftery`` -- method card #72.
 
     MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF).
 
@@ -185,17 +185,17 @@ def coda_raftery(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "coda_raftery: not implemented. The method card is in ./README.md."
+        "mcmc_raftery: not implemented."
     )
 
 
-def coda_heidel(
+def mcmc_heidel(
     *,
     chain: Any,
     eps: float | None = None,
     pvalue: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``coda_heidel`` -- METHOD-SELECTION card #72.
+    """Node ``mcmc_heidel`` -- method card #72.
 
     MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF).
 
@@ -212,15 +212,15 @@ def coda_heidel(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "coda_heidel: not implemented. The method card is in ./README.md."
+        "mcmc_heidel: not implemented."
     )
 
 
-def coda_autocorr(
+def mcmc_autocorr(
     *,
     chains: Any,
 ) -> dict[str, Any]:
-    """Node ``coda_autocorr`` -- METHOD-SELECTION card #72.
+    """Node ``mcmc_autocorr`` -- method card #72.
 
     MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF).
 
@@ -234,5 +234,5 @@ def coda_autocorr(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "coda_autocorr: not implemented. The method card is in ./README.md."
+        "mcmc_autocorr: not implemented."
     )

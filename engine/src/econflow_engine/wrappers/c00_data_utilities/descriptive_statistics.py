@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``descriptive_statistics`` -- METHOD-SELECTION card #81.
+"""Method wrapper ``descriptive_statistics`` -- method card #81.
 
 #81 Descriptive statistics as data (ACF/PACF/CCF/rolling/correlation matrix + per-pair correlation
     inference)
@@ -8,8 +8,8 @@ Category 00-data-utilities; module ``descriptive_statistics``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def desc_acf(
     lag_max: int | None = None,
     demean: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``desc_acf`` -- METHOD-SELECTION card #81.
+    """Node ``desc_acf`` -- method card #81.
 
     Descriptive statistics as data (ACF/PACF/CCF/rolling/correlation matrix + per-pair correlation
     inference).
@@ -58,7 +58,7 @@ def desc_acf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "desc_acf: not implemented. The method card is in ./README.md."
+        "desc_acf: not implemented."
     )
 
 
@@ -67,7 +67,7 @@ def desc_pacf(
     x: pd.Series,
     lag_max: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``desc_pacf`` -- METHOD-SELECTION card #81.
+    """Node ``desc_pacf`` -- method card #81.
 
     Descriptive statistics as data (ACF/PACF/CCF/rolling/correlation matrix + per-pair correlation
     inference).
@@ -82,7 +82,7 @@ def desc_pacf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "desc_pacf: not implemented. The method card is in ./README.md."
+        "desc_pacf: not implemented."
     )
 
 
@@ -92,7 +92,7 @@ def desc_ccf(
     y: pd.Series,
     lag_max: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``desc_ccf`` -- METHOD-SELECTION card #81.
+    """Node ``desc_ccf`` -- method card #81.
 
     Descriptive statistics as data (ACF/PACF/CCF/rolling/correlation matrix + per-pair correlation
     inference).
@@ -108,7 +108,7 @@ def desc_ccf(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "desc_ccf: not implemented. The method card is in ./README.md."
+        "desc_ccf: not implemented."
     )
 
 
@@ -119,7 +119,7 @@ def desc_rolling(
     FUN: Literal["mean", "sd", "sum", "median", "min", "max"] | None = None,
     align: Literal["right", "center", "left"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``desc_rolling`` -- METHOD-SELECTION card #81.
+    """Node ``desc_rolling`` -- method card #81.
 
     Descriptive statistics as data (ACF/PACF/CCF/rolling/correlation matrix + per-pair correlation
     inference).
@@ -136,7 +136,7 @@ def desc_rolling(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "desc_rolling: not implemented. The method card is in ./README.md."
+        "desc_rolling: not implemented."
     )
 
 
@@ -146,7 +146,7 @@ def desc_correlations(
     method: Literal["pearson", "spearman", "kendall"] | None = None,
     use: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``desc_correlations`` -- METHOD-SELECTION card #81.
+    """Node ``desc_correlations`` -- method card #81.
 
     Descriptive statistics as data (ACF/PACF/CCF/rolling/correlation matrix + per-pair correlation
     inference).
@@ -163,7 +163,7 @@ def desc_correlations(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "desc_correlations: not implemented. The method card is in ./README.md."
+        "desc_correlations: not implemented."
     )
 
 
@@ -189,7 +189,7 @@ def desc_cor_test(
     exact: bool | None = None,
     continuity: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``desc_cor_test`` -- METHOD-SELECTION card #81.
+    """Node ``desc_cor_test`` -- method card #81.
 
     Descriptive statistics as data (ACF/PACF/CCF/rolling/correlation matrix + per-pair correlation
     inference).
@@ -219,5 +219,5 @@ def desc_cor_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "desc_cor_test: not implemented. The method card is in ./README.md."
+        "desc_cor_test: not implemented."
     )

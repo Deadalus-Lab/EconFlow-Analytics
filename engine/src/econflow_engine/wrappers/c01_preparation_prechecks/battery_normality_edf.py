@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``battery_normality_edf`` -- METHOD-SELECTION card #247.
+"""Method wrapper ``battery_normality_edf`` -- method card #247.
 
 #247 A battery of NORMALITY tests (the composite hypothesis): EDF omnibus tests (Anderson-Darling /
     Cramer-von Mises / Lilliefors) + the Pearson chi-square test on equiprobable classes +
-    Shapiro-Francia, with a COMMON alpha and a tidy decision table
+    Shapiro-Francia, with a COMMON alpha and a long-format decision table
 
 Category 01-preparation-prechecks; module ``battery_normality_edf``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -44,11 +44,11 @@ def nt_normality_battery(
     min_expected: float | None = None,
     series_name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``nt_normality_battery`` -- METHOD-SELECTION card #247.
+    """Node ``nt_normality_battery`` -- method card #247.
 
     A battery of NORMALITY tests (the composite hypothesis): EDF omnibus tests (Anderson-Darling /
     Cramer-von Mises / Lilliefors) + the Pearson chi-square test on equiprobable classes +
-    Shapiro-Francia, with a COMMON alpha and a tidy decision table.
+    Shapiro-Francia, with a COMMON alpha and a long-format decision table.
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -84,7 +84,7 @@ def nt_normality_battery(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nt_normality_battery: not implemented. The method card is in ./README.md."
+        "nt_normality_battery: not implemented."
     )
 
 
@@ -94,11 +94,11 @@ def nt_ad_test(
     alpha: float | None = None,
     series_name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``nt_ad_test`` -- METHOD-SELECTION card #247.
+    """Node ``nt_ad_test`` -- method card #247.
 
     A battery of NORMALITY tests (the composite hypothesis): EDF omnibus tests (Anderson-Darling /
     Cramer-von Mises / Lilliefors) + the Pearson chi-square test on equiprobable classes +
-    Shapiro-Francia, with a COMMON alpha and a tidy decision table.
+    Shapiro-Francia, with a COMMON alpha and a long-format decision table.
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -118,7 +118,7 @@ def nt_ad_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nt_ad_test: not implemented. The method card is in ./README.md."
+        "nt_ad_test: not implemented."
     )
 
 
@@ -128,11 +128,11 @@ def nt_cvm_test(
     alpha: float | None = None,
     series_name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``nt_cvm_test`` -- METHOD-SELECTION card #247.
+    """Node ``nt_cvm_test`` -- method card #247.
 
     A battery of NORMALITY tests (the composite hypothesis): EDF omnibus tests (Anderson-Darling /
     Cramer-von Mises / Lilliefors) + the Pearson chi-square test on equiprobable classes +
-    Shapiro-Francia, with a COMMON alpha and a tidy decision table.
+    Shapiro-Francia, with a COMMON alpha and a long-format decision table.
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -152,7 +152,7 @@ def nt_cvm_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nt_cvm_test: not implemented. The method card is in ./README.md."
+        "nt_cvm_test: not implemented."
     )
 
 
@@ -162,11 +162,11 @@ def nt_lillie_test(
     alpha: float | None = None,
     series_name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``nt_lillie_test`` -- METHOD-SELECTION card #247.
+    """Node ``nt_lillie_test`` -- method card #247.
 
     A battery of NORMALITY tests (the composite hypothesis): EDF omnibus tests (Anderson-Darling /
     Cramer-von Mises / Lilliefors) + the Pearson chi-square test on equiprobable classes +
-    Shapiro-Francia, with a COMMON alpha and a tidy decision table.
+    Shapiro-Francia, with a COMMON alpha and a long-format decision table.
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -186,7 +186,7 @@ def nt_lillie_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nt_lillie_test: not implemented. The method card is in ./README.md."
+        "nt_lillie_test: not implemented."
     )
 
 
@@ -199,11 +199,11 @@ def nt_pearson_test(
     min_expected: float | None = None,
     series_name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``nt_pearson_test`` -- METHOD-SELECTION card #247.
+    """Node ``nt_pearson_test`` -- method card #247.
 
     A battery of NORMALITY tests (the composite hypothesis): EDF omnibus tests (Anderson-Darling /
     Cramer-von Mises / Lilliefors) + the Pearson chi-square test on equiprobable classes +
-    Shapiro-Francia, with a COMMON alpha and a tidy decision table.
+    Shapiro-Francia, with a COMMON alpha and a long-format decision table.
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -234,7 +234,7 @@ def nt_pearson_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nt_pearson_test: not implemented. The method card is in ./README.md."
+        "nt_pearson_test: not implemented."
     )
 
 
@@ -244,11 +244,11 @@ def nt_sf_test(
     alpha: float | None = None,
     series_name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``nt_sf_test`` -- METHOD-SELECTION card #247.
+    """Node ``nt_sf_test`` -- method card #247.
 
     A battery of NORMALITY tests (the composite hypothesis): EDF omnibus tests (Anderson-Darling /
     Cramer-von Mises / Lilliefors) + the Pearson chi-square test on equiprobable classes +
-    Shapiro-Francia, with a COMMON alpha and a tidy decision table.
+    Shapiro-Francia, with a COMMON alpha and a long-format decision table.
 
     Category 01-preparation-prechecks; memory class ``light``.
 
@@ -268,5 +268,5 @@ def nt_sf_test(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nt_sf_test: not implemented. The method card is in ./README.md."
+        "nt_sf_test: not implemented."
     )

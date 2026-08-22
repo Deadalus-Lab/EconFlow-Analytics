@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``binomial_glm_recession`` -- METHOD-SELECTION card #83.
+"""Method wrapper ``binomial_glm_recession`` -- method card #83.
 
 #83 Binomial GLM (probit/logit) — recession probability (Estrella-Mishkin)
 
@@ -7,8 +7,8 @@ Category 16-limited-dependent; module ``binomial_glm_recession``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -23,20 +23,20 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "run_feglm_binom",
+    "run_binomial_fe_glm",
     "NODE_META",
     "wire_model",
 ]
 
 
-def run_feglm_binom(
+def run_binomial_fe_glm(
     *,
     formula: str,
     data: pd.DataFrame,
     link: Literal["probit", "logit"] | None = None,
     fixef: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``run_feglm_binom`` -- METHOD-SELECTION card #83.
+    """Node ``run_binomial_fe_glm`` -- method card #83.
 
     Binomial GLM (probit/logit) — recession probability (Estrella-Mishkin).
 
@@ -55,5 +55,5 @@ def run_feglm_binom(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "run_feglm_binom: not implemented. The method card is in ./README.md."
+        "run_binomial_fe_glm: not implemented."
     )

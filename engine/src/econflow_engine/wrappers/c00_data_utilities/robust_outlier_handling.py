@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``robust_outlier_handling`` -- METHOD-SELECTION card #114.
+"""Method wrapper ``robust_outlier_handling`` -- method card #114.
 
 #114 Robust outlier handling + robust measures of location/scale (winsorize/trim/robust-z/Huber-M)
 
@@ -7,8 +7,8 @@ Category 00-data-utilities; module ``robust_outlier_handling``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,23 +24,23 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "dt_huber",
-    "dt_robscale",
-    "dt_trim",
-    "dt_winsorize",
+    "rob_huber",
+    "rob_trim",
+    "rob_winsorize",
+    "rob_zscore",
     "NODE_META",
     "wire_model",
 ]
 
 
-def dt_winsorize(
+def rob_winsorize(
     *,
     x: pd.Series,
     probs: Sequence[float] | None = None,
     val: Sequence[float] | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dt_winsorize`` -- METHOD-SELECTION card #114.
+    """Node ``rob_winsorize`` -- method card #114.
 
     Robust outlier handling + robust measures of location/scale (winsorize/trim/robust-z/Huber-M).
 
@@ -58,17 +58,17 @@ def dt_winsorize(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dt_winsorize: not implemented. The method card is in ./README.md."
+        "rob_winsorize: not implemented."
     )
 
 
-def dt_trim(
+def rob_trim(
     *,
     x: pd.Series,
     trim: float | None = None,
     na_rm: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dt_trim`` -- METHOD-SELECTION card #114.
+    """Node ``rob_trim`` -- method card #114.
 
     Robust outlier handling + robust measures of location/scale (winsorize/trim/robust-z/Huber-M).
 
@@ -85,17 +85,17 @@ def dt_trim(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dt_trim: not implemented. The method card is in ./README.md."
+        "rob_trim: not implemented."
     )
 
 
-def dt_robscale(
+def rob_zscore(
     *,
     x: pd.Series,
     center: bool | None = None,
     scale: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dt_robscale`` -- METHOD-SELECTION card #114.
+    """Node ``rob_zscore`` -- method card #114.
 
     Robust outlier handling + robust measures of location/scale (winsorize/trim/robust-z/Huber-M).
 
@@ -113,18 +113,18 @@ def dt_robscale(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dt_robscale: not implemented. The method card is in ./README.md."
+        "rob_zscore: not implemented."
     )
 
 
-def dt_huber(
+def rob_huber(
     *,
     x: pd.Series,
     k: float | None = None,
     na_rm: bool | None = None,
     conf_level: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``dt_huber`` -- METHOD-SELECTION card #114.
+    """Node ``rob_huber`` -- method card #114.
 
     Robust outlier handling + robust measures of location/scale (winsorize/trim/robust-z/Huber-M).
 
@@ -143,5 +143,5 @@ def dt_huber(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dt_huber: not implemented. The method card is in ./README.md."
+        "rob_huber: not implemented."
     )

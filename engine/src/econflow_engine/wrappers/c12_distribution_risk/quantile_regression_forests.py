@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``quantile_regression_forests`` -- METHOD-SELECTION card #195.
+"""Method wrapper ``quantile_regression_forests`` -- method card #195.
 
 #195 Quantile Regression Forests (nonparametric conditional quantiles / Growth-at-Risk)
 
@@ -7,8 +7,8 @@ Category 12-distribution-risk; module ``quantile_regression_forests``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ def qrf_fit(
     mtry: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``qrf_fit`` -- METHOD-SELECTION card #195.
+    """Node ``qrf_fit`` -- method card #195.
 
     Quantile Regression Forests (nonparametric conditional quantiles / Growth-at-Risk).
 
@@ -55,7 +55,7 @@ def qrf_fit(
             NOT factor, without NA.
         ntree: [integer, optional] Number of trees in the forest (default 200· small/deterministic).
             Default ``200``.
-        nodesize: [integer, optional] Minimum terminal node size (default 5· randomForest
+        nodesize: [integer, optional] Minimum terminal node size (default 5· random-forest
             regression). Default ``5``.
         mtry: [integer, optional] Predictors tried per split (default floor(p/3))· must be <= the
             column count of x.
@@ -66,7 +66,7 @@ def qrf_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qrf_fit: not implemented. The method card is in ./README.md."
+        "qrf_fit: not implemented."
     )
 
 
@@ -76,14 +76,14 @@ def qrf_predict(
     newdata: np.ndarray,
     quantiles: Sequence[float] | None = None,
 ) -> dict[str, Any]:
-    """Node ``qrf_predict`` -- METHOD-SELECTION card #195.
+    """Node ``qrf_predict`` -- method card #195.
 
     Quantile Regression Forests (nonparametric conditional quantiles / Growth-at-Risk).
 
     Category 12-distribution-risk; memory class ``light``.
 
     Args:
-        object: [raw_handle, required] Handle to a quantregForest fit (from qrf_fit).
+        object: [raw_handle, required] Handle to a quantile-regression forest fit (from qrf_fit).
         newdata: [matrix_handle, required] Handle to a matrix/DataFrame of new predictors (same
             columns as the training· without NA).
         quantiles: [num_array, optional] Vector of quantile levels in [0,1]· passed WHOLE (e.g.
@@ -93,5 +93,5 @@ def qrf_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "qrf_predict: not implemented. The method card is in ./README.md."
+        "qrf_predict: not implemented."
     )

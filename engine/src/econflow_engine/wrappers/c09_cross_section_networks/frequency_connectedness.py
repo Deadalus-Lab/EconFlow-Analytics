@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``frequency_connectedness`` -- METHOD-SELECTION card #52.
+"""Method wrapper ``frequency_connectedness`` -- method card #52.
 
 #52 Frequency connectedness (Baruník-Křehlík)
 
@@ -7,8 +7,8 @@ Category 09-cross-section-networks; module ``frequency_connectedness``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def fq_spillover_bk12(
     no_corr: bool | None = None,
     partition: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_spillover_bk12`` -- METHOD-SELECTION card #52.
+    """Node ``fq_spillover_bk12`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -67,7 +67,7 @@ def fq_spillover_bk12(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_spillover_bk12: not implemented. The method card is in ./README.md."
+        "fq_spillover_bk12: not implemented."
     )
 
 
@@ -78,7 +78,7 @@ def fq_spillover_bk09(
     no_corr: bool | None = None,
     partition: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_spillover_bk09`` -- METHOD-SELECTION card #52.
+    """Node ``fq_spillover_bk09`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -97,7 +97,7 @@ def fq_spillover_bk09(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_spillover_bk09: not implemented. The method card is in ./README.md."
+        "fq_spillover_bk09: not implemented."
     )
 
 
@@ -109,7 +109,7 @@ def fq_spillover_rolling_bk12(
     partition: Any | None = None,
     window: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_spillover_rolling_bk12`` -- METHOD-SELECTION card #52.
+    """Node ``fq_spillover_rolling_bk12`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -129,7 +129,7 @@ def fq_spillover_rolling_bk12(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_spillover_rolling_bk12: not implemented. The method card is in ./README.md."
+        "fq_spillover_rolling_bk12: not implemented."
     )
 
 
@@ -141,7 +141,7 @@ def fq_spillover_rolling_bk09(
     partition: Any | None = None,
     window: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_spillover_rolling_bk09`` -- METHOD-SELECTION card #52.
+    """Node ``fq_spillover_rolling_bk09`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -161,7 +161,7 @@ def fq_spillover_rolling_bk09(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_spillover_rolling_bk09: not implemented. The method card is in ./README.md."
+        "fq_spillover_rolling_bk09: not implemented."
     )
 
 
@@ -171,7 +171,7 @@ def fq_fevd(
     n_ahead: int | None = None,
     no_corr: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_fevd`` -- METHOD-SELECTION card #52.
+    """Node ``fq_fevd`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -186,7 +186,7 @@ def fq_fevd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_fevd: not implemented. The method card is in ./README.md."
+        "fq_fevd: not implemented."
     )
 
 
@@ -196,7 +196,7 @@ def fq_gen_fevd(
     n_ahead: int | None = None,
     no_corr: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_gen_fevd`` -- METHOD-SELECTION card #52.
+    """Node ``fq_gen_fevd`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -211,7 +211,7 @@ def fq_gen_fevd(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_gen_fevd: not implemented. The method card is in ./README.md."
+        "fq_gen_fevd: not implemented."
     )
 
 
@@ -220,7 +220,7 @@ def fq_get_partition(
     partition: Any,
     n_ahead: int,
 ) -> dict[str, Any]:
-    """Node ``fq_get_partition`` -- METHOD-SELECTION card #52.
+    """Node ``fq_get_partition`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -235,7 +235,7 @@ def fq_get_partition(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_get_partition: not implemented. The method card is in ./README.md."
+        "fq_get_partition: not implemented."
     )
 
 
@@ -244,7 +244,7 @@ def fq_from(
     spillover_table: Any,
     within: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_from`` -- METHOD-SELECTION card #52.
+    """Node ``fq_from`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -259,7 +259,7 @@ def fq_from(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_from: not implemented. The method card is in ./README.md."
+        "fq_from: not implemented."
     )
 
 
@@ -268,7 +268,7 @@ def fq_to(
     spillover_table: Any,
     within: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_to`` -- METHOD-SELECTION card #52.
+    """Node ``fq_to`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -283,7 +283,7 @@ def fq_to(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_to: not implemented. The method card is in ./README.md."
+        "fq_to: not implemented."
     )
 
 
@@ -292,7 +292,7 @@ def fq_net(
     spillover_table: Any,
     within: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_net`` -- METHOD-SELECTION card #52.
+    """Node ``fq_net`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -307,7 +307,7 @@ def fq_net(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_net: not implemented. The method card is in ./README.md."
+        "fq_net: not implemented."
     )
 
 
@@ -316,7 +316,7 @@ def fq_overall(
     spillover_table: Any,
     within: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_overall`` -- METHOD-SELECTION card #52.
+    """Node ``fq_overall`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -331,7 +331,7 @@ def fq_overall(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_overall: not implemented. The method card is in ./README.md."
+        "fq_overall: not implemented."
     )
 
 
@@ -340,7 +340,7 @@ def fq_pairwise(
     spillover_table: Any,
     within: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``fq_pairwise`` -- METHOD-SELECTION card #52.
+    """Node ``fq_pairwise`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -355,7 +355,7 @@ def fq_pairwise(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_pairwise: not implemented. The method card is in ./README.md."
+        "fq_pairwise: not implemented."
     )
 
 
@@ -364,7 +364,7 @@ def fq_collapse_bounds(
     spillover_table: Any,
     which: Any,
 ) -> dict[str, Any]:
-    """Node ``fq_collapse_bounds`` -- METHOD-SELECTION card #52.
+    """Node ``fq_collapse_bounds`` -- method card #52.
 
     Frequency connectedness (Baruník-Křehlík).
 
@@ -380,5 +380,5 @@ def fq_collapse_bounds(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "fq_collapse_bounds: not implemented. The method card is in ./README.md."
+        "fq_collapse_bounds: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``network`` -- METHOD-SELECTION card #55.
+"""Method wrapper ``network`` -- method card #55.
 
 #55 Network analysis
 
@@ -7,8 +7,8 @@ Category 09-cross-section-networks; module ``network``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,22 +24,22 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "ig_centrality",
-    "ig_community_louvain",
-    "ig_connectivity",
-    "ig_from_adjacency",
-    "ig_from_edgelist",
+    "net_centrality",
+    "net_community_louvain",
+    "net_connectivity",
+    "net_from_adjacency",
+    "net_from_edgelist",
     "NODE_META",
     "wire_model",
 ]
 
 
-def ig_from_edgelist(
+def net_from_edgelist(
     *,
     edges: pd.DataFrame,
     directed: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ig_from_edgelist`` -- METHOD-SELECTION card #55.
+    """Node ``net_from_edgelist`` -- method card #55.
 
     Network analysis.
 
@@ -55,17 +55,17 @@ def ig_from_edgelist(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ig_from_edgelist: not implemented. The method card is in ./README.md."
+        "net_from_edgelist: not implemented."
     )
 
 
-def ig_from_adjacency(
+def net_from_adjacency(
     *,
     adjmatrix: np.ndarray,
     mode: Literal["directed", "undirected", "max", "min", "upper", "lower", "plus"] | None = None,
     diag: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``ig_from_adjacency`` -- METHOD-SELECTION card #55.
+    """Node ``net_from_adjacency`` -- method card #55.
 
     Network analysis.
 
@@ -82,16 +82,16 @@ def ig_from_adjacency(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ig_from_adjacency: not implemented. The method card is in ./README.md."
+        "net_from_adjacency: not implemented."
     )
 
 
-def ig_centrality(
+def net_centrality(
     *,
     graph: Any,
     degree_mode: Literal["all", "out", "in", "total"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``ig_centrality`` -- METHOD-SELECTION card #55.
+    """Node ``net_centrality`` -- method card #55.
 
     Network analysis.
 
@@ -105,16 +105,16 @@ def ig_centrality(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ig_centrality: not implemented. The method card is in ./README.md."
+        "net_centrality: not implemented."
     )
 
 
-def ig_community_louvain(
+def net_community_louvain(
     *,
     graph: Any,
     resolution: float | None = None,
 ) -> dict[str, Any]:
-    """Node ``ig_community_louvain`` -- METHOD-SELECTION card #55.
+    """Node ``net_community_louvain`` -- method card #55.
 
     Network analysis.
 
@@ -128,17 +128,17 @@ def ig_community_louvain(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ig_community_louvain: not implemented. The method card is in ./README.md."
+        "net_community_louvain: not implemented."
     )
 
 
-def ig_connectivity(
+def net_connectivity(
     *,
     graph: Any,
     directed: bool | None = None,
     component_mode: Literal["weak", "strong"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``ig_connectivity`` -- METHOD-SELECTION card #55.
+    """Node ``net_connectivity`` -- method card #55.
 
     Network analysis.
 
@@ -154,5 +154,5 @@ def ig_connectivity(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "ig_connectivity: not implemented. The method card is in ./README.md."
+        "net_connectivity: not implemented."
     )

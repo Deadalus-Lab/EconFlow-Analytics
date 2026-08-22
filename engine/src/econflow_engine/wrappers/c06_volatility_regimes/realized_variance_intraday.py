@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``realized_variance_intraday`` -- METHOD-SELECTION card #156.
+"""Method wrapper ``realized_variance_intraday`` -- method card #156.
 
 #156 Realized (co)variance & intraday spot volatility from high-frequency data
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``realized_variance_intraday``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ def hf_realized_var(
     K: int | None = None,
     J: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``hf_realized_var`` -- METHOD-SELECTION card #156.
+    """Node ``hf_realized_var`` -- method card #156.
 
     Realized (co)variance & intraday spot volatility from high-frequency data.
 
@@ -76,7 +76,7 @@ def hf_realized_var(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hf_realized_var: not implemented. The method card is in ./README.md."
+        "hf_realized_var: not implemented."
     )
 
 
@@ -89,7 +89,7 @@ def hf_realized_cov(
     K: int | None = None,
     J: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``hf_realized_cov`` -- METHOD-SELECTION card #156.
+    """Node ``hf_realized_cov`` -- method card #156.
 
     Realized (co)variance & intraday spot volatility from high-frequency data.
 
@@ -112,7 +112,7 @@ def hf_realized_cov(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hf_realized_cov: not implemented. The method card is in ./README.md."
+        "hf_realized_cov: not implemented."
     )
 
 
@@ -137,15 +137,15 @@ def hf_spot_vol(
     marketClose: str | None = None,
     tz: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``hf_spot_vol`` -- METHOD-SELECTION card #156.
+    """Node ``hf_spot_vol`` -- method card #156.
 
     Realized (co)variance & intraday spot volatility from high-frequency data.
 
     Category 06-volatility-regimes; memory class ``light``.
 
     Args:
-        data: [df_handle, required] DataFrame with columns DT (POSIXct intraday timestamps, spanning
-            several days) + price (levels).
+        data: [df_handle, required] DataFrame with columns DT (timestamp intraday timestamps,
+            spanning several days) + price (levels).
         method: [enum, optional] Spot vol estimation method (default detPer=deterministic
             periodicity).
         alignBy: [enum, optional] Aggregation time scale (default minutes).
@@ -162,5 +162,5 @@ def hf_spot_vol(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "hf_spot_vol: not implemented. The method card is in ./README.md."
+        "hf_spot_vol: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``textual_sentiment_pipeline`` -- METHOD-SELECTION card #234.
+"""Method wrapper ``textual_sentiment_pipeline`` -- method card #234.
 
 #234 Textual sentiment pipeline (corpus -> lexicon sentiment -> time aggregation -> elastic-net
     sparse-regression forecasting)
@@ -8,8 +8,8 @@ Category 26-text-as-data; module ``textual_sentiment_pipeline``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def snt_corpus(
     df: pd.DataFrame,
     do_clean: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``snt_corpus`` -- METHOD-SELECTION card #234.
+    """Node ``snt_corpus`` -- method card #234.
 
     Textual sentiment pipeline (corpus -> lexicon sentiment -> time aggregation -> elastic-net
     sparse-regression forecasting).
@@ -59,7 +59,7 @@ def snt_corpus(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "snt_corpus: not implemented. The method card is in ./README.md."
+        "snt_corpus: not implemented."
     )
 
 
@@ -82,7 +82,7 @@ def snt_sentiment(
         | None
     ) = None,
 ) -> dict[str, Any]:
-    """Node ``snt_sentiment`` -- METHOD-SELECTION card #234.
+    """Node ``snt_sentiment`` -- method card #234.
 
     Textual sentiment pipeline (corpus -> lexicon sentiment -> time aggregation -> elastic-net
     sparse-regression forecasting).
@@ -104,7 +104,7 @@ def snt_sentiment(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "snt_sentiment: not implemented. The method card is in ./README.md."
+        "snt_sentiment: not implemented."
     )
 
 
@@ -127,7 +127,7 @@ def snt_measures(
     fill: Literal["zero", "latest", "none"] | None = None,
     do_ignore_zeros: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``snt_measures`` -- METHOD-SELECTION card #234.
+    """Node ``snt_measures`` -- method card #234.
 
     Textual sentiment pipeline (corpus -> lexicon sentiment -> time aggregation -> elastic-net
     sparse-regression forecasting).
@@ -153,7 +153,7 @@ def snt_measures(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "snt_measures: not implemented. The method card is in ./README.md."
+        "snt_measures: not implemented."
     )
 
 
@@ -170,7 +170,7 @@ def snt_model(
     test_window: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``snt_model`` -- METHOD-SELECTION card #234.
+    """Node ``snt_model`` -- method card #234.
 
     Textual sentiment pipeline (corpus -> lexicon sentiment -> time aggregation -> elastic-net
     sparse-regression forecasting).
@@ -201,5 +201,5 @@ def snt_model(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "snt_model: not implemented. The method card is in ./README.md."
+        "snt_model: not implemented."
     )

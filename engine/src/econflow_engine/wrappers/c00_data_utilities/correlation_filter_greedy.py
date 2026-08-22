@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``correlation_filter_greedy`` -- METHOD-SELECTION card #252.
+"""Method wrapper ``correlation_filter_greedy`` -- method card #252.
 
-#252 CORRELATION FILTER: greedy removal of highly correlated variables (findCorrelation over a
-    VALIDATED correlation matrix) + an out-of-sample APPLY with the fitted column names
+#252 CORRELATION FILTER: greedy removal of highly correlated variables (over a VALIDATED correlation
+    matrix) + an out-of-sample APPLY with the fitted column names
 
 Category 00-data-utilities; module ``correlation_filter_greedy``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -38,10 +38,10 @@ def cf_cor_matrix(
     x: np.ndarray,
     method: Literal["pearson", "spearman", "kendall"] | None = None,
 ) -> dict[str, Any]:
-    """Node ``cf_cor_matrix`` -- METHOD-SELECTION card #252.
+    """Node ``cf_cor_matrix`` -- method card #252.
 
-    CORRELATION FILTER: greedy removal of highly correlated variables (findCorrelation over a
-    VALIDATED correlation matrix) + an out-of-sample APPLY with the fitted column names.
+    CORRELATION FILTER: greedy removal of highly correlated variables (over a VALIDATED correlation
+    matrix) + an out-of-sample APPLY with the fitted column names.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -60,7 +60,7 @@ def cf_cor_matrix(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cf_cor_matrix: not implemented. The method card is in ./README.md."
+        "cf_cor_matrix: not implemented."
     )
 
 
@@ -70,33 +70,33 @@ def cf_find_correlation(
     cutoff: float | None = None,
     exact: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``cf_find_correlation`` -- METHOD-SELECTION card #252.
+    """Node ``cf_find_correlation`` -- method card #252.
 
-    CORRELATION FILTER: greedy removal of highly correlated variables (findCorrelation over a
-    VALIDATED correlation matrix) + an out-of-sample APPLY with the fitted column names.
+    CORRELATION FILTER: greedy removal of highly correlated variables (over a VALIDATED correlation
+    matrix) + an out-of-sample APPLY with the fitted column names.
 
     Category 00-data-utilities; memory class ``light``.
 
     Args:
         cor_matrix: [matrix_handle, required] Handle to a p×p CORRELATION MATRIX — NOT raw data
             (typically the 'cor' of a cf_cor_matrix node). It is checked to be SQUARE, SYMMETRIC,
-            with a UNIT diagonal, |r| <= 1 and without NA: caret SILENTLY accepts raw data when
-            exact = False and returns a result as if they were correlations.
+            with a UNIT diagonal, |r| <= 1 and without NA: the upstream routine SILENTLY accepts raw
+            data when exact = False and returns a result as if they were correlations.
         cutoff: [number, optional] Threshold of the ABSOLUTE pairwise correlation (default 0.9;
-            typically 0.75-0.95). STRICTLY inside (0,1): caret does NOT check — with cutoff = 1.5 it
-            silently filters NOTHING and with cutoff <= 0 it removes almost EVERYTHING. A smaller
-            cutoff => more aggressive filtering. Default ``0.9``.
+            typically 0.75-0.95). STRICTLY inside (0,1): the upstream routine does NOT check — with
+            cutoff = 1.5 it silently filters NOTHING and with cutoff <= 0 it removes almost
+            EVERYTHING. A smaller cutoff => more aggressive filtering. Default ``0.9``.
         exact: [boolean, optional] True (default) = recomputation of the mean correlations at EVERY
             step (removes FEWER variables, slower); False = a fixed ranking (fast for very large p).
-            PINNED EXPLICITLY: caret's default is the column count of x < 100, i.e. the ALGORITHM
-            CHANGES at 100 columns and the two paths give DIFFERENT sets => not reproducible.
-            Default ``True``.
+            PINNED EXPLICITLY: the upstream default is the column count of x < 100, i.e. the
+            ALGORITHM CHANGES at 100 columns and the two paths give DIFFERENT sets => not
+            reproducible. Default ``True``.
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cf_find_correlation: not implemented. The method card is in ./README.md."
+        "cf_find_correlation: not implemented."
     )
 
 
@@ -108,10 +108,10 @@ def cf_filter(
     method: Literal["pearson", "spearman", "kendall"] | None = None,
     keep: Sequence[str] | None = None,
 ) -> dict[str, Any]:
-    """Node ``cf_filter`` -- METHOD-SELECTION card #252.
+    """Node ``cf_filter`` -- method card #252.
 
-    CORRELATION FILTER: greedy removal of highly correlated variables (findCorrelation over a
-    VALIDATED correlation matrix) + an out-of-sample APPLY with the fitted column names.
+    CORRELATION FILTER: greedy removal of highly correlated variables (over a VALIDATED correlation
+    matrix) + an out-of-sample APPLY with the fitted column names.
 
     Category 00-data-utilities; memory class ``light``.
 
@@ -125,14 +125,14 @@ def cf_filter(
             NA/NaN/Inf, NO duplicate column names. CROSS-SECTION/PANEL: in LEVELS of non-stationary
             time series the sample correlation does not converge (spurious) — give DIFFERENCES.
         cutoff: [number, optional] Threshold of the ABSOLUTE pairwise correlation (default 0.9;
-            typically 0.75-0.95). STRICTLY inside (0,1): caret does NOT check — with cutoff = 1.5 it
-            silently filters NOTHING and with cutoff <= 0 it removes almost EVERYTHING. A smaller
-            cutoff => more aggressive filtering. Default ``0.9``.
+            typically 0.75-0.95). STRICTLY inside (0,1): the upstream routine does NOT check — with
+            cutoff = 1.5 it silently filters NOTHING and with cutoff <= 0 it removes almost
+            EVERYTHING. A smaller cutoff => more aggressive filtering. Default ``0.9``.
         exact: [boolean, optional] True (default) = recomputation of the mean correlations at EVERY
             step (removes FEWER variables, slower); False = a fixed ranking (fast for very large p).
-            PINNED EXPLICITLY: caret's default is the column count of x < 100, i.e. the ALGORITHM
-            CHANGES at 100 columns and the two paths give DIFFERENT sets => not reproducible.
-            Default ``True``.
+            PINNED EXPLICITLY: the upstream default is the column count of x < 100, i.e. the
+            ALGORITHM CHANGES at 100 columns and the two paths give DIFFERENT sets => not
+            reproducible. Default ``True``.
         method: [enum, optional] Correlation measure of the correlation routine (default pearson = a
             LINEAR relation). spearman/kendall = a MONOTONE relation on the ranks (robust to
             outliers/non-linearity; kendall is O(n²) and is slow for large n).
@@ -146,5 +146,5 @@ def cf_filter(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "cf_filter: not implemented. The method card is in ./README.md."
+        "cf_filter: not implemented."
     )

@@ -1,0 +1,1350 @@
+{
+ "category": "44-environment-energy-climate",
+ "cards": [
+  {
+   "id": 367,
+   "method": "Environmentally-extended input-output footprints and consumption accounting",
+   "wrapper_file": "c44_environment_energy_climate/eeio_footprints.py",
+   "tool_fns": [
+    "env_footprint",
+    "env_multipliers",
+    "env_embodied_trade"
+   ],
+   "when": "attributing emissions, materials or water to final consumption rather than to production, across the whole global supply chain",
+   "when_not": "you need facility-level emissions; the multi-regional table is too aggregated for the sector in question",
+   "alternatives": [
+    {
+     "alt": "production-based accounting",
+     "criterion": "the question is territorial emissions"
+    },
+    {
+     "alt": "consumption-based accounting",
+     "criterion": "the question is the footprint of demand"
+    },
+    {
+     "alt": "life-cycle assessment",
+     "criterion": "you need product-level rather than sector-level detail"
+    }
+   ],
+   "output_key_fields": [
+    "footprint: the extension attributed to each final-demand category",
+    "multipliers: extension per unit of final demand by sector",
+    "trade_balance: emissions embodied in imports and exports",
+    "sector_contributions: which sectors carry the footprint"
+   ],
+   "interpretation_traps": [
+    "consumption- and production-based accounts differ by the emissions embodied in TRADE, and for open economies that difference is large -- stating which is reported is not optional",
+    "sector aggregation drives the answer; a coarse table attributes a clean product the average intensity of its sector",
+    "the Leontief inverse assumes fixed technical coefficients, so it is a snapshot and not a projection"
+   ],
+   "sources": [
+    "Miller & Blair 2009, Input-Output Analysis: Foundations and Extensions, 2nd ed.",
+    "Wiedmann 2009 (Ecological Economics 69:211-222)",
+    "pymrio"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 368,
+   "method": "Index decomposition analysis: Laspeyres, Paasche and log-mean Divisia",
+   "wrapper_file": "c44_environment_energy_climate/index_decomposition.py",
+   "tool_fns": [
+    "env_decompose_index"
+   ],
+   "when": "attributing a change in emissions or energy use to activity, structure and intensity, so the drivers are separated from the total",
+   "when_not": "the underlying data are inconsistent between periods; you need a supply-chain rather than an accounting decomposition (-> structural decomposition)",
+   "alternatives": [
+    {
+     "alt": "LMDI",
+     "criterion": "the standard: perfect decomposition with no residual"
+    },
+    {
+     "alt": "Laspeyres",
+     "criterion": "simple and familiar, but leaves a residual"
+    },
+    {
+     "alt": "structural decomposition",
+     "criterion": "you have input-output tables and want supply-chain detail"
+    }
+   ],
+   "output_key_fields": [
+    "contributions: the change attributed to each factor",
+    "residual: the unexplained part, zero by construction for LMDI",
+    "cumulative: contributions accumulated over the period",
+    "method: which index form produced the answer"
+   ],
+   "interpretation_traps": [
+    "Laspeyres and Paasche leave a RESIDUAL that can be as large as the effects; LMDI exists precisely because it does not",
+    "LMDI needs a convention for zero and negative values, and the convention changes the answer materially",
+    "additive and multiplicative forms answer different questions and their contributions are not interchangeable"
+   ],
+   "sources": [
+    "Ang 2005 (Energy Policy 33:867-871)",
+    "Ang & Zhang 2000 (Energy 25:1149)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 369,
+   "method": "Integrated-assessment scenario handling, harmonisation and aggregation",
+   "wrapper_file": "c44_environment_energy_climate/iam_scenarios.py",
+   "tool_fns": [
+    "env_scenario_filter",
+    "env_scenario_harmonise",
+    "env_scenario_aggregate"
+   ],
+   "when": "working with the scenario ensembles climate policy analysis rests on: filtering, harmonising to a common base year and aggregating regions",
+   "when_not": "you have a single scenario and no ensemble to manage; the variables do not follow the standard template",
+   "alternatives": [
+    {
+     "alt": "scenario filtering and aggregation",
+     "criterion": "you need to subset and summarise an ensemble"
+    },
+    {
+     "alt": "harmonisation",
+     "criterion": "scenarios start from different historical bases"
+    },
+    {
+     "alt": "direct interpolation",
+     "criterion": "you only need to fill a few missing years"
+    }
+   ],
+   "output_key_fields": [
+    "data: the filtered and harmonised scenario set",
+    "aggregates: regional or variable aggregations",
+    "harmonisation_offsets: the adjustment applied to each scenario",
+    "coverage: which scenarios and variables survived the filter"
+   ],
+   "interpretation_traps": [
+    "scenario ensembles are NOT probability distributions; a quantile across scenarios is a spread of modelling choices, not a confidence interval",
+    "harmonisation to a common base year changes the near-term path of every scenario and must be reported",
+    "region and variable definitions differ between models; aggregating without mapping them produces silent double counting"
+   ],
+   "sources": [
+    "Riahi et al. 2017 (Global Environmental Change 42:153-168)",
+    "Huppmann, Gidden, Nicholls et al. 2021 (Open Research Europe 1:74)",
+    "pyam-iamc"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 370,
+   "method": "Environmental Kuznets curve and emissions-income panels",
+   "wrapper_file": "c44_environment_energy_climate/environmental_kuznets.py",
+   "tool_fns": [
+    "env_ekc"
+   ],
+   "when": "testing whether emissions rise and then fall with income, in a panel where both country and period effects matter",
+   "when_not": "the panel is too short to separate the quadratic from a trend; the turning point lies outside the observed income range",
+   "alternatives": [
+    {
+     "alt": "linear emissions-income elasticity",
+     "criterion": "no turning point is claimed"
+    },
+    {
+     "alt": "quadratic EKC",
+     "criterion": "the inverted-U is the hypothesis"
+    },
+    {
+     "alt": "semiparametric EKC",
+     "criterion": "you do not want to impose the quadratic shape"
+    }
+   ],
+   "output_key_fields": [
+    "params: income and income-squared coefficients",
+    "turning_point: the income level at the peak, with its confidence interval",
+    "in_sample: whether the turning point lies inside the observed income range",
+    "fixed_effects: the effects absorbed"
+   ],
+   "interpretation_traps": [
+    "a turning point OUTSIDE the observed income range is an extrapolation, not a finding, and it is the single most common overclaim in this literature",
+    "the quadratic imposes a symmetric inverted U; a semiparametric fit frequently shows something else entirely",
+    "the delta-method interval on the turning point is wide and often includes implausible values -- report it"
+   ],
+   "sources": [
+    "Grossman & Krueger 1995 (Quarterly Journal of Economics 110:353-377)",
+    "Stern 2004 (World Development 32:1419)",
+    "Wagner 2008 (Resource and Energy Economics 30:388)",
+    "pyfixest"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 371,
+   "method": "Weather normalisation of energy demand with heating and cooling degree days",
+   "wrapper_file": "c44_environment_energy_climate/weather_normalisation.py",
+   "tool_fns": [
+    "env_degree_days",
+    "env_weather_normalise"
+   ],
+   "when": "separating the weather-driven part of energy demand from the underlying trend, so consumption can be compared across years",
+   "when_not": "the weather data does not match the consumption region; the demand is not weather sensitive",
+   "alternatives": [
+    {
+     "alt": "degree-day regression",
+     "criterion": "the standard, transparent approach"
+    },
+    {
+     "alt": "changepoint regression",
+     "criterion": "the base temperature must be estimated rather than assumed"
+    },
+    {
+     "alt": "nonparametric temperature response",
+     "criterion": "the response is not piecewise linear"
+    }
+   ],
+   "output_key_fields": [
+    "normalised: weather-normalised demand",
+    "hdd, cdd: the constructed degree-day series",
+    "base_temperature: the balance point used or estimated",
+    "weather_contribution: the demand attributed to weather"
+   ],
+   "interpretation_traps": [
+    "the BASE TEMPERATURE is not universal -- it differs by building stock and climate, and assuming the conventional value can misattribute a large share of demand",
+    "degree days computed from daily means differ from those computed from hourly data, sometimes materially",
+    "normalisation removes weather, not behaviour; a mild year with a price shock is not disentangled by this alone"
+   ],
+   "sources": [
+    "Quayle & Diaz 1980 (Journal of Applied Meteorology 19:241-246)",
+    "Hor, Watson & Majithia 2005 (IEEE Transactions on Power Systems 20:2078)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 372,
+   "method": "Mapping climate scenarios onto macroeconomic paths: transition and physical risk",
+   "wrapper_file": "c44_environment_energy_climate/climate_macro_mapping.py",
+   "tool_fns": [
+    "env_climate_macro_map",
+    "env_damage_function"
+   ],
+   "when": "turning a climate scenario into the macro-financial variables a stress test or projection needs",
+   "when_not": "the scenario has no macro variables and no mapping is available; the horizon is far beyond any credible macro relationship",
+   "alternatives": [
+    {
+     "alt": "scenario variable mapping",
+     "criterion": "the scenario already carries macro variables"
+    },
+    {
+     "alt": "elasticity-based translation",
+     "criterion": "you must translate physical variables into macro ones"
+    },
+    {
+     "alt": "damage functions",
+     "criterion": "you want output loss as a function of warming"
+    }
+   ],
+   "output_key_fields": [
+    "macro_paths: the mapped macroeconomic variables",
+    "transition_component: the part driven by policy and carbon prices",
+    "physical_component: the part driven by warming and hazards",
+    "assumptions: the elasticities and damage function used"
+   ],
+   "interpretation_traps": [
+    "transition and physical risk have OPPOSITE time profiles -- strong early transition lowers late physical damage -- so reporting one without the other is systematically misleading",
+    "damage functions differ by more than an order of magnitude across the literature; the choice dominates any long-horizon result",
+    "these mappings are calibrated, not estimated; treat the output as a scenario, never as a forecast"
+   ],
+   "sources": [
+    "NGFS 2023, Scenarios for central banks and supervisors",
+    "Nordhaus 2017 (Proceedings of the National Academy of Sciences 114:1518-1523)",
+    "Batten, Sowerbutts & Tanaka 2016, Let's talk about the weather (Bank of England Staff Working Paper 603)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 373,
+   "method": "Kaya identity and energy-balance accounting",
+   "wrapper_file": "c44_environment_energy_climate/kaya_identity.py",
+   "tool_fns": [
+    "env_kaya",
+    "env_energy_balance"
+   ],
+   "when": "decomposing emissions into population, output per person, energy intensity and carbon intensity -- the standard framing for emissions drivers",
+   "when_not": "the components are not available on a consistent basis; you need supply-chain detail (-> input-output)",
+   "alternatives": [
+    {
+     "alt": "Kaya identity",
+     "criterion": "the standard four-factor decomposition"
+    },
+    {
+     "alt": "LMDI decomposition",
+     "criterion": "you want a residual-free attribution of the change"
+    },
+    {
+     "alt": "energy balance accounting",
+     "criterion": "the question is energy flows rather than emissions"
+    }
+   ],
+   "output_key_fields": [
+    "factors: the four Kaya components per period",
+    "contributions: the change in emissions attributed to each",
+    "identity_check: reconstruction error, which should be numerically zero",
+    "energy_balance: supply, transformation and final consumption where requested"
+   ],
+   "interpretation_traps": [
+    "the identity is an ACCOUNTING TAUTOLOGY, not a causal model -- a factor's contribution is not the effect of changing it, because the factors are not independent",
+    "a non-zero identity check means the four series are on inconsistent bases or units",
+    "carbon intensity of energy and energy intensity of output move together through fuel switching, so their separate contributions are not separable policies"
+   ],
+   "sources": [
+    "Kaya 1990, Impact of carbon dioxide emission control on GNP growth (IPCC Response Strategies Working Group)",
+    "Raupach et al. 2007 (Proceedings of the National Academy of Sciences 104:10288)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "env_footprint",
+   "card_id": 367,
+   "register": null,
+   "input_example": {
+    "io_table": "<raw_handle>",
+    "extension": "..."
+   },
+   "arguments": [
+    {
+     "name": "io_table",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a loaded multi-regional table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "extension",
+     "kind": "string",
+     "required": true,
+     "description": "Environmental extension to attribute.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "final_demand",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Final-demand categories; omitted = all.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "env_multipliers",
+   "card_id": 367,
+   "register": null,
+   "input_example": {
+    "io_table": "<raw_handle>",
+    "extension": "..."
+   },
+   "arguments": [
+    {
+     "name": "io_table",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a loaded multi-regional table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "extension",
+     "kind": "string",
+     "required": true,
+     "description": "Environmental extension.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "env_embodied_trade",
+   "card_id": 367,
+   "register": null,
+   "input_example": {
+    "io_table": "<raw_handle>",
+    "extension": "..."
+   },
+   "arguments": [
+    {
+     "name": "io_table",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a loaded multi-regional table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "extension",
+     "kind": "string",
+     "required": true,
+     "description": "Environmental extension.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "region",
+     "kind": "string",
+     "required": false,
+     "description": "Region to report for; omitted = all.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "env_decompose_index",
+   "card_id": 368,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "total": "...",
+    "method": "lmdi_i",
+    "form": "additive"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Factors by period, one column per driver.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "total",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the aggregate being decomposed.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "factors",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Driver columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Index form.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lmdi_i",
+      "lmdi_ii",
+      "laspeyres",
+      "paasche",
+      "fisher"
+     ],
+     "allowed_vars": null,
+     "default": "lmdi_i",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "form",
+     "kind": "enum",
+     "required": false,
+     "description": "Additive or multiplicative decomposition.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "additive",
+      "multiplicative"
+     ],
+     "allowed_vars": null,
+     "default": "additive",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "env_scenario_filter",
+   "card_id": 369,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Scenario data in the standard long format.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Models to keep.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "scenario",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Scenarios to keep.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variable",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Variables to keep.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "region",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Regions to keep.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "year",
+     "kind": "int_array",
+     "required": false,
+     "description": "Years to keep.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "env_scenario_harmonise",
+   "card_id": 369,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "history": "<df_handle>",
+    "base_year": 1,
+    "method": "ratio",
+    "convergence_year": 2050
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Scenario data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "history",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Historical values to harmonise to.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "base_year",
+     "kind": "integer",
+     "required": true,
+     "description": "Year to harmonise on.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Harmonisation method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "ratio",
+      "offset",
+      "reduce_ratio",
+      "reduce_offset"
+     ],
+     "allowed_vars": null,
+     "default": "ratio",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "convergence_year",
+     "kind": "integer",
+     "required": false,
+     "description": "Year the adjustment converges to zero.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2050,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "env_scenario_aggregate",
+   "card_id": 369,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "mapping": "<df_handle>",
+    "dimension": "region",
+    "method": "sum"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Scenario data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "mapping",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Aggregation mapping.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dimension",
+     "kind": "enum",
+     "required": false,
+     "description": "Dimension to aggregate.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "region",
+      "variable"
+     ],
+     "allowed_vars": null,
+     "default": "region",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Aggregation function.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "sum",
+      "mean",
+      "weighted"
+     ],
+     "allowed_vars": null,
+     "default": "sum",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "env_ekc",
+   "card_id": 370,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "emissions": "...",
+    "income": "...",
+    "unit": "...",
+    "time": "...",
+    "form": "quadratic",
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Country-year panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "emissions",
+     "kind": "string",
+     "required": true,
+     "description": "Emissions column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "income",
+     "kind": "string",
+     "required": true,
+     "description": "Income column.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "controls",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Control columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "unit",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the country.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the period.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "form",
+     "kind": "enum",
+     "required": false,
+     "description": "Functional form.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "linear",
+      "quadratic",
+      "cubic",
+      "semiparametric"
+     ],
+     "allowed_vars": null,
+     "default": "quadratic",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "cluster",
+     "kind": "string",
+     "required": false,
+     "description": "Clustering variable for standard errors.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "env_degree_days",
+   "card_id": 371,
+   "register": null,
+   "input_example": {
+    "temperature": "<series_handle>",
+    "base_heating": 15.5,
+    "base_cooling": 22.0,
+    "frequency": "monthly"
+   },
+   "arguments": [
+    {
+     "name": "temperature",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Temperature series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "base_heating",
+     "kind": "number",
+     "required": false,
+     "description": "Heating base temperature.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 15.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "base_cooling",
+     "kind": "number",
+     "required": false,
+     "description": "Cooling base temperature.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 22.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "frequency",
+     "kind": "enum",
+     "required": false,
+     "description": "Aggregation frequency.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "daily",
+      "weekly",
+      "monthly",
+      "annual"
+     ],
+     "allowed_vars": null,
+     "default": "monthly",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "env_weather_normalise",
+   "card_id": 371,
+   "register": null,
+   "input_example": {
+    "demand": "<series_handle>",
+    "hdd": "<series_handle>",
+    "cdd": "<series_handle>",
+    "estimate_base": false,
+    "conf_level": 0.95
+   },
+   "arguments": [
+    {
+     "name": "demand",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Energy demand series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "hdd",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Heating degree days.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cdd",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Cooling degree days.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "controls",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Additional control columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "estimate_base",
+     "kind": "boolean",
+     "required": false,
+     "description": "Estimate the balance point instead of assuming it.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "env_climate_macro_map",
+   "card_id": 372,
+   "register": null,
+   "input_example": {
+    "scenario": "<df_handle>",
+    "elasticities": "<df_handle>",
+    "horizon": 30,
+    "component": "both"
+   },
+   "arguments": [
+    {
+     "name": "scenario",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Climate scenario variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "elasticities",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Mapping elasticities from scenario to macro variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Horizon in years.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 30,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "component",
+     "kind": "enum",
+     "required": false,
+     "description": "Risk component to map.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "transition",
+      "physical",
+      "both"
+     ],
+     "allowed_vars": null,
+     "default": "both",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "env_damage_function",
+   "card_id": 372,
+   "register": null,
+   "input_example": {
+    "temperature": "<series_handle>",
+    "function": "nordhaus"
+   },
+   "arguments": [
+    {
+     "name": "temperature",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Warming path in degrees.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "function",
+     "kind": "enum",
+     "required": false,
+     "description": "Damage-function family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "nordhaus",
+      "weitzman",
+      "howard_sterner",
+      "burke",
+      "linear"
+     ],
+     "allowed_vars": null,
+     "default": "nordhaus",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "parameters",
+     "kind": "num_array",
+     "required": false,
+     "description": "Override the default parameters.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "env_kaya",
+   "card_id": 373,
+   "register": null,
+   "input_example": {
+    "emissions": "<series_handle>",
+    "population": "<series_handle>",
+    "output": "<series_handle>",
+    "energy": "<series_handle>",
+    "method": "lmdi"
+   },
+   "arguments": [
+    {
+     "name": "emissions",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Emissions.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "population",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Population.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "output",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "energy",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Primary energy.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Attribution method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "lmdi",
+      "laspeyres",
+      "simple"
+     ],
+     "allowed_vars": null,
+     "default": "lmdi",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "env_energy_balance",
+   "card_id": 373,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "carrier": "...",
+    "stage": "...",
+    "value": "..."
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Energy flows by carrier and stage.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "carrier",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the energy carrier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "stage",
+     "kind": "string",
+     "required": true,
+     "description": "Column identifying the balance stage.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "value",
+     "kind": "string",
+     "required": true,
+     "description": "Column holding the flow.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  }
+ ]
+}

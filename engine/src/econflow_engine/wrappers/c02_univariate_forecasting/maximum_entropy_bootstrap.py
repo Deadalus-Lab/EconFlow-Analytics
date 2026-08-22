@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``maximum_entropy_bootstrap`` -- METHOD-SELECTION card #138.
+"""Method wrapper ``maximum_entropy_bootstrap`` -- method card #138.
 
 #138 Maximum Entropy Bootstrap for time series (dependence/non-stationarity preserved)
 
@@ -7,8 +7,8 @@ Category 02-univariate-forecasting; module ``maximum_entropy_bootstrap``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def meb_ensemble(
     scl_adjustment: bool | None = None,
     sym: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``meb_ensemble`` -- METHOD-SELECTION card #138.
+    """Node ``meb_ensemble`` -- method card #138.
 
     Maximum Entropy Bootstrap for time series (dependence/non-stationarity preserved).
 
@@ -52,7 +52,7 @@ def meb_ensemble(
     Args:
         x: [series_handle, required] Handle to a univariate series (numeric/ts; fully finite,
             length>=2).
-        seed: [integer, required] Seed (REQUIRED; stochastic — set.seed before the draw;
+        seed: [integer, required] Seed (REQUIRED; stochastic — seeded before the draw;
             reproducibility/caching).
         reps: [integer, optional] Number of bootstrap replicates (default 999; gate reps>=10).
         trim: [number, optional] Trimming proportion of the tails (default 0.10; gate 0<=trim<0.5).
@@ -67,5 +67,5 @@ def meb_ensemble(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "meb_ensemble: not implemented. The method card is in ./README.md."
+        "meb_ensemble: not implemented."
     )

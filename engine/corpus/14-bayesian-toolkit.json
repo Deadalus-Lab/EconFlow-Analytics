@@ -1,0 +1,3597 @@
+{
+ "category": "14-bayesian-toolkit",
+ "cards": [
+  {
+   "id": 68,
+   "method": "General Bayesian inference via Stan (NUTS-only + convergence gate)",
+   "wrapper_file": "c14_bayesian_toolkit/general_bayesian_inference.py",
+   "tool_fns": [
+    "stan_syntax_check",
+    "stan_compile",
+    "stan_sample",
+    "stan_fit"
+   ],
+   "when": "an arbitrary generative model in the Stan DSL (custom likelihood/hierarchical/state-space); NUTS + a hard convergence gate",
+   "when_not": "a regression formula -> #69; a BUGS-style model -> #70; a ready-made model (-> #12/#162); MAP or variational inference (out of scope)",
+   "alternatives": [
+    {
+     "alt": "#69 Bayesian regression models",
+     "criterion": "the model can be expressed as a formula (linear/GLM/hierarchical)"
+    },
+    {
+     "alt": "#70 BUGS-style MCMC",
+     "criterion": "BUGS syntax / discrete latent states / custom samplers"
+    },
+    {
+     "alt": "#12/#14 Bayesian VAR (category 03)",
+     "criterion": "a ready-made Bayesian VAR — do not rewrite it in Stan"
+    },
+    {
+     "alt": "optimizing/vb",
+     "criterion": "you want a fast MAP/ADVI instead of a full posterior (out of scope)"
+    }
+   ],
+   "output_key_fields": [
+    "summary: data_frame per parameter (mean/se_mean/sd/quantiles/n_eff/Rhat)",
+    "max_rhat in diagnostics: the rank-normalised split-R-hat (the convergence decision)",
+    "min_bulk_ess / min_tail_ess in diagnostics: the bulk and tail effective sample sizes",
+    "num_divergent in diagnostics: divergent transitions (>0 = a biased posterior)",
+    "converged (lgl) + nonconvergence_reasons (chr); object=stanfit (stubbed)"
+   ],
+   "interpretation_traps": [
+    "the classic Rhat/n_eff columns UNDERSTATE non-convergence — read max_rhat in diagnostics instead",
+    "an empty or whitespace-only model_code compiles SILENTLY -> a pre-gate",
+    "a missing, NaN or infinite value, or an absent variable, drops the fit into an error mode SILENTLY (hence the universal post-gate)",
+    "chains>=1 is not enough: a split-R-hat from a single chain reports converged=True on a bimodal posterior (chains>=2 is mandatory)",
+    "the seed is MANDATORY: seeding the process generator does NOT reach Stan's own generator, whose default is random"
+   ],
+   "sources": [
+    "Hoffman & Gelman 2014 (NUTS, JMLR 15)",
+    "Carpenter et al 2017 (Stan, JSS 76(1))",
+    "Vehtari et al 2021 (rank-normalized split-R-hat + Bulk/Tail ESS, Bayesian Analysis 16(2))",
+    "Gelman et al 2013 (BDA3)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 69,
+   "method": "Bayesian regression models",
+   "wrapper_file": "c14_bayesian_toolkit/bayesian_regression.py",
+   "tool_fns": [
+    "breg_fit",
+    "breg_set_prior",
+    "breg_make_formula"
+   ],
+   "when": "Bayesian regression as a formula (gaussian/student/bernoulli/poisson/negbinomial/Gamma/lognormal) + informative priors; NUTS + a convergence gate",
+   "when_not": "a custom generative model -> #68; a BUGS-style or discrete model -> #70; frequentist estimation suffices (-> #46 or plain OLS); multilevel, leave-one-out, splines or GP terms (out of scope)",
+   "alternatives": [
+    {
+     "alt": "#68 general Bayesian inference",
+     "criterion": "the model is not a regression (custom likelihood/state-space)"
+    },
+    {
+     "alt": "#46 panel fixed/random effects (category 08)",
+     "criterion": "panel regression, frequentist estimation + Hausman"
+    },
+    {
+     "alt": "#64 quantile regression / Growth-at-Risk (category 12)",
+     "criterion": "conditional quantiles (growth-at-risk), not a posterior mean"
+    },
+    {
+     "alt": "a multilevel term (1|g) on this card",
+     "criterion": "hierarchical shrinkage — omitted in v1, re-scope"
+    }
+   ],
+   "output_key_fields": [
+    "summary: posterior_summary data_frame (parameter/Estimate/Est.Error/Q2.5/Q97.5)",
+    "fixed: fixef data_frame (population-level coefficients + credible intervals)",
+    "diagnostics: max_rhat/min_neff_ratio/n_divergent/n_max_treedepth + echoed family/config",
+    "converged (lgl) + nonconvergence_reasons (chr); prior=prior_summary df; object=brmsfit (stubbed)"
+   ],
+   "interpretation_traps": [
+    "the family given AS A STRING: Gamma resolves to an INVERSE link while the canonical choice here is LOG (a silent change of model)",
+    "input that is not a frame is SILENTLY coerced to a matrix; missing values in the model columns are SILENTLY dropped listwise",
+    "an entirely undefined R-hat/neff (too few retained draws) comes back as -Inf/+Inf and is caught as HARD non-convergence — otherwise the check would pass vacuously",
+    "Est.Error = the posterior SD (NOT a frequentist SE); the uncertainty is the credible interval Q2.5/Q97.5"
+   ],
+   "sources": [
+    "Bürkner 2017 JSS 80(1) (Bayesian multilevel models)",
+    "Bürkner 2018, 10(1) (advanced Bayesian multilevel modelling)",
+    "Vehtari et al 2021 (rank-normalized R-hat/ESS)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 70,
+   "method": "General BUGS-style Bayesian MCMC (injection-safe)",
+   "wrapper_file": "c14_bayesian_toolkit/general_bugs_style.py",
+   "tool_fns": [
+    "bugs_style_mcmc"
+   ],
+   "when": "a model in BUGS/JAGS syntax (discrete latent variables/mixtures/custom nodes); injection-safe build + a Gelman R-hat/ESS gate",
+   "when_not": "a model written directly in Stan -> #68 (NUTS is more efficient); a regression formula -> #69; WAIC, HMC, SMC or custom samplers (out of scope)",
+   "alternatives": [
+    {
+     "alt": "#68 general Bayesian inference",
+     "criterion": "continuous parameters, you want efficient NUTS"
+    },
+    {
+     "alt": "#69 Bayesian regression models",
+     "criterion": "a regression formula, you do not want BUGS"
+    },
+    {
+     "alt": "#72 MCMC convergence diagnostics",
+     "criterion": "you ALREADY have draws, only diagnostics are needed"
+    }
+   ],
+   "output_key_fields": [
+    "summary: the pooled summary over all chains (mean/median/sd/credible quantiles)",
+    "rhat in convergence: the Gelman PSRF matrix [point estimate / upper bound] + mpsrf + ESS",
+    "max_rhat/min_ess/converged in convergence; nonconvergence_reasons, as text",
+    "samples: list(chains=matrices, nodes); per_chain_summary; metadata (seed/set_seed/config)",
+    "object: compiled model/mcmc/samples (stubbed)"
+   ],
+   "interpretation_traps": [
+    "INJECTION-SAFE: NEVER model code assembled by string concatenation and then evaluated — a brace-break payload = RCE; parse ONLY",
+    "a missing value in the data is SILENTLY treated as a node to be imputed (a hidden parameter); clean the data first",
+    "setSeed must be a VECTOR seed+0.(nchains-1); a FRESH compiled pipeline (reusing Cmcmc = non-reproducible)",
+    "the initial values must cover ALL top-level stochastic parameters, otherwise a blank start yields NaN samples",
+    "the default rhat_threshold=1.1 is looser than the 1.01 used by #68/#69 (a BUGS-era convention)"
+   ],
+   "sources": [
+    "de Valpine et al. 2017 JCGS 26(2) (programming with models: hierarchical modelling and MCMC)",
+    "Lunn et al 2000 (BUGS language)",
+    "Gelman & Rubin 1992 (R-hat, Stat. Science 7(4))"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 71,
+   "method": "Posterior R-hat / ESS diagnostics + summaries",
+   "wrapper_file": "c14_bayesian_toolkit/posterior_diagnostics.py",
+   "tool_fns": [
+    "post_draw_summary"
+   ],
+   "when": "for ANY MCMC draws: rank-normalized split-R-hat + Bulk/Tail ESS + mean/median/sd/mad/quantiles/MCSE per parameter",
+   "when_not": "you want Geweke/Raftery/Heidelberger/HPD/ACF -> #72; chart data -> #73; the engine already produced the diagnostics",
+   "alternatives": [
+    {
+     "alt": "#72 MCMC convergence diagnostics",
+     "criterion": "you want Geweke z / Raftery-Lewis / Heidel / HPD / autocorrelation"
+    },
+    {
+     "alt": "#73 Bayesian visualisation data",
+     "criterion": "you want rating tables / chart data for R-hat/neff"
+    },
+    {
+     "alt": "engine diagnostics (#68-70)",
+     "criterion": "the fit object already contains R-hat/ESS"
+    }
+   ],
+   "output_key_fields": [
+    "summary: draws_summary df per variable (mean/median/sd/mad/quantiles/rhat/ess_bulk/ess_tail[/mcse_mean])",
+    "nchains/niterations/ndraws/nvariables; variables (chr); probs",
+    "degenerate_variables: variables whose R-hat is undefined on finite draws (zero variance)",
+    "draws: draws_array"
+   ],
+   "interpretation_traps": [
+    "the summary measures are passed BY VALUE, never resolved by name: a name lookup can silently bind the wrong function and return nonsense (an R-hat of 999)",
+    "a 2D matrix/data_frame input is converted SILENTLY into 1 chain; nchains>=2 is required (a split-R-hat of ~1.0 is silent)",
+    "ess_bulk = the reliability of the central estimates; ess_tail = the reliability of the credible-interval edges (a low tail ESS -> bad quantiles)",
+    "R-hat>1.01 = non-convergence (Vehtari 2021); the wrapper does NOT gate on a threshold (a valid diagnostic, not an error)",
+    "an undefined R-hat is not an error — the parameter is constant (see degenerate_variables)"
+   ],
+   "sources": [
+    "Vehtari et al 2021 (rank-normalized split-R-hat + Bulk/Tail ESS + MCSE, Bayesian Analysis 16(2))"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 72,
+   "method": "MCMC convergence diagnostics (Gelman/Geweke/Raftery/Heidel/ESS/HPD/ACF)",
+   "wrapper_file": "c14_bayesian_toolkit/mcmc_convergence_diagnostics.py",
+   "tool_fns": [
+    "mcmc_diagnostics",
+    "mcmc_gelman",
+    "mcmc_geweke",
+    "mcmc_effective_size",
+    "mcmc_hpd_interval",
+    "mcmc_raftery",
+    "mcmc_heidel",
+    "mcmc_autocorr"
+   ],
+   "when": "the classical diagnostics set for draws: Gelman-Rubin PSRF/MPSRF, Geweke z, ESS, HPD, Raftery-Lewis, Heidel-Welch, autocorrelation",
+   "when_not": "you want the rank-normalised R-hat with bulk/tail ESS -> #71; chart data -> #73",
+   "alternatives": [
+    {
+     "alt": "#71 posterior",
+     "criterion": "the modern rank-normalized R-hat + Bulk/Tail ESS (more reliable)"
+    },
+    {
+     "alt": "#73 Bayesian visualisation data",
+     "criterion": "rating tables / chart data for R-hat/neff"
+    },
+    {
+     "alt": "mcmc_raftery/mcmc_heidel",
+     "criterion": "single-chain diagnostics (they do not need >=2 chains)"
+    }
+   ],
+   "output_key_fields": [
+    "gelman_psrf: a matrix [point estimate / upper bound] per parameter; mpsrf (undefined when nvar==1)",
+    "geweke_z: a matrix (chain x variable) + a derived p-value, 2*Phi(-|z|)",
+    "effective_size: a named vector (POOLED = the sum over chains); hpd_interval: a matrix [lower/upper] on the pooled draws",
+    "raftery: the resource matrix (M/N/Nmin/I); heidel: stationarity + halfwidth; autocorr: lags x variables; meta"
+   ],
+   "interpretation_traps": [
+    "mcmc_effective_size SUMS the per-chain ESS across chains — it is pooled, not per chain (pooled=True)",
+    "mcmc_raftery with few draws returns a CHARACTER resmatrix c('Error',Nmin) WITHOUT raising an error -> POST-GATE is_numeric + Nmin",
+    "Gelman R-hat>1.1 (strictly 1.01) = non-convergence; Geweke |z|>1.96 = non-stationarity",
+    "HPD is computed on the POOLED draws (all chains together), one matrix; prob must be strictly in (0,1) (0/1 -> degenerate/full range)",
+    "gelman/bundle require nchain>=2; niter>=10 (the spectral measures are undefined below that); a constant parameter -> singular"
+   ],
+   "sources": [
+    "Plummer, Best, Cowles & Vines 2006, 6(1):7-11 (convergence diagnosis and output analysis for MCMC)",
+    "Gelman & Rubin 1992 (Stat. Science 7(4))",
+    "Geweke 1992 (Bayesian Statistics 4)",
+    "Raftery & Lewis 1992 (Stat. Science 7(4))",
+    "Heidelberger & Welch 1983 (Operations Research 31(6))"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 73,
+   "method": "Bayesian visualization DATA extractors (data, not charts)",
+   "wrapper_file": "c14_bayesian_toolkit/bayesian_visualization_extractors.py",
+   "tool_fns": [
+    "bviz_mcmc_intervals_data",
+    "bviz_mcmc_areas_data",
+    "bviz_mcmc_trace_data",
+    "bviz_mcmc_rhat_data",
+    "bviz_mcmc_neff_data",
+    "bviz_ppc_intervals_data",
+    "bviz_ppc_ribbon_data",
+    "bviz_ppc_stat_data"
+   ],
+   "when": "extracting NUMERIC data for diagnostic/PPC charts (intervals/areas/trace/rhat/neff/ppc); the frontend draws them",
+   "when_not": "raw R-hat/ESS numbers -> #71 posterior; classical diagnostics -> #72 MCMC convergence diagnostics; plot-object-returning functions (excluded); ppc_loo_pit (non-deterministic)",
+   "alternatives": [
+    {
+     "alt": "#71 posterior",
+     "criterion": "raw R-hat/ESS numbers (not rating tables)"
+    },
+    {
+     "alt": "#72 MCMC convergence diagnostics",
+     "criterion": "HPD/autocorrelation/Gelman/Geweke diagnostics"
+    },
+    {
+     "alt": "#71 rhat",
+     "criterion": "it produces the rhat VECTOR that feeds bviz_mcmc_rhat_data"
+    }
+   ],
+   "output_key_fields": [
+    "each extractor returns {data: the frame of plot-ready fields, n: its row count, plus the echoed parameters} -> to_mcp records",
+    "mcmc_intervals: parameter/outer_width/inner_width/point_est/ll/l/m/h/hh",
+    "mcmc_areas: parameter/interval/interval_width/x/density/scaled_density (default prob_outer=1)",
+    "mcmc_rhat/mcmc_neff: diagnostic/parameter/value/rating/description (rating low/ok/high)",
+    "ppc_intervals/ribbon: per-obs ll/l/m/h/hh; ppc_stat: per-draw value"
+   ],
+   "interpretation_traps": [
+    "the B extractors take a precomputed numeric VECTOR (rhat/ess-ratio), NOT a fitted model",
+    "pars is always passed as plain text, never as an unevaluated expression",
+    "prob>prob_outer -> a SILENT swap; prob=0 is accepted SILENTLY; stat=c('mean','sd') keeps ONLY the first",
+    "a missing value in the diagnostic vector SILENTLY drops that parameter (fewer rows); that the replicate matrix has exactly one column per observation is a KEY GATE",
+    "the output is long-format data FOR a chart, NOT a convergence diagnosis (that decision belongs to #71/#72)"
+   ],
+   "sources": [
+    "Gabry, Simpson, Vehtari, Betancourt, Gelman 2019 (Visualization in Bayesian workflow, JRSS-A 182(2))",
+    "Vehtari et al 2021 (R-hat/ESS rating thresholds)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 204,
+   "method": "Bayesian Structural Time Series (state specification: local/semilocal trend + seasonal + AR + spike-and-slab regression) with MCMC",
+   "wrapper_file": "c14_bayesian_toolkit/bayesian_structural_time.py",
+   "tool_fns": [
+    "bsts_fit",
+    "bsts_predict",
+    "bsts_components"
+   ],
+   "when": "you want a Bayesian structural decomposition/forecast of a univariate series with explicitly interpretable state components (trend + seasonality + AR) and FULL posterior uncertainty (not a point estimate); or a Bayesian regression on a time series with variable SELECTION through spike-and-slab (expected_model_size) when you have many candidate regressors; you want the posterior mean contribution of each component (nowcasting/decomposition) + predictive quantile bands",
+   "when_not": "you want a point or frequentist state-space estimate with no MCMC (-> #58/#59, category 10); multivariate or cointegration dynamics (VAR/VECM/Bayesian VAR); a fully custom likelihood or hierarchical model (-> #68/#69/#70); a plain ARIMA or ETS forecast with no component decomposition; a very long series where the MCMC cost is not justified against a fast Kalman filter",
+   "alternatives": [
+    {
+     "alt": "10-trend-cycle-statespace/bsp_run_mcmc",
+     "criterion": "you want a Bayesian state-space model with an explicit prior specification / custom observation models (SV/non-Gaussian) rather than the flag-driven structural builder"
+    },
+    {
+     "alt": "10-trend-cycle-statespace/kf_local_linear_trend",
+     "criterion": "you want a point/frequentist MLE state-space model (a fast Kalman filter, no MCMC) — the same structural decomposition without posterior draws"
+    },
+    {
+     "alt": "14-bayesian-toolkit/bugs_style_mcmc",
+     "criterion": "you need a fully custom hierarchical/state model that cannot be expressed with the BSTS state components"
+    },
+    {
+     "alt": "bsts_fit (family='student')",
+     "criterion": "outliers / heavy tails in the observation — a robust observation model instead of gaussian"
+    },
+    {
+     "alt": "bsts_fit with semilocal_linear_trend=True",
+     "criterion": "long forecast horizons — a mean-reverting slope avoids the explosive trend of the local linear model"
+    }
+   ],
+   "output_key_fields": [
+    "bsts_fit: state_components (the component names — trend, seasonal, AR, regression); residual_sd (the posterior mean observation sigma); sigma_obs_quantiles; coefficients {variable, inclusion_prob, posterior_mean, posterior_mean_incl} for the regression only; burn; fitted_series with its time index; plus the handle",
+    "bsts_predict: mean/median (chart-data); lower/upper predictive bands at the quantiles; step; has_regression",
+    "bsts_components: contributions (time x component posterior mean; a stacked decomposition); contributions_lower/upper bands; components; time; burn"
+   ],
+   "interpretation_traps": [
+    "DETERMINISM: this is MCMC with its own compiled generator — reproducibility requires seeding BOTH the process generator and the sampler itself; the wrapper does both, in the fit AND in the prediction, and the seed is MANDATORY",
+    "local_linear_trend vs semilocal: the local linear trend has a random-walk slope that can 'explode' at long horizons; the semilocal one (an AR(1) mean-reverting slope) is safer for forecasting — the two are mutually exclusive (gate)",
+    "inclusion_prob (spike-and-slab): the posterior probability that the regressor is in the model; posterior_mean is the MEAN OVER ALL draws (it includes the zeros -> shrunk), posterior_mean_incl is conditional on inclusion — do NOT confuse them",
+    "expected_model_size applies ONLY in regression mode; it sets the prior number of non-zero coefficients (smaller => a stronger sparsity prior); in a pure structural model it is an error (gate)",
+    "regression forecast: newdata (the future regressors) is MANDATORY and must have nrow==horizon with the same predictor columns — otherwise a gate stop (the forecast needs future values of X)",
+    "burn-in: the default SuggestBurn(0.1) discards 10% as warm-up; too few niter => unstable posterior means; keep niter large enough (>=500 in production; 100-250 only for smoke tests)",
+    "seasonal.N.k naming: AddSeasonal with nseasons=12 gives the component 'seasonal.12.1'; season_duration>1 groups steps into a season (e.g. weekly seasonality in daily data)"
+   ],
+   "sources": [
+    "Scott & Varian (2014) Predicting the present with Bayesian structural time series, Int. J. Mathematical Modelling and Numerical Optimisation 5:4-23",
+    "Scott & Varian (2015) Bayesian Variable Selection for Nowcasting Economic Time Series, in Economic Analysis of the Digital Economy (NBER/Univ. Chicago Press)",
+    "Brodersen, Gallusser, Koehler, Remy & Scott (2015) Inferring causal impact using Bayesian structural time-series models, Annals of Applied Statistics 9:247-274",
+    "Durbin & Koopman (2012) Time Series Analysis by State Space Methods, 2nd ed., Oxford University Press (structural components + the Kalman filter foundation)",
+    "George & McCulloch (1997) Approaches for Bayesian variable selection, Statistica Sinica 7:339 (the spike-and-slab prior)"
+   ],
+   "precondition_tools": [
+    "bsts_fit (the PRODUCER: it builds the state specification from the flags, runs the MCMC fit, and returns the object handle that predict and components consume — the seed is MANDATORY)",
+    "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the data_frame for regression mode: response + regressors)",
+    "c10_trend_cycle_statespace/kalman_filter_smoother.kf_local_linear_trend (a frequentist state-space baseline; compare before investing in MCMC)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 205,
+   "method": "Sequential Monte Carlo / particle filters for non-linear/non-Gaussian state-space models (bootstrap / auxiliary / Liu-West / ensemble Kalman)",
+   "wrapper_file": "c14_bayesian_toolkit/sequential_monte_carlo.py",
+   "tool_fns": [
+    "smc_filter"
+   ],
+   "when": "you have a BUGS-style state-space (hidden Markov) model with latent states x[t] and observations y[t]; you want (a) an estimate of the marginal log-likelihood (for model comparison / particle MCMC / likelihood-based inference) and/or (b) the filtered distribution of the latent states f(x[t]|y[1:t]) per time point (mean/quantiles = chart-data). It handles NON-linear/NON-Gaussian transition & observation equations where the Kalman filter does not apply",
+   "when_not": "a linear-Gaussian state-space model (use the exact Kalman filter of #58/#59/#61 — analytic, with no Monte Carlo noise); you want a FULL Bayesian posterior over the parameters with MCMC diagnostics (-> #70, which gates on Rhat and ESS); structural-break or latent-regime work (category 06); simple smoothing with no latent-state model (-> #56)",
+   "alternatives": [
+    {
+     "alt": "10-trend-cycle-statespace/kf_fit",
+     "criterion": "a linear-Gaussian SSM -> an exact Kalman filter/smoother (no Monte Carlo variance), a closed-form likelihood"
+    },
+    {
+     "alt": "14-bayesian-toolkit/bugs_style_mcmc",
+     "criterion": "you want a full Bayesian posterior over the parameters + convergence diagnostics (Rhat/ESS), not only latent-state filtering / a log_lik"
+    },
+    {
+     "alt": "smc_filter method='auxiliary'",
+     "criterion": "a peaked/informative observation likelihood -> lookahead resampling reduces particle degeneracy relative to bootstrap"
+    },
+    {
+     "alt": "smc_filter method='liuWest'",
+     "criterion": "you want joint state+parameter online estimation in ONE pass (caution: didactic, often poor; no log_lik)"
+    },
+    {
+     "alt": "smc_filter method='ensembleKF'",
+     "criterion": "a high-dimensional latent state with additive normal observation error -> an EnKF Monte Carlo Kalman approximation (no log_lik)"
+    }
+   ],
+   "output_key_fields": [
+    "method: the selected filter; latent_vars: the names of the latent variable(s)",
+    "log_likelihood + log_likelihood_available: the estimated marginal log-likelihood (numeric for the bootstrap and auxiliary filters; blank with the flag False for the Liu-West and ensemble-Kalman filters — STRUCTURALLY so, never a fabricated value)",
+    "state_summary: a data_frame {node, mean, sd, q..} PER latent node/time — the per-time filtered summaries (chart-data); state_mean: the per-time posterior mean",
+    "filtered_samples: a named list of equally weighted samples (particles × latent nodes) per latent variable — for downstream reweighting/plots",
+    "ess + ess_available: the per-time effective sample size (numeric for the bootstrap and auxiliary filters; absent, with the flag False, otherwise)",
+    "param_summary + param_vars: for the Liu-West filter ONLY, the posterior summary of the top-level parameters; absent for the rest",
+    "n_particles / n_time / metadata (method/thresh/lookahead/d/seed/saveAll)"
+   ],
+   "interpretation_traps": [
+    "METHOD HETEROGENEITY (live-verified): ONLY the bootstrap and auxiliary filters return a log-likelihood estimate and a per-time ESS; the Liu-West and ensemble-Kalman filters return neither. The node declares this explicitly through log_likelihood_available and ess_available — do not read a blank log-likelihood as 'a bad model'; it is a structural limit of the method",
+    "particle depletion: too few particles, or a model-data mismatch, gives a log-likelihood of minus infinity or NaN samples; the node blocks it with a hard gate. Raise nParticles (default 1000); the log-likelihood estimate carries Monte Carlo variance, so model comparison must use the SAME seed and particle count",
+    "the Liu-West filter: its own documentation warns that it 'often performs poorly, provided primarily for didactic purposes'; the parameter posteriors can be over-concentrated (particle impoverishment). Prefer particle MCMC (outside the surface), or #70, for reliable parameter inference",
+    "filtered, NOT smoothed: what comes back is f(x[t]|y[1:t]) (saveAll=True, smoothing=False); it is not the full smoothing distribution f(x[t]|y[1:T])",
+    "thresh MUST ==1 (gate): resampling at every step => mvEWSamples is equally weighted everywhere => correct per-time summaries; thresh<1 is blocked (silently wrong otherwise); this applies ONLY to bootstrap (auxiliary ignores thresh)",
+    "latentNodes in TIME order: they must be stochastic nodes (for instance 'x' or 'x[1:10]'); the data must contain NO gaps, since a gap is treated as a node to be imputed — a hidden parameter, hence the gate"
+   ],
+   "sources": [
+    "Michaud, de Valpine, Turek, Paciorek & Nguyen 2021 JSS 100(3) (sequential Monte Carlo methods)",
+    "Gordon, Salmond & Smith (1993) 'Novel approach to nonlinear/non-Gaussian Bayesian state estimation', IEE Proc. F 140(2):107 (the bootstrap filter)",
+    "Pitt & Shephard (1999) 'Filtering via simulation: Auxiliary particle filters', JASA 94(446):590 (the auxiliary filter)",
+    "Liu & West (2001) 'Combined parameter and state estimation in simulation-based filtering', in Sequential Monte Carlo Methods in Practice, Springer, pp.197-223",
+    "Houtekamer & Mitchell (1998) 'Data assimilation using an ensemble Kalman filter technique', Monthly Weather Review 126(3):796",
+    "Doucet, de Freitas & Gordon (2001) Sequential Monte Carlo Methods in Practice, Springer"
+   ],
+   "precondition_tools": [
+    "smc_filter (the default method=bootstrap; only bootstrap/auxiliary return log_lik+ESS)",
+    "c14_bayesian_toolkit/general_bugs_style.bugs_style_mcmc (the same BUGS DSL; for a full parameter posterior rather than filtering)",
+    "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the observations y as a series)"
+   ],
+   "precondition_gates": null
+  },
+  {
+   "id": 507,
+   "method": "LOO-CV, WAIC, model comparison and stacking weights",
+   "wrapper_file": "c14_bayesian_toolkit/loo_waic_stacking.py",
+   "tool_fns": [
+    "bt_loo_compare",
+    "bt_stacking_weights"
+   ],
+   "when": "comparing Bayesian models by their predictive performance rather than by in-sample fit, and combining them when none dominates",
+   "when_not": "the models have different likelihoods or different data, where the criteria are not comparable",
+   "alternatives": [
+    {
+     "alt": "PSIS-LOO",
+     "criterion": "the default, with a built-in reliability diagnostic"
+    },
+    {
+     "alt": "WAIC",
+     "criterion": "cheaper but less reliable"
+    },
+    {
+     "alt": "stacking",
+     "criterion": "you want a combination rather than a selection"
+    }
+   ],
+   "output_key_fields": [
+    "elpd_loo, elpd_waic: expected log predictive density with standard errors",
+    "pareto_k: the reliability diagnostic -- values above 0.7 mean the estimate is untrustworthy",
+    "weights: stacking or pseudo-BMA weights",
+    "comparison: models ranked with differences and their standard errors"
+   ],
+   "interpretation_traps": [
+    "PARETO K ABOVE 0.7 MEANS THE LOO ESTIMATE IS UNRELIABLE for that observation, and reporting elpd without checking k is the standard misuse of this diagnostic",
+    "the standard error of a difference in elpd is what decides whether models are distinguishable; a ranking without it is not evidence",
+    "LOO assumes observations are exchangeable, which time series and hierarchical structures violate -- leave-future-out is the analogue there"
+   ],
+   "sources": [
+    "Vehtari, Gelman & Gabry 2017 (Statistics and Computing 27:1413-1432)",
+    "Yao, Vehtari, Simpson & Gelman 2018 (Bayesian Analysis 13:917)",
+    "arviz"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 508,
+   "method": "Bayes factors, Savage-Dickey ratios and ROPE decisions",
+   "wrapper_file": "c14_bayesian_toolkit/bayes_factors_rope.py",
+   "tool_fns": [
+    "bt_bayes_factor",
+    "bt_rope"
+   ],
+   "when": "quantifying evidence for a point null, or deciding whether an effect is practically equivalent to zero",
+   "when_not": "the priors are vague, where Bayes factors are dominated by the prior width and are not interpretable",
+   "alternatives": [
+    {
+     "alt": "Bayes factor",
+     "criterion": "evidence for a point null against an alternative"
+    },
+    {
+     "alt": "Savage-Dickey ratio",
+     "criterion": "nested models, cheap to compute from the posterior"
+    },
+    {
+     "alt": "ROPE",
+     "criterion": "you want a practical-equivalence decision rather than evidence"
+    }
+   ],
+   "output_key_fields": [
+    "bayes_factor: evidence ratio, with the prior it depends on stated",
+    "savage_dickey: the prior-to-posterior density ratio at the null",
+    "rope_probability: posterior mass inside the region of practical equivalence",
+    "decision: accept, reject or undecided"
+   ],
+   "interpretation_traps": [
+    "BAYES FACTORS ARE ACUTELY SENSITIVE TO THE PRIOR WIDTH on the tested parameter -- widening a vague prior can move the factor by orders of magnitude with no change in the data",
+    "the ROPE must be set from substantive knowledge before seeing the posterior; choosing it afterwards makes the decision circular",
+    "the Savage-Dickey ratio needs the prior density at the null to be well estimated, which fails for improper priors"
+   ],
+   "sources": [
+    "Kass & Raftery 1995 (JASA 90:773-795)",
+    "Dickey 1971 (Annals of Mathematical Statistics 42:204)",
+    "Kruschke 2018 (Advances in Methods and Practices in Psychological Science 1:270)",
+    "arviz"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 509,
+   "method": "Variational inference, Pathfinder and Laplace approximation",
+   "wrapper_file": "c14_bayesian_toolkit/variational_inference.py",
+   "tool_fns": [
+    "bt_variational"
+   ],
+   "when": "the posterior is needed faster than sampling allows, or the model is too large for a Markov chain to mix",
+   "when_not": "you need accurate tail or correlation estimates, which every approximation here understates",
+   "alternatives": [
+    {
+     "alt": "full MCMC",
+     "criterion": "accuracy matters more than speed"
+    },
+    {
+     "alt": "ADVI or Pathfinder",
+     "criterion": "a fast approximate posterior"
+    },
+    {
+     "alt": "Laplace / MAP",
+     "criterion": "the posterior is near-Gaussian around the mode"
+    }
+   ],
+   "output_key_fields": [
+    "approximation: the fitted approximate posterior",
+    "elbo: the evidence lower bound path, whose convergence must be checked",
+    "psis_k: diagnostic for how good the approximation is",
+    "comparison: against a short MCMC run where available"
+   ],
+   "interpretation_traps": [
+    "MEAN-FIELD VARIATIONAL INFERENCE SYSTEMATICALLY UNDERSTATES POSTERIOR VARIANCE and destroys correlations between parameters -- credible intervals from it are too narrow, often severely",
+    "a converged ELBO does not mean a good approximation; it means the optimiser stopped, and the PSIS diagnostic is what actually assesses quality",
+    "Laplace approximation is only defensible when the posterior really is near-Gaussian, which multimodality and boundaries break"
+   ],
+   "sources": [
+    "Blei, Kucukelbir & McAuliffe 2017 (JASA 112:859-877)",
+    "Zhang, Carpenter, Gelman & Vehtari 2022 (Journal of Machine Learning Research 23:1)",
+    "Yao, Vehtari, Simpson & Gelman 2018 (ICML 2018)",
+    "pymc"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 510,
+   "method": "Prior elicitation and prior-predictive checks",
+   "wrapper_file": "c14_bayesian_toolkit/prior_elicitation.py",
+   "tool_fns": [
+    "bt_prior_predictive",
+    "bt_elicit_prior"
+   ],
+   "when": "choosing priors deliberately and checking what they imply about the data before any data is seen",
+   "when_not": "the priors are fixed by convention or a referee; the model is too complex to simulate from the prior",
+   "alternatives": [
+    {
+     "alt": "prior predictive simulation",
+     "criterion": "check what the prior implies for observables"
+    },
+    {
+     "alt": "elicitation from quantiles",
+     "criterion": "you know plausible ranges, not distributions"
+    },
+    {
+     "alt": "reference or weakly informative priors",
+     "criterion": "you want minimal influence"
+    }
+   ],
+   "output_key_fields": [
+    "prior_predictive: simulated observables under the prior",
+    "elicited: the distribution matching stated quantiles",
+    "implied_range: what the prior implies for the data scale",
+    "warnings: priors implying impossible or absurd observables"
+   ],
+   "interpretation_traps": [
+    "A 'VAGUE' PRIOR ON A COEFFICIENT CAN BE WILDLY INFORMATIVE ON THE OUTCOME SCALE, especially with a nonlinear link -- the prior predictive check is how that is caught",
+    "priors that put mass on impossible observables (negative prices, probabilities above one) are common and are not harmless",
+    "eliciting from quantiles requires the elicited quantiles to be internally consistent, which they frequently are not"
+   ],
+   "sources": [
+    "Gelman, Simpson & Betancourt 2017 (Entropy 19:555)",
+    "Mikkola et al. 2024 (Bayesian Analysis 19:1129)",
+    "preliz"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 511,
+   "method": "Bayesian additive regression trees",
+   "wrapper_file": "c14_bayesian_toolkit/bart.py",
+   "tool_fns": [
+    "bt_bart"
+   ],
+   "when": "you want flexible nonparametric regression with honest uncertainty, without choosing a functional form or tuning a penalty",
+   "when_not": "the relationship is known to be linear; interpretability of individual terms is required",
+   "alternatives": [
+    {
+     "alt": "linear regression",
+     "criterion": "the form is known"
+    },
+    {
+     "alt": "BART",
+     "criterion": "flexible, with posterior uncertainty"
+    },
+    {
+     "alt": "gradient boosting",
+     "criterion": "prediction only, no uncertainty needed"
+    }
+   ],
+   "output_key_fields": [
+    "posterior_predictive: draws of the fitted surface",
+    "variable_inclusion: how often each covariate is split on",
+    "partial_dependence: marginal effect curves with credible bands",
+    "convergence: chain diagnostics on the tree ensemble"
+   ],
+   "interpretation_traps": [
+    "VARIABLE INCLUSION FREQUENCIES ARE NOT VARIABLE IMPORTANCE and are biased toward covariates with many possible split points",
+    "BART's default priors are calibrated for standardised outcomes; on an unstandardised scale they can be strongly informative",
+    "convergence diagnostics for tree ensembles are weaker than for parametric models -- the usual R-hat on individual trees is meaningless"
+   ],
+   "sources": [
+    "Chipman, George & McCulloch 2010 (Annals of Applied Statistics 4:266-298)",
+    "Hill, Linero & Murray 2020 (Annual Review of Statistics and Its Application 7:251)",
+    "pymc-bart"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 512,
+   "method": "Gaussian-process regression and Bayesian nonparametric trends",
+   "wrapper_file": "c14_bayesian_toolkit/gaussian_process.py",
+   "tool_fns": [
+    "bt_gaussian_process"
+   ],
+   "when": "a smooth latent function with calibrated uncertainty, where the uncertainty must widen honestly away from the data",
+   "when_not": "the sample is large enough that the cubic cost is prohibitive without approximation; the function is not smooth",
+   "alternatives": [
+    {
+     "alt": "penalised splines",
+     "criterion": "cheaper, similar smoothness"
+    },
+    {
+     "alt": "Gaussian process",
+     "criterion": "you want a full posterior over functions"
+    },
+    {
+     "alt": "sparse or approximate GP",
+     "criterion": "the sample is large"
+    }
+   ],
+   "output_key_fields": [
+    "posterior_mean, posterior_band: the latent function and its uncertainty",
+    "hyperparameters: length scale, amplitude and noise",
+    "log_marginal_likelihood: for kernel comparison",
+    "extrapolation_warning: where the posterior reverts to the prior"
+   ],
+   "interpretation_traps": [
+    "A GAUSSIAN PROCESS REVERTS TO ITS PRIOR MEAN AWAY FROM THE DATA, so extrapolated forecasts drift to the mean with wide bands -- that is correct behaviour and is frequently mistaken for a bug",
+    "the kernel is the model; a squared-exponential kernel assumes infinite differentiability, which is wrong for most economic series -- Matern is usually the better default",
+    "hyperparameters estimated by marginal likelihood can land in a local optimum that oversmooths dramatically"
+   ],
+   "sources": [
+    "Rasmussen & Williams 2006, Gaussian Processes for Machine Learning",
+    "Roberts et al. 2013 (Philosophical Transactions of the Royal Society A 371:20110550)",
+    "pymc"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "bviz_mcmc_areas_data",
+   "card_id": 73,
+   "register": null,
+   "input_example": {
+    "x": "<raw_handle>",
+    "prob": 0.5,
+    "prob_outer": 1
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to draws· density areas grid· WITHOUT NA.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "pars",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Parameter names AS a character vector (empty = all).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prob",
+     "kind": "number",
+     "required": false,
+     "description": "Inner interval probability, strictly (0,1) (default 0.5).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "prob_outer",
+     "kind": "number",
+     "required": false,
+     "description": "Outer probability (default 1 = full density, <=1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "point_est",
+     "kind": "enum",
+     "required": false,
+     "description": "Point estimate (default median).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "median",
+      "mean",
+      "none"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bviz_mcmc_intervals_data",
+   "card_id": 73,
+   "register": null,
+   "input_example": {
+    "x": "<raw_handle>",
+    "prob": 0.5,
+    "prob_outer": 0.9
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to draws (3D array / matrix / DataFrame / list of chain matrices)· WITHOUT NA.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "pars",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Parameter names AS a character vector (empty = all).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prob",
+     "kind": "number",
+     "required": false,
+     "description": "Inner interval probability, strictly (0,1) (default 0.5· prob<=prob_outer).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "prob_outer",
+     "kind": "number",
+     "required": false,
+     "description": "Outer interval probability (default 0.9, <=1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.9,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "point_est",
+     "kind": "enum",
+     "required": false,
+     "description": "Point estimate (default median).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "median",
+      "mean",
+      "none"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bviz_mcmc_neff_data",
+   "card_id": 73,
+   "register": null,
+   "input_example": {
+    "ratio": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "ratio",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a PRECOMPUTED numeric N_eff/N ratio vector (ess-derived)· WITHOUT NA, >0.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bviz_mcmc_rhat_data",
+   "card_id": 73,
+   "register": null,
+   "input_example": {
+    "rhat": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "rhat",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a PRECOMPUTED numeric R-hat vector (the convergence-diagnostic routine)· NOT a fitted model· WITHOUT NA, >0.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bviz_mcmc_trace_data",
+   "card_id": 73,
+   "register": null,
+   "input_example": {
+    "x": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to draws· trace value per iteration/chain· WITHOUT NA.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "pars",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Parameter names AS a character vector (empty = all).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bviz_ppc_intervals_data",
+   "card_id": 73,
+   "register": null,
+   "input_example": {
+    "y": "<raw_handle>",
+    "yrep": "<matrix_handle>",
+    "prob": 0.5,
+    "prob_outer": 0.9
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an observed numeric VECTOR y.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "yrep",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a posterior-predictive MATRIX yrep (draws x obs)· ncol==length(y).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to an optional x-axis (length==length(y)).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "group",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to an optional group per observation (length==length(y)).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prob",
+     "kind": "number",
+     "required": false,
+     "description": "Inner interval probability (default 0.5).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "prob_outer",
+     "kind": "number",
+     "required": false,
+     "description": "Outer interval probability (default 0.9).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.9,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "bviz_ppc_ribbon_data",
+   "card_id": 73,
+   "register": null,
+   "input_example": {
+    "y": "<raw_handle>",
+    "yrep": "<matrix_handle>",
+    "prob": 0.5,
+    "prob_outer": 0.9
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an observed numeric VECTOR y.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "yrep",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a posterior-predictive MATRIX yrep (draws x obs)· ncol==length(y).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to an optional x-axis (length==length(y)).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "group",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to an optional group (length==length(y)).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prob",
+     "kind": "number",
+     "required": false,
+     "description": "Inner ribbon probability (default 0.5).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "prob_outer",
+     "kind": "number",
+     "required": false,
+     "description": "Outer ribbon probability (default 0.9).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.9,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "bviz_ppc_stat_data",
+   "card_id": 73,
+   "register": null,
+   "input_example": {
+    "y": "<raw_handle>",
+    "yrep": "<matrix_handle>",
+    "stat": "..."
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an observed numeric VECTOR y.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "yrep",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Handle to a posterior-predictive MATRIX yrep (draws x obs)· ncol==length(y).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "stat",
+     "kind": "string",
+     "required": true,
+     "description": "Statistic name AS A STRING (e.g. 'mean','sd','median')· of length 1.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "group",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to an optional group per observation (length==length(y)).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "breg_fit",
+   "card_id": 69,
+   "register": null,
+   "input_example": {
+    "formula": "y ~ x",
+    "data": "<df_handle>",
+    "seed": 1,
+    "chains": 2,
+    "iter": 1000,
+    "rhat_threshold": 1.01,
+    "neff_ratio_threshold": 0.1,
+    "allow_nonconvergence": false
+   },
+   "arguments": [
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": true,
+     "description": "Regression formula AS A STRING (ACE-sanitized), e.g. 'y ~ x1 + x2'.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a DataFrame with columns matching the formula (WITHOUT NA in the model columns).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Family AS A STRING (default gaussian· Gamma uses the LOG link, not INVERSE).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gaussian",
+      "student",
+      "bernoulli",
+      "poisson",
+      "negbinomial",
+      "Gamma",
+      "lognormal"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prior",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to a 'brmsprior' (from breg_set_prior)· optional.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED seed (Stan RNG· default RANDOM).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chains",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of chains (default 2).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "iter",
+     "kind": "integer",
+     "required": false,
+     "description": "Iterations per chain (default 1000, warmup=iter/2).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "rhat_threshold",
+     "kind": "number",
+     "required": false,
+     "description": "Threshold of the rank-normalized R-hat (default 1.01).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.01,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "neff_ratio_threshold",
+     "kind": "number",
+     "required": false,
+     "description": "Minimum neff_ratio (default 0.1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "allow_nonconvergence",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> converged=False instead of stop on non-convergence.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "breg_make_formula",
+   "card_id": 69,
+   "register": null,
+   "input_example": {
+    "formula": "y ~ x"
+   },
+   "arguments": [
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": true,
+     "description": "Regression formula AS A STRING (e.g. 'y ~ x1 + x2') -> brmsformula (ACE-sanitized).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "breg_set_prior",
+   "card_id": 69,
+   "register": {
+    "field": null
+   },
+   "input_example": {
+    "prior": "...",
+    "class": "b"
+   },
+   "arguments": [
+    {
+     "name": "prior",
+     "kind": "string",
+     "required": true,
+     "description": "Stan prior distribution AS A STRING (e.g. 'normal(0, 5)')· it is parsed by Stan and never evaluated as code here.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "class",
+     "kind": "string",
+     "required": false,
+     "description": "Prior class (e.g. 'b' coefficients, 'Intercept', 'sigma'· default 'b').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": "b",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "bsts_components",
+   "card_id": 204,
+   "register": null,
+   "input_example": {
+    "object": "<raw_handle>",
+    "quantile_lower": 0.025,
+    "quantile_upper": 0.975
+   },
+   "arguments": [
+    {
+     "name": "object",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted BSTS model (from bsts_fit).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "burn",
+     "kind": "integer",
+     "required": false,
+     "description": "Burn-in draws (default None = SuggestBurn(0.1)).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "quantile_lower",
+     "kind": "number",
+     "required": false,
+     "description": "Lower quantile per component (default 0.025).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.025,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "quantile_upper",
+     "kind": "number",
+     "required": false,
+     "description": "Upper quantile per component (default 0.975).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.975,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "bsts_fit",
+   "card_id": 204,
+   "register": {
+    "field": "object"
+   },
+   "input_example": {
+    "local_linear_trend": true,
+    "semilocal_linear_trend": false,
+    "seasonal_nseasons": 0,
+    "season_duration": 1,
+    "ar_lags": 0,
+    "niter": 1000,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Handle to a response ts (pure structural mode)· give ONE of y or formula+data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "formula",
+     "kind": "formula",
+     "required": false,
+     "description": "Regression formula 'y ~ x1 + x2' (spike-and-slab mode)· requires data.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Handle to a DataFrame with response + regressors (regression mode).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Observation family (default gaussian· student = heavy tails).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "gaussian",
+      "logit",
+      "poisson",
+      "student"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "local_linear_trend",
+     "kind": "boolean",
+     "required": false,
+     "description": "AddLocalLinearTrend (default True)· mutually exclusive with semilocal.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "semilocal_linear_trend",
+     "kind": "boolean",
+     "required": false,
+     "description": "AddSemilocalLinearTrend (mean-reverting slope· better at long horizons).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "seasonal_nseasons",
+     "kind": "integer",
+     "required": false,
+     "description": "AddSeasonal nseasons (0 = off· otherwise >=2, e.g. 12 monthly).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "season_duration",
+     "kind": "integer",
+     "required": false,
+     "description": "Duration of each season in steps (default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "ar_lags",
+     "kind": "integer",
+     "required": false,
+     "description": "AddAr lags (0 = off· otherwise >=1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "niter",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of MCMC iterations (default 1000).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "burn",
+     "kind": "integer",
+     "required": false,
+     "description": "Burn-in draws to discard (default None = SuggestBurn(0.1)).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "expected_model_size",
+     "kind": "number",
+     "required": false,
+     "description": "Prior expected number of regressors (spike-and-slab)· ONLY in regression mode.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED seed (MCMC determinism· seeded + BSTS C++ RNG).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bsts_predict",
+   "card_id": 204,
+   "register": null,
+   "input_example": {
+    "object": "<raw_handle>",
+    "horizon": 12,
+    "quantile_lower": 0.025,
+    "quantile_upper": 0.975,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "object",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted BSTS model (from bsts_fit).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (>=1· default 12).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 12,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "newdata",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Handle to future regressors (REQUIRED in regression models· nrow==horizon).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "quantile_lower",
+     "kind": "number",
+     "required": false,
+     "description": "Lower quantile of the forecast band (default 0.025).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.025,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "quantile_upper",
+     "kind": "number",
+     "required": false,
+     "description": "Upper quantile of the forecast band (default 0.975).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.975,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "burn",
+     "kind": "integer",
+     "required": false,
+     "description": "Burn-in draws (default None = SuggestBurn(0.1)).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED seed (posterior sampling determinism).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mcmc_autocorr",
+   "card_id": 72,
+   "register": null,
+   "input_example": {
+    "chains": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "chains",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a list of per-chain matrices· autocorrelation per lag (default lags 0/1/5/10/50, all < niter).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mcmc_diagnostics",
+   "card_id": 72,
+   "register": null,
+   "input_example": {
+    "chains": "<raw_handle>",
+    "confidence": 0.95,
+    "prob": 0.95
+   },
+   "arguments": [
+    {
+     "name": "chains",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a list of per-chain numeric matrices (iter x var)· >=2 chains, niter>=10.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "confidence",
+     "kind": "number",
+     "required": false,
+     "description": "Gelman-Rubin confidence level, strictly (0,1) (default 0.95).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "prob",
+     "kind": "number",
+     "required": false,
+     "description": "HPD credible-interval probability, strictly (0,1) (default 0.95).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mcmc_effective_size",
+   "card_id": 72,
+   "register": null,
+   "input_example": {
+    "chains": "<raw_handle>"
+   },
+   "arguments": [
+    {
+     "name": "chains",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a list of per-chain matrices· ESS (POOLED = sum of the chains).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "mcmc_gelman",
+   "card_id": 72,
+   "register": null,
+   "input_example": {
+    "chains": "<raw_handle>",
+    "confidence": 0.95
+   },
+   "arguments": [
+    {
+     "name": "chains",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a list of per-chain matrices (>=2 chains· Gelman-Rubin PSRF/MPSRF).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "confidence",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level, strictly (0,1) (default 0.95).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mcmc_geweke",
+   "card_id": 72,
+   "register": null,
+   "input_example": {
+    "chains": "<raw_handle>",
+    "frac1": 0.1,
+    "frac2": 0.5
+   },
+   "arguments": [
+    {
+     "name": "chains",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a list of per-chain matrices (Geweke z-score per chain).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "frac1",
+     "kind": "number",
+     "required": false,
+     "description": "Fraction of the initial window (default 0.1· frac1+frac2<1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "frac2",
+     "kind": "number",
+     "required": false,
+     "description": "Fraction of the final window (default 0.5).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mcmc_heidel",
+   "card_id": 72,
+   "register": null,
+   "input_example": {
+    "chain": "<raw_handle>",
+    "eps": 0.1,
+    "pvalue": 0.05
+   },
+   "arguments": [
+    {
+     "name": "chain",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to ONE chain· Heidelberger-Welch stationarity + halfwidth.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "eps",
+     "kind": "number",
+     "required": false,
+     "description": "Halfwidth target accuracy (>0, default 0.1).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "pvalue",
+     "kind": "number",
+     "required": false,
+     "description": "Stationarity test p-value, strictly (0,1) (default 0.05).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mcmc_hpd_interval",
+   "card_id": 72,
+   "register": null,
+   "input_example": {
+    "chains": "<raw_handle>",
+    "prob": 0.95
+   },
+   "arguments": [
+    {
+     "name": "chains",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a list of per-chain matrices· HPD on the pooled draws.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "prob",
+     "kind": "number",
+     "required": false,
+     "description": "HPD probability, strictly (0,1) (default 0.95· 0/1 -> degenerate/full-range).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "mcmc_raftery",
+   "card_id": 72,
+   "register": null,
+   "input_example": {
+    "chain": "<raw_handle>",
+    "q": 0.025,
+    "r": 0.005,
+    "s": 0.95
+   },
+   "arguments": [
+    {
+     "name": "chain",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to ONE chain (numeric matrix iter x var)· Raftery-Lewis run-length.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "q",
+     "kind": "number",
+     "required": false,
+     "description": "Quantile to estimate, strictly (0,1) (default 0.025).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.025,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "r",
+     "kind": "number",
+     "required": false,
+     "description": "Accuracy r, strictly (0,1) (default 0.005).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.005,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "s",
+     "kind": "number",
+     "required": false,
+     "description": "Probability within r, strictly (0,1) (default 0.95).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "bugs_style_mcmc",
+   "card_id": 70,
+   "register": null,
+   "input_example": {
+    "code": "...",
+    "inits": "<raw_handle>",
+    "monitors": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "niter": 2000,
+    "nburnin": 1000,
+    "nchains": 2,
+    "seed": 1,
+    "thin": 1,
+    "rhat_threshold": 1.1,
+    "ess_min": 100,
+    "allow_nonconvergence": false
+   },
+   "arguments": [
+    {
+     "name": "code",
+     "kind": "string",
+     "required": true,
+     "description": "BUGS-style model definition AS A STRING (parse ONLY, injection-safe — no eval).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "inits",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a named list of initial values (covers ALL the top-level stochastic parameters).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "monitors",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Non-empty character vector of nodes to monitor (e.g. ['mu','sigma']).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "constants",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to a named list of constants/dimensions (e.g. N)· optional.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to a named list of observations (WITHOUT NA -> silent MISSING-node imputation).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "niter",
+     "kind": "integer",
+     "required": false,
+     "description": "Total MCMC iterations (default 2000).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2000,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "nburnin",
+     "kind": "integer",
+     "required": false,
+     "description": "Burn-in (default 1000· nburnin < niter required).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "nchains",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of chains (>=2 for gelman.diag· default 2).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED single integer seed (reproducibility· setSeed vector).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "thin",
+     "kind": "integer",
+     "required": false,
+     "description": "Thinning (default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "rhat_threshold",
+     "kind": "number",
+     "required": false,
+     "description": "Gelman R-hat threshold (default 1.1, looser BUGS).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "ess_min",
+     "kind": "number",
+     "required": false,
+     "description": "Minimum effective sample size (default 100).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "allow_nonconvergence",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> converged=False instead of stop.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "post_draw_summary",
+   "card_id": 71,
+   "register": null,
+   "input_example": {
+    "x": "<raw_handle>",
+    "include_mcse": false
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a 3D draws array (iter x chain x var), an MCMC draws list, or 'draws' object (nchains>=2).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "include_mcse",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> adds an mcse_mean column (Monte-Carlo SE of the mean).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "stan_compile",
+   "card_id": 68,
+   "register": {
+    "field": "model"
+   },
+   "input_example": {
+    "model_code": "...",
+    "model_name": "anon_model"
+   },
+   "arguments": [
+    {
+     "name": "model_code",
+     "kind": "string",
+     "required": true,
+     "description": "Stan model AS A STRING· stan_model compile (~40s) -> compiled stanmodel handle.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model_name",
+     "kind": "string",
+     "required": false,
+     "description": "Model name (default anon_model).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": "anon_model",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "stan_fit",
+   "card_id": 68,
+   "register": null,
+   "input_example": {
+    "model_code": "...",
+    "data": "<raw_handle>",
+    "model_name": "anon_model",
+    "seed": 1,
+    "chains": 2,
+    "iter": 1000,
+    "allow_nonconvergence": false
+   },
+   "arguments": [
+    {
+     "name": "model_code",
+     "kind": "string",
+     "required": true,
+     "description": "Stan model AS A STRING· one-shot compile + sample.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a named data list (Stan data block).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model_name",
+     "kind": "string",
+     "required": false,
+     "description": "Model name (default anon_model).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": "anon_model",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED seed (reproducibility of the Stan RNG).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chains",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of chains (>=2).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "iter",
+     "kind": "integer",
+     "required": false,
+     "description": "Iterations per chain.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "allow_nonconvergence",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> converged=False instead of stop.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "stan_sample",
+   "card_id": 68,
+   "register": null,
+   "input_example": {
+    "model": "<raw_handle>",
+    "data": "<raw_handle>",
+    "seed": 1,
+    "chains": 2,
+    "iter": 1000,
+    "rhat_max": 1.01,
+    "ess_min": 400,
+    "allow_nonconvergence": false
+   },
+   "arguments": [
+    {
+     "name": "model",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a compiled stanmodel (from stan_compile).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a GENUINE named data list matching the Stan data block (numeric, finite).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED seed (the Stan RNG is not affected by seeded· default RANDOM).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chains",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of chains (>=2 required: the split-R-hat of one chain does not detect non-convergence).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "iter",
+     "kind": "integer",
+     "required": false,
+     "description": "Iterations per chain (default 1000, warmup=iter/2).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "algorithm",
+     "kind": "enum",
+     "required": false,
+     "description": "Sampler (only NUTS).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "NUTS"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "rhat_max",
+     "kind": "number",
+     "required": false,
+     "description": "Threshold of the rank-normalized split-R-hat (hard gate, default 1.01).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.01,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "ess_min",
+     "kind": "number",
+     "required": false,
+     "description": "Minimum Bulk/Tail ESS (hard gate, default 400).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 400,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "allow_nonconvergence",
+     "kind": "boolean",
+     "required": false,
+     "description": "True -> returns draws with converged=False instead of stopping on non-convergence.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "stan_syntax_check",
+   "card_id": 68,
+   "register": null,
+   "input_example": {
+    "model_code": "...",
+    "model_name": "anon_model"
+   },
+   "arguments": [
+    {
+     "name": "model_code",
+     "kind": "string",
+     "required": true,
+     "description": "Stan model AS A STRING (sandboxed DSL, never evaluated as code here)· cheap stanc syntax pre-gate.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model_name",
+     "kind": "string",
+     "required": false,
+     "description": "Model name (default anon_model).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": "anon_model",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "smc_filter",
+   "card_id": 205,
+   "register": null,
+   "input_example": {
+    "code": "...",
+    "inits": "<raw_handle>",
+    "latentNodes": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "seed": 1,
+    "nParticles": 1000,
+    "thresh": 1,
+    "d": 0.99
+   },
+   "arguments": [
+    {
+     "name": "code",
+     "kind": "string",
+     "required": true,
+     "description": "BUGS-style state-space model definition AS A STRING (parse ONLY, injection-safe — no eval).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "inits",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a named list of initial values (covers ALL the top-level stochastic parameters).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "latentNodes",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Non-empty character vector of stochastic latent nodes in time order (e.g. ['x'] or ['x[1:10]']).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "REQUIRED single integer seed (reproducibility· seeded before the run).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "constants",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to a named list of constants/dimensions (e.g. Tn)· optional.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "raw_handle",
+     "required": false,
+     "description": "Handle to a named list of observations (WITHOUT NA -> silent MISSING-node imputation).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Particle filter· default bootstrap. Only bootstrap/auxiliary return logLik+ESS.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bootstrap",
+      "auxiliary",
+      "liuWest",
+      "ensembleKF"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nParticles",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of particles m for run(m) (integer >= 1· default 1000).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "params",
+     "kind": "series_codes",
+     "required": false,
+     "description": "(liuWest ONLY) top-level parameters to estimate· empty -> auto (top-level except latent).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "thresh",
+     "kind": "number",
+     "required": false,
+     "description": "(ONLY bootstrap) resampling threshold· MUST be == 1 (resample at every step => equally weighted mvEWSamples => correct per-time summaries)· thresh<1 is blocked.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "lookahead",
+     "kind": "enum",
+     "required": false,
+     "description": "(auxiliary ONLY) lookahead for the auxiliary weights· default simulate.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "simulate",
+      "mean"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "d",
+     "kind": "number",
+     "required": false,
+     "description": "(liuWest ONLY) discount factor in (0,1) — close to but NOT above 1 (default 0.99).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.99,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "probs",
+     "kind": "num_array",
+     "required": false,
+     "description": "Quantiles for the per-time filtered summaries (default 0.025/0.25/0.5/0.75/0.975).",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bt_loo_compare",
+   "card_id": 507,
+   "register": null,
+   "input_example": {
+    "fits": [
+     "<raw_handle>"
+    ],
+    "method": "loo",
+    "pointwise": true,
+    "scale": "log"
+   },
+   "arguments": [
+    {
+     "name": "fits",
+     "kind": "raw_handle_array",
+     "required": true,
+     "description": "Handles to fitted Bayesian models.",
+     "pointer_handle": true,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Criterion.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "loo",
+      "waic"
+     ],
+     "allowed_vars": null,
+     "default": "loo",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "pointwise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Return pointwise contributions.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "scale",
+     "kind": "enum",
+     "required": false,
+     "description": "Reporting scale.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "log",
+      "deviance",
+      "negative_log"
+     ],
+     "allowed_vars": null,
+     "default": "log",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "bt_stacking_weights",
+   "card_id": 507,
+   "register": null,
+   "input_example": {
+    "fits": [
+     "<raw_handle>"
+    ],
+    "method": "stacking",
+    "nboot": 1000
+   },
+   "arguments": [
+    {
+     "name": "fits",
+     "kind": "raw_handle_array",
+     "required": true,
+     "description": "Handles to fitted Bayesian models.",
+     "pointer_handle": true,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Weighting method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "stacking",
+      "pseudo_bma",
+      "pseudo_bma_bb"
+     ],
+     "allowed_vars": null,
+     "default": "stacking",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bt_bayes_factor",
+   "card_id": 508,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "parameter": "...",
+    "null_value": 0.0,
+    "method": "savage_dickey"
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted Bayesian model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "parameter",
+     "kind": "string",
+     "required": true,
+     "description": "Parameter tested.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "null_value",
+     "kind": "number",
+     "required": false,
+     "description": "Null value.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "savage_dickey",
+      "bridge_sampling"
+     ],
+     "allowed_vars": null,
+     "default": "savage_dickey",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  },
+  {
+   "fn": "bt_rope",
+   "card_id": 508,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "parameter": "...",
+    "rope": [
+     1.0,
+     2.0
+    ],
+    "hdi_prob": 0.94
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted Bayesian model.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "parameter",
+     "kind": "string",
+     "required": true,
+     "description": "Parameter assessed.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "rope",
+     "kind": "num_array",
+     "required": true,
+     "description": "Bounds of the region of practical equivalence.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "hdi_prob",
+     "kind": "number",
+     "required": false,
+     "description": "Credible interval mass.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.94,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "bt_variational",
+   "card_id": 509,
+   "register": {
+    "field": "approximation"
+   },
+   "input_example": {
+    "model": "...",
+    "data": "<df_handle>",
+    "method": "pathfinder",
+    "n_iterations": 20000,
+    "draws": 1000,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "model",
+     "kind": "raw",
+     "required": true,
+     "description": "Model specification.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Approximation method.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "advi",
+      "fullrank_advi",
+      "pathfinder",
+      "laplace",
+      "map"
+     ],
+     "allowed_vars": null,
+     "default": "pathfinder",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_iterations",
+     "kind": "integer",
+     "required": false,
+     "description": "Optimiser iterations.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "draws",
+     "kind": "integer",
+     "required": false,
+     "description": "Draws from the approximation.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bt_prior_predictive",
+   "card_id": 510,
+   "register": null,
+   "input_example": {
+    "model": "...",
+    "draws": 1000,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "model",
+     "kind": "raw",
+     "required": true,
+     "description": "Model specification.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "draws",
+     "kind": "integer",
+     "required": false,
+     "description": "Prior draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "checks",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Summaries to compute on the simulated data.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bt_elicit_prior",
+   "card_id": 510,
+   "register": null,
+   "input_example": {
+    "quantiles": [
+     1.0,
+     2.0
+    ],
+    "values": [
+     1.0,
+     2.0
+    ],
+    "family": "auto"
+   },
+   "arguments": [
+    {
+     "name": "quantiles",
+     "kind": "num_array",
+     "required": true,
+     "description": "Quantile levels.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "values",
+     "kind": "num_array",
+     "required": true,
+     "description": "Values at those quantiles.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "family",
+     "kind": "enum",
+     "required": false,
+     "description": "Distribution family.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "auto",
+      "normal",
+      "lognormal",
+      "beta",
+      "gamma",
+      "student_t"
+     ],
+     "allowed_vars": null,
+     "default": "auto",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "lower",
+     "kind": "number",
+     "required": false,
+     "description": "Hard lower bound.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "upper",
+     "kind": "number",
+     "required": false,
+     "description": "Hard upper bound.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bt_bart",
+   "card_id": 511,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<df_handle>",
+    "n_trees": 50,
+    "draws": 2000,
+    "warmup": 1000,
+    "response": "continuous",
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Covariate table.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_trees",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of trees.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 50,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "draws",
+     "kind": "integer",
+     "required": false,
+     "description": "Posterior draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "warmup",
+     "kind": "integer",
+     "required": false,
+     "description": "Warm-up draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "response",
+     "kind": "enum",
+     "required": false,
+     "description": "Response type.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "continuous",
+      "binary",
+      "count"
+     ],
+     "allowed_vars": null,
+     "default": "continuous",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "bt_gaussian_process",
+   "card_id": 512,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "y": "<series_handle>",
+    "x": "<multiseries_handle>",
+    "kernel": "matern52",
+    "approximation": "none",
+    "n_inducing": 100,
+    "draws": 1000,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Inputs.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "kernel",
+     "kind": "enum",
+     "required": false,
+     "description": "Covariance kernel.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "rbf",
+      "matern32",
+      "matern52",
+      "periodic",
+      "linear",
+      "white"
+     ],
+     "allowed_vars": null,
+     "default": "matern52",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "approximation",
+     "kind": "enum",
+     "required": false,
+     "description": "Approximation for large samples.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "none",
+      "sparse",
+      "hsgp"
+     ],
+     "allowed_vars": null,
+     "default": "none",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_inducing",
+     "kind": "integer",
+     "required": false,
+     "description": "Inducing points for a sparse fit.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "draws",
+     "kind": "integer",
+     "required": false,
+     "description": "Posterior draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  }
+ ]
+}

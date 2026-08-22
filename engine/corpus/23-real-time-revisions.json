@@ -1,0 +1,866 @@
+{
+ "category": "23-real-time-revisions",
+ "cards": [
+  {
+   "id": 229,
+   "method": "Real-time data-revision analysis (vintages: a triangle, revision statistics, news-vs-noise/efficiency tests, a state-space nowcast)",
+   "wrapper_file": "c23_real_time_revisions/real_time_revision.py",
+   "tool_fns": [
+    "build_revision_triangle",
+    "compute_revisions",
+    "analyze_revisions",
+    "first_efficient_release",
+    "nowcast_revisions"
+   ],
+   "when": "successive releases/vintages of the SAME macro series (real-time data) -> a revision triangle, revision summary statistics, news-vs-noise/bias/efficiency tests, or a state-space efficient final-estimate nowcast",
+   "when_not": "a single release (no vintage dimension); business-cycle dating (#88); plain forecast evaluation without vintages (#74-77); data ingestion (a file upload — a frontend route, not a node)",
+   "alternatives": [
+    {
+     "alt": "build_revision_triangle",
+     "criterion": "you want a simple overview/heatmap of the revision table (wide: reference periods x publication dates)"
+    },
+    {
+     "alt": "compute_revisions (mode=interval/nth_release/ref_date)",
+     "criterion": "you want the VALUES of the revisions relative to one reference; nth_release='latest' => the total revision (to the final release)"
+    },
+    {
+     "alt": "analyze_revisions (get_revision_analysis, degree 1.5)",
+     "criterion": "you want statistics + tests: bias/MAR/noise-to-signal/correlation/Theil and news-vs-noise (Mankiw-Shapiro)"
+    },
+    {
+     "alt": "first_efficient_release (Mincer-Zarnowitz, Aruoba 2008)",
+     "criterion": "you want to find the first release that is unbiased & efficient (b0=0 & b1=1, HAC)"
+    },
+    {
+     "alt": "nowcast_revisions (method=jvn/kk)",
+     "criterion": "you want a state-space 'efficient' estimate of the final value (Jacobs-van Norden news/noise or Kishor-Koenig)"
+    }
+   ],
+   "output_key_fields": [
+    "triangle: a matrix of reference periods against vintages, plus n_obs_per_period, the number of observed values per period",
+    "revisions: a frame {pub_date, time, revision} plus a summary (mean/sd/MAR/min/max, n_revisions counting the observed ones, n_missing)",
+    "sign_convention (compute_revisions): a mode-dependent string that travels WITH the numbers — 'revision = final - release' when nth_release='latest', against 'revision = reference - vintage (older - newer)' for an interval, a small nth_release, or a reference date; the OPPOSITE polarity from the sign_convention of analyze_revisions, which is 'final - initial'",
+    "revision_summary: a data_frame with one row per release (Bias(mean), MAR, noise/signal, Correlation, Theil's U, the news/noise test coefficient + p)",
+    "first_efficient_release: e, 0-indexed and blank when there is none, plus a tests frame {release, F_stat, p_value, efficient}",
+    "nowcast: the states and params frames, loglik/aic/bic/convergence/converged, and the raw fit as a stub"
+   ],
+   "interpretation_traps": [
+    "TWO different sign conventions: compute_revisions revision = REFERENCE - VINTAGE (nth_release='latest' => final - initial; interval/a small nth_release => NEGATIVE values for an upward-trending series); analyze_revisions revision = final - initial",
+    "news/noise polarity: the News test = a regression of the revision on the INITIAL value; the Noise test = a regression on the FINAL value (the coefficient point estimates coincide with a plain lm; HAC changes ONLY the SE/p-value)",
+    "the get_revision_analysis columns depend on the degree (1=magnitude/bias, 2=correlation, 3=news/noise, 4=Theil/sign, 5=all 38)",
+    "first_efficient_release: e is 0-indexed, so 0 means the first release is already efficient; when there is none it comes back blank with a warning — a valid result, not an error",
+    "nowcast: e MUST be >0 AND e<n_releases; the MLE is deterministic (identical when seeded); a small sample -> boundary/degenerate parameters",
+    "the node handles ONE series: several id values are blocked by a gate; unobserved revisions do NOT inflate n, since n_revisions counts only the observed ones",
+    "diagnose WAS OMITTED (a console-printing helper); the same statistics are exposed machine-readably by analyze_revisions"
+   ],
+   "sources": [
+    "Mankiw-Shapiro 1986 'News or Noise? An Analysis of GNP Revisions' Survey of Current Business (news vs noise)",
+    "Aruoba 2008 'Data Revisions Are Not Well Behaved' Journal of Money, Credit and Banking 40(2-3) 319-340 (the efficient release / Mincer-Zarnowitz test)",
+    "Jacobs & van Norden 2011 'Modeling data revisions: Measurement error and dynamics of true values' Journal of Econometrics 161(1) 101-109 (the jvn nowcast)",
+    "Kishor & Koenig 2012 'VAR Estimation and Forecasting When Data Are Subject to Revision' Journal of Business & Economic Statistics 30(2) 181-190 (the kk nowcast)",
+    "wrapper footer IMPLEMENTATION NOTE (c23_real_time_revisions/real_time_revision)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 565,
+   "method": "Pseudo-real-time vintage construction from publication lags",
+   "wrapper_file": "c23_real_time_revisions/vintage_construction.py",
+   "tool_fns": [
+    "rt_construct_vintages"
+   ],
+   "when": "an honest out-of-sample exercise needs the data as they were, and a full vintage archive is rarely available",
+   "when_not": "a true vintage archive exists and should be used instead; the publication calendar is unknown",
+   "alternatives": [
+    {
+     "alt": "true vintage archive",
+     "criterion": "the correct approach when available"
+    },
+    {
+     "alt": "pseudo-real-time from publication lags",
+     "criterion": "approximate what was available"
+    },
+    {
+     "alt": "ignoring vintages",
+     "criterion": "acceptable only for series that are never revised"
+    }
+   ],
+   "output_key_fields": [
+    "vintages: the constructed data as of each date",
+    "ragged_edge: the availability pattern at each vintage",
+    "publication_lags: the lags applied per series",
+    "coverage: how much of each vintage is real rather than assumed"
+   ],
+   "interpretation_traps": [
+    "PSEUDO-REAL-TIME CAPTURES THE RAGGED EDGE BUT NOT REVISIONS: it reproduces what was available, not what the values then were, and for heavily revised series that is the larger error",
+    "publication lags change over time and across statistical agencies; a constant lag is an approximation that biases early vintages",
+    "using final data in a forecast evaluation overstates accuracy, sometimes dramatically for real-activity series"
+   ],
+   "sources": [
+    "Croushore & Stark 2001 (Journal of Econometrics 105:111-130)",
+    "Stark & Croushore 2002 (Journal of Macroeconomics 24:507)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 566,
+   "method": "Real-time forecast evaluation conventions",
+   "wrapper_file": "c23_real_time_revisions/realtime_evaluation.py",
+   "tool_fns": [
+    "rt_realtime_evaluation"
+   ],
+   "when": "which vintage counts as the truth changes the measured accuracy, and the choice must be stated rather than defaulted",
+   "when_not": "the series is never revised, where the question does not arise",
+   "alternatives": [
+    {
+     "alt": "first release as actual",
+     "criterion": "forecasting what will be published"
+    },
+    {
+     "alt": "latest vintage as actual",
+     "criterion": "forecasting the true value"
+    },
+    {
+     "alt": "fixed-lag vintage",
+     "criterion": "a compromise, released a stated number of periods later"
+    }
+   ],
+   "output_key_fields": [
+    "metrics: accuracy under each actual convention",
+    "convention: which vintage was treated as truth",
+    "revision_contribution: how much of the error is revision rather than forecast error",
+    "sensitivity: how the ranking of methods changes across conventions"
+   ],
+   "interpretation_traps": [
+    "THE RANKING OF FORECASTING METHODS CAN REVERSE between the first-release and final-vintage conventions; reporting one without the other is a choice that can determine the conclusion",
+    "forecasting the final value is a harder problem than forecasting the first release, and includes predicting the revision",
+    "revision noise is not forecast error, and separating them is the point of running both conventions"
+   ],
+   "sources": [
+    "Croushore 2011 (Journal of Economic Literature 49:72-100)",
+    "Clark & McCracken 2009 (International Economic Review 50:363)",
+    "utilsforecast"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 567,
+   "method": "Revision-aware seasonal-adjustment diagnostics",
+   "wrapper_file": "c23_real_time_revisions/revision_diagnostics.py",
+   "tool_fns": [
+    "rt_revision_diagnostics"
+   ],
+   "when": "seasonal adjustment revises past values as new data arrive, and the size of those revisions is a property of the adjustment, not of the economy",
+   "when_not": "the series is not seasonally adjusted; the archive is too short for sliding spans",
+   "alternatives": [
+    {
+     "alt": "sliding spans",
+     "criterion": "stability of the adjustment across overlapping samples"
+    },
+    {
+     "alt": "revision history",
+     "criterion": "how much the adjusted values move as data arrive"
+    },
+    {
+     "alt": "concurrent versus final comparison",
+     "criterion": "the practical size of the problem"
+    }
+   ],
+   "output_key_fields": [
+    "sliding_spans: maximum percentage difference across spans",
+    "revision_history: revisions to adjusted values by vintage",
+    "unstable_periods: periods failing the stability threshold",
+    "concurrent_vs_final: the systematic gap"
+   ],
+   "interpretation_traps": [
+    "A SERIES CAN PASS EVERY IN-SAMPLE ADJUSTMENT DIAGNOSTIC AND STILL REVISE HEAVILY; sliding spans and revision history are the only checks that see this",
+    "the conventional sliding-span thresholds are rules of thumb from the Census Bureau, not statistical tests",
+    "forecast extension at the end of the sample is what drives most of the revision, so the last observations are always the least reliable"
+   ],
+   "sources": [
+    "Findley, Monsell, Shulman & Pugh 1990 (Journal of Business and Economic Statistics 8:1-16)",
+    "U.S. Census Bureau X-13ARIMA-SEATS Reference Manual",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  },
+  {
+   "id": 568,
+   "method": "Vintage-aware data access",
+   "wrapper_file": "c23_real_time_revisions/vintage_access.py",
+   "tool_fns": [
+    "rt_read_vintages"
+   ],
+   "when": "reading vintage data from statistical services that publish revision history, so a real-time exercise uses real vintages",
+   "when_not": "no vintage archive is published for the series; the engine must not reach the network -- this routes through the external-data node",
+   "alternatives": [
+    {
+     "alt": "published vintage archives",
+     "criterion": "the series has a real-time database"
+    },
+    {
+     "alt": "pseudo-real-time construction",
+     "criterion": "no archive exists"
+    },
+    {
+     "alt": "first-release series",
+     "criterion": "only the initial estimates are needed"
+    }
+   ],
+   "output_key_fields": [
+    "vintages: the retrieved vintage panel",
+    "vintage_dates: the dates available",
+    "source: which archive the data came from",
+    "coverage: series and periods actually returned"
+   ],
+   "interpretation_traps": [
+    "THIS NODE DOES NOT REACH THE NETWORK ITSELF: retrieval is delegated to the external-data node, and the engine's no-network property is preserved -- passing it a live endpoint is a contract violation",
+    "vintage dates are not release dates; a vintage labelled by month can contain data released at various points within it",
+    "archives differ in whether they store the full series at each vintage or only the changed observations"
+   ],
+   "sources": [
+    "Croushore & Stark 2001 (Journal of Econometrics 105:111-130)",
+    "SDMX 2.1 Technical Specification"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "analyze_revisions",
+   "card_id": 229,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "n_releases": 3,
+    "degree": 5
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long vintage DataFrame {time, pub_date, value}.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_releases",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of initial releases to analyze (0..n_releases; default 3).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "final_release",
+     "kind": "string",
+     "required": false,
+     "description": "Final release as benchmark: \"latest\" (default) or an integer-string (e.g. \"10\").",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "degree",
+     "kind": "integer",
+     "required": false,
+     "description": "Detail level 1..5 (default 5=all): 1 magnitude/bias; 2 correlation; 3 news/noise tests; 4 Theil/sign/seasonality; 5 full.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "build_revision_triangle",
+   "card_id": 229,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>"
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long vintage DataFrame {time(Date), pub_date(Date), value(numeric)} of A SINGLE series; >= 2 vintages & >= 2 reference periods.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "compute_revisions",
+   "card_id": 229,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "interval": 1
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long vintage DataFrame {time, pub_date, value}.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "mode",
+     "kind": "enum",
+     "required": false,
+     "description": "Revision-computation reference (default interval): interval=lag in vintages; nth_release=nth release; ref_date=fixed publication date.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "interval",
+      "nth_release",
+      "ref_date"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "interval",
+     "kind": "integer",
+     "required": false,
+     "description": "mode='interval': positive integer lag in vintages (default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "nth_release",
+     "kind": "string",
+     "required": false,
+     "description": "mode='nth_release': \"latest\" or a non-negative integer (as a string, e.g. \"0\").",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ref_date",
+     "kind": "string",
+     "required": false,
+     "description": "mode='ref_date': publication date 'YYYY-MM-DD' that EXISTS in the data.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "first_efficient_release",
+   "card_id": 229,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "n_releases": 5,
+    "significance": 0.05,
+    "robust": true,
+    "test_all": false
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long vintage DataFrame {time, pub_date, value}.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_releases",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of releases to check (0..n_releases; default 5).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 5,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "final_release",
+     "kind": "string",
+     "required": false,
+     "description": "Final release benchmark: \"latest\" (default) or an integer-string.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "significance",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level of the joint MZ test in (0,1) (default 0.05).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "robust",
+     "kind": "boolean",
+     "required": false,
+     "description": "HAC (Newey-West) robust standard errors (default True).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "test_all",
+     "kind": "boolean",
+     "required": false,
+     "description": "Check of ALL releases (default False = stop at the 1st efficient one).",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  },
+  {
+   "fn": "nowcast_revisions",
+   "card_id": 229,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "e": 1,
+    "n_releases": 6,
+    "h": 0,
+    "seed": 1
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long vintage DataFrame {time, pub_date, value}.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "e",
+     "kind": "integer",
+     "required": true,
+     "description": "Index of the first efficient release (> 0; from first_efficient_release.e); e < n_releases is required.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_releases",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of releases for the state-space (0..n_releases; default 6).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 6,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Model (default jvn): jvn=Jacobs-van Norden news/noise; kk=Kishor-Koenig.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "jvn",
+      "kk"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "h",
+     "kind": "integer",
+     "required": false,
+     "description": "Forecast horizon (non-negative integer; default 0).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed before the MLE (determinism; default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "rt_construct_vintages",
+   "card_id": 565,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "publication_lags": "<df_handle>"
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Final-vintage panel.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "publication_lags",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Publication lag per series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "vintage_dates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Vintage dates; omitted = every period.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "calendar",
+     "kind": "df_handle",
+     "required": false,
+     "description": "Explicit release calendar overriding the lags.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "rt_realtime_evaluation",
+   "card_id": 566,
+   "register": null,
+   "input_example": {
+    "forecasts": "<df_handle>",
+    "vintages": "<df_handle>",
+    "fixed_lag": 12
+   },
+   "arguments": [
+    {
+     "name": "forecasts",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Forecasts by origin and horizon.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "vintages",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Vintage data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conventions",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Conventions to evaluate; omitted = all three.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "fixed_lag",
+     "kind": "integer",
+     "required": false,
+     "description": "Periods after first release for the fixed-lag convention.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 12,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "metrics",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Metrics to compute.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "rt_revision_diagnostics",
+   "card_id": 567,
+   "register": null,
+   "input_example": {
+    "y": "<series_handle>",
+    "n_spans": 4,
+    "span_length": 8,
+    "threshold": 3.0
+   },
+   "arguments": [
+    {
+     "name": "y",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Unadjusted series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_spans",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of overlapping spans.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 4,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "span_length",
+     "kind": "integer",
+     "required": false,
+     "description": "Span length in years.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 8,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "threshold",
+     "kind": "number",
+     "required": false,
+     "description": "Percentage difference regarded as unstable.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3.0,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rt_read_vintages",
+   "card_id": 568,
+   "register": null,
+   "input_example": {
+    "path": "store://<bucket>/uploads/<sha256>.parquet",
+    "series": [
+     "a",
+     "b"
+    ],
+    "format": "long"
+   },
+   "arguments": [
+    {
+     "name": "path",
+     "kind": "path",
+     "materialize": "dir",
+     "required": true,
+     "description": "Object-store path to the archive extract.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "series",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Series identifiers to read.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "vintage_dates",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Vintage dates to read; omitted = all.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "format",
+     "kind": "enum",
+     "required": false,
+     "description": "Archive layout.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "long",
+      "wide",
+      "triangle"
+     ],
+     "allowed_vars": null,
+     "default": "long",
+     "has_default": true,
+     "default_json_type": "string"
+    }
+   ]
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``distributed_lag_ardl`` -- METHOD-SELECTION card #137.
+"""Method wrapper ``distributed_lag_ardl`` -- method card #137.
 
 #137 Distributed-lag & ARDL regression (finite DL / Koyck geometric / autoregressive DL / Almon
     polynomial DL)
@@ -8,8 +8,8 @@ Category 02-univariate-forecasting; module ``distributed_lag_ardl``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -25,16 +25,16 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "dlm_ardl",
-    "dlm_finite",
-    "dlm_koyck",
-    "dlm_poly",
+    "dlag_almon",
+    "dlag_ardl",
+    "dlag_finite",
+    "dlag_koyck",
     "NODE_META",
     "wire_model",
 ]
 
 
-def dlm_finite(
+def dlag_finite(
     *,
     x: pd.Series | None = None,
     y: pd.Series | None = None,
@@ -44,7 +44,7 @@ def dlm_finite(
     q: int,
     remove: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``dlm_finite`` -- METHOD-SELECTION card #137.
+    """Node ``dlag_finite`` -- method card #137.
 
     Distributed-lag & ARDL regression (finite DL / Koyck geometric / autoregressive DL / Almon
     polynomial DL).
@@ -69,17 +69,17 @@ def dlm_finite(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dlm_finite: not implemented. The method card is in ./README.md."
+        "dlag_finite: not implemented."
     )
 
 
-def dlm_koyck(
+def dlag_koyck(
     *,
     x: pd.Series,
     y: pd.Series,
     intercept: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dlm_koyck`` -- METHOD-SELECTION card #137.
+    """Node ``dlag_koyck`` -- method card #137.
 
     Distributed-lag & ARDL regression (finite DL / Koyck geometric / autoregressive DL / Almon
     polynomial DL).
@@ -98,11 +98,11 @@ def dlm_koyck(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dlm_koyck: not implemented. The method card is in ./README.md."
+        "dlag_koyck: not implemented."
     )
 
 
-def dlm_ardl(
+def dlag_ardl(
     *,
     x: pd.Series | None = None,
     y: pd.Series | None = None,
@@ -113,7 +113,7 @@ def dlm_ardl(
     q: int | None = None,
     remove: Any | None = None,
 ) -> dict[str, Any]:
-    """Node ``dlm_ardl`` -- METHOD-SELECTION card #137.
+    """Node ``dlag_ardl`` -- method card #137.
 
     Distributed-lag & ARDL regression (finite DL / Koyck geometric / autoregressive DL / Almon
     polynomial DL).
@@ -139,11 +139,11 @@ def dlm_ardl(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dlm_ardl: not implemented. The method card is in ./README.md."
+        "dlag_ardl: not implemented."
     )
 
 
-def dlm_poly(
+def dlag_almon(
     *,
     x: pd.Series,
     y: pd.Series,
@@ -151,7 +151,7 @@ def dlm_poly(
     k: int,
     show_beta: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``dlm_poly`` -- METHOD-SELECTION card #137.
+    """Node ``dlag_almon`` -- method card #137.
 
     Distributed-lag & ARDL regression (finite DL / Koyck geometric / autoregressive DL / Almon
     polynomial DL).
@@ -171,5 +171,5 @@ def dlm_poly(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "dlm_poly: not implemented. The method card is in ./README.md."
+        "dlag_almon: not implemented."
     )

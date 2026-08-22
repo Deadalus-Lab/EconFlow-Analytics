@@ -1,2 +1,2 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Wrappers for METHOD-SELECTION category 06-volatility-regimes."""
+"""Wrappers for category 06-volatility-regimes."""

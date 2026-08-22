@@ -2,7 +2,7 @@
 """Closed vocabularies, read from the artifact -- never hard-coded here.
 
 Every name in this module comes from the ``vocabulary`` block of
-``artifacts/node-specs.v1.json``, the sealed contract, which the
+``artifacts/node-specs.json``, the sealed contract, which the
 generated tier copies verbatim. Re-typing any of these lists by hand would create
 a second source of truth that drifts silently the moment the engine adds a kind
 or a forecast function.

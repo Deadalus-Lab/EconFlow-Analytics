@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``markov_switching_garch`` -- METHOD-SELECTION card #31.
+"""Method wrapper ``markov_switching_garch`` -- method card #31.
 
 #31 Markov-switching GARCH
 
@@ -7,8 +7,8 @@ Category 06-volatility-regimes; module ``markov_switching_garch``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def msg_spec(
     K: int | None = None,
     do_mix: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``msg_spec`` -- METHOD-SELECTION card #31.
+    """Node ``msg_spec`` -- method card #31.
 
     Markov-switching GARCH.
 
@@ -61,7 +61,7 @@ def msg_spec(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msg_spec: not implemented. The method card is in ./README.md."
+        "msg_spec: not implemented."
     )
 
 
@@ -70,7 +70,7 @@ def msg_fit_ml(
     spec: Any,
     data: pd.Series,
 ) -> dict[str, Any]:
-    """Node ``msg_fit_ml`` -- METHOD-SELECTION card #31.
+    """Node ``msg_fit_ml`` -- method card #31.
 
     Markov-switching GARCH.
 
@@ -86,7 +86,7 @@ def msg_fit_ml(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msg_fit_ml: not implemented. The method card is in ./README.md."
+        "msg_fit_ml: not implemented."
     )
 
 
@@ -95,7 +95,7 @@ def msg_fit_mcmc(
     spec: Any,
     data: pd.Series,
 ) -> dict[str, Any]:
-    """Node ``msg_fit_mcmc`` -- METHOD-SELECTION card #31.
+    """Node ``msg_fit_mcmc`` -- method card #31.
 
     Markov-switching GARCH.
 
@@ -111,7 +111,7 @@ def msg_fit_mcmc(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msg_fit_mcmc: not implemented. The method card is in ./README.md."
+        "msg_fit_mcmc: not implemented."
     )
 
 
@@ -121,7 +121,7 @@ def msg_predict(
     nahead: int | None = None,
     do_cumulative: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``msg_predict`` -- METHOD-SELECTION card #31.
+    """Node ``msg_predict`` -- method card #31.
 
     Markov-switching GARCH.
 
@@ -138,7 +138,7 @@ def msg_predict(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msg_predict: not implemented. The method card is in ./README.md."
+        "msg_predict: not implemented."
     )
 
 
@@ -146,7 +146,7 @@ def msg_state(
     *,
     fit: Any,
 ) -> dict[str, Any]:
-    """Node ``msg_state`` -- METHOD-SELECTION card #31.
+    """Node ``msg_state`` -- method card #31.
 
     Markov-switching GARCH.
 
@@ -160,7 +160,7 @@ def msg_state(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msg_state: not implemented. The method card is in ./README.md."
+        "msg_state: not implemented."
     )
 
 
@@ -171,7 +171,7 @@ def msg_sim(
     nahead: int | None = None,
     nburn: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``msg_sim`` -- METHOD-SELECTION card #31.
+    """Node ``msg_sim`` -- method card #31.
 
     Markov-switching GARCH.
 
@@ -188,7 +188,7 @@ def msg_sim(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msg_sim: not implemented. The method card is in ./README.md."
+        "msg_sim: not implemented."
     )
 
 
@@ -198,7 +198,7 @@ def msg_risk(
     do_es: bool | None = None,
     nahead: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``msg_risk`` -- METHOD-SELECTION card #31.
+    """Node ``msg_risk`` -- method card #31.
 
     Markov-switching GARCH.
 
@@ -214,5 +214,5 @@ def msg_risk(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "msg_risk: not implemented. The method card is in ./README.md."
+        "msg_risk: not implemented."
     )

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``general_bayesian_inference`` -- METHOD-SELECTION card #68.
+"""Method wrapper ``general_bayesian_inference`` -- method card #68.
 
 #68 General Bayesian inference via Stan (NUTS-only + convergence gate)
 
@@ -7,8 +7,8 @@ Category 14-bayesian-toolkit; module ``general_bayesian_inference``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -20,21 +20,21 @@ from econflow_engine.generated.args.c14_bayesian_toolkit import NODE_META, wire_
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "rs_compile",
-    "rs_fit",
-    "rs_sample",
-    "rs_syntax_check",
+    "stan_compile",
+    "stan_fit",
+    "stan_sample",
+    "stan_syntax_check",
     "NODE_META",
     "wire_model",
 ]
 
 
-def rs_syntax_check(
+def stan_syntax_check(
     *,
     model_code: str,
     model_name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``rs_syntax_check`` -- METHOD-SELECTION card #68.
+    """Node ``stan_syntax_check`` -- method card #68.
 
     General Bayesian inference via Stan (NUTS-only + convergence gate).
 
@@ -49,16 +49,16 @@ def rs_syntax_check(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rs_syntax_check: not implemented. The method card is in ./README.md."
+        "stan_syntax_check: not implemented."
     )
 
 
-def rs_compile(
+def stan_compile(
     *,
     model_code: str,
     model_name: str | None = None,
 ) -> dict[str, Any]:
-    """Node ``rs_compile`` -- METHOD-SELECTION card #68.
+    """Node ``stan_compile`` -- method card #68.
 
     General Bayesian inference via Stan (NUTS-only + convergence gate).
 
@@ -75,11 +75,11 @@ def rs_compile(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rs_compile: not implemented. The method card is in ./README.md."
+        "stan_compile: not implemented."
     )
 
 
-def rs_sample(
+def stan_sample(
     *,
     model: Any,
     data: Any,
@@ -91,17 +91,17 @@ def rs_sample(
     ess_min: float | None = None,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rs_sample`` -- METHOD-SELECTION card #68.
+    """Node ``stan_sample`` -- method card #68.
 
     General Bayesian inference via Stan (NUTS-only + convergence gate).
 
     Category 14-bayesian-toolkit; memory class ``mcmc``.
 
     Args:
-        model: [raw_handle, required] Handle to a compiled stanmodel (from rs_compile).
+        model: [raw_handle, required] Handle to a compiled stanmodel (from stan_compile).
         data: [raw_handle, required] Handle to a GENUINE named data list matching the Stan data
             block (numeric, finite).
-        seed: [integer, required] REQUIRED seed (the Stan RNG is not affected by set.seed· default
+        seed: [integer, required] REQUIRED seed (the Stan RNG is not affected by seeded· default
             RANDOM).
         chains: [integer, optional] Number of chains (>=2 required: the split-R-hat of one chain
             does not detect non-convergence). Default ``2``.
@@ -118,11 +118,11 @@ def rs_sample(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rs_sample: not implemented. The method card is in ./README.md."
+        "stan_sample: not implemented."
     )
 
 
-def rs_fit(
+def stan_fit(
     *,
     model_code: str,
     data: Any,
@@ -132,7 +132,7 @@ def rs_fit(
     iter: int | None = None,
     allow_nonconvergence: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``rs_fit`` -- METHOD-SELECTION card #68.
+    """Node ``stan_fit`` -- method card #68.
 
     General Bayesian inference via Stan (NUTS-only + convergence gate).
 
@@ -152,5 +152,5 @@ def rs_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "rs_fit: not implemented. The method card is in ./README.md."
+        "stan_fit: not implemented."
     )

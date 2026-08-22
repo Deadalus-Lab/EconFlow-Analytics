@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``network_estimation_time`` -- METHOD-SELECTION card #181.
+"""Method wrapper ``network_estimation_time`` -- method card #181.
 
 #181 Network estimation for time series — a sparse VAR (Granger network) + a
     concentration/partial-correlation network via the NETS LASSO
@@ -8,8 +8,8 @@ Category 09-cross-section-networks; module ``network_estimation_time``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ def nets_fit(
     iter_out: int | None = None,
     seed: int | None = None,
 ) -> dict[str, Any]:
-    """Node ``nets_fit`` -- METHOD-SELECTION card #181.
+    """Node ``nets_fit`` -- method card #181.
 
     Network estimation for time series — a sparse VAR (Granger network) + a
     concentration/partial-correlation network via the NETS LASSO.
@@ -84,5 +84,5 @@ def nets_fit(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "nets_fit: not implemented. The method card is in ./README.md."
+        "nets_fit: not implemented."
     )

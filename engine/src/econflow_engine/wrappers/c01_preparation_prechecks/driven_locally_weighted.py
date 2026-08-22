@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""Method wrapper ``driven_locally_weighted`` -- METHOD-SELECTION card #127.
+"""Method wrapper ``driven_locally_weighted`` -- method card #127.
 
 #127 Data-driven locally-weighted regression decomposition of seasonality/trend (IPI optimal
     bandwidth) under short memory
@@ -8,8 +8,8 @@ Category 01-preparation-prechecks; module ``driven_locally_weighted``.
 
 Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
 
-See ``./README.md`` for when this method applies, what to reach for instead, and the interpretation
-traps recorded against it.
+See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
+interpretation traps recorded against it.
 """
 
 from __future__ import annotations
@@ -24,13 +24,13 @@ if TYPE_CHECKING:
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
 __all__ = [
-    "des_deseats",
+    "des_decompose",
     "NODE_META",
     "wire_model",
 ]
 
 
-def des_deseats(
+def des_decompose(
     *,
     y: pd.Series,
     order_poly: Literal["1", "3"] | None = None,
@@ -38,7 +38,7 @@ def des_deseats(
     inflation_rate: Literal["optimal", "naive"] | None = None,
     autocor: bool | None = None,
 ) -> dict[str, Any]:
-    """Node ``des_deseats`` -- METHOD-SELECTION card #127.
+    """Node ``des_decompose`` -- method card #127.
 
     Data-driven locally-weighted regression decomposition of seasonality/trend (IPI optimal
     bandwidth) under short memory.
@@ -63,5 +63,5 @@ def des_deseats(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
     """
     raise NotImplementedError(
-        "des_deseats: not implemented. The method card is in ./README.md."
+        "des_decompose: not implemented."
     )
