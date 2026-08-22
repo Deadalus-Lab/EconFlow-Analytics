@@ -2,9 +2,8 @@
 
 # EconFlow Analytics
 
-A node-based canvas for macroeconomic analysis. You wire econometric methods into a graph, and the
-graph runs as a durable directed acyclic graph. The reference point is KNIME, narrowed to
-macroeconomics.
+A node-based canvas for econometric analysis. You wire methods into a graph, one method to a node,
+and the graph runs as a durable directed acyclic graph.
 
 **Licence:** AGPL-3.0-only for this project's own work. One set of third-party material in the
 tree keeps its own terms, and [`NOTICE`](NOTICE) states what it requires of you.
