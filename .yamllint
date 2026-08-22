@@ -28,7 +28,7 @@
 #                  most important comment in the file.
 #
 # THE LINE LIMIT IS 140, AND IT IS A CEILING RATHER THAN A STYLE. Measured over
-# the tracked YAML, the longest line is 139 characters (ci.yml:881, a printf
+# the tracked YAML, the longest line is 139 characters (in ci.yml, a printf
 # that writes a canary file and cannot be wrapped without changing the bytes it
 # writes). The prose in these files wraps at roughly 80 by hand and needs no
 # machine to enforce it; what this rule catches is the genuinely runaway line --

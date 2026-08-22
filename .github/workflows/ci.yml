@@ -528,13 +528,24 @@ jobs:
       # uv itself comes from PyPI rather than from a setup action, because that
       # is one fewer third-party action to pin and review, and PyPI artifacts are
       # immutable: a released filename and its hash can never be replaced.
-      - name: Install uv, pinned
+      #
+      # PYYAML COMES FROM THE SAME PLACE AND GETS NO ENVIRONMENT OF ITS OWN,
+      # because it is not a linter: check-required-contexts.sh parses every
+      # workflow with `python3` itself. Without it that gate stops at "FAIL:
+      # PyYAML is required by this gate and is not installed" -- red rather than
+      # quietly green, which is the correct direction to fail in, but the gate
+      # never reads a workflow. uv declares no dependencies, so installing the
+      # two together cannot make either resolve differently.
+      - name: Install uv and PyYAML, pinned
         env:
           UV_VERSION: "0.10.10"
+          PYYAML_VERSION: "6.0.3"
         run: |
           set -euo pipefail
-          python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+          python3 -m pip install --disable-pip-version-check \
+            "uv==${UV_VERSION}" "PyYAML==${PYYAML_VERSION}"
           uv --version
+          python3 -c 'import yaml; print("PyYAML", yaml.__version__)'
 
       - name: actionlint
         env:
