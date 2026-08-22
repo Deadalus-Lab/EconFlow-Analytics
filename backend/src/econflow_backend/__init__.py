@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """EconFlow Analytics platform integration layer.
 
-Specified, not built. See docs/ROADMAP.md; the Galaxy work lands in Phases 9-10.
+Specified, not built. No integration code exists here yet, and none of the
+Galaxy work this layer will carry has started.
 
 This package exists now, empty, for one reason: the import-linter contract
 "No statistic is ever computed outside engine/" needs a root package to resolve

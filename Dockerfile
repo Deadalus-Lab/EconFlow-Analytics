@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+
 # ============================================================
 # Dockerfile — the EconFlow Analytics engine image.
 #
@@ -6,10 +8,10 @@
 # BUILD CONTEXT IS THE REPOSITORY ROOT, not engine/. That is not a convenience:
 # step 2a COPYs LICENSE, which the AGPL requires to accompany the binaries, and
 # a context rooted at engine/ could not reach it. The workspace manifest and the
-# single uv.lock also live at the root, for the reason in
-# docs/decisions/python-engine.md. Hence `engine/` prefixes on the COPY
-# *sources* and bare paths on the destinations, so the in-image layout is
-# unchanged.
+# single uv.lock also live at the root, because engine/ and backend/ are two
+# members of ONE uv workspace and a workspace has exactly one lockfile. Hence
+# `engine/` prefixes on the COPY *sources* and bare paths on the destinations,
+# so the in-image layout is unchanged.
 #
 # ON THE ENTRYPOINT. There is no long-running HTTP router and no healthcheck for
 # one. ARCHITECTURE.md §2 states that the engine is not a service: Galaxy starts
@@ -18,8 +20,26 @@
 # process that is *supposed* to exit would report a fault every time the design
 # worked.
 #
+# REPRODUCIBLE, AND MEASURED RATHER THAN CLAIMED. With SOURCE_DATE_EPOCH set and
+# BuildKit's rewrite-timestamp exporter, two consecutive builds of this file
+# produced BYTE-IDENTICAL OCI archives on 2026-08-20 -- 509893120 bytes,
+# sha256 edcba98949d223369b05e79f54295a2fe628258d4163bdb8dcbe7f2793a8f5e4, both
+# exporting manifest sha256:c6bb90d3fb74044596dfcb4afc905df5e455b360218ff7429cf65e2fbafd0bb4.
+# The builder stage was rebuilt from scratch on both runs (--no-cache-filter=builder),
+# so the agreement is not a cache artifact. Reproduce with:
+#
+#   export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+#   docker buildx build --no-cache-filter=builder \
+#     --output type=oci,dest=img.tar,rewrite-timestamp=true .
+#
+# Deriving the epoch from the commit is what makes it useful: the same commit
+# builds the same bytes, and a stranger can check that claim without asking us.
+# `--output type=docker` CANNOT be used for this -- BuildKit refuses
+# rewrite-timestamp with the docker exporter ("conflicts with unpack"), and the
+# image loaded into the local store is not reproducible.
+#
 # Multi-stage:
-#   base    — python:3.12-slim (exact pin, matches .python-version) + the small
+#   base    — python:3.12-slim, pinned BY DIGEST (see PYTHON_IMAGE_DIGEST) + the small
 #             set of system libraries the scientific wheels actually need.
 #             Nothing is compiled from source: manylinux wheels carry their own
 #             native code, which is why this stage is small: manylinux wheels carry their own native code.
@@ -33,8 +53,17 @@
 ARG PYTHON_VERSION=3.12
 ARG UV_VERSION=0.10.10
 
+# THE BASE IS PINNED BY DIGEST, AND THE TAG ALONE NEVER WAS. The comment at the
+# top of this file called `python:3.12-slim` an exact pin; it is not. Docker Hub
+# republishes that tag on every Debian security update, so glibc, and with it the
+# libraries installed by the unpinned apt-get below, could move under an image
+# whose whole claim is reproducibility. The `tag@digest` form keeps the tag
+# readable and fixes the bytes. Resolved with:
+#   docker inspect --format='{{index .RepoDigests 0}}' python:3.12-slim
+ARG PYTHON_IMAGE_DIGEST=sha256:2c941e860699f878900b0edc2403613c234d4b32eda3cc9fa7036991a2a63c4a
+
 # ---------- base: interpreter + system libraries (shared by builder & runtime) ----------
-FROM python:${PYTHON_VERSION}-slim AS base
+FROM python:${PYTHON_VERSION}-slim@${PYTHON_IMAGE_DIGEST} AS base
 
 # DETERMINISTIC LINEAR ALGEBRA. This is the direct sibling of the reference
 # netlib BLAS pin the engine image carried, and it exists for the same measured
@@ -46,10 +75,20 @@ FROM python:${PYTHON_VERSION}-slim AS base
 # removes that source of variation, and it is what the suite below is validated
 # against. THIS MUST BE PRESERVED. Removing it does not break the build; it
 # quietly stops the numbers being reproducible, which is worse.
+#
+# PYTHONHASHSEED, TZ AND THE LOCALE BELONG HERE TOO, and their absence had a
+# sharp edge: PYTHONHASHSEED reached the build only through run_verifications.sh
+# at step 3, so the gate proved the numbers under a fixed seed and the image then
+# shipped a CMD that ran under a random one. The base stage is inherited by both
+# builder and runtime, so declaring them here closes that gap in one place.
 ENV OPENBLAS_NUM_THREADS=1 \
     OMP_NUM_THREADS=1 \
     MKL_NUM_THREADS=1 \
     NUMEXPR_NUM_THREADS=1 \
+    PYTHONHASHSEED=0 \
+    TZ=UTC \
+    LC_ALL=C.UTF-8 \
+    LANG=C.UTF-8 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
@@ -86,8 +125,8 @@ RUN pip install --no-cache-dir "uv==${UV_VERSION}"
 #    member to honour that lock, which is why backend/pyproject.toml is copied
 #    here even though no backend code ships in this image.
 COPY pyproject.toml uv.lock ./
-COPY engine/pyproject.toml engine/README.md engine/
-COPY backend/pyproject.toml backend/README.md backend/
+COPY engine/pyproject.toml engine/
+COPY backend/pyproject.toml backend/
 # The backend package is empty and ships anyway, at a cost of two files. Step 3
 # of run_verifications.sh asserts "no statistic is ever computed outside
 # engine/" via import-linter, and that contract names econflow_backend as a root
@@ -106,27 +145,57 @@ RUN uv sync --locked --all-extras --no-install-workspace
 COPY engine/src/ engine/src/
 COPY engine/scripts/ engine/scripts/
 COPY engine/tests/ engine/tests/
-# The committed contract fixtures ARE part of the suite: it regenerates them in
-# memory and compares byte for byte. Without this COPY, step (3) below -- which
-# is a HARD BUILD GATE -- fails inside the image with a missing-fixture message.
-COPY engine/fixtures/ engine/fixtures/
 COPY engine/artifacts/ engine/artifacts/
+# THE CORPUS IS AN INPUT TO A HARD BUILD GATE, not documentation. gen_artifacts.py
+# rebuilds the v2 artifacts from engine/corpus/ and tests/test_gen_artifacts.py
+# rebuilds the v1 pair from it as the roundtrip proof. Without this COPY the suite
+# inside the image fails with FileNotFoundError on corpus/23-real-time-revisions.json
+# -- measured, 3 failures and 14 collection errors -- while the host suite is green,
+# which is the worst way to find out. check-dockerfile-paths.sh cannot catch it: that
+# gate proves no COPY source is stale, never that a needed path was copied at all.
+COPY engine/corpus/ engine/corpus/
 # The anti-vacuity floor for step 5 of run_verifications.sh. See .dockerignore:
 # excluded wholesale with this one file re-admitted, because a floor that cannot
 # be read is a floor that is not enforced.
 COPY .github/inventory.json .github/
+# STEPS 9 AND 10 ARE THESE TWO SCRIPTS. run_verifications.sh shells out to them
+# by path, so neither step exists inside the image unless the file does. Measured
+# on 2026-08-22 without them: bash exits 127, `|| fail` fires, and the build dies
+# printing "FAIL: a wrapper reaches the network; fetching belongs to the
+# external-data node" -- a message accusing the wrapper tree of a network call
+# when the real cause is an uncopied file, and step 10 never runs at all.
+# check-dockerfile-paths.sh cannot catch this class: it proves no COPY source is
+# stale, never that a needed path was copied.
+#
+# Neither script needs anything the image does not already hold.
+# check-no-network.sh parses engine/src/econflow_engine/wrappers and takes its
+# floor from the manifest above; assert.sh re-measures engine/ against that same
+# manifest, reading engine/tests, engine/artifacts and the workspace uv.lock --
+# all present here, and all still present when step 3 runs the gate, which is
+# what makes step 4 free to delete them afterwards.
+COPY .github/scripts/check-no-network.sh .github/scripts/
+COPY .github/actions/assert-inventory/assert.sh .github/actions/assert-inventory/
 COPY engine/run_verifications.sh engine/ruff.toml engine/.python-version engine/
-COPY engine/METHOD-SELECTION.md engine/METHOD-SELECTION.yaml \
-     engine/METHOD-SELECTION-TREES.yaml engine/METHOD-SOURCES.json engine/
+COPY engine/METHOD-SOURCES.json engine/
+# Step 8 of run_verifications.sh compares the 913 public wrapper signatures against
+# this committed baseline, and that step is a HARD BUILD GATE. Without the baseline
+# in the context the build fails inside the image with a missing-baseline message,
+# which reads like a broken gate rather than a missing file.
+COPY engine/api-baseline/ engine/api-baseline/
 
 # 2a) DISTRIBUTION COMPLIANCE — must travel WITH the binaries, not just live in
-#     the repo. The image ships third-party packages in binary form, so it has to
-#     carry: the engine's own licence text (verbatim AGPL-3.0, which the licence
-#     requires to accompany the binary), the attribution register, and the
-#     written offer for corresponding source. Regenerate the last two with
-#     `scripts/gen_third_party.py`; CI gates them against uv.lock.
+#     the repo. The image ships third-party packages in binary form, so it carries
+#     the engine's own licence text (verbatim AGPL-3.0, which the licence requires
+#     to accompany the binary) and the CycloneDX SBOM that names every shipped
+#     package and its licence. Regenerate the SBOM with
+#     `scripts/gen_third_party.py`; CI gates it against uv.lock.
+#
+#     THE ATTRIBUTION REGISTER IS NOT IN THIS IMAGE, and that is a gap rather
+#     than a decision this file can close: engine/THIRD-PARTY-LICENSES.md is no
+#     longer in the tree, so there is nothing to copy. The SBOM records which
+#     licences apply; it is not the verbatim text those licences require.
 COPY LICENSE ./
-COPY engine/THIRD-PARTY-LICENSES.md engine/sbom.cdx.json engine/
+COPY engine/sbom.cdx.json engine/
 
 # Install the engine itself, now that its source is present.
 RUN uv sync --locked --all-extras
@@ -139,8 +208,12 @@ RUN ./run_verifications.sh
 
 # 4) drop test-only content HERE (in the builder) so it never enters the layer
 #    runtime COPYs — a post-COPY rm only whiteouts, leaving the bytes in the
-#    shipped image.
-RUN rm -rf /app/engine/tests /app/engine/fixtures
+#    shipped image. The two gate scripts go with it: step 3 is the only thing
+#    that runs them and nothing in the runtime image does, so the container ships
+#    exactly what it shipped before they were copied. The manifest stays, as it
+#    always has.
+RUN rm -rf /app/engine/tests /app/engine/api-baseline /app/engine/corpus \
+           /app/.github/scripts /app/.github/actions
 
 # ---------- runtime: slim, non-root, one job per container ----------
 FROM base AS runtime
@@ -163,7 +236,7 @@ ENV PATH="/app/.venv/bin:${PATH}" \
 
 # non-root execution (the app owns only its dir; nothing here needs root).
 RUN useradd --create-home --uid 10001 appuser \
-    && chown -the engine appuser:appuser /app
+    && chown --recursive appuser:appuser /app
 USER appuser
 
 WORKDIR /app/engine

@@ -7,8 +7,8 @@
 #
 #   1. Resolve `engine/` and `backend/` TOGETHER into one `uv.lock`. Two
 #      independent resolutions could put the two members on different pydantic
-#      or pyarrow builds, and the wire contract in `econflow_engine.kinds` is
-#      validated on one side and consumed on the other.
+#      builds, and the wire contract in `econflow_engine.kinds` is validated on
+#      one side and consumed on the other.
 #   2. Pin the dependency snapshot in ONE place (`exclude-newer`). PyPI
 #      artefacts are immutable and `uv.lock` carries per-wheel hashes, so this
 #      is byte-pinning rather than version-pinning, and it does not depend on

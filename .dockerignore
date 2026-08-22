@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+
 # Build context is the REPOSITORY ROOT (the Dockerfile COPYs engine/..., the
 # workspace pyproject.toml and uv.lock, and LICENSE -- which lives at the root
 # for AGPL compliance, see Dockerfile step 2a). Everything the image does not
@@ -13,8 +15,6 @@
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
-engine/sandbox/
-engine/data-raw/
 
 # VCS / editor noise
 .git/
@@ -27,21 +27,33 @@ CLAUDE.md
 .token-optimizer/
 .fastembed_cache/
 
-# Layers that are not the engine. backend/pyproject.toml is the ONE exception
-# and is re-admitted below: uv must be able to load every workspace member to
-# honour the single root uv.lock, even though no backend code ships here.
+# Layers that are not the engine. TWO paths under backend/ are re-admitted
+# below, and each earns its place: uv must be able to load every workspace
+# member to honour the single root uv.lock, and import-linter must be able to
+# build a graph that names econflow_backend as a root package -- without the
+# source it reports a broken contract instead of a held one. No backend code
+# runs in this image either way.
 backend/
 !backend/pyproject.toml
-!backend/README.md
 !backend/src/**
 frontend/
 deploy/
-docs/
-# .github/ is excluded, with ONE exception re-admitted below: the manifest that
-# run_verifications.sh reads its anti-vacuity floor from. Without it the floor
-# silently degrades and the image's hard build gate stops asserting a minimum.
+# docs/ is not listed because there is no docs/ directory. It was removed from
+# the tree, no command here recreates it, and an exclusion naming a path nothing
+# produces tells a reader the tree holds something it does not.
+# .github/ is excluded, with THREE exceptions re-admitted below: the manifest
+# that run_verifications.sh reads its anti-vacuity floor from, and the two gate
+# scripts steps 9 and 10 of that suite shell out to by path. Without the manifest
+# the floor silently degrades and the image's hard build gate stops asserting a
+# minimum. Without the scripts, bash exits 127 on a file that is not there, the
+# suite's `|| fail` fires, and the build dies printing "FAIL: a wrapper reaches
+# the network" -- measured on 2026-08-22, accusing the wrapper tree of a network
+# call when the real cause is an uncopied file. Both halves are required: a COPY
+# alone cannot reach a path this file excludes.
 .github/
 !.github/inventory.json
+!.github/scripts/check-no-network.sh
+!.github/actions/assert-inventory/assert.sh
 
 # docs that never enter the container
 *.md.bak
