@@ -40,9 +40,12 @@ for a in "$@"; do
   esac
 done
 REPO="${ARGS[0]:-Deadalus-Lab/EconFlow-Analytics}"
-RULESET="$(dirname "$0")/../rulesets/main.json"   # script lives in .github/scripts/
+RULESET="$(dirname "$0")/../rulesets/main.json" # script lives in .github/scripts/
 
-[ -f "$RULESET" ] || { echo "no ruleset at $RULESET"; exit 1; }
+[ -f "$RULESET" ] || {
+  echo "no ruleset at $RULESET"
+  exit 1
+}
 
 echo "Repository: $REPO"
 

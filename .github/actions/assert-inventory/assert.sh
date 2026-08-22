@@ -18,14 +18,18 @@ MANIFEST="${2:-.github/inventory.json}"
 # driven by python3. Without this check a missing interpreter surfaces as a bare
 # "python3: command not found" from inside a command substitution -- which reads
 # like a missing file, not like an unmet requirement. Fail loudly and name it.
-# Minimum is documented in docs/decisions/python-engine.md; only the standard
-# library is used, so any supported CPython satisfies it.
+# Only the standard library is used, and `tomllib` sets the floor at 3.11, so any
+# interpreter at or above the version pinned in .python-version satisfies this.
 if ! command -v python3 >/dev/null 2>&1; then
   echo "FAIL: python3 is REQUIRED by this gate and was not found on PATH." >&2
   echo "      assert-inventory reads .github/inventory.json with python3 and" >&2
   echo "      cannot verify a single constant without it. This is an unmet" >&2
   echo "      requirement, NOT a passing check." >&2
-  echo "      See docs/decisions/python-engine.md." >&2
+  echo "      WHAT IT REQUIRES: a CPython reachable as python3. This gate imports" >&2
+  echo "      only the standard library, and tomllib puts the floor at 3.11." >&2
+  echo "      engine/.python-version pins the version this tree is built against." >&2
+  echo "      TO SATISFY IT: install that interpreter, put it on PATH, and run" >&2
+  echo "      this script again." >&2
   exit 1
 fi
 
@@ -34,7 +38,8 @@ cd "$ENGINE_DIR"
 
 # Read every expected value in ONE pass and expose them as EXP_* variables.
 # A single read means the manifest cannot be half-applied if it is malformed.
-eval "$(python3 - "$MANIFEST_ABS" <<'PY'
+eval "$(
+  python3 - "$MANIFEST_ABS" <<'PY'
 import json, sys
 d = json.load(open(sys.argv[1]))
 flat = {}
@@ -78,33 +83,41 @@ afield() { # afield <file> <dotted.path>
 # Measured on a maintainer machine: `grep` resolves to ugrep 7.5.0, whose
 # --include reported 315 of 379 files where GNU grep reported 379. CI runners
 # ship GNU grep, so a gate written that way UNDERCOUNTS silently on that host
-# and passes here -- the failure direction CONTRIBUTING.md forbids.
+# and passes here. A gate must never fail in the quiet direction: if it cannot
+# examine what it claims to, it reports red, never a smaller number.
 py_count() { find "$@" -name '*.py' -not -path '*__pycache__*' | wc -l | tr -d ' '; }
 
 echo "== engine inventory =="
-check wrappers        "$EXP_WRAPPERS" \
+check wrappers "$EXP_WRAPPERS" \
   "$(find src/econflow_engine/wrappers -name '*.py' -type f -not -name '__init__.py' | wc -l | tr -d ' ')"
-check categories      "$EXP_CATEGORIES" \
+check categories "$EXP_CATEGORIES" \
   "$(find src/econflow_engine/wrappers -mindepth 1 -maxdepth 1 -type d -not -name '__pycache__' | wc -l | tr -d ' ')"
 # methods is READ FROM THE ARTIFACT, not grepped out of source. Historically
 # engine it was grepped from the spec sources; the specs are generated now, so
 # the artifact is upstream of the code rather than downstream of it. Grepping
 # the generated tier would only prove the generator ran.
-check methods         "$EXP_METHODS"         "$(afield artifacts/node-specs.v1.json engine.n_nodes)"
+check methods "$EXP_METHODS" "$(afield artifacts/node-specs.json engine.n_nodes)"
 # generators is asserted so that artifact-drift's `ran != N` floor has a single
 # reviewed home. Adding a generator is a one-line bump here, and the drift job
 # then expects it -- rather than the floor and the loop drifting apart in silence.
-check generators      "$EXP_GENERATORS" \
-  "$(find scripts -maxdepth 1 -name '*.py' -type f | wc -l | tr -d ' ')"
-check infra_py_files  "$EXP_INFRA_PY_FILES" \
+#
+# `gen_*.py`, NOT every file in scripts/. contract_hash.py lives beside them and
+# is not a generator -- it takes a required `artifact` positional and computes a
+# hash, and it has no committed output to drift against. Counting it made this
+# constant 5 while artifact-drift's loop ran 4, and that comparison is exact, so
+# the job was red before it had ever run on a runner. The glob here and the loop
+# in ci.yml now describe the same set.
+check generators "$EXP_GENERATORS" \
+  "$(find scripts -maxdepth 1 -name 'gen_*.py' -type f | wc -l | tr -d ' ')"
+check infra_py_files "$EXP_INFRA_PY_FILES" \
   "$(find src -name '*.py' -not -path '*__pycache__*' \
-       -not -path 'src/econflow_engine/wrappers/*' \
-       -not -path 'src/econflow_engine/generated/*' | wc -l | tr -d ' ')"
-check test_files      "$EXP_TEST_FILES" \
+    -not -path 'src/econflow_engine/wrappers/*' \
+    -not -path 'src/econflow_engine/generated/*' | wc -l | tr -d ' ')"
+check test_files "$EXP_TEST_FILES" \
   "$(find tests -name 'test_*.py' -not -path '*__pycache__*' | wc -l | tr -d ' ')"
-check test_helpers    "$EXP_TEST_HELPERS" \
+check test_helpers "$EXP_TEST_HELPERS" \
   "$(find tests -maxdepth 1 -name 'conftest.py' | wc -l | tr -d ' ')"
-check python_version  "$EXP_PYTHON_VERSION"  "$(tr -d ' \n' < .python-version)"
+check python_version "$EXP_PYTHON_VERSION" "$(tr -d ' \n' <.python-version)"
 
 # THE PROGRESS LEDGER. Every wrapper body is a generated stub until somebody
 # writes one, and nothing else in this manifest distinguishes a catalogue of 913
@@ -112,7 +125,8 @@ check python_version  "$EXP_PYTHON_VERSION"  "$(tr -d ' \n' < .python-version)"
 # the node functions whose body is NOT the emitted raise, so the figure cannot
 # be talked up in prose. It lives here rather than in engine/scripts/ because
 # that directory's file count IS the `generators` constant asserted above.
-check n_implemented   "$EXP_N_IMPLEMENTED" "$(python3 - <<'AST'
+check n_implemented "$EXP_N_IMPLEMENTED" "$(
+  python3 - <<'AST'
 import ast, pathlib
 written = 0
 for path in sorted(pathlib.Path("src/econflow_engine/wrappers").rglob("*.py")):
@@ -152,19 +166,27 @@ else
 fi
 
 echo "== committed artifacts =="
-check n_nodes              "$EXP_N_NODES"              "$(afield artifacts/node-specs.v1.json engine.n_nodes)"
-check n_categories         "$EXP_N_CATEGORIES"         "$(afield artifacts/node-specs.v1.json engine.n_categories)"
-check n_cards              "$EXP_N_CARDS"              "$(afield artifacts/method-cards.v1.json source.n_cards)"
-check n_parity_cases       "$EXP_N_PARITY_CASES"       "$(afield artifacts/parity-fixtures.v1.json n_cases)"
-check n_recommend_fixtures "$EXP_N_RECOMMEND_FIXTURES" "$(afield artifacts/recommend-fixtures.v1.json source.n_fixtures)"
-check sbom_components      "$EXP_SBOM_COMPONENTS" \
+check n_nodes "$EXP_N_NODES" "$(afield artifacts/node-specs.json engine.n_nodes)"
+check n_categories "$EXP_N_CATEGORIES" "$(afield artifacts/node-specs.json engine.n_categories)"
+check n_cards "$EXP_N_CARDS" "$(afield artifacts/method-cards.json source.n_cards)"
+check n_parity_cases "$EXP_N_PARITY_CASES" "$(afield artifacts/parity-fixtures.json n_cases)"
+check n_recommend_fixtures "$EXP_N_RECOMMEND_FIXTURES" "$(afield artifacts/recommend-fixtures.json source.n_fixtures)"
+# THE CONTINUITY PAIR. The counts above measure the live catalogue and move when
+# it grows. These two describe the contract retired on 2026-08-21 and must never
+# move: a continuity constant that drifts was never one. They are read from
+# legacy-inventory.json, which is the only place the retired contract still
+# exists, and gen_artifacts.py --continuity asserts the catalogue still contains
+# every entry they count.
+check n_legacy_nodes "$EXP_N_LEGACY_NODES" "$(afield artifacts/legacy-inventory.json n_nodes)"
+check n_legacy_cards "$EXP_N_LEGACY_CARDS" "$(afield artifacts/legacy-inventory.json n_cards)"
+check sbom_components "$EXP_SBOM_COMPONENTS" \
   "$(python3 -c "import json;print(len(json.load(open('sbom.cdx.json'))['components']))" 2>/dev/null || echo "no-sbom")"
 
 echo "== SPDX coverage =="
-check py_files_total       "$EXP_PY_FILES_TOTAL"       "$(py_count src scripts tests)"
+check py_files_total "$EXP_PY_FILES_TOTAL" "$(py_count src scripts tests)"
 check py_files_with_header "$EXP_PY_FILES_WITH_HEADER" \
-  "$(find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 \
-     | xargs -0 grep -l 'SPDX-License-Identifier' | wc -l | tr -d ' ')"
+  "$(find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 |
+    xargs -0 grep -l 'SPDX-License-Identifier' | wc -l | tr -d ' ')"
 
 echo "== artifact sidecar integrity =="
 sidecars=0

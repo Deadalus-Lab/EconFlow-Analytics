@@ -8,7 +8,7 @@
 # THE FORK GUARD, AND WHY IT IS NOT `pull_request_target`
 # ---------------------------------------------------------------------------
 # `pull_request` on a fork gives an empty secret, so this job would fail with no
-# API key. The usual "fix" is to switch the trigger to `pull_request_target`,
+# credential. The usual "fix" is to switch the trigger to `pull_request_target`,
 # which DOES expose secrets. That is a serious mistake here: it runs with write
 # permissions in the context of the BASE repository while checking out code an
 # untrusted contributor wrote. It is the standard route to exfiltrating a
@@ -17,8 +17,9 @@
 # So the job is skipped on fork pull requests, deliberately and permanently.
 # Outside contributors still get CodeRabbit -- which works on forks through its
 # own app rather than through our secrets -- and every deterministic gate in
-# ci.yml. They do not get this one. That trade is documented in CONTRIBUTING.md
-# so it is not mistaken for a bug.
+# ci.yml. They do not get this one. The trade is stated here rather than left to
+# be discovered: a fork pull request seeing no review comment from this workflow
+# is the design working, not a job that failed to run.
 name: claude-review
 
 on:
@@ -40,6 +41,13 @@ jobs:
       contents: read
       pull-requests: write
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. See the note in ci.yml and box 1.3.27.
+      # These two workflows write to the repository under the maintainer's token,
+      # which makes their egress the most worth recording, not the least.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
@@ -48,7 +56,12 @@ jobs:
       - name: Review
         uses: anthropics/claude-code-action@9d7150bc8a3dae8149739a88019d192b579ad90c # v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # THE SUBSCRIPTION TOKEN, NOT AN API KEY. Both are accepted by this action
+          # -- `claude_code_oauth_token` is documented at the pinned SHA as an
+          # alternative to `anthropic_api_key` -- and the token was chosen so the
+          # repository does not carry a second billing relationship for a check
+          # that is never required. Mint it with `claude setup-token`.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # allowed_tools deliberately EXCLUDES anything that could run
           # run_verifications.sh or a generator in --check mode.
           #
@@ -84,7 +97,7 @@ jobs:
                 generator or its input changed and the generated tier did not,
                 say so.
              5. SECURITY. No network call in any wrapper (the engine makes none,
-                0 of 251). No eval, exec or pickle on user input. No getattr
+                enforced by the no-network gate). No eval, exec or pickle on user input. No getattr
                 resolving a user-supplied name to a callable. No stochastic
                 method without a mandatory seed. No chart rendered in the
                 engine: it emits chart DATA, the browser draws.

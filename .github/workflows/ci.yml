@@ -44,8 +44,25 @@ env:
   # replaced -- so `uv.lock` pins exact bytes on its own. The dated Posit snapshot
   # existed because that index rebuilds binaries under an unchanged version
   # number; that failure mode does not exist here, and a second copy of a date
-  # was a second thing to rot. See docs/decisions/python-engine.md.
+  # was a second thing to rot. The rule this leaves: every Python dependency is
+  # resolved from PyPI and from no other index, so `uv.lock` is a complete pin
+  # on its own and nothing else in this workflow may name a snapshot date.
   PYTHON_VERSION: "3.12"
+  # THE NUMERICAL ENVIRONMENT, DECLARED IDENTICALLY IN ALL FOUR PLACES that can
+  # run engine code: here, engine-suite.yml, engine/run_verifications.sh and the
+  # Dockerfile. No job in this workflow runs pytest today, so the thread pins are
+  # belt and braces -- but artifact-drift regenerates committed bytes, and a
+  # generator that started rendering a date would otherwise pick up the runner's
+  # zone. Four copies of a constant is three too many; they are asserted equal by
+  # tests/test_thread_pinning.py wherever the suite runs.
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"
+  PYTHONHASHSEED: "0"
+  TZ: "UTC"
+  LC_ALL: "C.UTF-8"
+  LANG: "C.UTF-8"
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -58,6 +75,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
@@ -65,8 +93,11 @@ jobs:
       # assert.sh is driven by python3. Without this the gate every other gate
       # depends on would run against whatever interpreter the runner happens to
       # ship -- the exact class of silent dependency this project refuses.
-      # Version comes from engine/.python-version; see
-      # docs/decisions/python-engine.md.
+      # The version comes from engine/.python-version, which is where this
+      # workspace states the interpreter. check-toolchain-pin.sh asserts that
+      # every .python-version in the tree carries that value, that every
+      # pyproject's requires-python admits it, and that PYTHON_VERSION in this
+      # file equals it -- so a step reads the file and never restates the number.
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version-file: engine/.python-version
@@ -84,6 +115,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
@@ -103,10 +145,16 @@ jobs:
 
           echo "scanned $total Python files, $missing without a header"
           # Anti-vacuity: the loop must actually have scanned the tree. The floor
-          # sits below the 380 measured in .github/inventory.json and above the
-          # 316 that remain if the 64-file generated tier is ever dropped from
-          # the glob by accident -- so losing a whole tier turns this red.
-          if [ "$total" -lt 350 ]; then
+          # sits below the 783 this glob matches today -- spdx.py_files_total in
+          # .github/inventory.json, reproduced from engine/ by
+          #   find src scripts tests -name '*.py' -not -path '*__pycache__*' | wc -l
+          # -- and ABOVE the 687 that remain if the generated tier is ever
+          # dropped from the glob by accident:
+          #   find src scripts tests -name '*.py' -not -path '*__pycache__*' \
+          #     -not -path 'src/econflow_engine/generated/*' | wc -l
+          # So losing a whole tier turns this red, which is the one thing a floor
+          # placed anywhere below 687 could no longer do.
+          if [ "$total" -lt 740 ]; then
             echo "FAIL: scanned only $total files; the glob is wrong, not the tree"
             exit 1
           fi
@@ -123,7 +171,9 @@ jobs:
           # maintainer machine: `grep` resolves to ugrep 7.5.0, whose --include
           # saw 315 of 379 files where GNU grep saw 379. CI runners ship GNU
           # grep, so a check written that way passes here while silently
-          # examining less than it claims locally. CONTRIBUTING.md forbids it.
+          # examining less than it claims locally. The rule, in every gate this
+          # project writes: select the files with `find` and hand them to grep
+          # through `xargs -0`. Never `grep -r --include`.
           bad=$(find src scripts tests -name '*.py' -type f -not -path '*__pycache__*' -print0 \
                 | xargs -0 grep -h 'SPDX-License-Identifier' \
                 | grep -v 'AGPL-3.0-only' || true)
@@ -142,18 +192,45 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
 
-      # No dependency install step, and that is the point. Both generators run on
-      # the STANDARD LIBRARY ALONE: their only input is a committed artifact, so
-      # proving the generated tier is current never requires resolving the
-      # engine's scientific stack. This job installs no scientific stack;
-      # digest and yaml from a dated snapshot before it could begin.
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version-file: engine/.python-version
+
+      # THIS JOB USED TO INSTALL NOTHING, AND THAT WAS A LATENT FAILURE.
+      # Three of the four generators do run on the standard library alone, which
+      # is where the old claim came from. gen_third_party.py does not: it
+      # reconciles uv.lock against the distributions actually INSTALLED, so with
+      # no environment it reports "N of 50 packages are not installed" and exits
+      # 1. Measured under a bare interpreter: 23 of 50 missing. The job had never
+      # run on a runner, so nobody had seen it. gen_artifacts.py additionally
+      # imports econflow_engine, which is stdlib-only along that path but still
+      # needs the package importable.
+      #
+      # The cost is honest: a lockfile problem now reddens this job as well as
+      # pip-audit. The alternative is a --check that cannot see what is installed,
+      # which is the gate-that-examined-nothing failure this file exists to stop.
+      - name: Install uv at the pinned version
+        env:
+          UV_VERSION: "0.10.10"
+        run: python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+
+      - name: Restore the locked environment
+        run: uv sync --locked --all-extras
 
       - name: Regenerating each artifact must reproduce the committed bytes
         working-directory: ${{ env.ENGINE_DIR }}
@@ -162,21 +239,26 @@ jobs:
           LC_ALL: C.UTF-8
         run: |
           set -euo pipefail
-          # THE DIRECTION OF GENERATION REVERSED WITH THE LANGUAGE, and the count
-          # moved with it. Were the artifacts produced by generators in this tree,
-          # spec sources. Those artifacts are now FROZEN INPUTS -- 913 nodes, 252
-          # cards and 4855 frozen verdicts, the oracle this engine is checked against
-          # and which Python cannot re-derive. What runs here instead are the
-          # generators that consume them and emit code: gen_schemas.py (the
-          # generated tier) and gen_wrappers.py (the 251 module stubs and 30
-          # category READMEs). gen_third_party.py joins them when the SBOM is
-          # regenerated from uv.lock, at which point engine.generators in
-          # .github/inventory.json becomes 3 and this loop expects three.
+          # WHAT RUNS HERE, AND WHY THE COUNT IS FOUR.
+          # The committed artifacts are FROZEN INPUTS, not outputs: the v1 set is
+          # the continuity oracle and Python cannot re-derive it. What this loop
+          # runs are the generators that CONSUME an input and emit committed
+          # bytes -- gen_schemas.py (the generated tier), gen_wrappers.py (the
+          # wrapper modules and category READMEs), gen_third_party.py (the
+          # attribution register, from uv.lock) and gen_artifacts.py (the v2
+          # artifacts, from corpus/).
+          #
+          # engine.generators counts `gen_*.py`, NOT every file in scripts/, and
+          # the difference is the defect this loop was carrying: contract_hash.py
+          # lives beside them and is not a generator -- it takes a required
+          # `artifact` positional and computes a hash. Counting it made the
+          # manifest say 5 while the loop ran 3, and the comparison below is
+          # exact, so this job was red before it had ever run.
           expected=$(python3 -c "import json;print(json.load(open('../.github/inventory.json'))['engine']['generators'])")
           ran=0
-          for s in gen_schemas gen_wrappers gen_third_party; do
+          for s in gen_schemas gen_wrappers gen_third_party gen_artifacts; do
             echo "::group::$s --check"
-            python3 "scripts/${s}.py" --check
+            uv run --project .. python "scripts/${s}.py" --check
             echo "::endgroup::"
             ran=$((ran + 1))
           done
@@ -189,6 +271,42 @@ jobs:
           fi
           echo "$ran drift generators reproduced their committed output exactly"
 
+      # A SIDECAR PROVES IDENTITY, NOT SHAPE. The SHA-256 beside each artifact
+      # answers "are these the committed bytes?" and nothing else: an artifact
+      # rewritten with a field dropped, re-hashed, and committed with its new
+      # sidecar passes every drift check in this job. The schemas answer the other
+      # question -- "is this still the right SHAPE?" -- and the two together are
+      # what make a sealed artifact actually sealed.
+      - name: Every sealed artifact still matches its committed schema
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet check-jsonschema==0.38.0
+          expected="$(python3 -c "import json;print(json.load(open('../.github/inventory.json'))['artifacts']['sidecars'])")"
+          checked=0
+          for schema in artifacts/schema/*.schema.json; do
+            artifact="artifacts/$(basename "$schema" .schema.json).json"
+            [ -f "$artifact" ] || {
+              echo "::error::$schema names no artifact at $artifact."
+              echo "Every schema seals one committed artifact: restore the artifact,"
+              echo "or delete the schema in the same commit."
+              exit 1
+            }
+            check-jsonschema --schemafile "$schema" "$artifact"
+            checked=$((checked + 1))
+          done
+          # ANTI-VACUITY, and it is exact rather than a floor: one schema per sealed
+          # artifact. A new artifact arriving without a schema, or a schema quietly
+          # deleted, both fail here instead of reading as a clean run.
+          if [ "$checked" -ne "$expected" ]; then
+            echo "::error::validated $checked artifact(s) against a schema, and artifacts.sidecars declares $expected."
+            echo "Every sealed artifact needs one schema and every schema needs its"
+            echo "artifact. Land the missing half, or move the constant in"
+            echo ".github/inventory.json in the same commit."
+            exit 1
+          fi
+          echo "$checked sealed artifacts match their committed schema"
+
   # ---------------------------------------------------------------------------
   py-lint:
     name: py-lint (ruff, with a files-examined assertion)
@@ -197,6 +315,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
@@ -215,7 +344,7 @@ jobs:
       # action to pin by SHA, and pip is already trustworthy here.
       - name: Install ruff at the pinned version
         env:
-          RUFF_VERSION: "0.7.1"
+          RUFF_VERSION: "0.16.3"
         run: python3 -m pip install --disable-pip-version-check "ruff==${RUFF_VERSION}"
 
       - name: Lint, and assert it actually looked at the engine
@@ -229,12 +358,14 @@ jobs:
           # rather than a second glob that could disagree with it.
           scanned=$(ruff check --show-files . | grep -c '\.py$')
           echo "ruff examined a corpus of $scanned candidate files"
-          # 316 today: 380 total less the 64-file generated tier, which ruff.toml
-          # excludes because linting it would only lint the emitter's formatting.
-          # The floor is 300, unchanged from the gate this one replaces: below it,
-          # the configuration is wrong rather than the corpus being small.
-          if [ "$scanned" -lt 300 ]; then
-            echo "FAIL: ruff saw only $scanned files; the configuration is wrong, not the code"
+          # THE FLOOR COMES FROM THE MANIFEST, not from a literal here. It used to
+          # be a hard-coded 300 described in a comment as "316 today" while the real
+          # figure was 688 -- a floor less than half the corpus cannot notice the
+          # wrapper tier falling out of scope, which is the mistake worth catching.
+          # engine.wrappers is the same floor mypy, pyright and deptry assert.
+          floor="$(python3 -c "import json;print(json.load(open('../.github/inventory.json'))['engine']['wrappers'])")"
+          if [ "$scanned" -lt "$floor" ]; then
+            echo "FAIL: ruff saw only $scanned files, below the floor $floor; the configuration is wrong, not the code"
             exit 1
           fi
           ruff check --output-format=github .
@@ -247,15 +378,137 @@ jobs:
       # above, which was fitted to the existing corpus and reports zero findings.
 
   # ---------------------------------------------------------------------------
+  # WHY THIS JOB EXISTS AT ALL. mypy, pyright and import-linter ran ONLY inside
+  # engine/run_verifications.sh -- that is, only on the `full` path of
+  # engine-suite.yml, which the ruleset does not require. A pull request could
+  # therefore rename an argument, break the "no statistic outside engine/"
+  # contract, or land a body returning the wrong type, and merge green. Two
+  # manifests had claimed py-lint ran these; box 1.1.7 deleted the claim rather
+  # than the gap, and this job is the gap.
+  #
+  # THE THREE ARE NOT REDUNDANT. mypy --strict and pyright disagree by design --
+  # narrowing, overload resolution and unreachable code are exactly where a
+  # numerical wrapper's coercions sit, and four real defects in this tree were
+  # visible to one and not the other. import-linter answers a question neither
+  # asks: whether the architecture still holds now that both layers are Python
+  # and a file extension no longer enforces the boundary for free.
+  py-types:
+    name: py-types (mypy, pyright and the import contracts)
+    runs-on: ubuntu-latest
+    needs: inventory
+    permissions:
+      contents: read
+    steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      - name: Install uv at the pinned version
+        env:
+          UV_VERSION: "0.10.10"
+        run: python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+
+      # `--locked` refuses to re-resolve. The checkers are pinned exactly in
+      # engine/pyproject.toml precisely because, for a gate, the version IS part
+      # of what its verdict means.
+      - name: Restore the locked environment
+        run: uv sync --locked --all-extras
+
+      - name: mypy --strict
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          report="$(uv run --project .. mypy)"
+          printf '%s\n' "$report"
+          # ANTI-VACUITY. `Success: no issues found in 0 source files` is what a
+          # broken `files =` in [tool.mypy] produces, and it exits 0. The floor is
+          # the wrapper count from the manifest, the same one steps 2 and 6 of
+          # run_verifications.sh use, so losing the wrapper tier from the include
+          # turns this red instead of reading as a clean run.
+          checked="$(printf '%s' "$report" | sed -n 's/^Success: no issues found in \([0-9]*\) source files\?$/\1/p')"
+          floor="$(python3 -c "import json;print(json.load(open('../.github/inventory.json'))['engine']['wrappers'])")"
+          if [ -z "$checked" ] || [ "$checked" -lt "$floor" ]; then
+            echo "::error::mypy checked '${checked:-no}' files, below the floor $floor; the files= glob is wrong, not the tree"
+            exit 1
+          fi
+          echo "mypy: 0 errors over $checked files (floor $floor)"
+
+      - name: pyright
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          # Same hazard, different shape: pyright reports "0 errors" just as
+          # cheerfully over an empty include glob as over the whole engine, and
+          # [tool.pyright] is one typo away from exactly that.
+          report="$(uv run --project .. pyright --outputjson --level error)" || {
+            printf '%s\n' "$report" >&2
+            exit 1
+          }
+          analysed="$(printf '%s' "$report" | python3 -c 'import json,sys; print(json.load(sys.stdin)["summary"]["filesAnalyzed"])')"
+          floor="$(python3 -c "import json;print(json.load(open('../.github/inventory.json'))['engine']['wrappers'])")"
+          if [ "$analysed" -lt "$floor" ]; then
+            echo "::error::pyright analysed $analysed files, below the floor $floor; the include glob is wrong, not the tree"
+            exit 1
+          fi
+          echo "pyright: 0 errors over $analysed files (floor $floor)"
+
+      - name: The import contracts still hold
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          # Both layers are Python, so nothing answers "is this the engine?" for
+          # free. The three contracts live in [tool.importlinter] in the workspace
+          # root manifest: the engine never imports the platform, no statistic is
+          # ever computed outside engine/, and no wrapper reaches the network.
+          report="$(uv run --project .. lint-imports --config ../pyproject.toml)"
+          printf '%s\n' "$report"
+          # ANTI-VACUITY. import-linter exits 0 when it has no contracts to check,
+          # so a mangled [tool.importlinter] passes silently. The count is exact:
+          # three contracts, and losing one is a deliberate edit to the manifest.
+          printf '%s' "$report" | grep -q 'Contracts: 3 kept, 0 broken.' \
+            || { echo "::error::expected exactly 3 kept contracts; the [tool.importlinter] table is wrong, not the tree"; exit 1; }
+
+  # ---------------------------------------------------------------------------
   workflow-lint:
-    name: workflow-lint (actionlint + shellcheck)
+    name: workflow-lint (workflows, configs and shell gates)
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
+          # gitlint reads COMMIT MESSAGES, which a shallow clone does not carry:
+          # at the default depth of 1 there is no range to lint and the step
+          # would pass by examining nothing. This is the same reason the
+          # `secrets` job takes the full history.
+          fetch-depth: 0
 
       # check-required-contexts.sh and check-engine-boundary.sh parse YAML and
       # TOML with python3. Pinned for the same reason as the inventory job: a
@@ -263,6 +516,25 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version-file: engine/.python-version
+
+      # FIVE PYTHON LINTERS RUN BELOW, AND THEY MUST NOT SHARE AN ENVIRONMENT.
+      # gitlint and check-jsonschema both depend on `click`, at ranges that do
+      # not have to overlap. `pip install` them together and the resolver
+      # silently picks one set for all five -- which is how a linter starts
+      # behaving differently in CI than it does for the contributor who ran it.
+      # `uvx` gives each tool its own resolved environment, so this is one
+      # pinned install instead of five, and no tool can constrain another.
+      #
+      # uv itself comes from PyPI rather than from a setup action, because that
+      # is one fewer third-party action to pin and review, and PyPI artifacts are
+      # immutable: a released filename and its hash can never be replaced.
+      - name: Install uv, pinned
+        env:
+          UV_VERSION: "0.10.10"
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+          uv --version
 
       - name: actionlint
         env:
@@ -285,7 +557,11 @@ jobs:
           n=$(find .github/workflows -name '*.yml' | wc -l)
           echo "linting $n workflow files"
           # Anti-vacuity: actionlint over an empty set exits 0.
-          [ "$n" -ge 2 ] || { echo "FAIL: only $n workflows found"; exit 1; }
+          [ "$n" -ge 2 ] || {
+            echo "FAIL: found $n workflow file(s); this step must lint at least 2."
+            echo "The find path is wrong, not the tree."
+            exit 1
+          }
           ./actionlint -color
 
       - name: shellcheck
@@ -294,7 +570,11 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
           mapfile -t files < <(find . -name '*.sh' -not -path './.git/*' -not -path './**/.venv/*')
           echo "shellchecking ${#files[@]} scripts"
-          [ "${#files[@]}" -ge 2 ] || { echo "FAIL: only ${#files[@]} shell scripts found"; exit 1; }
+          [ "${#files[@]}" -ge 2 ] || {
+            echo "FAIL: found ${#files[@]} shell script(s); this step must check at least 2."
+            echo "The find path is wrong, not the tree."
+            exit 1
+          }
           shellcheck --severity=warning "${files[@]}"
 
       # The public root surface is permanent: this repository's history cannot
@@ -302,6 +582,48 @@ jobs:
       # the root is exactly what .github/root-manifest.txt declares, failing on
       # a difference in EITHER direction -- an entry that appeared without
       # review, and an entry that silently stopped being tracked.
+      - name: git-sizer (the history is not accumulating bulk)
+        env:
+          GIT_SIZER_VERSION: "1.5.0"
+        run: |
+          set -euo pipefail
+          base="https://github.com/github/git-sizer/releases/download/v${GIT_SIZER_VERSION}"
+          curl -sSfL "${base}/git-sizer-${GIT_SIZER_VERSION}-linux-amd64.zip" -o gs.zip
+          unzip -oq gs.zip git-sizer && chmod +x git-sizer
+          # --critical exits non-zero only at the highest level of concern, which
+          # is the right threshold for a gate: git-sizer's lower levels are advice
+          # about repositories far larger than this one. The deliberate ceiling on
+          # individual files is the pre-commit hook's --maxkb. The tracked files
+          # that sit above 1024 KiB are the committed artifacts under
+          # engine/artifacts/ and engine/api-baseline/: they are large because a
+          # frozen contract is reviewed as a diff, and shrinking them would mean
+          # giving up that review surface. List them with
+          #   git ls-files -z | xargs -0 -I{} \
+          #     sh -c 'test $(stat -c%s "{}") -gt 1048576 && echo "{}"'
+          ./git-sizer --critical
+          echo "git-sizer: no critical finding"
+
+      - name: shfmt (shell formatting is consistent)
+        env:
+          SHFMT_VERSION: "v3.13.1"
+        run: |
+          set -euo pipefail
+          curl -sSfL "https://github.com/mvdan/sh/releases/download/${SHFMT_VERSION}/shfmt_${SHFMT_VERSION}_linux_amd64" -o shfmt
+          chmod +x shfmt
+          mapfile -t files < <(find . -name '*.sh' -not -path './.git/*' -not -path './**/.venv/*')
+          # Anti-vacuity: the same floor shellcheck uses, for the same reason -- a
+          # formatter handed an empty file list is silent and exits 0.
+          [ "${#files[@]}" -ge 2 ] || {
+            echo "FAIL: found ${#files[@]} shell file(s); this step must format-check at least 2."
+            echo "The find path is wrong, not the tree."
+            exit 1
+          }
+          # -i 2 -ci was chosen by MEASUREMENT, not preference: against a tree that
+          # mixed two- and four-space indentation it produced 636 diff lines where
+          # -i 4 -ci gave 864, -i 2 alone 654 and -i 0 gave 947.
+          ./shfmt -d -i 2 -ci "${files[@]}"
+          echo "shfmt: ${#files[@]} shell files are consistently formatted"
+
       - name: The public root surface matches its manifest
         run: bash .github/scripts/check-root-visibility.sh .
 
@@ -321,6 +643,348 @@ jobs:
       - name: The vocabulary is this project's own
         run: bash .github/scripts/check-vocabulary.sh .
 
+      # A CLAIM WITHOUT A GATE IS A MEMORY. "No wrapper makes a network call" was
+      # published in five places and called "Verified" while nothing re-measured
+      # it, against a denominator taken by hand when the tree was less than half
+      # its size. This parses every wrapper rather than grepping it, so a dynamic
+      # import cannot slip past -- the hole the first version of it actually had.
+      - name: No wrapper reaches the network
+        run: bash .github/scripts/check-no-network.sh .
+
+      # The interpreter and the dependency snapshot are pinned in more than one
+      # file, and every copy of a pin is a copy that rots. This script existed,
+      # passed and was invoked by nothing, which is the same as not existing:
+      # a gate nobody runs protects nobody. It asserts the three .python-version
+      # files agree, that both `requires-python` floors admit that value, that
+      # PYTHON_VERSION above is the same value, and that the dependency snapshot
+      # instant is authored exactly once with uv.lock built from it.
+      #
+      # THAT LAST CHECK MATCHES THE KEY'S NAME AS TEXT, anywhere in the tree
+      # outside the two files entitled to hold it -- and it cannot tell a mention
+      # from a second pin. Spelling the key out in this comment is enough to fail
+      # the job with "also appears in ci.yml". Describe it; do not name it.
+      - name: The toolchain pins agree with each other
+        run: bash .github/scripts/check-toolchain-pin.sh .
+
+      # `uses: owner/action@v5` resolves a TAG, and a tag is a mutable pointer in
+      # a repository this project does not control. The tj-actions/changed-files
+      # compromise moved one and turned a widely used action into a credential
+      # exfiltrator across tens of thousands of repositories in an afternoon. A
+      # forty-character commit SHA cannot be repointed, so a review of it stays
+      # true. The script carries floors on both files opened and references
+      # found, plus a positive control (floating tag, short SHA, missing version
+      # comment) and a negative control, so it cannot pass by matching nothing.
+      - name: Every action is pinned to a full commit SHA
+        run: bash .github/scripts/check-action-pinning.sh .
+
+      # A PINNED ACTION PROVES PROVENANCE, NOT SAFETY. Nothing above notices
+      # `${{ github.event.issue.title }}` interpolated into a `run:` block --
+      # actionlint type-checks the expression and finds it perfectly valid --
+      # yet an issue title is attacker-controlled text pasted into a shell, which
+      # is the standard route to arbitrary code execution in a workflow. zizmor
+      # is the auditor for that class: template injection, `persist-credentials`
+      # left on so the token is written into `.git/config` and then into an
+      # uploaded artifact, over-broad permissions, and unsafe `pull_request_target`.
+      #
+      # PINNED BY VERSION, and by PyPI rather than a release binary. PyPI
+      # artifacts are immutable -- a released filename and its hash can never be
+      # replaced -- so `uvx zizmor@<version>` resolves the same bytes every run
+      # without a checksum file to keep in step. That is the same argument the
+      # `env:` block above makes for dropping the dated snapshot variable.
+      #
+      # THE DEFAULT PERSONA IS DELIBERATE. At `--persona=pedantic` this tree
+      # reports 15 further findings, all informational or low: eight
+      # template-injection notes on expansions of `github.event_name`,
+      # `github.sha`, `github.server_url`, `github.repository` and
+      # `github.run_id` -- values GitHub sets, not values a contributor can write
+      # -- and three `undocumented-permissions` notes on blocks that already
+      # carry a prose comment above them. Raising the persona would trade a gate
+      # that means something for a list nobody reads.
+      - name: zizmor (workflow security audit)
+        env:
+          ZIZMOR_VERSION: "1.29.0"
+        run: |
+          set -euo pipefail
+          n=$(find .github/workflows -name '*.yml' | wc -l)
+          echo "auditing $n workflow files"
+          # Anti-vacuity: zizmor over an empty set exits 0.
+          [ "$n" -ge 2 ] || {
+            echo "FAIL: found $n workflow file(s); this audit must read at least 2."
+            echo "The find path is wrong, not the tree."
+            exit 1
+          }
+
+          # THE POSITIVE CONTROL, and the reason this step is trustworthy. A
+          # zizmor invocation pointed at the wrong path, or a future release that
+          # renames the template-injection audit, would report "no findings"
+          # forever -- green and useless. The canary is written to RUNNER_TEMP
+          # rather than the working tree, so it can never be committed and the
+          # real audit below can never see it.
+          #
+          # THE EXPRESSION IS ASSEMBLED FROM FRAGMENTS, and that is load-bearing
+          # rather than decorative. The runner expands every `${...}` it finds
+          # inside a `run:` block BEFORE the shell ever runs, heredocs included.
+          # Writing the injection literally here would hand zizmor a canary that
+          # had already been substituted away to an empty string on a push event
+          # -- the audit would correctly find nothing, and this control would
+          # fail on a working gate. Building the two braces at runtime is what
+          # keeps the planted defect intact. This is the same reason the
+          # `secrets` job assembles its credential canary from three printfs.
+          canary="${RUNNER_TEMP}/zizmor-canary"
+          mkdir -p "${canary}/.github/workflows"
+          open="$(printf '%s%s%s' '$' '{' '{')"
+          close='}}'
+          {
+            printf 'name: planted\n'
+            printf 'on: [issues]\n'
+            printf 'permissions: {}\n'
+            printf 'jobs:\n'
+            printf '  planted:\n'
+            printf '    runs-on: ubuntu-latest\n'
+            printf '    steps:\n'
+            printf '      - name: expression injection\n'
+            printf '        run: echo "%s github.event.issue.title %s"\n' "$open" "$close"
+          } > "${canary}/.github/workflows/planted.yml"
+
+          if uvx "zizmor@${ZIZMOR_VERSION}" --no-progress \
+               "${canary}/.github/workflows/planted.yml" >/dev/null 2>&1; then
+            echo "FAIL: zizmor did NOT flag a planted issue title interpolated"
+            echo "into a run: block. The audit is not working, and every green"
+            echo "run of this step since it stopped working proved nothing."
+            echo "Check the canary below still contains the two braces:"
+            cat "${canary}/.github/workflows/planted.yml"
+            exit 1
+          fi
+          echo "positive control passed: the template-injection audit is biting"
+
+          uvx "zizmor@${ZIZMOR_VERSION}" --no-progress .github/workflows/
+
+      # actionlint reads a workflow AS A WORKFLOW -- it knows `runs-on`, it
+      # type-checks expressions, it shells out to shellcheck for `run:` blocks.
+      # What it never reads is the file as a FILE. A duplicate key is the case
+      # that matters: the second silently wins, the first is discarded, and
+      # nothing in the diff looks wrong. yamllint is the gate for that class,
+      # configured in `.yamllint` at the repository root, where every relaxation
+      # is written down with the reason it is not noise suppression.
+      #
+      # `-s` promotes warnings to errors. Without it a warning-only run exits 0
+      # and the rules configured as warnings -- which is most of them -- would be
+      # advisory text nobody reads.
+      - name: yamllint (every tracked YAML file)
+        env:
+          YAMLLINT_VERSION: "1.38.0"
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files '*.yml' '*.yaml')
+          echo "yamllint over ${#files[@]} files"
+          # Anti-vacuity: yamllint over an empty argument list exits 0.
+          [ "${#files[@]}" -ge 10 ] || {
+            echo "FAIL: found ${#files[@]} YAML file(s); this step must lint at least 10."
+            echo "The git pathspec is wrong, not the tree."
+            exit 1; }
+
+          # THE POSITIVE CONTROL. A `.yamllint` that disabled one rule too many
+          # would pass this tree forever. The planted file carries the defect
+          # this step exists for -- a duplicated `runs-on` where the second wins
+          # silently -- and it lives in RUNNER_TEMP so the real run never sees it.
+          canary="${RUNNER_TEMP}/yamllint-canary.yml"
+          {
+            printf 'name: x\njobs:\n  a:\n'
+            printf '    runs-on: ubuntu-latest\n'
+            printf '    runs-on: windows-latest\n'
+            printf '    steps:\n      - run: echo hi\n'
+          } > "$canary"
+          if uvx "yamllint@${YAMLLINT_VERSION}" -c .yamllint -s "$canary" >/dev/null 2>&1; then
+            echo "FAIL: yamllint did NOT flag a duplicated key. key-duplicates has"
+            echo "been disabled or the config is not being read."
+            exit 1
+          fi
+          echo "positive control passed: key-duplicates is enabled and biting"
+
+          uvx "yamllint@${YAMLLINT_VERSION}" -c .yamllint -f parsable -s "${files[@]}"
+
+      # THESE FILES ARE READ BY MACHINES THAT FAIL SILENTLY ON A TYPO.
+      # A misspelt key in `dependabot.yml` does not stop Dependabot -- it stops
+      # the rule that key configured, with no error anywhere a human looks. The
+      # same is true of an issue-form field, a `.coderabbit.yaml` path filter and
+      # a pre-commit hook id. Schema validation is the only thing that turns a
+      # typo into a red check on the pull request that introduced it.
+      #
+      # WHAT IS AND IS NOT COVERED, stated rather than implied. `.github/rulesets/*.json`
+      # and `.github/inventory.json` have NO published schema -- GitHub does not
+      # publish a standalone ruleset schema and inventory.json is this project's
+      # own format -- so they are checked for well-formedness only, which is a
+      # weaker claim and is made here rather than left to be assumed. A trailing
+      # comma in `main.json` is the failure that actually happens, and this
+      # catches it; a misspelt rule key inside it is not caught by anything yet.
+      - name: check-jsonschema (every configuration file with a published schema)
+        env:
+          CHECK_JSONSCHEMA_VERSION: "0.38.0"
+        run: |
+          set -euo pipefail
+          cj() { uvx "check-jsonschema@${CHECK_JSONSCHEMA_VERSION}" "$@"; }
+          checked=0
+          run_check() { cj "$@"; checked=$((checked + 1)); }
+
+          run_check --builtin-schema vendor.dependabot .github/dependabot.yml
+          run_check --builtin-schema vendor.github-workflows .github/workflows/*.yml
+          run_check --builtin-schema vendor.github-actions .github/actions/*/action.yml
+          run_check --builtin-schema vendor.github-issue-forms \
+            .github/ISSUE_TEMPLATE/bug_report.yml .github/ISSUE_TEMPLATE/method_request.yml
+          run_check --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
+          # From SchemaStore rather than built in: these two move faster than
+          # check-jsonschema's vendored copies.
+          run_check --schemafile https://json.schemastore.org/pre-commit-config.json \
+            .pre-commit-config.yaml
+          run_check --schemafile https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json \
+            .coderabbit.yaml
+
+          # No published schema exists for either of these. Well-formedness is a
+          # weaker property than validity and is claimed as such.
+          python3 -c 'import json,sys; [json.load(open(p)) for p in sys.argv[1:]]' \
+            .github/rulesets/*.json .github/inventory.json
+          checked=$((checked + 1))
+
+          # THE COOLDOWN IS NOT A SCHEMA PROPERTY, so validating dependabot.yml
+          # above says nothing about whether it is there. A configuration with
+          # every `cooldown:` block deleted is perfectly valid Dependabot
+          # configuration -- it just takes every release the day it appears,
+          # which is the poisoned-fresh-release window this project declines to
+          # stand in. Asserted separately, because the thing worth protecting is
+          # not the file's shape.
+          python3 - <<'COOLDOWN'
+          import sys, yaml
+          updates = yaml.safe_load(open(".github/dependabot.yml"))["updates"]
+          if len(updates) < 3:
+              sys.exit(f"FAIL: {len(updates)} ecosystems declared; the file is not this project's.")
+          missing = [u["package-ecosystem"] for u in updates if not u.get("cooldown")]
+          if missing:
+              sys.exit(f"FAIL: no cooldown for {missing}. A version taken on the day it "
+                       "appears is a version nobody else has looked at yet.")
+          print(f"cooldown set for all {len(updates)} ecosystems")
+          COOLDOWN
+          checked=$((checked + 1))
+
+          # Anti-vacuity: every command above is a no-op on an empty glob, so a
+          # renamed directory would make this step pass having validated nothing.
+          echo "validated $checked configuration groups"
+          [ "$checked" -ge 9 ] || {
+            echo "FAIL: validated $checked configuration group(s); at least 9 are expected."
+            echo "A glob stopped matching -- fix the path, never lower the floor."
+            exit 1
+          }
+
+          # THE POSITIVE CONTROL. A misspelt key must be refused. `dependabot.yml`
+          # is the right subject: its schema forbids unknown properties, which is
+          # exactly the property that makes a typo detectable.
+          canary="${RUNNER_TEMP}/dependabot-canary.yml"
+          printf 'version: 2\nupdates:\n  - package-ecosystem: pip\n    directory: "/"\n    schedul:\n      interval: weekly\n' > "$canary"
+          if cj --builtin-schema vendor.dependabot "$canary" >/dev/null 2>&1; then
+            echo "FAIL: a misspelt 'schedul' key was accepted as valid Dependabot"
+            echo "configuration. Schema validation is not working."
+            exit 1
+          fi
+          echo "positive control passed: a misspelt key is refused"
+
+      - name: reuse (every file declares its licence, whatever its type)
+        env:
+          REUSE_VERSION: "6.2.0"
+        run: |
+          set -euo pipefail
+          # The spdx job asserts that every .py file carries AGPL-3.0-only and
+          # counts them. This asserts the same thing for EVERY OTHER file type --
+          # .md, .sh, .yml, .toml, the Dockerfile -- and additionally that the
+          # licences actually used have their texts committed under LICENSES/.
+          #
+          # REUSE.toml declares the copyright once for the whole tree and the
+          # LICENCE only for formats that cannot carry a comment. That asymmetry is
+          # what leaves this gate able to fail: with the blanket it used to carry,
+          # deleting a header from a source file changed nothing in the report.
+          uvx --from "reuse==${REUSE_VERSION}" reuse lint
+          # Anti-vacuity: reuse reports a file count, and a run that examined a
+          # handful of files is not the run this gate is claiming.
+          floor="$(python3 -c "import json;print(json.load(open('.github/inventory.json'))['engine']['wrappers'])")"
+          seen="$(uvx --from "reuse==${REUSE_VERSION}" reuse lint | sed -n 's|^\* Files with license information: \([0-9]*\) / .*|\1|p')"
+          if [ -z "$seen" ] || [ "$seen" -lt "$floor" ]; then
+            echo "::error::reuse examined '${seen:-no}' file(s), below the floor $floor,"
+            echo "which is engine.wrappers. REUSE.toml or the invocation is wrong, not the"
+            echo "tree: re-run 'reuse lint' and read the file count it prints."
+            exit 1
+          fi
+          echo "reuse: $seen files carry copyright and licence information (floor $floor)"
+
+      # EVERY COMMIT MUST CARRY A REASON. This repository's history cannot be
+      # rewritten after publication, so a subject line with no body is a
+      # permanent hole: the diff says what changed and nothing says why.
+      # `semantic-pull-requests` validates the pull-request TITLE, which is the
+      # squash subject -- it never reads a body and never reads the commits on
+      # the branch. This is the half that does. The rules live in `.gitlint` at
+      # the repository root; the same configuration runs in the `commit-msg`
+      # hook, so a contributor meets it before the push rather than after.
+      - name: gitlint (every commit on the branch carries a body and a sign-off)
+        env:
+          GITLINT_VERSION: "0.19.1"
+          # Read through env rather than interpolated into the shell below: a
+          # `${{ }}` expansion inside a `run:` block is the template-injection
+          # pattern the zizmor step above exists to refuse, and a gate that
+          # violates the rule it enforces is not a gate.
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          gl() { uvx --from "gitlint-core==${GITLINT_VERSION}" gitlint "$@"; }
+
+          # TWO POSITIVE CONTROLS, run before the range is resolved so they fire
+          # even on a push with nothing new to lint.
+          #
+          # The first is the box's own case: a one-line message with no body.
+          if printf 'ci(ci): a subject with no body at all\n' | gl >/dev/null 2>&1; then
+            echo "FAIL: gitlint accepted a one-line commit with no body."
+            exit 1
+          fi
+
+          # The second exists because the first is NOT enough, and the reason is
+          # worth stating. `body-is-missing` is a gitlint DEFAULT: it fires with
+          # no configuration file at all. So if `.gitlint` went missing -- it
+          # lives at the repository root, where .gitignore denies by default and
+          # re-admits by name, so one absent `!` line is all it takes -- the
+          # first control would still pass while every rule this project
+          # actually chose had silently stopped applying. This message has a
+          # proper body and a conventional subject and is missing only the
+          # sign-off, so nothing but CC1 can refuse it, and CC1 exists only if
+          # `.gitlint` was read.
+          if printf 'ci(ci): a well-formed subject\n\nA body that says why.\n' | gl >/dev/null 2>&1; then
+            echo "FAIL: gitlint accepted a commit with no Signed-off-by trailer."
+            echo "CC1 is a contrib rule and is OFF unless .gitlint turns it on,"
+            echo "so this means .gitlint was not read -- check it is admitted by"
+            echo ".gitignore and listed in .github/root-manifest.txt."
+            exit 1
+          fi
+          echo "positive controls passed: .gitlint is present and its rules are biting"
+
+          if [ "$EVENT" = "pull_request" ]; then
+            range="${BASE_SHA}..${HEAD_SHA}"
+          else
+            # On a push to main the branch has already been squashed to a single
+            # commit; linting it is the whole job.
+            range="HEAD~1..HEAD"
+            git rev-parse --verify --quiet HEAD~1 >/dev/null || range="HEAD"
+          fi
+
+          if [ "$range" = "HEAD" ]; then
+            # The root commit has no parent, so there is no range that names it.
+            n=1
+            git log -1 --format=%B | gl
+          else
+            n=$(git rev-list --count "$range")
+            echo "linting $n commit message(s) in $range"
+            # Anti-vacuity: `gitlint --commits` over an empty range exits 0.
+            [ "$n" -ge 1 ] || { echo "FAIL: the range $range names no commits"; exit 1; }
+            gl --commits "$range"
+          fi
+          echo "gitlint: $n commit message(s) accepted"
+
   # ---------------------------------------------------------------------------
   engine-boundary:
     name: engine-boundary (no statistic outside engine/)
@@ -328,6 +992,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
@@ -354,6 +1029,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
@@ -393,8 +1079,23 @@ jobs:
           mkdir -p "$canary"
           # Assembled from fragments so that this workflow file itself contains
           # no scannable credential.
+          #
+          # NOT THE DOCUMENTED AWS EXAMPLE KEY, AND THAT IS THE WHOLE POINT.
+          # This control used to plant `wJalrXUtnFEMIK7MDENGbPxRfiCYEXAMPLEKEY`,
+          # which is the secret AWS publishes in its own documentation -- and
+          # gitleaks ALLOWLISTS the published examples precisely so that quoting
+          # the manual does not raise an alert. Measured against gitleaks 8.30.1:
+          # that value is not flagged with our config, and not with gitleaks' own
+          # defaults either. The same is true of `AKIAIOSFODNN7EXAMPLE` and of the
+          # documented `ghp_` token. So the control planted a string the scanner
+          # is designed to ignore, concluded detection was broken, and failed the
+          # job -- while a REAL leak would have been caught. A positive control
+          # built on an example value tests the allowlist, not the detector.
+          #
+          # The value below is credential-SHAPED and belongs to nobody: 40 random
+          # characters, on no example list, and it is confirmed to fire.
           printf 'aws_secret_access_key = "%s"\n' \
-            "$(printf 'wJalrXUtnFEMI'; printf 'K7MDENGbPxRfiCY'; printf 'EXAMPLEKEY')" \
+            "$(printf 'Xk7Qp2vLmNb4'; printf 'TzRcYw9EsAdFgHjK'; printf 'lZxCvBnM3QrT')" \
             > "$canary/leak.txt"
 
           if ./gitleaks detect --source "$canary" --no-git --redact --exit-code 1 \
@@ -409,6 +1110,70 @@ jobs:
           fi
           echo "positive control passed: the ruleset is loaded and biting"
 
+      - name: Install trufflehog, verified against its published checksums
+        env:
+          TRUFFLEHOG_VERSION: "3.97.0"
+        run: |
+          set -euo pipefail
+          tarball="trufflehog_${TRUFFLEHOG_VERSION}_linux_amd64.tar.gz"
+          base="https://github.com/trufflesecurity/trufflehog/releases/download/v${TRUFFLEHOG_VERSION}"
+          curl -sSfL "${base}/${tarball}" -o "$tarball"
+          curl -sSfL "${base}/trufflehog_${TRUFFLEHOG_VERSION}_checksums.txt" -o th.sums
+          grep "$tarball" th.sums | sha256sum -c -
+          tar -xzf "$tarball" trufflehog
+
+      - name: Positive control -- trufflehog's detectors must be loaded and biting
+        run: |
+          set -euo pipefail
+          # A DIFFERENT CONTROL FROM GITLEAKS', AND IT HAS TO BE. The gating scan
+          # below runs --only-verified, which reports a credential only after
+          # confirming it live with the provider. A planted canary can never be
+          # verified, by design -- so the control runs in UNVERIFIED mode, where
+          # what it proves is that the detector set is present and matching. The
+          # two modes together are the gate; either alone is not.
+          #
+          # The canary is a full AWS key PAIR, and both halves are non-example
+          # values. An ID alone does not trip the AWS detector, and the documented
+          # AKIAIOSFODNN7EXAMPLE is filtered out by design -- the same trap that
+          # made the gitleaks control here silently useless.
+          canary="${RUNNER_TEMP}/th-canary"
+          mkdir -p "$canary"
+          {
+            printf 'aws_access_key_id = "%s%s"\n' 'AKIA' 'QK7ZP2VLMNB4TZRC'
+            printf 'aws_secret_access_key = "%s%s%s"\n' \
+              'Xk7Qp2vLmNb4' 'TzRcYw9EsAdFgHjK' 'lZxCvBnM3QrT'
+          } > "$canary/leak.txt"
+          found=$(./trufflehog filesystem "$canary" --no-verification --no-update \
+                    --results=unverified 2>&1 | grep -c 'Detector Type: AWS' || true)
+          if [ "$found" -eq 0 ]; then
+            echo "FAIL: trufflehog did NOT flag the planted key pair."
+            echo "Its detector set is not loaded, and every clean run below proves nothing."
+            exit 1
+          fi
+          echo "positive control passed: the AWS detector is loaded and matching"
+
+      - name: trufflehog (verified credentials only)
+        run: |
+          set -euo pipefail
+          # WHAT THIS ADDS THAT GITLEAKS CANNOT. gitleaks matches PATTERNS: it says
+          # a string looks like a credential. trufflehog --only-verified asks the
+          # provider whether the credential is LIVE. Each misses what the other
+          # finds -- a live secret in an unusual format, and a dead string in a
+          # familiar one -- which is why both run rather than one.
+          summary="${RUNNER_TEMP}/th.log"
+          ./trufflehog filesystem . --only-verified --no-update --fail 2>&1 | tee "$summary"
+          # ANTI-VACUITY. --only-verified makes a clean run the EXPECTED outcome, so
+          # the exit code says almost nothing and the amount scanned says everything.
+          chunks=$(sed -n 's/.*"chunks": \([0-9]*\).*/\1/p' "$summary" | tail -1)
+          floor=$(python3 -c "import json;print(json.load(open('.github/inventory.json'))['secrets']['min_chunks_scanned'])")
+          if [ -z "$chunks" ] || [ "$chunks" -lt "$floor" ]; then
+            echo "::error::trufflehog scanned ${chunks:-no} chunk(s), below the floor"
+            echo "secrets.min_chunks_scanned = $floor. The scan reached almost nothing:"
+            echo "check the path it was given before touching the floor."
+            exit 1
+          fi
+          echo "trufflehog: $chunks chunks scanned, no verified credential (floor $floor)"
+
       - name: Scan the tree
         run: |
           set -euo pipefail
@@ -421,6 +1186,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
@@ -438,7 +1214,11 @@ jobs:
           chmod +x hadolint
           mapfile -t dfs < <(find . -name 'Dockerfile' -not -path './.git/*')
           echo "hadolint over ${#dfs[@]} Dockerfile(s)"
-          [ "${#dfs[@]}" -ge 1 ] || { echo "FAIL: no Dockerfile found"; exit 1; }
+          [ "${#dfs[@]}" -ge 1 ] || {
+            echo "FAIL: no Dockerfile found. This step lints the container definition and"
+            echo "cannot start without one; the find path is wrong, not the tree."
+            exit 1
+          }
           ./hadolint --failure-threshold error "${dfs[@]}"
 
   # ---------------------------------------------------------------------------
@@ -449,6 +1229,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
@@ -474,7 +1265,8 @@ jobs:
           # There is ONE uv.lock and it sits at the repository ROOT: engine/ and
           # backend/ are two members of one uv workspace, so one resolution
           # covers both and they cannot drift onto different builds of a shared
-          # dependency. See docs/decisions/python-engine.md.
+          # dependency. A workspace has exactly one lockfile, so a second lock
+          # under engine/ or backend/ is a defect rather than an addition.
           if [ ! -f uv.lock ]; then
             echo "FAIL: no uv.lock at the repository root."
             echo "This gate cannot start, and a gate that cannot start has NOT"
@@ -491,7 +1283,12 @@ jobs:
           fi
           n=$(python3 -c "import tomllib;print(len(tomllib.load(open('uv.lock','rb'))['package']))")
           echo "uv.lock declares $n packages"
-          [ "$n" -eq "$expected" ] || { echo "FAIL: expected $expected, found $n"; exit 1; }
+          [ "$n" -eq "$expected" ] || {
+            echo "FAIL: uv.lock resolves $n package(s); engine.py_packages declares $expected."
+            echo "If the lock genuinely moved, bump that constant in .github/inventory.json"
+            echo "in the same commit and say why."
+            exit 1
+          }
 
       - name: OSV scan of the Python lockfile
         run: |
@@ -523,6 +1320,54 @@ jobs:
   # ecosystem (observed 2026-01, undocumented). The canary pull request (todo
   # 1.6.4) must include a deliberate lockfile change so this job is SEEN
   # examining a non-empty diff once before its verdicts are trusted.
+      - name: guarddog (look-alike and malicious package names)
+        env:
+          GUARDDOG_VERSION: "3.2.0"
+        run: |
+          set -euo pipefail
+          # WHAT THIS ADDS THAT pip-audit CANNOT. pip-audit answers "does this
+          # version have a PUBLISHED advisory?". A typosquat has none: it is a new
+          # package with a name one keystroke from a popular one, and it is clean
+          # by every vulnerability database on the day it is installed. guarddog
+          # asks the other question.
+          #
+          # The lockfile has to be exported first -- guarddog reads a requirements
+          # file, not uv.lock. --no-emit-project drops the two workspace members,
+          # which is why the expected count below is py_packages less two.
+          uv export --format requirements-txt --no-hashes --all-extras \
+            --no-emit-project -o "${RUNNER_TEMP}/req.txt"
+
+          # ANTI-VACUITY, and it is not theoretical: guarddog logs
+          # "ERROR: Package/Version <name> not on PyPI" to stderr, skips that
+          # package and STILL EXITS 0. A lockfile full of unresolvable names would
+          # scan clean. Both the count and the error text are therefore asserted.
+          uvx --from "guarddog==${GUARDDOG_VERSION}" guarddog pypi verify \
+            "${RUNNER_TEMP}/req.txt" --rules typosquatting \
+            --exit-non-zero-on-finding --output-format json \
+            > "${RUNNER_TEMP}/guarddog.json" 2> "${RUNNER_TEMP}/guarddog.err" || {
+              cat "${RUNNER_TEMP}/guarddog.err" >&2
+              echo "::error::guarddog flagged a locked package as a possible typosquat."
+              echo "Its report is above. Confirm the name against PyPI before trusting the"
+              echo "lockfile; a re-run cannot answer this."
+              exit 1
+            }
+          if grep -q "not on PyPI" "${RUNNER_TEMP}/guarddog.err"; then
+            cat "${RUNNER_TEMP}/guarddog.err" >&2
+            echo "::error::a locked package could not be resolved on PyPI, so it was never scanned"
+            exit 1
+          fi
+          declared=$(python3 -c "import json;print(json.load(open('.github/inventory.json'))['engine']['py_packages'])")
+          expected=$((declared - 2))
+          scanned=$(python3 -c "import json;print(len(json.load(open('${RUNNER_TEMP}/guarddog.json'))))")
+          if [ "$scanned" -ne "$expected" ]; then
+            echo "::error::guarddog scanned $scanned package(s), expected exactly $expected"
+            echo "-- engine.py_packages is $declared, less the two workspace members."
+            echo "A short scan means packages were skipped, so a clean verdict proves"
+            echo "nothing. Read the guarddog output above before touching the constant."
+            exit 1
+          fi
+          echo "guarddog: $scanned locked packages carry no look-alike name"
+
   # ---------------------------------------------------------------------------
   dependency-review:
     name: dependency-review (licence policy and vulnerabilities on the PR diff)
@@ -531,6 +1376,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
@@ -554,15 +1410,115 @@ jobs:
           echo "the pull request that produced this commit was reviewed. Nothing to examine."
 
   # ---------------------------------------------------------------------------
+  docs:
+    name: docs (links, Markdown lint, spelling, register)
+    runs-on: ubuntu-latest
+    needs: inventory
+    permissions:
+      contents: read
+    steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      # THE FLOOR FIRST. Every other gate in this file asserts it examined a
+      # minimum quantity of work before it may report success, because a
+      # documentation gate whose glob stopped matching is indistinguishable from a
+      # tree with no defects in it.
+      - name: A floor, so a documentation gate that examined nothing cannot pass
+        run: |
+          set -euo pipefail
+          floor="$(python3 -c "import json;print(json.load(open('.github/inventory.json'))['docs']['min_markdown_files'])")"
+          seen="$(git ls-files '*.md' | wc -l)"
+          echo "tracked Markdown files: $seen (floor $floor)"
+          [ "$seen" -ge "$floor" ] || {
+            echo "::error::found $seen tracked Markdown file(s), below the floor"
+            echo "docs.min_markdown_files = $floor. The git pathspec is wrong, not the tree."
+            exit 1
+          }
+
+      - name: typos (spelling, with an exemption list that carries its reasons)
+        run: pipx run typos==1.29.4 --config typos.toml
+
+      - name: markdownlint (Markdown structure)
+        run: npx --yes markdownlint-cli2@0.17.2
+
+      - name: vale (the published prose register)
+        env:
+          VALE_VERSION: "3.17.1"
+        run: |
+          set -euo pipefail
+          curl -fsSL -o vale.tar.gz \
+            "https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+          tar -xzf vale.tar.gz vale
+          # The styles are VENDORED under .github/vale/styles, so there is no
+          # `vale sync` here and this step needs no network beyond its own binary.
+          # A gate that reaches the internet to start fails for reasons unconnected
+          # to the change under test.
+          mapfile -t docs < <(git ls-files '*.md')
+          ./vale --config .vale.ini "${docs[@]}"
+
+      - name: lychee (no dead link in any document)
+        uses: lycheeverse/lychee-action@82202e5e9c2f4ef1a55a3d02563e1cb6041e5332 # v2.4.1
+        with:
+          # lycheeVersion IS PINNED HERE ON PURPOSE. The action is pinned by SHA,
+          # which fixes the wrapper and not the binary it downloads: without this
+          # input the action installs whatever its own default happens to be, so a
+          # SHA-pinned step was still fetching an unpinned tool. Everything else in
+          # this repository is pinned; this was the hole.
+          lycheeVersion: v0.18.1
+          args: --config lychee.toml --no-progress --format json --output ./lychee-out.json .
+          fail: true
+
+      - name: A floor, so a link check that examined nothing cannot pass
+        run: |
+          set -euo pipefail
+          # lychee.toml records the measurement that makes this necessary: an
+          # exclude_path pattern that was not anchored matched a directory it was
+          # never meant to, and the checker reported "no files found" while EXITING
+          # ZERO. `fail: true` above catches broken links; only a count catches a
+          # run that had no links to break.
+          floor="$(python3 -c "import json;print(json.load(open('.github/inventory.json'))['docs']['min_links_checked'])")"
+          total="$(python3 -c "import json;print(json.load(open('./lychee-out.json'))['total'])")"
+          if [ "$total" -lt "$floor" ]; then
+            echo "::error::lychee checked $total links, below the floor $floor; the input glob or exclude_path is wrong, not the tree"
+            exit 1
+          fi
+          echo "lychee checked $total links (floor $floor)"
+
+      # THE DOCUMENTS' OWN EVIDENCE, RE-RUN. Every published figure here is written
+      # beside the command that produces it; this runs those commands and compares.
+      # None of the four gates above can see a stale number: they check language,
+      # spelling, structure and links, never whether a claim is still TRUE. On
+      # 2026-08-21 twenty-two figures described a smaller catalogue than the one in
+      # the tree, and one of them was a claim/evidence row citing output that
+      # assert-inventory had long stopped producing.
+      - name: Every published figure still matches its own command
+        run: bash .github/scripts/check-doc-claims.sh .
+
+  # ---------------------------------------------------------------------------
   # THE ONE REQUIRED CHECK.
   #
   # GitHub treats a required check it has never observed as permanently
-  # "Expected — waiting for status". Requiring the ten leaf jobs above meant
-  # ten independent ways to deadlock main forever: skip one, rename one, or
+  # "Expected — waiting for status". Requiring the twelve leaf jobs above meant
+  # twelve independent ways to deadlock main forever: skip one, rename one, or
   # add a paths filter to one, and no pull request can ever merge again.
   #
   # This job is the only context the ruleset names (with the DCO check). A new
-  # gate joins `needs:` here — never the ruleset. See CONTRIBUTING.md.
+  # gate joins the `needs:` list below and nothing else: adding it to the branch
+  # ruleset instead names a context GitHub has never observed, and main then
+  # waits for a status that no run will ever report.
   ci-gate:
     name: ci-gate
     # `always()` is load-bearing: without it this job is itself skipped when any
@@ -573,16 +1529,29 @@ jobs:
       - spdx
       - artifact-drift
       - py-lint
+      - py-types
       - workflow-lint
       - engine-boundary
       - secrets
       - container-lint
       - pip-audit
       - dependency-review
+      - docs
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - name: Every gate must have reported exactly 'success'
         env:
           RESULTS: ${{ join(needs.*.result, ' ') }}
@@ -591,18 +1560,26 @@ jobs:
           echo "leaf results: $RESULTS"
           bad=0
           for r in $RESULTS; do
-            [ "$r" = "success" ] || { echo "::error::a gate reported '$r'"; bad=1; }
+            [ "$r" = "success" ] || {
+              echo "::error::a required gate reported '$r'. Every leaf must report success;"
+              echo "the failing job is named in the leaf results printed above."
+              bad=1
+            }
           done
-          # ANTI-VACUITY: ten leaves must have reported. A truncated needs list
+          # ANTI-VACUITY: twelve leaves must have reported. A truncated needs list
           # would otherwise pass by examining almost nothing. It was nine when
           # engine-boundary joined the set (a file extension used to enforce
-          # that rule for free and no longer can) and became ten with
-          # dependency-review.
+          # that rule for free and no longer can), ten with dependency-review,
+          # eleven with docs, and twelve with py-types.
           n=$(echo "$RESULTS" | wc -w)
-          [ "$n" -eq 10 ] || { echo "::error::expected 10 leaf results, saw $n"; bad=1; }
+          [ "$n" -eq 12 ] || {
+            echo "::error::saw $n leaf result(s), expected 12. Adding or removing a gate"
+            echo "means editing ci-gate's needs list and this number in the same commit."
+            bad=1
+          }
           [ "$bad" -eq 0 ] || {
             echo "ci-gate FAILED. 'skipped' and 'cancelled' fail here exactly like"
             echo "'failure' does -- a gate that did not run has not passed."
             exit 1
           }
-          echo "ci-gate: all 10 gates reported success."
+          echo "ci-gate: all $n gates reported success."

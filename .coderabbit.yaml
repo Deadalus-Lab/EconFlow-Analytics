@@ -32,15 +32,16 @@ reviews:
   # language model could manage, by the `--check` generators and the SHA-256
   # sidecars in the artifact-drift job. Regenerating them must reproduce the
   # committed bytes exactly.
+  #
+  # The third-party attribution register is `engine/sbom.cdx.json`, and it is
+  # excluded on exactly this reasoning: it is emitted by gen_third_party.py from
+  # the committed lockfile, and that generator's `--check` mode compares it byte
+  # for byte on every run. Reviewing it means reviewing the lockfile twice.
   path_filters:
     - "!engine/artifacts/**"
     - "!engine/src/econflow_engine/generated/**"
-    - "!**/METHOD-SELECTION.md"
-    - "!**/METHOD-SELECTION.yaml"
-    - "!**/METHOD-SELECTION-TREES.yaml"
     - "!uv.lock"
     - "!engine/sbom.cdx.json"
-    - "!engine/THIRD-PARTY-LICENSES.md"
     - "!engine/fixtures/**"
 
   path_instructions:
@@ -48,7 +49,12 @@ reviews:
       instructions: |
         These are Layer 1 wrappers. Every one follows the same shape, and the
         uniformity is load-bearing -- it is what makes generated tooling
-        possible across all 251 modules. Check specifically:
+        possible across every wrapper module in the tree. No count is written
+        here: the catalogue grows with ordinary work, and a figure repeated in a
+        second place is a figure that rots. Count them when you need the number:
+        `find engine/src/econflow_engine/wrappers -name '*.py' ! -name '__init__.py' | wc -l`.
+        It is published once, in README.md, and asserted on every pull request
+        against .github/inventory.json. Check specifically:
 
         1. Arguments taken ONLY from the upstream package documentation, each
            carrying its documented default. Never an invented argument.
@@ -62,7 +68,7 @@ reviews:
         5. An implementation-note footer recording functions used, what was
            deliberately omitted, and the gates added.
 
-        Also flag: any network call (the engine makes none -- 0 of 251), any
+        Also flag: any network call (the engine makes none; the no-network gate enforces it), any
         `eval`, `exec`, `pickle` or `getattr` on user input, and any stochastic
         method that does not take a mandatory seed.
 

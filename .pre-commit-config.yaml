@@ -8,13 +8,17 @@
 # │ AUTO-FORMATTER TO THIS FILE.                                             │
 # │                                                                          │
 # │ The hazard did not change with the language; only the tool's name did.   │
-# │ It would rewrite all 380 Python files. Among them is the 64-module       │
-# │ generated tier under src/econflow_engine/generated/, emitted by          │
-# │ scripts/gen_schemas.py, and ARCHITECTURE.md §4.4 records that even a     │
-# │ COMMENT change on the generating side shifts the emitted bytes. A        │
-# │ formatting pass would therefore put every generated module out of step   │
-# │ with its generator in one commit, turn the artifact-drift gate red, and  │
-# │ force a regeneration whose diff nobody can review.                       │
+# │ It would rewrite every Python file in the tree -- count them with        │
+# │ `find engine backend -name '*.py' ! -path '*__pycache__*' | wc -l`.      │
+# │ Among them is the generated tier under                                   │
+# │ engine/src/econflow_engine/generated/, emitted by scripts/gen_schemas.py │
+# │ and counted in ARCHITECTURE.md beside the command that measures it.      │
+# │ That generator's --check compares emitted bytes against committed bytes, │
+# │ so any change that moves formatting -- whitespace, or a comment inside   │
+# │ an emitted template -- moves the whole tier at once. A formatting pass   │
+# │ would therefore put every generated module out of step with its          │
+# │ generator in one commit, turn the artifact-drift gate red, and force a   │
+# │ regeneration whose diff nobody can review.                               │
 # │                                                                          │
 # │ The engine's formatting is enforced by ruff.toml's LINT rules, which were│
 # │ fitted to the existing corpus and currently report zero findings. That   │
@@ -29,17 +33,68 @@ default_install_hook_types:
 # Generated and byte-pinned content is excluded globally. A whitespace hook
 # "fixing" one of these would break the drift gate that exists to prove they
 # have not changed.
+#
+# EVERY ALTERNATIVE BELOW MATCHES A FILE THAT EXISTS; one that matches nothing is
+# removed, not carried. engine/THIRD-PARTY-LICENSES.md was excluded here while
+# gen_third_party.py could still re-emit it. That generator now writes
+# engine/sbom.cdx.json and nothing else, so the pattern guarded a path no command
+# in this tree produces. The attribution register is the SBOM alone, which is what
+# NOTICE, LICENSE and README.md say.
+#
+# engine/fixtures/.* went the same way on 2026-08-22. It excluded the parquet and
+# JSON fixtures from the whitespace hooks while that directory held them; the
+# directory itself no longer exists, so the alternative matched nothing and is
+# removed rather than kept against a directory that may never return.
+#
+# A VERBATIM UPSTREAM LICENCE BELONGS IN THE SAME CATEGORY, AND ITS CASE IS THE
+# WORSE ONE. LICENSES/BSD-3-Clause.txt reproduces the SPDX text byte for byte,
+# and its first line ends with a trailing space:
+#
+#   cat -A LICENSES/BSD-3-Clause.txt | head -1
+#   Copyright (c) <year> <owner>. $
+#
+# trailing-whitespace removed that byte. A standard document edited to satisfy a
+# house rule is no longer the document it claims to be, which is the same reason
+# CODE_OF_CONDUCT.md is exempt from every prose gate. Unlike the byte-pinned
+# entries above, nothing here catches the damage: each artifact carries a
+# SHA-256 sidecar and a generator's --check, while `reuse lint` passes on either
+# text because it reads the SPDX identifier and never compares bytes. The
+# absence of a drift gate makes this exclusion MORE important than the others,
+# not less -- it is the only thing standing between a whitespace hook and a
+# licence that silently stopped matching upstream. The whole directory is
+# excluded rather than the single file, because the next licence added must not
+# depend on somebody remembering this line.
+#
+# THE VENDORED PROSELINT STYLE IS THE SAME CASE. `.github/vale/styles/proselint/`
+# holds errata-ai's style, copied in verbatim and declared in REUSE.toml under
+# `precedence = "override"` as BSD-3-Clause: the repository has already decided
+# those bytes are not ours. One of them is the BSD-3-Clause text itself, so the
+# reading that these are only vale's rule inputs, and not a reproduced standard
+# document, does not cover the set. Measured 2026-08-22, not one of them carries
+# trailing whitespace, a missing final newline or a CR, so they survive the hooks
+# above on content alone rather than by rule -- list what a hook would touch with
+#
+#   git ls-files '.github/vale/styles/proselint/' | xargs grep -lE ' +$'
+#
+# Nothing in this tree would report the damage either: they carry no SHA-256
+# sidecar and no generator `--check`, and `reuse lint` reads the SPDX identifier
+# without ever comparing bytes -- the same absence that makes the LICENSES entry
+# above matter more than the byte-pinned ones, not less. A rewritten rule file
+# also changes what the register gate enforces while vale and `reuse lint` both
+# stay green, which is a gate quietly editing its own rules. The cost is that
+# check-yaml and check-json no longer parse this directory; vale refuses to load
+# a malformed style and reports it, so the damage still surfaces, and it surfaces
+# in the tool that owns these files. The directory is excluded rather than its
+# files, for the reason given just above.
 exclude: |
   (?x)^(
       engine/src/econflow_engine/generated/.*
     | engine/artifacts/.*\.json
     | engine/artifacts/.*\.sha256
-    | engine/fixtures/.*
     | engine/sbom\.cdx\.json
     | uv\.lock
-    | engine/METHOD-SELECTION\.(md|yaml)
-    | engine/METHOD-SELECTION-TREES\.yaml
-    | engine/THIRD-PARTY-LICENSES\.md
+    | LICENSES/.*
+    | \.github/vale/styles/proselint/.*
   )$
 
 repos:
@@ -57,18 +112,41 @@ repos:
         args: [--fix=lf]
       - id: detect-private-key
       - id: check-added-large-files
-        # The committed artifacts are legitimately large -- node-specs is 2.7 MB
-        # and METHOD-SELECTION.yaml is 964 KB. The ceiling sits above those and
-        # below "somebody committed a container image or a dataset".
-        args: [--maxkb=3000]
+        # The committed artifacts are legitimately large -- at 46 categories
+        # node-specs.json is 3.5 MB, method-cards.json 2.8 MB and
+        # parity-fixtures.json 2.2 MB. The ceiling sits above those and below
+        # "somebody committed a container image or a dataset". Raised from 3000
+        # on 2026-08-20 when the catalogue grew past it; the superseded pair that
+        # used to sit beside these was retired on 2026-08-21.
+        # 4096 KiB, SET AGAINST THE MEASUREMENT rather than left round. The
+        # largest file that will ever enter this history is
+        # engine/artifacts/node-specs.json at 3588 KiB. No count of the files
+        # above 1024 KiB is written here: the catalogue moves and a stale count
+        # would be worse than none. Every one of them is a sealed artifact under
+        # engine/artifacts/,
+        # carrying a SHA-256 sidecar and rebuilt byte for byte by its generator's
+        # `--check`. List them, largest first, with
+        # `find engine/artifacts -name '*.json' -size +1024k -printf '%k KiB\t%p\n' | sort -rn`.
+        # Generated output is committed here deliberately: the alternative is a
+        # build step before anything is reviewable. 6000 was inherited and left almost
+        # 2.4 MiB of unexplained headroom -- room for a fixture nobody decided to
+        # admit. A deliberate ceiling is one a new large file has to argue past.
+        args: [--maxkb=4096]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.1
+    # 0.16.3, matching the locked version and ci.yml's py-lint job. It used to be
+    # 0.7.1 here while run_verifications.sh ran 0.16.3, which meant one ruff.toml
+    # was being judged by two checkers that do not agree on which rules exist.
+    rev: v0.16.3
     hooks:
       # LINT ONLY. There is deliberately no `ruff-format` hook here; see the box
       # at the top of this file. The version matches the pin in ci.yml's py-lint
       # job, because "zero findings" is a statement about a specific rule set.
-      - id: ruff
+      #
+      # `ruff-check`, not `ruff`: from 0.16 the bare id is a legacy alias that
+      # still works and announces itself as one. An alias is a deprecation with a
+      # date on it, and a hook that stops resolving is a gate that stops running.
+      - id: ruff-check
         args: [--fix]
 
   - repo: https://github.com/gitleaks/gitleaks
@@ -105,8 +183,10 @@ repos:
       # THIS HOOK USED TO FAIL GREEN, AND THE FIX IS THE POINT OF THE PATTERN.
       # Its selector matched a file type this tree does not contain. On a tree with no such files in it that matches
       # NOTHING, and a hook that matches nothing is reported as Passed -- the one
-      # gate in this repository that could go green having examined zero files,
-      # which is exactly what ARCHITECTURE.md §11.1 forbids. It now selects .py,
+      # gate in this repository that could go green having examined zero files.
+      # A gate that reports success without examining anything is the single
+      # failure every gate here is written to refuse, which is why each of them
+      # carries a floor, a positive control, or both. It now selects .py,
       # and it asserts the IDENTIFIER as well as its presence: a file carrying
       # some other licence header would otherwise pass a presence-only check
       # while quietly contradicting LICENSE.
@@ -123,6 +203,107 @@ repos:
           done; exit $miss' --
         language: system
         files: \.py$
+
+      # THE SHELL GATES, WHICH USED TO RUN NOWHERE BUT CI.
+      #
+      # This file's stated goal is zero divergence between what runs locally and
+      # what runs in continuous integration, and seven tree-wide gates were absent
+      # from it entirely. Each is `always_run` with `pass_filenames: false` on
+      # purpose: every one asserts a property of the WHOLE tree against a counted
+      # floor, so handing it a changed-file list would turn a tree-wide assertion
+      # into a spot check that passes because it looked at three files.
+      #
+      # Two of the nine scripts are deliberately absent. apply-ruleset.sh WRITES
+      # remote state, and check-repo-settings.sh needs a `gh` token with admin on
+      # the organisation's repository -- neither belongs on a hook that fires on
+      # every commit. Both stay in the 1.6.1 pre-flight, where a human runs them.
+      - id: root-visibility
+        name: the public root surface matches root-manifest.txt
+        entry: .github/scripts/check-root-visibility.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      - id: required-contexts
+        name: every required context resolves to a real job, and ci-gate covers every leaf
+        entry: .github/scripts/check-required-contexts.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      - id: toolchain-pin
+        name: the interpreter and the dependency snapshot are pinned consistently
+        entry: .github/scripts/check-toolchain-pin.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      - id: action-pinning
+        name: every action reference is a full commit SHA with a version comment
+        entry: .github/scripts/check-action-pinning.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      - id: engine-boundary
+        name: backend/ declares no statistical dependency
+        entry: .github/scripts/check-engine-boundary.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      - id: dockerfile-paths
+        name: every COPY source resolves in the build context
+        entry: .github/scripts/check-dockerfile-paths.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
+      # PRE-PUSH, NOT PRE-COMMIT, AND THE REASON IS MEASURED. This one walks 1050
+      # files and takes 8.2 s against 10-360 ms for its six siblings. A hook that
+      # makes every commit wait eight seconds is a hook people start passing -n to,
+      # and a bypassed gate is worth less than a slower one. It still runs on every
+      # push and in workflow-lint on every pull request.
+      - id: vocabulary
+        name: the documentation vocabulary is this project's own
+        entry: .github/scripts/check-vocabulary.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+      # The documents' own evidence, re-run. Runs a closed set of commands quoted
+      # in the published tables and compares each result to the figure printed
+      # beside it. pre-push rather than pre-commit: it shells out once per claim,
+      # which is cheap before a push and needless on every commit.
+      # No wrapper reaches the network. Parses every wrapper module rather than
+      # grepping it, so a dynamic import cannot slip past.
+      - id: no-network
+        name: no wrapper reaches the network
+        entry: .github/scripts/check-no-network.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+      - id: doc-claims
+        name: every published figure matches its own command
+        entry: .github/scripts/check-doc-claims.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+  # THE commit-msg STAGE FINALLY HAS A HOOK BEHIND IT. default_install_hook_types
+  # above has installed a commit-msg hook since this file was written, and nothing
+  # was ever wired to that stage -- so `pre-commit install` created an empty gate
+  # and the commit-message rules lived only in ci.yml, where they are found after
+  # the message is already written. .gitlint requires a body and a Signed-off-by
+  # trailer; both are cheaper to fix before the commit exists than after.
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.19.1
+    hooks:
+      - id: gitlint
 
 ci:
   autofix_prs: true

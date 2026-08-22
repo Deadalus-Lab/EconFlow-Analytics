@@ -22,7 +22,9 @@ set -euo pipefail
 
 ROOT="${1:-.}"
 command -v python3 >/dev/null 2>&1 || {
-  echo "FAIL: python3 is required by this gate and is not on PATH." >&2; exit 1; }
+  echo "FAIL: python3 is required by this gate and is not on PATH." >&2
+  exit 1
+}
 
 python3 - "$ROOT" <<'PY'
 import json, sys, pathlib

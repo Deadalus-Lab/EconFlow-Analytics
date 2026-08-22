@@ -19,7 +19,10 @@ set -euo pipefail
 DOCKERFILE="${1:-Dockerfile}"
 CONTEXT="${2:-.}"
 
-[ -f "$DOCKERFILE" ] || { echo "FAIL: no Dockerfile at $DOCKERFILE"; exit 1; }
+[ -f "$DOCKERFILE" ] || {
+  echo "FAIL: no Dockerfile at $DOCKERFILE"
+  exit 1
+}
 
 fail=0
 checked=0
@@ -42,7 +45,7 @@ while IFS= read -r line; do
   i=0
   for src in "$@"; do
     i=$((i + 1))
-    [ "$i" -lt "$n" ] || break          # last argument is the destination
+    [ "$i" -lt "$n" ] || break           # last argument is the destination
     case "$src" in --*) continue ;; esac # a flag, not a path
 
     # A COPY source may be a glob; let the shell resolve it.
@@ -61,9 +64,9 @@ done < <(
   # instruction -- then select COPY lines and squeeze runs of spaces and tabs.
   # Note: squeezing [:space:] here would also collapse newlines and fold the
   # whole file onto a single line, which silently reduces this gate to nothing.
-  sed -e ':a' -e '/\\$/{N;s/\\\n//;ba' -e '}' "$DOCKERFILE" \
-    | grep -E '^[[:space:]]*COPY[[:space:]]' \
-    | tr -s ' \t' ' '
+  sed -e ':a' -e '/\\$/{N;s/\\\n//;ba' -e '}' "$DOCKERFILE" |
+    grep -E '^[[:space:]]*COPY[[:space:]]' |
+    tr -s ' \t' ' '
 )
 
 # Anti-vacuity: a Dockerfile whose COPY lines stopped matching the grep would

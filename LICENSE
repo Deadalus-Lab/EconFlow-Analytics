@@ -67,9 +67,10 @@ admitted to this tree. No current dependency is affected; the constraint governs
 what may be added.
 
 Third-party attribution -- every dependency, its version and its declared
-licence -- is in `engine/THIRD-PARTY-LICENSES.md`, with a machine-readable bill
-of materials in `engine/sbom.cdx.json`. Both are generated from the lockfile and
-gated against drift in continuous integration.
+licence -- is `engine/sbom.cdx.json`, a machine-readable CycloneDX bill of
+materials generated from the committed lockfile and gated against drift in
+continuous integration. That one file is the whole register; `NOTICE` and
+`README.md` point at it and at nothing else.
 
 --------------------------------------------------------------------------------
 

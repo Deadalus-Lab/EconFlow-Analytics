@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# No emoji in published text. This is a stated project requirement and it is
+# worth a rule rather than a convention, because an emoji is the single fastest
+# way to make a serious document read as a casual one.
+#
+# It is also an accessibility question that is easy to miss: a screen reader
+# announces the character's full CLDR name in the middle of the sentence, so a
+# warning sign dropped in front of a paragraph is read aloud as "warning sign"
+# where a reader expected the next word. Where a document needs to mark a caution
+# it uses a word.
+#
+# The ranges cover pictographs, dingbats, transport and miscellaneous symbols.
+# They deliberately do NOT cover the arrows, box-drawing characters or
+# mathematical operators used in the architecture diagrams and the notation,
+# which are typography rather than decoration.
+extends: existence
+message: "Remove the emoji '%s'; published documents here mark emphasis with words."
+level: error
+nonword: true
+tokens:
+  - '[\x{1F300}-\x{1F5FF}]'
+  - '[\x{1F600}-\x{1F64F}]'
+  - '[\x{1F680}-\x{1F6FF}]'
+  - '[\x{1F900}-\x{1FAFF}]'
+  - '[\x{2600}-\x{26FF}]'
+  - '[\x{2700}-\x{27BF}]'
+  - '[\x{FE0F}]'

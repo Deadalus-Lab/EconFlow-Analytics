@@ -21,14 +21,17 @@ set -euo pipefail
 ROOT="${1:-.}"
 MANIFEST="${2:-$ROOT/.github/root-manifest.txt}"
 
-[ -f "$MANIFEST" ] || { echo "FAIL: no manifest at $MANIFEST" >&2; exit 1; }
+[ -f "$MANIFEST" ] || {
+  echo "FAIL: no manifest at $MANIFEST" >&2
+  exit 1
+}
 
 expected="$(grep -vE '^\s*(#|$)' "$MANIFEST" | LC_ALL=C sort)"
 
 # Top-level entries git considers trackable: staged/committed plus untracked
 # that survive .gitignore. Works before the first commit and after it.
-actual="$(cd "$ROOT" && git ls-files --cached --others --exclude-standard \
-          | cut -d/ -f1 | LC_ALL=C sort -u)"
+actual="$(cd "$ROOT" && git ls-files --cached --others --exclude-standard |
+  cut -d/ -f1 | LC_ALL=C sort -u)"
 
 # ANTI-VACUITY: a comparison against an empty manifest would pass trivially.
 n=$(printf '%s\n' "$expected" | grep -c . || true)

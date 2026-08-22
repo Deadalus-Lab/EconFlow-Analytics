@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# Academic prose spells its verbs out. This is a small rule with a large effect
+# on register, and it is cheap to keep: measured across every published Markdown
+# document in this tree, there are currently ZERO contractions, so the rule
+# codifies a discipline the documents already hold rather than demanding a
+# rewrite of anything.
+#
+# It is scoped to prose. Code blocks, inline code and quoted error messages are
+# not touched, because a contraction inside a quoted string is data.
+extends: existence
+message: "Write '%s' out in full; published prose here does not use contractions."
+level: error
+ignorecase: true
+nonword: false
+tokens:
+  - '\b(?:do|does|did|is|are|was|were|has|have|had|would|should|could|will|ca|wo)n''t\b'
+  - '\b(?:it|that|there|here|what|who|he|she|let)''s\b'
+  - '\b(?:we|you|they|I)''(?:re|ve|ll|d|m)\b'

@@ -1,15 +1,23 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 #
-# EXEMPTIONS FROM check-vocabulary.sh. One path prefix per line.
-#
-# It contains no content entries, and that is the point: every file in this tree
-# documents itself in this project's own terms. If you find yourself adding one,
-# the question to answer first is whether the wording is genuinely borrowed
-# vocabulary (rewrite it) or MATHEMATICS or a person's name (the gate already
-# permits both -- see the ALLOWED list in the script).
+# EXEMPTIONS FROM check-vocabulary.sh. One path prefix per line, and the list
+# stays short: every file in this tree documents itself in this project's own
+# terms. Before adding an entry, decide which case you are in. Genuinely
+# borrowed vocabulary -- rewrite the sentence. Mathematics, or a person's name
+# -- the gate already permits both, and the fix belongs in the token list in the
+# script, beside the reading that protects it, rather than in a path exemption
+# here.
 #
 # The two entries below are the gate's own files, which necessarily contain the
 # patterns they search for.
 
 .github/vocabulary-allowlist.txt
 .github/scripts/check-vocabulary.sh
+
+# `parity-fixtures.json` is a frozen corpus of REJECTED inputs. The formula
+# allowlist is a default-deny security surface, and proving it denies something
+# means naming the thing denied: the fixture payloads and their refusal messages
+# contain, deliberately, the exact constructs this gate refuses. Exempting the
+# file is honest; rewording an adversarial payload would make the fixture stop
+# testing what it exists to test.
+engine/artifacts/parity-fixtures.json

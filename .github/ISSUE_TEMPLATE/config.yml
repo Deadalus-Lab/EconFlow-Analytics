@@ -6,4 +6,4 @@ contact_links:
     about: Report privately. Never open a public issue for a security problem.
   - name: Architecture and open decisions
     url: https://github.com/Deadalus-Lab/EconFlow-Analytics/blob/main/ARCHITECTURE.md
-    about: Section 14 lists every decision not yet made. Your question may already be there.
+    about: Its "Not yet decided" section lists every open decision. Your question may already be there.

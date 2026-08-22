@@ -17,7 +17,7 @@
 #   label `full-suite`  the full suite, opt-in, for a risky branch
 #   nightly             the full suite plus full artifact regeneration
 #
-# WHAT THIS DOES NOT CLOSE, and ARCHITECTURE.md 11.4 says so too: a pull request
+# WHAT THIS DOES NOT CLOSE, stated plainly because it is a real gap: a pull request
 # touching a wrapper whose tests are not matched by the path selector can still
 # merge green. The post-merge run turns that from "silently broken main" into
 # "loudly broken main" -- which is a real improvement over nothing, and is NOT
@@ -53,6 +53,18 @@ env:
   OPENBLAS_NUM_THREADS: "1"
   OMP_NUM_THREADS: "1"
   MKL_NUM_THREADS: "1"
+  # THE THREE ABOVE WERE NOT THE WHOLE SET, and the gap only bit on one path.
+  # The `full` path runs run_verifications.sh, which re-exports all of these
+  # itself; the `subset` path runs pytest DIRECTLY and so inherited only what is
+  # declared here. It was therefore running with a live NUMEXPR pool and a
+  # randomised hash seed while the full path was not -- two different numerical
+  # environments behind one green tick. tests/test_thread_pinning.py now fails
+  # loudly rather than letting that happen quietly.
+  NUMEXPR_NUM_THREADS: "1"
+  PYTHONHASHSEED: "0"
+  TZ: "UTC"
+  LC_ALL: "C.UTF-8"
+  LANG: "C.UTF-8"
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -64,6 +76,17 @@ jobs:
     outputs:
       mode: ${{ steps.decide.outputs.mode }}
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
@@ -96,6 +119,17 @@ jobs:
       # long time that failure was hidden by a trailing `|| true`.
       issues: write
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
@@ -152,8 +186,10 @@ jobs:
           # correct form is 'src/**/*.py'. The seemingly more explicit
           # 'engine/src/**/*.py' matches NOTHING from here -- the subset would be
           # empty, the job would exit 0, and a green run would mean the selector
-          # found no changes rather than that the changes passed. Measured, and
-          # recorded in docs/decisions/repository-layout.md.
+          # found no changes rather than that the changes passed. Reproduce both
+          # halves from engine/ on any commit that touched a wrapper:
+          #   git diff --name-only HEAD~1 HEAD -- 'src/**/*.py'         # matches
+          #   git diff --name-only HEAD~1 HEAD -- 'engine/src/**/*.py'  # empty
           mapfile -t changed < <(git diff --name-only "$base" "$head" -- 'src/**/*.py' || true)
           echo "changed Python sources: ${#changed[@]}"
 
@@ -185,7 +221,60 @@ jobs:
 
           printf 'selected %d test file(s)\n' "${#sel[@]}"
           printf '  %s\n' "${sel[@]}"
-          uv run --locked pytest -q "${sel[@]}"
+          uv run --locked pytest "${sel[@]}"
+
+      - name: Build the image and score it with dockle
+        if: needs.scope.outputs.mode == 'full'
+        env:
+          DOCKLE_VERSION: "0.4.15"
+        run: |
+          set -euo pipefail
+          # WHY HERE AND NOT IN ci.yml. The image build runs the full verification
+          # suite as a hard gate, and the full suite is deliberately kept off every
+          # pull request -- it would make every pull request as long as the suite.
+          # This job is already the long one, so the image
+          # scan belongs beside it: on push to main, nightly, and on a branch that
+          # opts in with the full-suite label.
+          # The epoch comes from the commit, so the same commit always builds the
+          # same bytes. See the note at the top of the Dockerfile for the measured
+          # byte-for-byte comparison and how to reproduce it.
+          SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          export SOURCE_DATE_EPOCH
+          docker build -t econflow-engine:ci .
+
+          base="https://github.com/goodwithtech/dockle/releases/download/v${DOCKLE_VERSION}"
+          curl -sSfL "${base}/dockle_${DOCKLE_VERSION}_Linux-64bit.tar.gz" -o dockle.tgz
+          tar -xzf dockle.tgz dockle && chmod +x dockle
+
+          # TWO SUPPRESSIONS, BOTH MEASURED, NEITHER OF THEM A CONVENIENCE.
+          #
+          # -af settings.py: CIS-DI-0010 is a filename heuristic, and what it found
+          # is scipy's own
+          # .venv/lib/python3.12/site-packages/scipy/_external/cobyqa/settings.py.
+          # It holds solver tolerances, not a credential.
+          #
+          # -i DKL-DI-0005: the uncleaned apt cache it reports is in the BASE
+          # IMAGE's own layer -- the one installing ca-certificates, netbase and
+          # tzdata, which python:3.12-slim ships and this repository cannot rewrite.
+          # Our own apt layer installs libglpk40, libgmp10, libmpfr6 and tini and
+          # ends with `rm -rf /var/lib/apt/lists/*`. Verified by reading both.
+          ./dockle --exit-code 1 --exit-level fatal \
+            -af settings.py -i DKL-DI-0005 econflow-engine:ci
+
+      - name: The image runs on a read-only root filesystem
+        if: needs.scope.outputs.mode == 'full'
+        run: |
+          set -euo pipefail
+          # A read-only rootfs is a RUNTIME property, so it cannot be proven by
+          # building. tini and the entrypoint need somewhere writable, which is
+          # what the tmpfs is for; without it this fails at start rather than at
+          # build, and the failure would otherwise surface only when Galaxy ran a
+          # real job.
+          docker run --rm --read-only --tmpfs /tmp econflow-engine:ci \
+            python -m econflow_engine --version
+          uid=$(docker run --rm --read-only --tmpfs /tmp econflow-engine:ci id -u)
+          [ "$uid" = "10001" ] || { echo "::error::the container runs as uid $uid, not 10001"; exit 1; }
+          echo "the image runs read-only as uid $uid"
 
       - name: Announce a broken main loudly
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -200,9 +289,11 @@ jobs:
           Commit: ${{ github.sha }}
           Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-          This is the failure mode ARCHITECTURE.md 11.4 predicts: a pull request
-          whose tests were not matched by the path selector merged green and
-          broke the engine. Fix forward or revert." || {
+          This is the failure mode the path-selected subset leaves open by
+          design: a pull request whose tests were not matched by the selector
+          merged green and broke the engine. The post-merge full suite exists to
+          turn that from a silently broken main into a loud one, which is what
+          just happened. Fix forward or revert." || {
             echo "::error::FAILED TO ANNOUNCE A BROKEN MAIN."
             echo "The engine suite failed AND the alarm could not be raised."
             echo "Check that the 'broken-main' label exists and that this job has"

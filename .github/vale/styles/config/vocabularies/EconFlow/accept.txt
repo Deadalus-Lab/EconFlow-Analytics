@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# The project vocabulary: terms that are correct here and that a general English
+# dictionary does not carry. Entries are regular expressions, matched
+# case-sensitively unless the pattern says otherwise.
+#
+# Spelling itself is enforced by `typos` rather than by Vale -- the two overlap,
+# and typos understands identifiers and code far better. This list exists so that
+# the register rules, and any future Vale rule that consults the vocabulary, do
+# not trip over the discipline's own words.
+
+# --- the project and its layers ------------------------------------------------
+EconFlow
+Galaxy
+Deadalus
+
+# --- econometrics and statistics ----------------------------------------------
+[Aa]utocorrelation
+[Cc]ointegrat(?:ion|ed|ing)
+[Hh]eteroskedastic(?:ity)?
+[Hh]omoskedastic(?:ity)?
+[Ss]tationarity
+[Nn]owcast(?:ing|s)?
+[Bb]acktest(?:ing|s)?
+[Qq]uantile[s]?
+[Cc]opula[s]?
+[Kk]urtosis
+[Ss]kewness
+[Mm]ultivariate
+[Uu]nivariate
+[Ee]ndogeneity
+[Ee]xogeneity
+[Cc]ollinearity
+[Ii]dempotent
+[Ee]igenvalue[s]?
+[Ee]igenvector[s]?
+[Bb]ootstrap(?:ped|ping)?
+[Ww]inzoris(?:e|ed|ing)
+[Dd]etrend(?:ed|ing)?
+[Dd]eseasonalis(?:e|ed|ing)
+[Ll]og[- ]likelihood
+[Pp]osterior[s]?
+[Pp]rior[s]?
+[Hh]yperparameter[s]?
+[Ss]hrinkage
+[Rr]egressor[s]?
+[Ee]stimator[s]?
+[Ii]nstrumental
+ARIMA
+GARCH
+VECM
+SVAR
+BVAR
+GVAR
+VAR
+DSGE
+FAVAR
+HANK
+IRF
+FEVD
+ADF
+KPSS
+LASSO
+MIDAS
+
+# --- the toolchain -------------------------------------------------------------
+[Ll]ockfile[s]?
+[Mm]onorepo
+[Dd]ocstring[s]?
+[Dd]atatype[s]?
+[Aa]llowlist(?:ed|ing)?
+[Dd]enylist(?:ed|ing)?
+[Nn]amespace[s]?
+[Mm]ultithreaded
+[Mm]emois(?:e|ed|ing)
+[Vv]endored
+[Uu]nbuilt
+[Pp]arquet
+[Ss]idecar[s]?
+[Rr]untime[s]?
+[Tt]oolchain
+[Ss]ubcommand[s]?
+[Ss]ubprocess(?:es)?
+[Pp]ydantic
+[Nn]um[Pp]y
+[Ss]ci[Pp]y
+[Pp]andas
+[Ss]tatsmodels
+[Pp]y[Aa]rrow
+[Rr]uff
+[Mm]ypy
+[Pp]ytest
+[Dd]ockerfile
+[Ll]ychee
+[Mm]arkdownlint
+[Vv]ale
+Affero
+[Ss]ha256
+SPDX
+SBOM
+CycloneDX

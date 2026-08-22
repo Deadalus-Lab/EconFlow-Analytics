@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# NOTHING PUBLISHED HERE DESCRIBES ITSELF AS HAVING BEEN WRITTEN BY A TOOL.
+#
+# Every document in this repository is published under the maintainer's name and
+# is his work and his responsibility. A document that announces itself as
+# generated, or that refers to its own author as a model or an assistant, does
+# two damaging things at once: it disclaims the accountability that a scientific
+# artifact depends on, and it invites the reader to discount the mathematics
+# without checking it.
+#
+# This is the one register rule with no aesthetic component whatsoever. It exists
+# because the requirement is absolute and because a phrase of this kind is very
+# easy to leave behind by accident in a long document.
+extends: existence
+message: "'%s' must not appear in a published document; the work is published under its author's name."
+level: error
+ignorecase: true
+tokens:
+  - as an AI
+  - as an? (?:AI )?(?:language model|assistant|agent)
+  - I am an AI
+  - I'm an AI
+  - generated (?:by|with|using) (?:an? )?(?:AI|LLM|language model|chatbot)
+  - written by (?:an? )?(?:AI|LLM|language model|assistant)
+  - AI-generated
+  - Co-Authored-By
+  - Generated with \[?Claude
+  - 🤖 Generated

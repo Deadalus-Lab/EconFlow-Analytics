@@ -15,9 +15,7 @@
 # to the generator is, by definition, a hand edit.
 /engine/artifacts/             @Panagiotis-Tsikos
 /engine/scripts/               @Panagiotis-Tsikos
-/engine/METHOD-SELECTION.md    @Panagiotis-Tsikos
-/engine/METHOD-SELECTION.yaml  @Panagiotis-Tsikos
-/engine/METHOD-SELECTION-TREES.yaml @Panagiotis-Tsikos
+/engine/METHOD-SOURCES.json    @Panagiotis-Tsikos
 
 # The gates themselves, and the licence.
 /.github/               @Panagiotis-Tsikos

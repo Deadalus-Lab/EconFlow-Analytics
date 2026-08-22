@@ -31,6 +31,17 @@ jobs:
     permissions:
       contents: read
     steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. The recent supply-chain attacks did
+      # not break the build; they exfiltrated secrets over the network from a job
+      # that otherwise went green. harden-runner records every outbound connection
+      # this job makes, which is the only way to learn what the allowlist should
+      # contain -- an allowlist written from imagination blocks the wrong things
+      # and admits the rest. `audit` is therefore not a weaker setting than
+      # `block`, it is the step that produces the input for it. See box 1.3.27.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0

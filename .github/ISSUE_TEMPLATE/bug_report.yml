@@ -29,10 +29,10 @@ body:
     attributes:
       label: Environment
       description: |
-        Paste the output of the three commands below, run from `engine/`. The
-        interpreter must be 3.12 and the environment must match the committed
-        lockfile — a difference in either is itself the likely cause, and the
-        third command is what shows it.
+        Paste the output of the three commands below, run from `engine/`. Your
+        interpreter must match `engine/.python-version` and your environment must
+        match the committed lockfile — a difference in either is itself the likely
+        cause, and the third command is what shows it.
 
         ```
         python3 --version

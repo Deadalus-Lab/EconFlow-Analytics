@@ -37,8 +37,10 @@
 engine/src/econflow_engine/generated/**  linguist-generated
 engine/artifacts/*.json                  linguist-generated
 uv.lock                                  linguist-generated
-engine/METHOD-SELECTION.yaml             linguist-generated
-engine/METHOD-SELECTION-TREES.yaml       linguist-generated
+# The third-party attribution register. It is the CycloneDX SBOM and nothing
+# else -- one register, named identically by NOTICE, LICENSE and README.md --
+# emitted by engine/scripts/gen_third_party.py from the committed uv.lock. The
+# one rule it needs is the generated marking below: an attribution register is
+# machine-written, so it must not count toward the language breakdown and must
+# not be diffed as hand-written text.
 engine/sbom.cdx.json                     linguist-generated
-engine/THIRD-PARTY-LICENSES.md           linguist-documentation
-engine/METHOD-SELECTION.md               linguist-documentation

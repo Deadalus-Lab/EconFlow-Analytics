@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# The register this project publishes in is professional and academic. That is a
+# stated requirement, not a preference, and until this rule existed nothing
+# enforced it: a sentence like "this is super easy, just drop it in and you're
+# good to go" would have shipped in a document a scientist reads before deciding
+# whether to trust an estimator.
+#
+# WHAT IS AND IS NOT CAUGHT. This flags casual register -- filler, hype,
+# chattiness and the vocabulary of a blog post. It does NOT flag warmth, the
+# first person, or a direct address to the reader, because the house voice is a
+# maintainer who cares about the work rather than a manual written by nobody.
+# Removing personality is not the goal; sounding unserious about the mathematics
+# is the failure.
+extends: existence
+message: "'%s' is too informal for a published document; state it plainly instead."
+level: error
+ignorecase: true
+tokens:
+  # Filler and hedging that adds nothing to a technical claim.
+  - basically
+  - obviously
+  - simply just
+  - a bit of a
+  - kind of a
+  - sort of a
+  - pretty much
+  - more or less
+  # Casual quantifiers.
+  - tons of
+  - loads of
+  - a bunch of
+  - a ton of
+  - heaps of
+  # Hype. A gate is either correct or it is not; it is never awesome.
+  - awesome
+  - amazing
+  - fantastic
+  - super (?:easy|simple|fast|quick)
+  - blazing(?:ly)? fast
+  - insanely
+  - crazy (?:fast|good|simple)
+  - magic(?:al)?ly
+  - rock ?solid
+  - bulletproof
+  - game[- ]chang(?:er|ing)
+  - cutting[- ]edge
+  - state[- ]of[- ]the[- ]art
+  # Chat register.
+  - lol
+  - haha
+  - oops
+  - yay
+  - wow
+  - gonna
+  - wanna
+  - gotta
+  - kinda
+  - sorta
+  - dunno
+  - yeah
+  - nope
+  - stuff like that
+  - and so on and so forth
+  - you name it
+  - no[- ]brainer
+  - piece of cake
+  - out of the box solution
+  - just works
+  - good to go
+  - up and running in no time

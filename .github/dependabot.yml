@@ -31,9 +31,12 @@ updates:
   # IS a Dependabot ecosystem, it reads a uv-generated lockfile, and declining
   # coverage that exists would be a choice rather than a constraint.
   #
-  # The lockfile is at the repository root, because engine/ and backend/ are two
-  # members of one uv workspace with one resolution. The `/engine` entry below
-  # covers the engine member's manifest.
+  # THERE IS ONE ENTRY AND IT IS AT `/`, WHICH IS THE WHOLE POINT. engine/ and
+  # backend/ are two members of ONE uv workspace with ONE resolution, and the
+  # lockfile that records it sits at the repository root. A second entry pointed
+  # at `/engine` would ask Dependabot to resolve a member in isolation, against a
+  # lockfile that does not exist there -- a bump proposed from a resolution the
+  # workspace never uses.
   - package-ecosystem: pip
     directory: "/"
     schedule:
