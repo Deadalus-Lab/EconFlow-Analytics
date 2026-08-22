@@ -65,10 +65,12 @@ root = pathlib.Path(sys.argv[1])
 # because no key measures them yet. This gate prints both figures on every green
 # run, so the current pair is one invocation away:
 #   bash .github/scripts/check-action-pinning.sh .
-# Measured 2026-08-21: 7 files, 52 references. The floors sit below that so an
+# Measured 2026-08-22: 5 files, 46 references. The floors sit below that so an
 # ordinary addition does not trip them, and far enough above zero that a glob
-# that stopped matching cannot pass.
-MIN_FILES = 5
+# that stopped matching cannot pass. The file floor fell from 5 to 4 with the
+# measurement, because a floor standing at its own measurement turns the next
+# ordinary deletion into a red gate and teaches people to edit the number.
+MIN_FILES = 4
 MIN_REFERENCES = 20
 
 # `uses:` as a step key: optional list dash, the key, the value, an optional

@@ -49,15 +49,16 @@ cd "$ROOT" || {
 failed=0
 missing=0
 
-need() {  # need <binary> <install command>
+need() { # need <binary> <install command>
   if command -v "$1" >/dev/null 2>&1; then return 0; fi
   printf '  MISSING  %-14s install with: %s\n' "$1" "$2"
   missing=$((missing + 1))
   return 1
 }
 
-run() {   # run <label> <command...>
-  local label="$1"; shift
+run() { # run <label> <command...>
+  local label="$1"
+  shift
   if "$@" >/tmp/docgate.$$ 2>&1; then
     printf '  ok       %-14s %s\n' "$label" "$(tail -1 /tmp/docgate.$$ | cut -c1-96)"
   else
@@ -93,13 +94,13 @@ if need vale "curl -fsSL https://github.com/errata-ai/vale/releases/download/v3.
   # silently stops applying. int() turns that into a non-zero exit the guard here
   # already catches.
   if ! floor=$(python3 -c \
-      "import json;print(int(json.load(open('.github/inventory.json'))['docs']['min_markdown_files']))" 2>/dev/null); then
+    "import json;print(int(json.load(open('.github/inventory.json'))['docs']['min_markdown_files']))" 2>/dev/null); then
     printf '  FAIL     %-14s cannot read docs.min_markdown_files from .github/inventory.json; the floor is what stops a vacuous pass, so restore that key before running this suite\n' \
-           "vale"
+      "vale"
     failed=$((failed + 1))
   elif [ "${#docs[@]}" -lt "$floor" ]; then
     printf '  FAIL     %-14s %s Markdown file(s) to examine, below the floor %s; the git pathspec is wrong, not the tree\n' \
-           "vale" "${#docs[@]}" "$floor"
+      "vale" "${#docs[@]}" "$floor"
     failed=$((failed + 1))
   else
     run "vale" vale --config .vale.ini "${docs[@]}"
@@ -111,7 +112,7 @@ fi
 # link count is compared against the manifest floor exactly as the workflow does.
 if need lychee "cargo install lychee --version 0.18.1 --locked"; then
   if lychee --config lychee.toml --no-progress --format json \
-            --output /tmp/lychee.$$ . >/dev/null 2>&1; then
+    --output /tmp/lychee.$$ . >/dev/null 2>&1; then
     # GUARDED EXACTLY AS THE VALE FLOOR ABOVE IS, AND FOR THE SAME REASON. This
     # read used to be a bare `read -r total floor < <(python3 ...)`. The script
     # carries no `set -e`, so when that python3 raised -- a missing key, an
@@ -120,15 +121,15 @@ if need lychee "cargo install lychee --version 0.18.1 --locked"; then
     # below printed "ok lychee" having compared nothing. One idiom for this job in
     # this file: `if ! var=$(...)`, once per number, int() at the boundary.
     if ! total=$(python3 -c \
-        "import json;print(int(json.load(open('/tmp/lychee.$$'))['total']))" 2>/dev/null) ||
-       ! floor=$(python3 -c \
+      "import json;print(int(json.load(open('/tmp/lychee.$$'))['total']))" 2>/dev/null) ||
+      ! floor=$(python3 -c \
         "import json;print(int(json.load(open('.github/inventory.json'))['docs']['min_links_checked']))" 2>/dev/null); then
       printf '  FAIL     %-14s cannot read the checked-link total from the lychee report, or docs.min_links_checked from .github/inventory.json; the floor is what stops a vacuous pass, so restore that key as an integer before running this suite\n' \
-             "lychee"
+        "lychee"
       failed=$((failed + 1))
     elif [ "$total" -lt "$floor" ]; then
       printf '  FAIL     %-14s checked %s links, below the floor %s; the glob or exclude_path is wrong, not the tree\n' \
-             "lychee" "$total" "$floor"
+        "lychee" "$total" "$floor"
       failed=$((failed + 1))
     else
       printf '  ok       %-14s %s link(s) resolve (floor %s)\n' "lychee" "$total" "$floor"

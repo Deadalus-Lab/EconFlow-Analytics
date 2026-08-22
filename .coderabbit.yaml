@@ -6,8 +6,8 @@
 # ci.yml decide what is correct; this decides what is worth a second look.
 #
 # It does work on pull requests from forks, which is why it is the review layer
-# outside contributors actually get -- claude-review.yml cannot run there,
-# because fork pull requests receive no secrets.
+# outside contributors actually get: a fork pull request receives no secrets, so
+# any workflow that needs a credential is inert there.
 language: en-GB
 
 reviews:

@@ -11,9 +11,9 @@
 # done, and every asserted constant lives in .github/inventory.json.
 #
 # CONCURRENCY BUDGET. GitHub Free allows 20 concurrent jobs ACCOUNT-WIDE, not
-# per repository. Measured on one pull request: 7 jobs start immediately (4 here,
-# plus dco, claude-review and the engine-suite scope job), and ci.yml peaks at 9
-# once `inventory` releases its dependants. That leaves real headroom, and it is
+# per repository. Measured on one pull request: 8 jobs start immediately (5 here,
+# plus dco, sonar and the engine-suite scope job), and ci.yml peaks at 11 once
+# `inventory` releases its seven dependants. That leaves real headroom, and it is
 # the reason any FUTURE matrix must be capped: planemo defaults to 20 chunks, and
 # a multi-architecture image build fans out per platform. Cap any new matrix at
 # 12 parallel jobs. Exceeding the account budget does not fail anything -- it
@@ -528,13 +528,24 @@ jobs:
       # uv itself comes from PyPI rather than from a setup action, because that
       # is one fewer third-party action to pin and review, and PyPI artifacts are
       # immutable: a released filename and its hash can never be replaced.
-      - name: Install uv, pinned
+      #
+      # PYYAML COMES FROM THE SAME PLACE AND GETS NO ENVIRONMENT OF ITS OWN,
+      # because it is not a linter: check-required-contexts.sh parses every
+      # workflow with `python3` itself. Without it that gate stops at "FAIL:
+      # PyYAML is required by this gate and is not installed" -- red rather than
+      # quietly green, which is the correct direction to fail in, but the gate
+      # never reads a workflow. uv declares no dependencies, so installing the
+      # two together cannot make either resolve differently.
+      - name: Install uv and PyYAML, pinned
         env:
           UV_VERSION: "0.10.10"
+          PYYAML_VERSION: "6.0.3"
         run: |
           set -euo pipefail
-          python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+          python3 -m pip install --disable-pip-version-check \
+            "uv==${UV_VERSION}" "PyYAML==${PYYAML_VERSION}"
           uv --version
+          python3 -c 'import yaml; print("PyYAML", yaml.__version__)'
 
       - name: actionlint
         env:
@@ -1248,6 +1259,16 @@ jobs:
         with:
           python-version-file: engine/.python-version
 
+      # THE guarddog STEP BELOW CALLS `uv export` AND `uvx`, so uv has to be on
+      # PATH before it runs. It arrives the way every other job in this file gets
+      # it -- one pinned install from PyPI, no setup action -- because a second
+      # mechanism for the same tool is a second thing to pin, review and keep in
+      # step with the version the other jobs resolve.
+      - name: Install uv at the pinned version
+        env:
+          UV_VERSION: "0.10.10"
+        run: python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+
       - name: The scanner must actually see the packages
         id: count
         run: |
@@ -1478,7 +1499,17 @@ jobs:
           # SHA-pinned step was still fetching an unpinned tool. Everything else in
           # this repository is pinned; this was the hole.
           lycheeVersion: v0.18.1
-          args: --config lychee.toml --no-progress --format json --output ./lychee-out.json .
+          args: --config lychee.toml --no-progress .
+          # THE REPORT PATH AND ITS FORMAT BELONG TO THE ACTION, NOT TO args.
+          # entrypoint.sh runs `lychee --output <temp file> $args` itself and then
+          # copies that file to `output`, so a second `--output` inside args is a
+          # collision it refuses before lychee starts: "'output' is set in args as
+          # well as in the action configuration". `format` moves with it, because
+          # the same script appends a Markdown "Full Github Actions output" line
+          # to the report whenever `format` is markdown -- its default -- which
+          # would hand the floor step below a JSON file with prose on the end.
+          format: json
+          output: ./lychee-out.json
           fail: true
 
       - name: A floor, so a link check that examined nothing cannot pass
