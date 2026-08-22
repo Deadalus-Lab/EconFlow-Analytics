@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# ==============================================================================
+# .yamllint -- consistency, on top of the correctness actionlint already proves.
+#
+# actionlint reads a workflow as a workflow: it knows `runs-on`, it type-checks
+# `${{ }}` expressions, it shells out to shellcheck for `run:` blocks. What it
+# does not read is the file as a FILE. A tab that YAML forbids, a duplicate key
+# where the second silently wins, trailing whitespace, a missing final newline,
+# inconsistent indentation -- none of those are workflow errors, and the most
+# dangerous of them (a duplicate key) changes behaviour without changing a
+# single visible character. This is the gate for that class.
+#
+# WHAT IS RELAXED, AND WHY EACH ONE IS A DELIBERATE DECISION rather than noise
+# suppression. The defaults are written for hand-authored configuration files;
+# three of them are simply wrong for a GitHub Actions tree:
+#
+#   truthy         `on:` is a GitHub Actions keyword. YAML 1.1 reads a bare `on`
+#                  as the boolean true, so yamllint's default warns on every
+#                  workflow in existence. The key cannot be renamed and quoting
+#                  it is not this project's style, so the `on`/`off` pair is
+#                  admitted and everything else stays strict.
+#   document-start `---` is not used anywhere in this tree and adding it to
+#                  fourteen files to satisfy a stylistic default would be a
+#                  change with no reader.
+#   comments       the two-spaces-before-an-inline-comment rule collides with
+#                  the SHA-pin convention `uses: owner/action@<40 hex> # v5`,
+#                  which is written with one space throughout and is the single
+#                  most important comment in the file.
+#
+# THE LINE LIMIT IS 140, AND IT IS A CEILING RATHER THAN A STYLE. Measured over
+# the tracked YAML, the longest line is 138 characters (claude.yml:51, a prompt
+# string that cannot be wrapped without changing what is sent). The prose in
+# these files wraps at roughly 80 by hand and needs no machine to enforce it;
+# what this rule catches is the genuinely runaway line -- a pasted URL, an
+# unwrapped `run:` command -- that no reviewer reads to the end of. Measure with:
+#   awk '{ if (length($0) > m) m = length($0) } END { print m }' <file>
+#
+# WHAT IS NOT RELAXED: key-duplicates, trailing-spaces, new-line-at-end-of-file,
+# indentation consistency, octal values, and syntax errors. Those are the rules
+# with a defect behind them.
+# ==============================================================================
+extends: default
+
+rules:
+  # `on:` is the trigger keyword, not the YAML 1.1 boolean. See above.
+  truthy:
+    allowed-values: ["true", "false", "on", "off"]
+    check-keys: true
+
+  document-start: disable
+
+  # One space before `# v5` on a pinned action reference. See above.
+  comments:
+    require-starting-space: true
+    min-spaces-from-content: 1
+
+  comments-indentation: disable
+
+  line-length:
+    max: 140
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+
+  # A duplicated key is the defect this file exists for: the second wins, the
+  # first is silently discarded, and nothing in the diff looks wrong.
+  key-duplicates: enable
+
+  # GitHub Actions workflows nest deeply (jobs -> steps -> with), and both
+  # two-space and four-space blocks appear in this tree. Consistency within a
+  # file is the property worth enforcing; a single global width is not.
+  indentation:
+    spaces: consistent
+    indent-sequences: consistent
+
+# VENDORED THIRD-PARTY RULES ARE NOT OURS TO FORMAT. `.github/vale/styles/proselint`
+# is errata-ai's prose style, committed verbatim under BSD-3-Clause so the register
+# gate does not need the network to start. Reformatting it to satisfy our own style
+# would make the next upstream refresh a conflict, and would put our own edits under
+# somebody else's copyright. It is excluded here for the same reason the generated
+# tier is excluded from the formatters: this repository did not write it.
+ignore: |
+  .github/vale/styles/proselint/

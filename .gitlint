@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# ==============================================================================
+# .gitlint -- every commit message carries a reason, and says who signed it.
+#
+# WHY THIS EXISTS AT ALL. This repository's history cannot be rewritten after
+# publication, so a commit subject with no body is a permanent hole: the diff
+# says what changed and nothing says why. `semantic-pull-requests` validates the
+# pull-request TITLE, which is the squash subject -- it never reads a body, and
+# it never reads the commits on the branch. This file is the half that does.
+#
+# WHAT IT REFUSES
+#   * a subject that is not `type(scope): imperative summary` (CT1)
+#   * a subject longer than 72 characters (T1)
+#   * a one-line commit with no body (B6)
+#   * a body whose first line is not separated from the subject by a blank (B4)
+#   * a commit with no `Signed-off-by:` trailer (CC1) -- the same property the
+#     DCO workflow enforces on the remote, checked here before the push
+#
+# THE BODY LINE LIMIT IS 87 BECAUSE THE SIGN-OFF TRAILER IS 87. The maintainer's
+# trailer is
+#   Signed-off-by: Panagiotis-Tsikos <316596317+Panagiotis-Tsikos@users.noreply.github.com>
+# and it cannot be shortened without changing the identity the DCO gate matches,
+# so at gitlint's default of 80 every correctly signed commit in this repository
+# fails B1. Exempting just that line was tried and rejected: `ignore-body-lines`
+# (I3) is a configuration rule that REWRITES `commit.message.body` before the
+# other rules see it, and CC1 reads that same list -- stripping the trailer to
+# satisfy B1 would make the sign-off requirement fail on every commit. The limit
+# is therefore set by the longest line that has no choice about its length.
+#
+# CONTRIB RULES ARE OPT-IN. gitlint ships CT1 and CC1 disabled; naming them in
+# `contrib` below is what turns them on. Omitting that line silently drops both
+# the sign-off requirement and the conventional-commit subject check, and the
+# linter still exits 0 -- which is why this file names them explicitly rather
+# than relying on any default. The names are also easy to get wrong: the
+# sign-off rule is `contrib-body-requires-signed-off-by`, not
+# `contrib-requires-signed-off-by`, and gitlint exits 255 with "No contrib rule
+# with id or name ... found" rather than skipping it, which is the behaviour
+# that makes a typo here loud instead of silent.
+# ==============================================================================
+[general]
+contrib = contrib-title-conventional-commits,contrib-body-requires-signed-off-by
+ignore-merge-commits = true
+ignore-revert-commits = true
+ignore-fixup-commits = true
+ignore-squash-commits = true
+regex-style-search = true
+
+[title-max-length]
+line-length = 72
+
+[body-max-line-length]
+line-length = 87
+
+# The accepted types are `.github/semantic.yml`'s list, unchanged. Keeping two
+# copies is unavoidable -- semantic-pull-requests reads only its own file and
+# gitlint reads only this one -- so they are listed in the same order to make a
+# divergence visible in a diff.
+[contrib-title-conventional-commits]
+types = feat,fix,refactor,perf,test,build,ci,docs,chore,revert

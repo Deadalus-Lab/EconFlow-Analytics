@@ -1,0 +1,117 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# .markdownlint-cli2.yaml -- structural lint for the hand-written Markdown.
+#
+# WHICH DOCUMENTS. The globs at the bottom define the set exactly, and it is
+# every Markdown file EXCEPT two groups: the vendored proselint styles, and the
+# working and tool-generated files that are never published. No count is written
+# here, because the set moves with ordinary work and a stale count is worse than
+# none -- `markdownlint-cli2` prints how many files it linted at the top of every
+# run.
+#
+# WHAT THIS IS FOR. These files are the project's public face: the documents a
+# scientist reads before deciding whether to trust the engine. Structural defects
+# in them -- a heading level skipped, a list that stops being a list, a code fence
+# with no language, a link fragment pointing at a heading that does not exist --
+# render wrongly on GitHub and read as carelessness about everything else.
+#
+# TWO RULES ARE TURNED OFF DELIBERATELY, AND NOT TO MAKE THE GATE PASS QUIETLY.
+# Both would demand a mass rewrite of documents whose structure is correct, and a
+# gate whose first act is to churn every file it touches gets removed rather than
+# obeyed. The reasons are recorded here so a future reader can disagree with the
+# judgement rather than guess at it.
+
+config:
+  # MD028 (blank line inside blockquote) is OFF, deliberately. Three documents put
+  # two consecutive callouts one after the other, separated by a blank line. Under
+  # CommonMark -- which is what GitHub renders -- a blank line ENDS a blockquote and
+  # the next `>` opens a new one, so the intent is unambiguous and correct. The rule
+  # guards against older parsers that merge the two. Satisfying it would mean
+  # inserting an empty HTML comment between every pair of callouts, which is noise
+  # added to the source to please a renderer this project does not target.
+  MD028: false
+  # MD013, line length. These documents are written as REASONED PROSE -- the
+  # house style is a paragraph explaining why a gate exists, not a bulleted
+  # summary -- and Markdown reflows every one of those lines when rendered, so a
+  # hard wrap changes nothing a reader sees. Measured 2026-08-21, 1611 lines in
+  # the linted set run past 80 columns; enforcing the rule would rewrap all of
+  # them across files nobody is otherwise editing, burying real changes in
+  # whitespace churn and making every future diff harder to review. The cost is
+  # certain and the benefit is zero on rendered output.
+  MD013: false
+
+  # MD024, duplicate headings, narrowed to siblings rather than turned off. A
+  # document that treats several subjects in turn gives each the same
+  # sub-headings -- when to use it, when not to, what it outputs -- and those
+  # repeats are its structure working as intended. `siblings_only` keeps the rule
+  # where it is genuinely useful: two identical headings under the SAME parent,
+  # which is a copy-paste error and breaks anchor links, because GitHub
+  # de-duplicates the second anchor and every link to it lands on the first.
+  MD024:
+    siblings_only: true
+
+  # MD033, inline HTML. Used for the small number of things Markdown cannot
+  # express: a details/summary block folding a long table, and image sizing in
+  # the README. Restricted to that set rather than allowed outright, so a
+  # document cannot quietly become HTML.
+  MD033:
+    allowed_elements:
+      - details
+      - summary
+      - img
+      - br
+      - kbd
+
+  # MD037, spaces inside emphasis markers. It fires on ARITHMETIC, not on
+  # emphasis: `a _ b`, `x + *y*` and `2 * (n - 1)` in a formula all look like a
+  # half-open emphasis span to the parser. The econometric guides are full of
+  # such expressions and none of them is a formatting error.
+  MD037: false
+
+  # MD041, first line should be a top-level heading. The issue and pull-request
+  # templates deliberately open at `##`, because GitHub renders the template
+  # inside a form that already supplies the title.
+  MD041: false
+
+globs:
+  - "**/*.md"
+  - "!.git"
+  - "!.venv"
+  - "!node_modules"
+  # Working and tool-generated files that are never published, excluded from
+  # every prose gate here. EACH DIRECTORY IS NAMED IN FULL, because these globs
+  # match a path segment exactly: `!.claude` does NOT cover `.claude-mpm`.
+  # Measured 2026-08-22 -- with `.claude-mpm` absent from this list, 17 of the 19
+  # files linted came from it and every one of the 693 errors reported was its
+  # own. A tool that writes Markdown into the working tree turns the whole suite
+  # red without touching a published document, which is how a gate stops being
+  # read at all.
+  - "!.private"
+  - "!.claude"
+  - "!.claude-mpm"
+  - "!.token-optimizer"
+  - "!todo.md"
+  - "!CLAUDE.md"
+  # Tool caches that carry a vendored README of their own.
+  - "!**/.pytest_cache"
+  # ANY MARKDOWN UNDER wrappers/ WOULD BE GENERATED OUTPUT, not a document, and
+  # a finding in generated output cannot be fixed where it is reported: the fix
+  # belongs in the card prose or in the renderer.
+  #
+  # THE SET IS CURRENTLY EMPTY, and that is stated rather than left to be found.
+  # `find engine/src/econflow_engine/wrappers -name README.md | wc -l` returns 0,
+  # and `grep -c README engine/scripts/gen_wrappers.py` returns 0 -- that
+  # generator emits typed Python stubs and no Markdown at all. The exclusion is
+  # kept because it costs nothing today and states the rule that applies the
+  # moment rendered method prose lands under this directory. It is a scope rule,
+  # not a gate, so an empty set is not the anti-vacuity failure this repository
+  # refuses elsewhere; nothing reports success on the strength of it.
+  - "!engine/src/econflow_engine/wrappers/**"
+
+# Vendored third-party text is ignored rather than linted. The rule is general
+# and it outlives any one file: a standard document reproduced verbatim stops
+# being the document it claims to be the moment it is edited to satisfy a local
+# linter, and the verbatim claim is the entire reason for adopting one. So a
+# vendored text is either carried unchanged and exempt, or not carried at all.
+ignores:
+  - .github/vale/styles/proselint/**

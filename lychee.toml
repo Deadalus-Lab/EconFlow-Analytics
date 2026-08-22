@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# lychee.toml -- the link checker for every Markdown document in the tree.
+#
+# WHY THIS GATE EXISTS. A dead link in a scientific repository is not cosmetic.
+# The category guides cite the papers a method is implemented from, and a reader
+# following a citation to a 404 has no way to check the implementation against
+# the source it claims to follow. Internally, a link to a moved file is how
+# documentation quietly stops describing the tree it ships with.
+#
+# FRAGMENTS ARE CHECKED, and that is the setting that earns this gate its place.
+# Nearly every internal link here points at a heading -- `ARCHITECTURE.md#8-...`
+# -- and without `include_fragments` the checker confirms the FILE exists and
+# says nothing about the anchor. The first run of this configuration found
+# exactly that defect: a section link in ARCHITECTURE.md pointing at an anchor
+# that no heading generates, which resolves to the top of a very long document
+# and silently sends the reader to the wrong place.
+#
+# ON EXTERNAL LINKS AND FLAKINESS. A link checker that reaches the network can
+# fail for reasons that have nothing to do with this repository, and a gate that
+# goes red at random gets ignored and then removed. Two settings keep that
+# under control without hiding real breakage: publishers routinely answer an
+# automated request with 403 or 429 while serving the page perfectly to a
+# browser, so those are accepted; and a slow host gets retried rather than
+# failed. What is NOT done is excluding whole domains -- an excluded domain is a
+# citation nobody checks again.
+
+# Accept the codes that mean "the document is there". 403 and 429 are the
+# publisher refusing the CHECKER, not a missing page: JSTOR, Elsevier and
+# several journal hosts answer that way to any non-browser request.
+accept = ["200", "206", "301", "302", "307", "308", "403", "429"]
+
+# Anchors and headings, not just files. See the note above -- this is the whole
+# point of running the tool.
+#
+# A BOOLEAN, NOT A MODE STRING. `"full"` looks like it asks for more checking and
+# is in fact a parse error: lychee refuses the whole configuration file with
+# `invalid type: string "full", expected a boolean` and exits 3 before it reads a
+# single link. Measured against lychee 0.18.1, which is what lycheeverse/lychee-action
+# v2.4.1 installs by default -- and against 0.15.1 and 0.24.2, which reject it too.
+# The docs job would have died on its first run for a reason that has nothing to do
+# with any link in the tree.
+include_fragments = true
+
+# A slow academic host is not a broken link.
+max_retries = 3
+retry_wait_time = 4
+timeout = 30
+
+# Identify as a browser. Several publishers serve a challenge page to anything
+# that looks automated, which would otherwise read as a broken citation.
+user_agent = "Mozilla/5.0 (compatible; EconFlow-Analytics link check; +https://github.com/Deadalus-Lab/EconFlow-Analytics)"
+
+# Keep repeated runs cheap; CI restores this alongside its other caches.
+cache = true
+max_cache_age = "2d"
+
+# One connection at a time per host is polite to the small academic servers
+# several of these citations live on.
+max_concurrency = 8
+
+exclude = [
+  # Loopback and documentation-reserved names: these are examples in prose, and
+  # nothing should ever resolve them.
+  "^https?://localhost",
+  "^https?://127\\.0\\.0\\.1",
+  "^https?://example\\.(com|org|net)",
+  # The DOI is minted by the release workflow in Phase 6. Until a release exists
+  # this resolves to nothing, and the placeholder is deliberate.
+  "^https://doi\\.org/10\\.5281/zenodo\\.PLACEHOLDER",
+]
+
+# EVERY ENTRY IS ANCHORED, AND THAT IS NOT STYLE. `exclude_path` matches as a
+# regular expression against the whole path, so a bare `.claude` also matches a
+# directory called `claude-1000` somewhere above the repository -- measured, not
+# supposed: an unanchored list silently excluded a file under a temporary
+# directory whose name merely contained the word, and the checker then reported
+# "no files found" while exiting 0. An exclusion that quietly widens is how a
+# link checker ends up examining nothing and still passing.
+exclude_path = [
+  '^\./\.git/',
+  '^\./\.venv/',
+  '^\./node_modules/',
+  '^\./\.ruff_cache/',
+  '^\./\.mypy_cache/',
+  '^\./.*\.pytest_cache/',
+  '^\./\.import_linter_cache/',
+  '^\./\.fastembed_cache/',
+  '^\./\.token-optimizer/',
+  # Working and tool-generated files that are never published. EACH DIRECTORY IS
+  # LISTED SEPARATELY: `\.claude/` does not match `.claude-mpm/`, and the
+  # trailing slash that makes these anchors safe is exactly what stops one
+  # standing in for the other. The same omission in .markdownlint-cli2.yaml put
+  # 17 tool-written files into the lint set and turned the documentation suite
+  # red on 693 findings, none of them in a published document.
+  '^\./\.private/',
+  '^\./\.claude/',
+  '^\./\.claude-mpm/',
+  '^\./\.mcp\.json$',
+  '^\./todo\.md$',
+  '^\./CLAUDE\.md$',
+]

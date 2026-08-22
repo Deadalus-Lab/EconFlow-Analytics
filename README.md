@@ -2,141 +2,131 @@
 
 # EconFlow Analytics
 
-A node-based canvas for end-to-end macroeconomic analysis. You wire nodes on a graph, each node is a
-rigorously gated econometric method, and the graph executes as a durable directed acyclic graph. The
-reference point is KNIME, narrowed to macroeconomics.
+A node-based canvas for macroeconomic analysis. You wire econometric methods into a graph, and the
+graph runs as a durable directed acyclic graph. The reference point is KNIME, narrowed to
+macroeconomics.
 
-**Licence:** AGPL-3.0-only, the entire repository, without exception.
+**Licence:** AGPL-3.0-only for this project's own work. One set of third-party material in the
+tree keeps its own terms, and [`NOTICE`](NOTICE) states what it requires of you.
 
-> **Status: the compute engine is complete; the platform around it is not.**
-> This repository currently contains Layer 1 — the Python engine, its 251 wrappers, its gates and its
-> suite. The Galaxy integration, the web canvas and the agent subsystem are specified in
-> [`ARCHITECTURE.md`](ARCHITECTURE.md) and not yet built. That document marks precisely what exists
-> and what does not; nothing here is described as finished when it is not.
+## Status: the contract is finished, and nothing computes yet
 
-## The claim
+Every method wrapper in the engine is a typed stub that raises. What is written and green is the
+argument contract, the schemas generated from it, the sealed artifacts and the verification suite.
+The platform, integration, canvas and agent layers are specified and not built.
 
-**Correctness is structural, not probabilistic.** Four mechanisms, each doing one job:
-
-| Mechanism | Effect |
-|---|---|
-| **Rule-based method selection** | Which method suits which data is decided by sourced decision trees, not by a language model's judgement. |
-| **Hard validation gates** | Every documented requirement of every method is an explicit refusal to compute. An invalid result cannot escape; it becomes a blocked node with a stated reason. |
-| **Generated typed schemas** | Node schemas are generated from the committed node-specification artifact, never hand-copied, so the contract cannot drift from the implementation. |
-| **Pinned computation** | Python version, package versions, package *hashes*, and the linear-algebra thread count are all pinned. The same input produces the same number. |
-
-Where a language model is used at all, it wires and configures nodes. It never computes a statistic
-and never overrides a gate — and that boundary is enforced by construction rather than by
-instruction. See [`ARCHITECTURE.md` §8](ARCHITECTURE.md).
-
-A gate is not an error. When a wrapper refuses to run because its documented preconditions are not
-met, the system is working. The user is shown *which rule* blocked the node and *what that rule
-requires* — not a stack trace.
-
-## Verified inventory
-
-Every figure below is reproduced by the command beside it, **run from `engine/`**. No number in this repository is quoted
-from memory, and none is restated in a second place — a second copy of a number is a number that
-rots.
+Every figure below is reproduced by the command beside it, run from `engine/`.
 
 | Quantity | Value | Command |
 |---|---:|---|
-| Wrapper modules | **251** | `find src/econflow_engine/wrappers -name '*.py' -type f -not -name '__init__.py' \| wc -l` |
-| Category packages | **30** | `find src/econflow_engine/wrappers -mindepth 1 -maxdepth 1 -type d -not -name '__pycache__' \| wc -l` |
-| Executable methods (nodes) | **913** | `python3 -c "import json;print(json.load(open('artifacts/node-specs.v1.json'))['engine']['n_nodes'])"` |
-| Method cards | **252** | `python3 -c "import json;print(json.load(open('artifacts/method-cards.v1.json'))['source']['n_cards'])"` |
-| Frozen parity verdicts | **4855** | `python3 -c "import json;print(json.load(open('artifacts/parity-fixtures.v1.json'))['n_cases'])"` |
-| Python files carrying an SPDX header | **380 / 380** | `find src scripts tests -name '*.py' -not -path '*__pycache__*' \| wc -l` |
+| Wrapper modules | **598** | `find src/econflow_engine/wrappers -name '*.py' -type f -not -name '__init__.py' \| wc -l` |
+| Category packages | **46** | `find src/econflow_engine/wrappers -mindepth 1 -maxdepth 1 -type d -not -name '__pycache__' \| wc -l` |
+| Methods (nodes) in the contract | **1456** | `python3 -c "import json;print(json.load(open('artifacts/node-specs.json'))['engine']['n_nodes'])"` |
+| Methods carrying an implementation | **0** | `python3 -c "import ast,pathlib;print(sum(1 for p in pathlib.Path('src/econflow_engine/wrappers').rglob('*.py') for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,ast.FunctionDef) and not n.name.startswith('_') and not(len(n.body)==2 and isinstance(n.body[1],ast.Raise) and 'NotImplementedError' in ast.unparse(n.body[1]))))"` |
+| Method cards | **600** | `python3 -c "import json;print(json.load(open('artifacts/method-cards.json'))['source']['n_cards'])"` |
 | Python version | **3.12** | `cat .python-version` |
 
-Those figures are asserted on every pull request by
-[`.github/inventory.json`](.github/inventory.json) and its `assert-inventory` action, which
-re-measures each one with the command recorded beside it. Changing a number means editing that file,
-where a reviewer sees it.
+Read the fourth row first. It walks the syntax tree of every wrapper module and counts the public
+functions whose body is anything other than a docstring followed by a `NotImplementedError` raise.
+It counts none.
 
-Run the suite rather than trusting any line above:
+There are more cards than modules because two modules carry two cards each. Name them with
+`python3 -c "import json,collections;c=collections.Counter(x['wrapper_file'] for x in json.load(open('artifacts/method-cards.json'))['cards']);print([k for k,n in c.items() if n>1])"`.
+
+Every figure is re-measured on each pull request by the `assert-inventory` action against
+[`.github/inventory.json`](.github/inventory.json), so a number moves only in a diff a reviewer sees.
+The counts this table does not carry — parity verdicts, recommendation fixtures, decision trees,
+SPDX coverage — are published once, in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+Trust the suite rather than any line above:
 
 ```bash
 cd engine && ./run_verifications.sh
 ```
 
+## The design claim
+
+Correctness here is structural rather than probabilistic. Four mechanisms carry that claim, and each
+is stated beside how much of it runs today, because a design commitment and a running check are not
+the same thing.
+
+| Mechanism | What it does | What runs today |
+|---|---|---|
+| **Rule-based method selection** | Sourced decision trees decide which method suits which data. A language model never decides. | The trees are sealed in `engine/artifacts/method-trees.json`. Nothing walks them yet. |
+| **Hard validation gates** | A method refuses rather than return a doubtful number, and the refusal names the rule and what it requires. | The argument half. Every call crosses a generated pydantic model, and a failure raises a `GateError` carrying one of a closed set of reason codes. |
+| **Generated typed schemas** | Node schemas are generated from the committed node-specification artifact, never hand-copied, so the contract cannot drift. | All of it. `scripts/gen_schemas.py --check` rebuilds the generated tier and fails on one byte of drift. |
+| **Pinned computation** | Python version, package versions, package hashes and the linear-algebra thread count are pinned, so the same input gives the same number. | All of it, and the container build enforces it. |
+
+A gate is a refusal, not an error. When a method's documented preconditions are not met it declines
+to compute and names the rule that stopped it, rather than raising a stack trace;
+`engine/src/econflow_engine/errors.py` holds the closed set of reason codes every refusal carries.
+
+Where a language model is used at all it wires and configures nodes. It never computes a statistic
+and never overrides a gate. [`ARCHITECTURE.md`](ARCHITECTURE.md#the-five-layers) draws that boundary,
+and marks the agent layer as not built, so today the boundary is a commitment and not yet a check.
+
 ## Repository layout
 
-One top-level directory per **layer**, so a researcher can find the econometrics without reading
-anything else:
+One top-level directory per layer, so a researcher can find the econometrics without reading
+anything else.
 
-```
-engine/       Python      the compute core -- 251 wrappers, 913 methods, all statistics and gates
+```text
+engine/       Python      the compute core -- every wrapper, every method, every gate
 backend/      Python      Galaxy platform integration            (specified, not built)
 frontend/     TypeScript  integration layer and the web canvas   (specified, not built)
 deploy/                   Compose, proxy and service definitions (specified, not built)
-docs/                     decision records and the roadmap
 .github/                  continuous integration and its manifests
 ```
 
-The three unbuilt directories say so in their own `README.md`, naming what will live there and
-which open decisions block it. `frontend/` and `deploy/` hold nothing else. `backend/` also carries
-a `pyproject.toml`, a `.python-version` and an empty `econflow_backend` package, because it is the
-second member of the workspace and `uv` must be able to load it to honour the single lockfile.
-Nothing in any of them is a placeholder for code.
+The three unbuilt directories are empty or nearly so, and the emptiness is the honest report rather
+than an oversight: no placeholder stands in for code. `deploy/` is completely empty, `frontend/`
+holds an `.nvmrc`, and `backend/` holds a `pyproject.toml`, a `.python-version` and an empty package,
+because `uv` has to load the workspace's second member to honour the single lockfile. List every file
+the three hold with `find backend deploy frontend -type f -not -path '*__pycache__*'`.
 
-`engine/` and `backend/` are both Python and are the two members of **one `uv` workspace**, resolved
-by a single `uv.lock` at the repository root. The split between them is not a language boundary; it
-is the boundary between a thing that computes a number and a thing that moves a number around. See
-[`docs/decisions/python-engine.md`](docs/decisions/python-engine.md).
+There is no `docs/` directory and no per-layer `README.md`. [`ARCHITECTURE.md`](ARCHITECTURE.md) is
+the one place the design is written down, and it marks each layer as built or not built.
 
-**No statistic is ever computed outside `engine/`.** Nothing about a file's name enforces that, so
-it is a checked contract rather than a convention. It is asserted by
-the engine being the only place a statistical library could be loaded. It is now enforced by a
-continuous-integration check that asserts no numerical package appears in any `backend/` dependency
-group — and that check carries a positive control, so it cannot pass by examining nothing. The single
-sanctioned exception is a TypeScript port of `recommend()`, validated against 114 fixtures generated
-by the engine.
+`engine/` and `backend/` are both Python, and are the two members of one `uv` workspace resolved by a
+single `uv.lock` at the root. The split is not a language boundary. It is the boundary between a
+thing that computes a number and a thing that moves a number around.
 
-The public root surface is asserted: [`.github/root-manifest.txt`](.github/root-manifest.txt)
-declares it and `check-root-visibility.sh` fails if a root entry appears **or** silently disappears.
+**No statistic is ever computed outside `engine/`.** No filename enforces that, so it is checked
+rather than assumed: `check-engine-boundary.sh` counts every dependency `backend/` can declare and
+refuses unless the count equals the figure in [`.github/inventory.json`](.github/inventory.json),
+which is zero. A positive control fires on every run, so the gate cannot pass by examining nothing.
 
-## Reproducibility
+The public root surface is asserted the same way:
+[`.github/root-manifest.txt`](.github/root-manifest.txt) declares it, and `check-root-visibility.sh`
+fails if a root entry appears **or** silently disappears.
 
-Four independent mechanisms, all required:
+## Reproducibility and security
 
-- **A hash-pinned lockfile.** `uv.lock` records a hash per artifact, and PyPI artifacts are
-  immutable — a released filename and its hash can never be replaced. Version equality *is* byte
-  equality here, which is stronger than the dated-snapshot arrangement it replaces.
-- **Single-threaded linear algebra.** The container pins every BLAS thread pool to one. A
-  multithreaded backend's reduction order depends on how work was split across threads, so the same
-  input can land on a different last bit from one run to the next. This must be preserved.
-- **Mandatory seeds** on every stochastic method.
-- **An in-image test suite as a build gate** — a failing suite fails the image, so an image that has
-  not proven itself cannot exist.
+Reproducibility rests on four mechanisms, all of them required: a hash-pinned lockfile,
+single-threaded linear algebra, a seed wherever a method exposes one, and a test suite that runs as a
+hard gate inside the container build. [`ARCHITECTURE.md`](ARCHITECTURE.md) sets out what each buys,
+and counts the stochastic methods that expose no seed at all.
 
-## Security
+No wrapper reaches the network, and a gate re-parses every module on each pull request rather than
+trusting it. A model formula is read by a default-deny parser with a depth limit and is never
+evaluated in a caller's namespace. Data arrives as a `store://bucket/key` pointer whose parser
+refuses traversal, an absolute key, a backslash or a control character.
 
-No wrapper makes a network call. Verified: **0 of 251**. User-supplied model formulae are parsed by a
-default-deny allowlist with a depth limit and are never evaluated in a caller's namespace.
-File-path arguments pass a structural gate rejecting traversal, absolute paths and control
-characters. Full model in [`ARCHITECTURE.md` §10](ARCHITECTURE.md); reporting process in
-[`SECURITY.md`](SECURITY.md).
-
-## Documentation
-
-| Document | What it is |
-|---|---|
-| [`ARCHITECTURE.md`](ARCHITECTURE.md) | The authoritative description: every layer, every dependency, and every decision **not yet made**, named in §14 rather than silently omitted. |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Wrapper anatomy, the gates, and how to get a change merged. |
-| [`SECURITY.md`](SECURITY.md) | Reporting a vulnerability. |
-| [`docs/decisions/python-engine.md`](docs/decisions/python-engine.md) | The workspace, the lockfile, and the check that replaced the file extension. |
+To report a vulnerability, use GitHub's private advisory form on this repository rather than opening
+a public issue.
 
 ## Licence and citation
 
-AGPL-3.0-only, uniformly. Copyleft here is a **choice, not an inheritance**: the Python
-scientific stack is BSD, Apache-2.0 and MIT throughout, so no dependency compels any licence at all.
-The Affero variant is chosen because the deployed form of this project is a hosted compute engine,
-and section 13 is what obliges an operator who modifies it to offer corresponding source to the users
-who reach it over a network. `LICENSE` argues that in full before the licence text. One consequence:
-a GPL-2.0-only dependency can no longer be admitted to this tree.
+This project's own work is AGPL-3.0-only, by choice rather than inheritance: the Python scientific
+stack is BSD, Apache-2.0 and MIT throughout, so no dependency compels any licence at all. The Affero
+variant is chosen because the deployed form of this project is a hosted compute engine, and section
+13 is what obliges an operator who modifies it to offer corresponding source to the users who reach
+it over a network. [`LICENSE`](LICENSE) argues that in full.
 
-Third-party attribution is in [`engine/THIRD-PARTY-LICENSES.md`](engine/THIRD-PARTY-LICENSES.md) with
-a machine-readable bill of materials in `engine/sbom.cdx.json`.
+One set of third-party material sits inside the tree under its own terms: the vendored proselint
+prose rules, which are BSD-3-Clause. [`NOTICE`](NOTICE) states the obligation that carries;
+`uvx --from "reuse==6.2.0" reuse lint` lists every licence in the tree. Attribution for the packages
+the runtime image ships is the bill of materials in `engine/sbom.cdx.json`.
 
-If you use this software in published work, cite it via [`CITATION.cff`](CITATION.cff).
+Nothing here computes a statistic yet, so there is nothing to cite. A `CITATION.cff` lands with the
+first working method.

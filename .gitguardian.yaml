@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+
+# GitGuardian configuration.
+#
+# ADVISORY. The authoritative secret gate is the `secrets` job in ci.yml, and the
+# reason is specific rather than territorial: that job plants a known-fake
+# credential on every run and FAILS if detection does not catch it. An app whose
+# verdict this repository cannot force cannot host a control like that, so it
+# cannot be the gate. It is a genuinely useful second opinion beside gitleaks
+# (patterns) and trufflehog (live verification) -- three scanners that miss
+# different things. No third-party service is ever a required check here: one
+# that stops reporting would block every merge, and nothing in this repository
+# could make it answer. ARCHITECTURE.md records that under "Decisions already
+# made".
+
+version: 2
+
+secret:
+  # The same paths gitleaks allow-lists in .gitleaks.toml, and for the same
+  # reason: generated, sealed and fixture content is high-entropy by nature --
+  # digests, seeds and encoded payloads -- and is a steady source of false
+  # positives. NO CREDENTIAL IS EVER ALLOW-LISTED HERE. If a real secret is
+  # found, the answer is to rotate it and rewrite history, never to add a path.
+  ignored-paths:
+    - engine/artifacts/**
+    - engine/fixtures/**
+    - engine/src/econflow_engine/generated/**
+    - engine/sbom.cdx.json
+    - uv.lock
+    - .github/vale/styles/proselint/**
+
+  # Fail the check on any finding. The tree is expected to be clean: the pre-commit
+  # hook, push protection and the `secrets` job all stand between a credential and
+  # this point, so a finding here means three earlier gates were bypassed.
+  minimum-severity: low
+  show-secrets: false

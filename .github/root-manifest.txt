@@ -7,11 +7,12 @@
 # difference in EITHER direction -- an entry that appeared, and an entry
 # that vanished -- so the public surface cannot drift silently in either.
 #
-# frontend/ and deploy/ each hold exactly one README.md stating that the
-# layer is specified and NOT built. That is the honest form of an empty
-# directory: the folder shows the shape of the system, and the only file in
-# it says plainly that no code is there yet. backend/ now also carries a
-# pyproject.toml and an empty econflow_backend package -- see below.
+# frontend/ holds one file, .nvmrc, and nothing else. deploy/ holds nothing at
+# all, which is why it is NOT an entry below: git tracks files, never
+# directories, so a directory with no file in it cannot be part of a public
+# surface and cannot be asserted here. Both layers are specified and not built;
+# the absence of code is stated in README.md rather than in a placeholder file.
+# backend/ carries a pyproject.toml and an empty econflow_backend package.
 #
 # pyproject.toml, uv.lock and .python-version are at the ROOT and not inside
 # engine/, because engine/ and backend/ are two members of ONE uv workspace
@@ -23,29 +24,31 @@
 # for free.
 #
 # Comments and blank lines are ignored by the checker.
-
 .coderabbit.yaml
 .dockerignore
 .gitattributes
+.gitguardian.yaml
 .github
 .gitignore
 .gitleaks.toml
+.gitlint
+.markdownlint-cli2.yaml
 .pre-commit-config.yaml
 .python-version
+.vale.ini
+.yamllint
 ARCHITECTURE.md
-CHANGELOG.md
-CITATION.cff
-CODE_OF_CONDUCT.md
-CONTRIBUTING.md
 Dockerfile
 LICENSE
+LICENSES
 NOTICE
 README.md
-SECURITY.md
+REUSE.toml
 backend
-deploy
-docs
 engine
 frontend
+lychee.toml
 pyproject.toml
+sonar-project.properties
+typos.toml
 uv.lock

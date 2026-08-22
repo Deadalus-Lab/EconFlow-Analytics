@@ -1,0 +1,123 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# typos.toml -- spelling, with the vocabulary of the discipline admitted by name.
+#
+# WHAT THIS CATCHES. An ordinary misspelling in prose, a docstring or an error
+# message. That is worth a gate on its own: this catalogue is read by people
+# deciding which estimator to trust, and a document that cannot spell does not
+# inspire confidence in the arithmetic behind it.
+#
+# WHY THE EXEMPTION LIST IS LONG, EXPLICIT AND ANNOTATED. Econometrics is dense
+# with acronyms, author surnames and deliberate abbreviations that a general
+# dictionary reads as errors. Every entry below was checked against its actual
+# occurrence in this tree before it was added, and carries the reason. The
+# alternative -- lowering the tool's confidence, or excluding whole directories --
+# would turn a gate that finds real errors into one that finds nothing, which is
+# the failure mode this repository treats as worse than no gate at all.
+#
+# THE RULE FOR ADDING TO THIS FILE: read the line the tool flagged. If it is a
+# term of art, a person's name, a journal abbreviation or a fixed identifier, add
+# it here WITH ITS MEANING. If it is a misspelling, fix the prose instead. An
+# entry with no stated meaning is indistinguishable from silencing the tool.
+
+[files]
+extend-exclude = [
+  # VENDORED, AND ITS CONTENT IS MISSPELLINGS BY DESIGN. errata-ai's proselint
+  # style is committed verbatim (BSD-3-Clause) so the register gate needs no
+  # network. Its rule files LIST the wrong spellings in order to detect them, so
+  # a spell checker reads every entry as a defect. Excluding it is not a
+  # weakening: there is no prose of ours in there to check.
+  ".github/vale/styles/proselint/",
+  ".git/",
+  ".venv/",
+  ".ruff_cache/",
+  ".mypy_cache/",
+  ".pytest_cache/",
+  ".import_linter_cache/",
+  ".fastembed_cache/",
+  ".token-optimizer/",
+  "uv.lock",
+  "*.parquet",
+  # THE VENDORED PROSE STYLE IS A DICTIONARY OF MISSPELLINGS. `styles/proselint/`
+  # holds rule files whose whole content is wrong-spelling to right-spelling
+  # pairs -- "seldomly: seldom", "perjorative: pejorative". Every one of them is
+  # a true positive for this tool and a false one for the repository: correcting
+  # them would destroy the rules. It is third-party code besides, and vendored
+  # code is not this project's prose to fix.
+  "styles/proselint/",
+  # Working files that are never published. CLAUDE.md and todo.md are excluded
+  # from every other prose gate in this repository for the same reason.
+  "CLAUDE.md",
+  "todo.md",
+  ".private/",
+  ".claude/",
+]
+
+[default.extend-words]
+# --- journal and institution abbreviations, as they appear in citations -------
+AER = "AER"          # American Economic Review
+RESTAT = "RESTAT"    # The Review of Economics and Statistics
+SLAC = "SLAC"        # Stanford Linear Accelerator Center, in "Friedman 1984 SLAC PUB-3477"
+
+# --- surnames of the researchers whose methods these are ---------------------
+# Getting an author's name "corrected" would misattribute their work, which is a
+# worse defect than any spelling error this gate exists to catch.
+Sammon = "Sammon"    # J.W. Sammon (1969), the Sammon non-linear mapping
+sammon = "sammon"    # the same, as a method argument value
+Varian = "Varian"    # Hal Varian
+Shepard = "Shepard"  # Roger Shepard, the Shepard diagram in multidimensional scaling
+Aas = "Aas"          # Kjersti Aas, vine copulas
+# `VanderPlas` is split by the checker into `Vander` + `Plas`, and only the
+# second half is flagged, so the entry has to name the fragment rather than
+# the surname. Jake VanderPlas (2018), the Lomb-Scargle review cited by
+# category 27.
+Plas = "Plas"
+
+# --- terms of art --------------------------------------------------------------
+# `complier` is standard treatment-effect vocabulary (compliers, defiers,
+# always-takers, never-takers) and is emphatically not "compiler".
+complier = "complier"
+compliers = "compliers"
+CIPS = "CIPS"        # Pesaran's cross-sectionally augmented panel unit-root test
+SUR = "SUR"          # Seemingly Unrelated Regressions
+SER = "SER"          # Standard Error of the Regression
+MAPE = "MAPE"        # Mean Absolute Percentage Error
+GAM = "GAM"          # Generalized Additive Model
+gam = "gam"          # the same, in the fn names np_gam_fit and np_gam_partial
+ECT = "ECT"          # Error Correction Term
+ect = "ect"          # the same, lowercased as an output field name
+GIR = "GIR"          # Generalised Impulse Response
+gir = "gir"          # the same, as a function-name fragment
+yhat = "yhat"        # y-hat, the fitted values
+
+# --- fixed identifiers in the wire contract -----------------------------------
+# These are argument names, enum values and function prefixes. They are the
+# CONTRACT: renaming one is a breaking change to every saved analysis, not a
+# spelling fix, so they are admitted here rather than corrected.
+thr = "thr"          # the threshold-model function prefix: thr_predict, thr_regime
+lik = "lik"          # log-likelihood, in loglik and similar output fields
+Lik = "Lik"
+pn = "pn"            # an argument name in the mixed-variable PCA node
+relm = "relm"        # a poverty-threshold enum value: relative to the mean
+PARM = "PARM"        # a parameterisation enum value
+Expct = "Expct"      # expectile, abbreviated in a risk-measure output field
+sav = "sav"          # the SPSS file extension, beside .dta and .sas7bdat
+# `include_differenciation` IS misspelt, and it is an argument name in the frozen
+# node contract rather than prose. Correcting it would change the wire contract,
+# re-hash the node and invalidate every tool version pinned to it, so it is a
+# deliberate item of technical debt recorded here rather than a typo to sweep.
+differenciation = "differenciation"
+
+# --- hyphenated prefixes --------------------------------------------------------
+# The tool splits on the hyphen and then reads the prefix as a word on its own.
+# "mis-specified", "mis-shaped" and "mis-order" are correct English and are the
+# precise terms here: a mis-specified model is a named failure, not a mistake in
+# the prose describing it.
+mis = "mis"
+
+# --- shell and workflow syntax -------------------------------------------------
+ba = "ba"            # a sed branch label (`:a ... ba`), not a word
+# `schedul` is a DELIBERATELY MISSPELT KEY planted inside a positive control in
+# .github/workflows/ci.yml: the control proves the Dependabot schema validator
+# rejects it. Correcting it would disable that control, so it must stay misspelt.
+schedul = "schedul"

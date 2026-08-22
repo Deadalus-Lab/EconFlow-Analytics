@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 #
 # What is NOT published. The root is DENY-BY-DEFAULT: `/*` hides every root
-# entry and the block below re-admits exactly the 25 that publish.
+# entry and the block below re-admits exactly the 28 that publish. Count them
+# with `grep -c '^!/' .gitignore`; the same 28 are listed, one per line, in
+# .github/root-manifest.txt.
 #
 # Why deny-by-default, and ONLY at the root: this repository is public from its
 # first commit and its history can never be rewritten, so a conventional
@@ -25,29 +27,39 @@
 /*
 
 !/.coderabbit.yaml
+!/.gitguardian.yaml
 !/.dockerignore
 !/.gitattributes
 !/.github
 !/.gitignore
 !/.gitleaks.toml
+!/.gitlint
 !/.pre-commit-config.yaml
+!/.markdownlint-cli2.yaml
 !/.python-version
+!/sonar-project.properties
+!/.vale.ini
+!/.yamllint
+
+# Coverage output. Produced by the sonar workflow and by a developer running
+# pytest --cov; it is an analysis input, never a committed artifact.
+coverage.xml
+.coverage
+.coverage.*
+htmlcov/
+!/LICENSES
 !/ARCHITECTURE.md
-!/CHANGELOG.md
-!/CITATION.cff
-!/CODE_OF_CONDUCT.md
-!/CONTRIBUTING.md
 !/Dockerfile
 !/LICENSE
 !/NOTICE
 !/README.md
-!/SECURITY.md
+!/REUSE.toml
 !/backend
-!/deploy
-!/docs
 !/engine
 !/frontend
 !/pyproject.toml
+!/lychee.toml
+!/typos.toml
 !/uv.lock
 
 # ---- working files, never published -----------------------------------------

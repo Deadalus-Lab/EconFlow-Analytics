@@ -1,0 +1,111 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# ==============================================================================
+# REUSE.toml -- the licensing of every file, stated once, where a machine reads
+# it.
+#
+# WHY THIS FILE RATHER THAN MORE HEADERS. The `spdx` job in ci.yml proves that
+# every `.py` file declares AGPL-3.0-only and nothing else. That leaves the rest
+# of the tree unproven, and a large part of it CANNOT carry a header at all: a
+# parquet fixture, a `.sha256` sidecar, `uv.lock`, `.python-version`. REUSE's
+# answer to exactly that problem is a bulk declaration, and this is it.
+#
+# WHY IT COVERS `**` WITH A SINGLE BLOCK. NOTICE states the position without
+# qualification -- "The entire repository is AGPL-3.0-only, every directory and
+# every language, without exception. There is no dual licence, no per-directory
+# rule and no commercial-use carve-out." A per-directory table here would be a
+# second, weaker copy of that sentence, free to drift from it. One block is the
+# same claim in machine-readable form.
+#
+# `precedence = "aggregate"` is deliberate: it ADDS this declaration to whatever
+# a file states in its own header rather than replacing it. A file that carries
+# `SPDX-License-Identifier: AGPL-3.0-only` keeps saying so on its own, and this
+# file does not become the only place the licence is recorded. If a vendored
+# third-party file is ever admitted to this tree, it needs its own annotation
+# block above this one -- `**` is true today because nothing here is anyone
+# else's work, not because a wildcard is convenient.
+#
+# VERIFY WITH:
+#   uvx --from reuse reuse lint
+# ==============================================================================
+version = 1
+SPDX-PackageName = "EconFlow Analytics"
+SPDX-PackageSupplier = "Panagiotis Tsikos <316596317+Panagiotis-Tsikos@users.noreply.github.com>"
+SPDX-PackageDownloadLocation = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
+
+# TWO FIELDS, TWO DIFFERENT ANSWERS, AND SEPARATING THEM IS THE WHOLE POINT.
+#
+# REUSE requires every file to carry BOTH a copyright holder and a licence. This
+# file used to supply both for the entire tree with a single `path = "**"`
+# annotation, and `reuse lint` passed. It could not have done anything else: a
+# blanket asserts a licence whether or not the file says anything, so deleting the
+# header from a source file left the report unchanged. That is the shape of gate
+# this repository refuses -- one that passes because it examined nothing. The
+# requirement is the opposite: a file stripped of its header must fail.
+#
+# COPYRIGHT is genuinely uniform: one holder, every file, and no source file in
+# this tree carries an SPDX-FileCopyrightText line of its own. Declaring it once
+# here is the honest statement, and it asserts nothing a gate should be checking.
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Panagiotis Tsikos"
+
+# LICENCE is declared BY THE FILE, wherever a file can declare it -- which is
+# what leaves the control able to fire. The paths below are the exceptions, and
+# they are exceptions of format rather than of policy: JSON, Parquet and a digest
+# have no comment syntax, and the version pins are one line consumed whole by uv,
+# pyenv and nvm. Measured 2026-08-21 across 1084 tracked and untracked files: 167
+# carry no SPDX tag, and every one of them is a file that cannot carry it -- 37
+# vendored proselint rules (annotated below), the two verbatim licence texts in
+# LICENSES/, and the commentless formats and pins listed here. Nothing that could
+# declare a licence in its own bytes is missing one.
+[[annotations]]
+path = ["**/*.json", "**/*.parquet", "**/*.sha256", "uv.lock", "**/py.typed",
+        ".python-version", "engine/.python-version", "backend/.python-version",
+        "frontend/.nvmrc"]
+precedence = "aggregate"
+# BOTH fields, because matching blocks do not MERGE -- the last one that matches a
+# file wins outright. Declaring only the licence here silently dropped the
+# copyright supplied above, and reuse then reported these very files as missing
+# copyright information. Measured, not assumed.
+SPDX-FileCopyrightText = "2026 Panagiotis Tsikos"
+SPDX-License-Identifier = "AGPL-3.0-only"
+
+# THE VENDORED STYLE IS NOT OURS, AND THE AGGREGATE BELOW WOULD CLAIM IT.
+# `.github/vale/styles/proselint/` is errata-ai's proselint style, copied in
+# verbatim so the register gate needs no network. It is BSD-3-Clause. Without this
+# block the `**` aggregate underneath labels all 37 of its files AGPL-3.0-only and
+# `reuse lint` reports `Used licenses: AGPL-3.0-only` -- a clean bill of health for
+# a licence statement that is simply untrue. A more specific path wins over the
+# aggregate, which is what makes this the fix rather than an exception.
+#
+# IT MUST COME AFTER THE `**` BLOCK, and that is not a style choice. When more
+# than one [[annotations]] matches a file the LAST one wins, so with this block
+# written first the aggregate simply overrode it and `reuse spdx` still reported
+# `LicenseInfoInFile: AGPL-3.0-only` for all 37 vendored files while `reuse lint`
+# said `Unused licenses: BSD-3-Clause`. Measured, not assumed.
+#
+# TWO HOLDERS, NOT ONE, AND THE DIRECTORY SAYS SO IN TWO PLACES. `LICENSE` in
+# that directory reads `Copyright (c) 2019, errata.ai`; `README.md` beside it
+# reads `Copyright © 2014–2015, Jordan Suchow, Michael Pacer, and Lara A. Ross`,
+# and `meta.json` names `https://github.com/amperser/proselint` as the upstream
+# the style ports. Naming only errata.ai credited the port and dropped the
+# authors of the work it ports. The BSD-3-Clause text all four published requires
+# that their notice be RETAINED on redistribution -- it is retained, in the
+# README, so the omission was a gap in the machine-readable record rather than a
+# breach of the licence. It still had to be closed: a REUSE annotation OVERRIDES
+# what a file says about itself, so a tool reading this tree saw one holder where
+# the bytes carry two.
+#
+# A TOML ARRAY IS THE SYNTAX FOR MORE THAN ONE HOLDER, and it emits one
+# `SPDX-FileCopyrightText:` line per element rather than joining them into a
+# single string. Measured against reuse 6.2.0 before it was written here:
+#   uvx --from "reuse==6.2.0" reuse spdx | grep -A2 'FileCopyrightText'
+[[annotations]]
+path = ".github/vale/styles/proselint/**"
+precedence = "override"
+SPDX-FileCopyrightText = [
+    "2019 errata.ai",
+    "2014–2015 Jordan Suchow, Michael Pacer, and Lara A. Ross",
+]
+SPDX-License-Identifier = "BSD-3-Clause"
