@@ -1488,7 +1488,17 @@ jobs:
           # SHA-pinned step was still fetching an unpinned tool. Everything else in
           # this repository is pinned; this was the hole.
           lycheeVersion: v0.18.1
-          args: --config lychee.toml --no-progress --format json --output ./lychee-out.json .
+          args: --config lychee.toml --no-progress .
+          # THE REPORT PATH AND ITS FORMAT BELONG TO THE ACTION, NOT TO args.
+          # entrypoint.sh runs `lychee --output <temp file> $args` itself and then
+          # copies that file to `output`, so a second `--output` inside args is a
+          # collision it refuses before lychee starts: "'output' is set in args as
+          # well as in the action configuration". `format` moves with it, because
+          # the same script appends a Markdown "Full Github Actions output" line
+          # to the report whenever `format` is markdown -- its default -- which
+          # would hand the floor step below a JSON file with prose on the end.
+          format: json
+          output: ./lychee-out.json
           fail: true
 
       - name: A floor, so a link check that examined nothing cannot pass
