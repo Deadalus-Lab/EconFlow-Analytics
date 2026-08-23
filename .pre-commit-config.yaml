@@ -312,6 +312,12 @@ repos:
   # and the commit-message rules lived only in ci.yml, where they are found after
   # the message is already written. .gitlint requires a body and a Signed-off-by
   # trailer; both are cheaper to fix before the commit exists than after.
+  #
+  # IT ALSO CARRIES THE ATTRIBUTION GATE, and that one has to run at this stage
+  # rather than only in CI. `.gitlint` loads .github/gitlint/no_tool_attribution.py
+  # through `extra-path`, so this hook refuses a message that credits a tool in
+  # the moment such a trailer is written. A check that runs only after the push
+  # finds it when it is already in the history.
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
     hooks:
