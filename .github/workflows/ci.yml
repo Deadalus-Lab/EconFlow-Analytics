@@ -984,6 +984,31 @@ jobs:
             echo ".gitignore and listed in .github/root-manifest.txt."
             exit 1
           fi
+
+          # A THIRD CONTROL, because `.gitlint` carries an exemption: I4 drops
+          # B1 for a commit authored by dependabot[bot], whose body is a list of
+          # compare URLs that cannot be wrapped. That exemption is confined to
+          # one author, and this control is what proves it. A message on stdin
+          # carries no author name, so I4 cannot fire and B1 must still refuse
+          # the line. The message below is well formed in every other respect --
+          # conventional subject, blank line, body, sign-off -- so B1 is the only
+          # rule that can speak, and the output is read rather than the exit
+          # code, which any of the six rules could have set.
+          long=$(head -c 100 /dev/zero | tr '\0' x)
+          out=$(printf 'ci(ci): a well-formed subject\n\nA body that says why.\n%s\n\n%s\n' \
+            "$long" \
+            "Signed-off-by: Panagiotis-Tsikos <316596317+Panagiotis-Tsikos@users.noreply.github.com>" \
+            | gl 2>&1 || true)
+          case "$out" in
+            *"B1 Line exceeds max length"*) ;;
+            *)
+              echo "FAIL: B1 did not refuse a body line of 100 characters."
+              echo "The limit is 87 and the only commits exempt from it are"
+              echo "dependabot[bot]'s. gitlint said:"
+              echo "$out"
+              exit 1
+              ;;
+          esac
           echo "positive controls passed: .gitlint is present and its rules are biting"
 
           if [ "$EVENT" = "pull_request" ]; then
