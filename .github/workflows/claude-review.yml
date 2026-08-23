@@ -44,8 +44,8 @@
 # NO COUNT OF CATEGORIES, WRAPPERS OR NODES APPEARS IN THE PROMPT BELOW. Those
 # figures are published once, in README.md, and asserted against
 # .github/inventory.json on every pull request. A second copy here would be a
-# copy nobody asserts, and this file is already the recorded example of that
-# failure: it once carried "0 of 251" while the tree held far more.
+# copy nothing asserts. CLAUDE.md section 6 carries the worked example and names
+# this file in it; restating the example here would be a second copy of that too.
 #
 # ---------------------------------------------------------------------------
 # THIS FILE CANNOT REVIEW THE PULL REQUEST THAT CHANGES IT
@@ -62,9 +62,17 @@
 # about. Were it absent, any pull request could edit this workflow to print the
 # token it was granted. So a change to THIS file always reviews nothing on its
 # own pull request, and takes effect on the next one opened after it lands on
-# main. The action reports that as a warning and exits 0 rather than failing, so
-# the run goes green while doing nothing. Read the log, not the tick, when
-# judging whether a change here worked.
+# main.
+#
+# THE RUN GOES GREEN WHILE DOING NOTHING. The action reports the refusal as a
+# warning and exits 0, so a green tick on this job is never evidence that a
+# review happened. The log is. A run that genuinely reviewed prints both of:
+#
+#   Auto-detected mode: tag for event: pull_request
+#   OIDC token successfully obtained
+#
+# and then posts a comment. A run that printed the refusal above posted nothing,
+# whatever the tick says.
 #
 # ---------------------------------------------------------------------------
 # THE FORK GUARD, AND WHY IT IS NOT `pull_request_target`
