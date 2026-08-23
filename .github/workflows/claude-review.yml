@@ -44,8 +44,7 @@
 # NO COUNT OF CATEGORIES, WRAPPERS OR NODES APPEARS IN THE PROMPT BELOW. Those
 # figures are published once, in README.md, and asserted against
 # .github/inventory.json on every pull request. A second copy here would be a
-# copy nothing asserts. CLAUDE.md section 6 carries the worked example and names
-# this file in it; restating the example here would be a second copy of that too.
+# copy nothing asserts.
 #
 # ---------------------------------------------------------------------------
 # THIS FILE CANNOT REVIEW THE PULL REQUEST THAT CHANGES IT
