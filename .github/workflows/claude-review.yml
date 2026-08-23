@@ -7,8 +7,8 @@
 # ---------------------------------------------------------------------------
 # WHY THIS WORKFLOW NEEDS BOTH `prompt` AND `track_progress`
 # ---------------------------------------------------------------------------
-# It carried neither until 2026-08-23, and so it had never reviewed anything.
-# Both facts are read off the action at the SHA pinned below, not assumed:
+# Both inputs are load-bearing, and the reason is in the action at the SHA
+# pinned below rather than in its documentation:
 #
 #   src/entrypoints/prepare.ts:58  the trigger is
 #       modeName === "tag" ? checkContainsTrigger(context) : !!inputs.prompt
@@ -16,21 +16,21 @@
 #       `return "agent"`, whose own comment reads
 #       "Default to agent mode (which won't trigger without a prompt)"
 #
-# So with no prompt the run resolved to agent mode, computed `false`, printed
-# "No trigger found, skipping remaining steps" and exited. It cost a runner and
-# reviewed nothing, on every pull request, for as long as it existed.
+# So a `pull_request` run resolves to agent mode, and agent mode triggers on the
+# presence of a prompt and nothing else. The prompt is what starts the job: a run
+# without one prints "No trigger found, skipping remaining steps" and exits.
 #
-# A prompt alone would start it but leave it mute. Agent mode passes
+# A prompt on its own starts the job and leaves it mute. Agent mode passes
 # `claudeCommentId: undefined` (src/modes/agent/index.ts) and installs the
 # comment server only when a `mcp__github_comment__` tool is granted
 # (src/mcp/install-mcp-server.ts:109) -- and that server's one tool,
-# `update_claude_comment`, throws without CLAUDE_COMMENT_ID, which agent mode
-# never sets. The review would have existed only in the job log.
+# `update_claude_comment`, requires CLAUDE_COMMENT_ID, which agent mode does not
+# set. A review written in agent mode reaches the job log and stops there.
 #
 # `track_progress: true` forces tag mode for a `pull_request` event
 # (src/modes/detector.ts, first branch). Tag mode posts the tracking comment and
 # then edits the finished review into it, which is the behaviour the maintainer
-# asked for on 2026-08-23. `prompt` is still required: in tag mode the trigger is
+# chose on 2026-08-23. `prompt` is still required: in tag mode the trigger is
 # `checkContainsTrigger`, which returns true for a prompt
 # (src/github/validation/trigger.ts:19) and otherwise hunts for "@claude" in the
 # pull-request title or body. The prompt is appended to the tag-mode prompt
@@ -102,14 +102,12 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      # REQUIRED, and it was missing until 2026-08-23. The action exchanges an
-      # OIDC token for its app token (src/github/token.ts:168), and the runner
-      # injects ACTIONS_ID_TOKEN_REQUEST_URL only for a job that asks for this
-      # permission. Without it the run reaches "Unable to get
-      # ACTIONS_ID_TOKEN_REQUEST_URL env variable" and fails after three
-      # attempts. The defect was invisible for as long as the job had no
-      # prompt, because it exited at the trigger check before ever minting a
-      # token. claude.yml has always carried it.
+      # REQUIRED. The action mints its app token by exchanging an OIDC token
+      # (src/github/token.ts:168), and the runner injects
+      # ACTIONS_ID_TOKEN_REQUEST_URL only into a job that asks for this
+      # permission. A job without it stops at "Unable to get
+      # ACTIONS_ID_TOKEN_REQUEST_URL env variable" after three attempts, which
+      # is the whole run. claude.yml carries it for the same reason.
       id-token: write
     steps:
       # EGRESS AUDIT, FIRST STEP OF EVERY JOB. See the note in ci.yml and box 1.3.27.
