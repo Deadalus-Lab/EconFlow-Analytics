@@ -37,8 +37,22 @@
 # with id or name ... found" rather than skipping it, which is the behaviour
 # that makes a typo here loud instead of silent.
 # ==============================================================================
+# A USER-DEFINED RULE LIVES BESIDE THE BUILT-IN ONES. `extra-path` loads
+# .github/gitlint/no_tool_attribution.py, which refuses a commit message that
+# credits a tool rather than a person -- the full statement of what it matches,
+# and of how it tells a human co-author from a tool credit, is in that file's
+# own docstring. It is wired here rather than as a separate hook so that the one
+# configuration serves both ends: the `commit-msg` hook refuses the commit as it
+# is written, and ci.yml's gitlint step applies the same rule to a squash body
+# written through the merge API, which no local hook can see.
+#
+# The path is relative to the working directory, which is the repository root
+# for both the hook and the workflow. A path that does not resolve is not
+# survivable: gitlint exits 253 with "Invalid value for '-e' / '--extra-path'"
+# before it reads a message, so this rule cannot stop applying by being moved.
 [general]
 contrib = contrib-title-conventional-commits,contrib-body-requires-signed-off-by
+extra-path = .github/gitlint/no_tool_attribution.py
 ignore-merge-commits = true
 ignore-revert-commits = true
 ignore-fixup-commits = true
