@@ -1,0 +1,184 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# Automatic review on every pull request from a branch in this repository.
+#
+# ADVISORY ONLY -- never a required check. See claude.yml for the three reasons.
+#
+# ---------------------------------------------------------------------------
+# WHY THIS WORKFLOW NEEDS BOTH `prompt` AND `track_progress`
+# ---------------------------------------------------------------------------
+# Both inputs are load-bearing, and the reason is in the action at the SHA
+# pinned below rather than in its documentation:
+#
+#   src/entrypoints/prepare.ts:58  the trigger is
+#       modeName === "tag" ? checkContainsTrigger(context) : !!inputs.prompt
+#   src/modes/detector.ts          a `pull_request` event reaches the final
+#       `return "agent"`, whose own comment reads
+#       "Default to agent mode (which won't trigger without a prompt)"
+#
+# So a `pull_request` run resolves to agent mode, and agent mode triggers on the
+# presence of a prompt and nothing else. The prompt is what starts the job: a run
+# without one prints "No trigger found, skipping remaining steps" and exits.
+#
+# A prompt on its own starts the job and leaves it mute. Agent mode passes
+# `claudeCommentId: undefined` (src/modes/agent/index.ts) and installs the
+# comment server only when a `mcp__github_comment__` tool is granted
+# (src/mcp/install-mcp-server.ts:109) -- and that server's one tool,
+# `update_claude_comment`, requires CLAUDE_COMMENT_ID, which agent mode does not
+# set. A review written in agent mode reaches the job log and stops there.
+#
+# `track_progress: true` forces tag mode for a `pull_request` event
+# (src/modes/detector.ts, first branch). Tag mode posts the tracking comment and
+# then edits the finished review into it, which is the behaviour the maintainer
+# chose on 2026-08-23. `prompt` is still required: in tag mode the trigger is
+# `checkContainsTrigger`, which returns true for a prompt
+# (src/github/validation/trigger.ts:19) and otherwise hunts for "@claude" in the
+# pull-request title or body. The prompt is appended to the tag-mode prompt
+# inside <custom_instructions> (src/create-prompt/index.ts:479).
+#
+# THE TOOL LIST STILL EXCLUDES ANYTHING THAT COULD RUN THE SUITE. Claude
+# reviews; CI proves. If a model could run run_verifications.sh and report the
+# result, the report would become the evidence, and the evidence would be
+# non-deterministic. The suite's verdict comes from the gate.
+#
+# NO COUNT OF CATEGORIES, WRAPPERS OR NODES APPEARS IN THE PROMPT BELOW. Those
+# figures are published once, in README.md, and asserted against
+# .github/inventory.json on every pull request. A second copy here would be a
+# copy nothing asserts. CLAUDE.md section 6 carries the worked example and names
+# this file in it; restating the example here would be a second copy of that too.
+#
+# ---------------------------------------------------------------------------
+# THIS FILE CANNOT REVIEW THE PULL REQUEST THAT CHANGES IT
+# ---------------------------------------------------------------------------
+# Measured on run 32629259638. The token exchange refuses with:
+#
+#   Exchanging OIDC token for app token...
+#   Attempt 1 failed: Workflow validation failed. The workflow file must exist
+#   and have identical content to the version on the repository's default
+#   branch.
+#
+# The check is server-side, in the service that mints the app token, not in the
+# action's own source -- and it is the same threat this file's fork guard is
+# about. Were it absent, any pull request could edit this workflow to print the
+# token it was granted. So a change to THIS file always reviews nothing on its
+# own pull request, and takes effect on the next one opened after it lands on
+# main.
+#
+# THE RUN GOES GREEN WHILE DOING NOTHING. The action reports the refusal as a
+# warning and exits 0, so a green tick on this job is never evidence that a
+# review happened. The log is. A run that genuinely reviewed prints both of:
+#
+#   Auto-detected mode: tag for event: pull_request
+#   OIDC token successfully obtained
+#
+# and then posts a comment. A run that printed the refusal above posted nothing,
+# whatever the tick says.
+#
+# ---------------------------------------------------------------------------
+# THE FORK GUARD, AND WHY IT IS NOT `pull_request_target`
+# ---------------------------------------------------------------------------
+# `pull_request` on a fork gives an empty secret, so this job would fail with no
+# credential. The usual "fix" is to switch the trigger to `pull_request_target`,
+# which DOES expose secrets. That is a serious mistake here: it runs with write
+# permissions in the context of the BASE repository while checking out code an
+# untrusted contributor wrote. It is the standard route to exfiltrating a
+# repository's secrets, and this repository is public.
+#
+# So the job is skipped on fork pull requests, deliberately and permanently.
+# Outside contributors still get CodeRabbit -- which works on forks through its
+# own app rather than through our secrets -- and every deterministic gate in
+# ci.yml. They do not get this one. The trade is stated here rather than left to
+# be discovered: a fork pull request seeing no review comment from this workflow
+# is the design working, not a job that failed to run.
+name: claude-review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions: {}
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      # REQUIRED. The action mints its app token by exchanging an OIDC token
+      # (src/github/token.ts:168), and the runner injects
+      # ACTIONS_ID_TOKEN_REQUEST_URL only into a job that asks for this
+      # permission. A job without it stops at "Unable to get
+      # ACTIONS_ID_TOKEN_REQUEST_URL env variable" after three attempts, which
+      # is the whole run. claude.yml carries it for the same reason.
+      id-token: write
+    steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. See the note in ci.yml and box 1.3.27.
+      # These two workflows write to the repository under the maintainer's token,
+      # which makes their egress the most worth recording, not the least.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Review
+        uses: anthropics/claude-code-action@9d7150bc8a3dae8149739a88019d192b579ad90c # v1
+        with:
+          # THE SUBSCRIPTION TOKEN, NOT AN API KEY. Both are accepted by this action
+          # -- `claude_code_oauth_token` is documented at the pinned SHA as an
+          # alternative to `anthropic_api_key` -- and the token was chosen so the
+          # repository does not carry a second billing relationship for a check
+          # that is never required. Mint it with `claude setup-token`.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Forces tag mode, so the review is posted rather than logged. See the
+          # header note for the exact lines in the action that make this
+          # necessary.
+          track_progress: true
+          # Five things, ordered. A prompt that lists thirty concerns gets thirty
+          # shallow answers.
+          prompt: |
+            Review this pull request. The repository is an econometric compute engine. Every
+            module under engine/src/econflow_engine/wrappers/ is a typed stub that raises
+            NotImplementedError, so a change here is almost always to a gate, a generator, a
+            document, or the pipeline that guards them -- not to an estimator.
+
+            Look for these five, hardest first:
+
+            1. A GATE THAT PASSES WHILE EXAMINING NOTHING. A glob matching no file, a floor
+               compared against an empty variable, a linter invoked with no path argument, a
+               loop whose body never runs. A gate that proved nothing while reporting success
+               is worse than one that failed, because nobody looks again.
+            2. A TEST WEAKENED RATHER THAN FIXED. A skip or xfail added to silence a failure,
+               a loosened assertion, a deleted pytest.raises, a mutation-proof check replaced
+               by a shape check. Also any gate softened from a refusal into a warning.
+            3. A NUMBER WITHOUT ITS COMMAND. Any figure published in prose that has no command
+               beside it reproducing the figure, or the same figure written in a second place
+               where the two copies can drift apart.
+            4. A CLAIM THAT OUTRUNS ITS EVIDENCE. Prose asserting a property nothing measures,
+               an unmeasured zero written as though it were a measured one, or a note
+               describing what was repaired rather than what now exists.
+            5. A CITATION ALTERED. Any change to an author, year, venue, or to the result a
+               cited work is said to show.
+
+            Report only what you can point at with a file and a line. For each finding give
+            what is wrong and what would settle it; if you are uncertain, say you are uncertain
+            and say what would resolve it. Do not restate the diff and do not pad the review
+            with observations that carry no consequence.
+
+            If you find nothing in these five categories, say exactly that, in one sentence.
+            A short review reporting nothing is a useful review.
+
+            Write in English, in a professional academic register.
+          # Read-only, plus the one tool that writes the review into the tracking
+          # comment. Nothing here can run the suite or a generator in --check mode.
+          claude_args: >-
+            --allowed-tools "Read,Grep,Glob,mcp__github_comment__update_claude_comment"
