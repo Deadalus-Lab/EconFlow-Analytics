@@ -57,3 +57,26 @@ line-length = 87
 # divergence visible in a diff.
 [contrib-title-conventional-commits]
 types = feat,fix,refactor,perf,test,build,ci,docs,chore,revert
+
+# DEPENDABOT'S BODY IS EXEMPT FROM B1, AND FROM NOTHING ELSE. Dependabot writes
+# the body of its own commits: one full GitHub compare URL for every action it
+# bumps, under a summary line that names each repository. Those lines run from
+# 140 to 258 characters and a URL has no break point, so no wrapping satisfies
+# B1 and the only edit that turns the check green deletes the links -- which are
+# the entire audit trail of a bump. The rule is narrowed instead of the message.
+#
+# `ignore` names B1 alone. The subject is still `type(scope): summary` (CT1) and
+# still at most 72 characters (T1), the body still has to exist (B6), and the
+# sign-off is still required (CC1). The exemption also stops at the branch: the
+# squash commit on `main` carries the body the maintainer writes under his own
+# name, and B1 reads that one in full.
+#
+# I4 matches `commit.author_name`, which git supplies for a commit and which a
+# message read from stdin does not carry. The `commit-msg` hook and the
+# workflow's controls therefore print "I4: skipping - commit.author_name
+# unknown" and go on to apply every rule; the exemption reaches only a commit
+# whose author git can name. `regex-style-search` makes the match an
+# `re.search`, so the two anchors are what confine it to that single name.
+[ignore-by-author-name]
+regex = ^dependabot\[bot\]$
+ignore = B1
