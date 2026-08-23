@@ -48,6 +48,25 @@
 # failure: it once carried "0 of 251" while the tree held far more.
 #
 # ---------------------------------------------------------------------------
+# THIS FILE CANNOT REVIEW THE PULL REQUEST THAT CHANGES IT
+# ---------------------------------------------------------------------------
+# Measured on run 32629259638. The token exchange refuses with:
+#
+#   Exchanging OIDC token for app token...
+#   Attempt 1 failed: Workflow validation failed. The workflow file must exist
+#   and have identical content to the version on the repository's default
+#   branch.
+#
+# The check is server-side, in the service that mints the app token, not in the
+# action's own source -- and it is the same threat this file's fork guard is
+# about. Were it absent, any pull request could edit this workflow to print the
+# token it was granted. So a change to THIS file always reviews nothing on its
+# own pull request, and takes effect on the next one opened after it lands on
+# main. The action reports that as a warning and exits 0 rather than failing, so
+# the run goes green while doing nothing. Read the log, not the tick, when
+# judging whether a change here worked.
+#
+# ---------------------------------------------------------------------------
 # THE FORK GUARD, AND WHY IT IS NOT `pull_request_target`
 # ---------------------------------------------------------------------------
 # `pull_request` on a fork gives an empty secret, so this job would fail with no
