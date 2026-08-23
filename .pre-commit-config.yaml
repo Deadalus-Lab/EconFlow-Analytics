@@ -259,6 +259,18 @@ repos:
         pass_filenames: false
         always_run: true
 
+      # PRE-COMMIT, AND THE REASON IS THE FAILURE IT EXISTS FOR. A comment citing a
+      # private file sat on main through a full review cycle, because no gate
+      # looked for it. The moment to refuse it is the moment it is written, not
+      # the push after. Measured 2026-08-23: 1.47 s over 955 tracked files, against
+      # the 8.2 s that put its vocabulary sibling below on pre-push.
+      - id: private-refs
+        name: no tracked file cites a path a reader cannot open
+        entry: .github/scripts/check-private-refs.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
       # PRE-PUSH, NOT PRE-COMMIT, AND THE REASON IS MEASURED. This one walks 1050
       # files and takes 8.2 s against 10-360 ms for its six siblings. A hook that
       # makes every commit wait eight seconds is a hook people start passing -n to,

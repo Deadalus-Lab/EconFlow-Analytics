@@ -654,6 +654,18 @@ jobs:
       - name: The vocabulary is this project's own
         run: bash .github/scripts/check-vocabulary.sh .
 
+      # Five paths are ignored by git and never published. A tracked file may NAME
+      # one inside an ignore or exclusion list; it may not CITE one as a source a
+      # reader could follow. Two such citations reached main and survived a full
+      # review cycle, because every other gate here looks the other way: the
+      # vocabulary gate SKIPS these names so it never reads private prose, and the
+      # link checker EXCLUDES those paths. This one reads git's index, exempts the
+      # exclusion lists by exact path, and asserts that each exemption still
+      # protects a real match -- so the list cannot widen into one that exempts the
+      # tree. Its floor lives in .github/inventory.json beside every other.
+      - name: No tracked file cites a path a reader cannot open
+        run: bash .github/scripts/check-private-refs.sh .
+
       # A CLAIM WITHOUT A GATE IS A MEMORY. "No wrapper makes a network call" was
       # published in five places and called "Verified" while nothing re-measured
       # it, against a denominator taken by hand when the tree was less than half
