@@ -70,7 +70,7 @@
     "n_legacy_cards": 252,
     "n_parity_cases": 4855,
     "n_recommend_fixtures": 114,
-    "sbom_components": 114,
+    "sbom_components": 115,
     "sidecars": 7
   },
   "boundary": {

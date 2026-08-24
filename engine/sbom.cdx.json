@@ -1077,6 +1077,19 @@
     },
     {
       "type": "library",
+      "name": "pytest-codspeed",
+      "version": "5.0.3",
+      "purl": "pkg:pypi/pytest-codspeed@5.0.3",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "pytest-cov",
       "version": "7.1.0",
       "purl": "pkg:pypi/pytest-cov@7.1.0",
