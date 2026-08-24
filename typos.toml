@@ -53,6 +53,30 @@ extend-exclude = [
   ".claude/",
 ]
 
+[default]
+# DELIBERATE MISSPELLINGS THAT ARE THE SUBJECT OF A TEST, NOT A DEFECT IN ONE.
+# Two tests assert that a NEAR-MISS of a real key is REFUSED rather than quietly
+# absorbed, so the misspelling is the test's input. Correcting it would delete
+# what the test proves, and swapping in an obviously wrong token would prove
+# something weaker: a plausible slip is precisely what a loader must not swallow.
+#
+# WHY A REGEX RATHER THAN A WORD OR AN IDENTIFIER. An entry under
+# `extend-words` or `extend-identifiers` exempts that token EVERYWHERE, and
+# `sampel` sits one keystroke from `sample`, a word these 600 cards use
+# constantly. The patterns below exempt the exact literal instead, so a bare
+# `sampel` or `tolerence` -- or an unmarked `tolerence_class` -- is still an
+# error anywhere in the tree, including elsewhere in these same two files.
+extend-ignore-re = [
+  # engine/tests/test_gates_registry.py: the registry raises KeyError on a
+  # misspelt gate name rather than resolving nothing and running no gate.
+  "precondition-sampel-size",
+  # engine/tests/conformance/test_conformance.py: the oracle case key set is
+  # CLOSED, and the docstring names the near-miss of `tolerance_class` that has
+  # to be an error, since a tolerance silently ignored is no tolerance at all.
+  # The backticks are part of the pattern: only the RST literal is exempt.
+  "``tolerence_class``",
+]
+
 [default.extend-words]
 # --- journal and institution abbreviations, as they appear in citations -------
 AER = "AER"          # American Economic Review
