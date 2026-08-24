@@ -75,6 +75,11 @@ extend-ignore-re = [
   # to be an error, since a tolerance silently ignored is no tolerance at all.
   # The backticks are part of the pattern: only the RST literal is exempt.
   "``tolerence_class``",
+  # engine/tests/test_engine_helpers.py: the ASCII fold in naming.py turns
+  # `café.value` into `caf_value`, and that truncation IS what the test asserts --
+  # under a Unicode-aware fold the accent survives and the identifier differs.
+  # The trailing `_value` is part of the pattern, so a bare `caf` stays an error.
+  "caf_value",
 ]
 
 [default.extend-words]

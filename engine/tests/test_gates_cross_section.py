@@ -223,6 +223,35 @@ def test_a_clean_cross_section_still_passes_and_reports() -> None:
     assert report.groups[0].tested is True
 
 
+def test_an_unordered_declaration_admits_data_the_gate_would_otherwise_reject() -> None:
+    """``_ORDERED`` is a perfect ramp: with ordered=True this same input is REJECTED.
+
+    The decision the report carries is what tells the escape hatch from a pass,
+    and the branch names why the Ljung-Box never ran.
+    """
+    report = gate_cross_section_only(_ORDERED, arg="x", fn="f", ordered=False)
+    assert report.decision == "pass-unordered"
+    assert report.branch == "skipped-by-declaration"
+    assert report.groups[0].tested is False
+    with pytest.raises(GateError) as caught:
+        gate_cross_section_only(_ORDERED, arg="x", fn="f", ordered=True)
+    assert caught.value.detail_code == "precondition-cross-section"
+
+
+def test_a_group_too_short_to_test_is_reported_as_untested_never_as_a_pass() -> None:
+    """n = 3 derives a lag below 1, so the Ljung-Box cannot run on it.
+
+    ordered=True, so the caller asked for the test and did not get it. That is a
+    THIRD outcome, and collapsing it into "pass" would tell the caller a whiteness
+    test succeeded when none was performed.
+    """
+    report = gate_cross_section_only([1.0, 2.0, 4.0], arg="x", fn="f")
+    assert report.decision == "pass-untested"
+    assert report.branch == "ljung-box-tested"
+    assert report.groups[0].tested is False
+    assert report.groups[0].n == 3
+
+
 def test_the_window_detector_still_finds_a_step_and_still_clears_clean_data() -> None:
     """Paired: a built sliding window is detected, an unrelated matrix is not."""
     base = np.arange(30, dtype=float)
