@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# Delete skipped workflow runs.
+#
+# GitHub Actions queues a run whenever claude.yml triggers on issue_comment: created.
+# Bot comments (Dependabot, SonarCloud, CodeRabbit) trigger the workflow; the job-level
+# if: condition finds no @claude mention and skips execution. The run record remains.
+# This workflow deletes those skipped runs automatically, keeping the Actions tab clean.
+#
+name: prune-skipped-runs
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # 03:00 UTC daily, off-peak
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: prune-skipped-runs
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    name: delete skipped workflow runs
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - name: List and delete skipped runs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          echo "=== Listing skipped workflow runs ==="
+
+          # Capture the output to count runs and handle errors separately
+          list_output=$(
+            gh api \
+              --paginate \
+              repos/${{ github.repository }}/actions/runs \
+              --jq '.workflow_runs[] | select(.conclusion == "skipped") | .id' \
+              2>&1
+          ) || {
+            echo "FAIL: failed to list workflow runs"
+            exit 1
+          }
+
+          mapfile -t run_ids <<<"$list_output"
+
+          # ANTI-VACUITY: distinguish between "listed zero runs" and "listing failed".
+          # Deleting zero runs is legitimate; listing failure is not.
+          if [ ${#run_ids[@]} -eq 0 ]; then
+            echo "Considered: 0 skipped runs"
+            echo "Deleted: 0 skipped runs"
+            echo "No skipped runs found."
+            exit 0
+          fi
+
+          echo "Considered: ${#run_ids[@]} skipped run(s)"
+
+          deleted=0
+          for run_id in "${run_ids[@]}"; do
+            if [ -z "$run_id" ]; then
+              continue
+            fi
+            gh api -X DELETE repos/${{ github.repository }}/actions/runs/"$run_id" || {
+              echo "WARNING: failed to delete run $run_id (may have already been deleted)"
+            }
+            deleted=$((deleted + 1))
+          done
+
+          echo "Deleted: $deleted skipped run(s)"
