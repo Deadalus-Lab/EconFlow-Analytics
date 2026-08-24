@@ -28,6 +28,7 @@
     "errors: a series (h=1) or frame (h>1) of forecast errors with leading blanks",
     "accuracy: data_frame per-horizon rmse/mae/me/n_eff over the finite values"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "alternative=less => method 2 is less accurate than 1 (e1 is better); greater => the reverse; the sign depends on the order of e1,e2",
     "me != 0 => a bias in the forecast",
@@ -42,7 +43,8 @@
     "forecast reference manual (dm_test, tsCV)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 75,
@@ -70,6 +72,7 @@
     "included: the names of the models in the final confidence set",
     "statistic: Tmax or TR; ssm: the raw model handle (a stub once serialised)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "show contains ONLY the surviving models, not the eliminated ones",
     "the MCS p-Value is NOT the p-value of an individual model; a model is in the set if its MCS p-Value > alpha",
@@ -83,7 +86,8 @@
     "Patton 2011 (robust volatility loss, QLIKE)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 76,
@@ -115,6 +119,7 @@
     "p_value: < a rejects H0 => a problem EXISTS",
     "parameter: df; method/data_name; plus the raw test record"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "polarity: rejection = BAD (the model fails the diagnostic); H0='all is well'",
     "BG with a very small order misses high-order autocorrelation",
@@ -131,7 +136,8 @@
    "precondition_tools": [
     "c01_preparation_prechecks/unit_root_normality.run_adf_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 77,
@@ -158,6 +164,7 @@
     "p_value: < a rejects H0 => ARCH effects EXIST (you want GARCH)",
     "lags/demean echoes; plus the raw test record"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "polarity: rejection = an ARCH effect is present (H0='no ARCH'); a small p => conditional heteroskedasticity",
     "run it on residuals, not the raw series - ARCH in the raw series may be due to an unmodelled mean",
@@ -169,7 +176,8 @@
     "Tsay, Analysis of Financial Time Series (ARCH-LM pre-GARCH)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 94,
@@ -219,6 +227,7 @@
     "pit (sr_pit_sample): the PIT values in [0,1]; a histogram close to uniform => good calibration",
     "n / n_draws: number of observations / draws"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "ORIENTATION: CRPS & LogS are NEGATIVELY oriented — LOWER = BETTER (not accuracy)",
     "LogS = -Inf if y falls outside the support of the draws; KDE smooths that but is sensitive to the bandwidth in the tails -> for heavy tails prefer CRPS(edf)",
@@ -239,7 +248,8 @@
     "c03_multivariate_nowcasting/bayesian_var.bvar_predict (or #13/#14/#17/#60: they produce the posterior predictive draws the scores are evaluated on)",
     "c12_distribution_risk/quantile_regression.qr_growth_at_risk (GaR quantiles; the density comes via #95 -> parametric scoring)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 513,
@@ -270,6 +280,7 @@
     "theil_u: against a naive benchmark",
     "bias: mean error, which the squared metrics hide"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MAPE IS UNDEFINED AT ZERO AND ASYMMETRIC -- it penalises over-forecasts more than under-forecasts, which systematically favours forecasts biased low",
     "averaging a scale-dependent metric across series lets the largest series dominate; that is what the scaled metrics exist to prevent",
@@ -281,7 +292,8 @@
     "utilsforecast"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 514,
@@ -312,6 +324,7 @@
     "tail_weighted: scores emphasising a region of interest",
     "skill: score against a reference forecast"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE LOG SCORE IS UNBOUNDED: a single observation in a region the forecast gave near-zero density produces an infinite score and destroys the average -- CRPS is bounded and usually preferred for that reason",
     "a proper scoring rule cannot be gamed by hedging, but an improper one can -- and several popular ad hoc measures are improper",
@@ -323,7 +336,8 @@
     "scoringrules"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 515,
@@ -354,6 +368,7 @@
     "conditional: whether ability varies with a state variable",
     "loss_differential: the underlying series"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "DIEBOLD-MARIANO IS INVALID FOR NESTED MODELS -- the standard normal critical values are wrong and the test is badly undersized, which is exactly the case of adding one indicator to an autoregression",
     "Clark-West tests equal predictive ability of the POPULATION models, not the estimated ones, which is a different and often less interesting null",
@@ -366,7 +381,8 @@
     "dieboldmariano"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 516,
@@ -397,6 +413,7 @@
     "n_models: how many were compared -- the source of the multiplicity",
     "bootstrap: the resampling scheme used"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE BEST OF FIFTY MODELS WILL BEAT A BENCHMARK BY CHANCE; that is precisely the data-snooping bias these tests correct, and reporting the best model's individual p-value is the error",
     "the Reality Check is sensitive to including many poor models, which drag the null distribution -- SPA was designed to fix that",
@@ -409,7 +426,8 @@
     "arch"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 517,
@@ -440,6 +458,7 @@
     "encompassing: whether one forecast's weight in a combination is one",
     "efficiency: orthogonality against the tested information set"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE MINCER-ZARNOWITZ REGRESSION NEEDS HAC STANDARD ERRORS at horizons beyond one, because overlapping forecasts induce a moving-average error by construction",
     "rejecting rationality can mean the loss function is asymmetric rather than the forecast irrational -- the test assumes squared loss",
@@ -451,7 +470,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 518,
@@ -482,6 +502,7 @@
     "wis: the weighted interval score and its decomposition",
     "width: mean interval width"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "COVERAGE AND WIDTH MUST BE READ TOGETHER: an interval from minus to plus infinity covers perfectly and is useless, which is why the Winkler score penalises width",
     "the weighted interval score decomposes into spread, over-prediction and under-prediction, and that decomposition is where the diagnosis is",
@@ -493,7 +514,8 @@
     "scoringrules"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 519,
@@ -524,6 +546,7 @@
     "pit: probability-integral-transform values",
     "autocorrelation: dependence in the PIT series, which independence requires"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "A UNIFORM PIT HISTOGRAM IS NECESSARY BUT NOT SUFFICIENT: the PIT series must also be independent, and a calibrated-looking histogram with autocorrelated PITs is a failed forecast",
     "the Berkowitz test transforms PITs to normality and gains power over a raw uniformity test, which is why it is preferred",
@@ -535,7 +558,8 @@
     "scoringrules"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 520,
@@ -566,6 +590,7 @@
     "normality: residual normality tests",
     "influence: leverage, Cook's distance and DFBETAS"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "HETEROSKEDASTICITY DOES NOT BIAS THE COEFFICIENTS, only the standard errors; a rejected test calls for robust errors, not for a different estimator",
     "White's test has power against functional-form misspecification as well as heteroskedasticity, so a rejection does not identify the cause",
@@ -578,7 +603,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 521,
@@ -609,6 +635,7 @@
     "vuong: the likelihood-ratio-based statistic with its variance correction",
     "both_rejected: whether neither model survives"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THESE TESTS CAN REJECT BOTH MODELS OR NEITHER, and both outcomes are informative -- a test that rejects model A against B is not evidence that B is correct",
     "the J test is a regression-based approximation and has poor size in small samples",
@@ -621,7 +648,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 522,
@@ -653,6 +681,7 @@
     "egger: the small-study-effects test",
     "pet_peese: bias-corrected estimate"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "A SIGNIFICANT EGGER TEST IS NOT PROOF OF PUBLICATION BIAS -- small-study effects also arise when smaller studies genuinely differ in design or population",
     "PET-PEESE is known to over-correct when there is no bias and under-correct with strong heterogeneity; it is a diagnostic, not a definitive correction",
@@ -665,7 +694,8 @@
     "statsmodels.stats.meta_analysis"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

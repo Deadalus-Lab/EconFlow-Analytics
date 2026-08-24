@@ -31,6 +31,7 @@
     "conf_band: pointwise band, which is not a uniform band",
     "r_squared: the nonparametric goodness of fit"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "Nadaraya-Watson is badly biased at the BOUNDARY of the support; local linear is not, which is why it is the default",
     "the pointwise band does not cover the whole curve simultaneously -- reading it as a uniform band overstates precision",
@@ -43,7 +44,8 @@
     "statsmodels.nonparametric.kernel_regression"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 284,
@@ -73,6 +75,7 @@
     "criterion_curve: the objective over the searched grid, so a flat or multi-modal objective is visible",
     "method: which rule produced the answer"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "cross-validation on SERIALLY DEPENDENT data selects a bandwidth that is far too small; use a blocked or modified criterion for time series",
     "the rule of thumb assumes approximate normality and is badly wrong for skewed or multimodal data",
@@ -84,7 +87,8 @@
     "Silverman 1986, Density Estimation for Statistics and Data Analysis"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 285,
@@ -117,6 +121,7 @@
     "cdf: the integrated density where requested",
     "loglike_cv: cross-validated log-likelihood, for comparing bandwidths"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "KDE has poor tail behaviour by construction; it must not be used for extreme quantiles",
     "in more than two or three dimensions the estimate is dominated by sparsity, whatever the bandwidth",
@@ -128,7 +133,8 @@
     "statsmodels.nonparametric.kernel_density"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 286,
@@ -159,6 +165,7 @@
     "crossing_detected: whether the fitted quantile curves cross, which is a specification failure",
     "prediction_interval: the interval implied by the requested quantile pair"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "separately estimated quantile curves CAN CROSS, which is logically impossible for a distribution function -- check the flag rather than assuming it away",
     "extreme quantiles need far more data than central ones; a 1% conditional quantile from a few hundred observations is noise",
@@ -170,7 +177,8 @@
     "quantile-forest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 287,
@@ -202,6 +210,7 @@
     "k_selected: the basis dimension chosen and the criterion that chose it",
     "params, bse: coefficients on the basis, which have no direct interpretation"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "basis coefficients are NOT interpretable individually -- only the fitted function and its derivatives are",
     "high-order global polynomials oscillate wildly near the boundary (Runge's phenomenon); splines are the fix, not a higher degree",
@@ -213,7 +222,8 @@
     "formulaic documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 288,
@@ -244,6 +254,7 @@
     "nuisance_r2: fit of the two first-stage regressions",
     "n_folds: the cross-fitting used, which is what makes the inference valid"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "WITHOUT cross-fitting the estimate is biased by overfitting in the nuisance step; a single-fold implementation is not the same estimator",
     "the double-residual construction requires BOTH first stages to converge fast enough; a badly fitting nuisance model breaks the root-n claim silently",
@@ -255,7 +266,8 @@
     "doubleml"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 289,
@@ -287,6 +299,7 @@
     "varying_coef: coefficient paths against the modifier, with bands",
     "bandwidth: the smoothing used for the link or the coefficient paths"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the index coefficients are identified only UP TO SCALE, so a normalisation is imposed and the raw magnitudes are not comparable across fits",
     "the sign of the index is arbitrary unless anchored; flipping it flips the link and leaves the fit identical",
@@ -298,7 +311,8 @@
     "Li & Racine 2007, ch.8"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 290,
@@ -330,6 +344,7 @@
     "edf: effective degrees of freedom per term, which is how wiggly each term ended up",
     "lambda: the selected penalty per term; gcv/aic for the fit"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "effective degrees of freedom near one means the term is essentially LINEAR -- that is a finding about the shape, not a failure",
     "the additive structure is an assumption; a term can look flat only because an omitted interaction absorbs its variation",
@@ -341,7 +356,8 @@
     "pygam"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 291,
@@ -371,6 +387,7 @@
     "bootstrap_p: wild-bootstrap p-value, which is the one to report in small samples",
     "parametric_fit, nonparametric_fit: the two fits being compared"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the asymptotic null distribution is a poor approximation in small samples; the wild bootstrap version is the usable one",
     "rejection says the parametric form is inadequate; it does not say which nonparametric alternative is right",
@@ -382,7 +399,8 @@
     "Li & Racine 2007, ch.12"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

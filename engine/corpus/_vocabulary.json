@@ -115,5 +115,22 @@
   "light",
   "heavy",
   "mcmc"
+ ],
+ "chart_kinds": [
+  "line",
+  "multi-line",
+  "heatmap",
+  "table",
+  "none"
+ ],
+ "precondition_gates": [
+  "precondition-sample-size",
+  "precondition-missing",
+  "precondition-degenerate",
+  "precondition-frequency",
+  "precondition-domain",
+  "precondition-rank",
+  "precondition-panel",
+  "precondition-cross-section"
  ]
 }

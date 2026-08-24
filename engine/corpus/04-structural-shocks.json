@@ -35,6 +35,7 @@
     "LRIM: long-run impact matrix (BQ/SVAR)",
     "LR: LR test of overidentifying restrictions (small p => the restrictions are rejected)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "Cholesky is ordering-dependent: the variable order is a theoretical assumption, not a given.",
     "bootstrap bands measure only sampling uncertainty given the ID — they do not correct a wrong identification.",
@@ -54,7 +55,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test",
     "c03_multivariate_nowcasting/reduced_form_var.vr_fit"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 20,
@@ -96,6 +98,7 @@
     "svar_hd: hd — the contribution of each shock to the historical path; svar_cf: actual vs counter",
     "wild/mb boot: point/mean/lower/upper bands (default 0.16/0.84), SE, nboot, design, distr"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "svar_id_volatility_change wald_statistic: the identification is valid ONLY if the test REJECTS equal eigenvalues of Lambda — otherwise the shocks are not identified (a spurious B).",
     "statistical ID identifies the columns of B only up to sign & permutation — you must label which column = which economic shock.",
@@ -117,7 +120,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test",
     "c03_multivariate_nowcasting/reduced_form_var.vr_fit"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 21,
@@ -149,6 +153,7 @@
     "fevd_median/_lower/_upper: FEVD bands",
     "n_keep: accepted draws; steps; nvar; type (median/mean); constrained; variables"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "set-identification, not point: the bands are the range of many admissible models (identification uncertainty), not the sampling uncertainty of a single model.",
     "the pointwise median IRF does NOT correspond to a single structural model (Fry-Pagan 2011 critique).",
@@ -165,7 +170,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 22,
@@ -200,6 +206,7 @@
     "irf_s1_*/irf_s2_*: regime 1/2 responses (non-linear); fz: logistic switching function values",
     "variables, hor, lags, shock_type (0=sd,1=unit), trend, confint, cumul_mult, use_twosls"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "confint is a MULTIPLIER, not a probability: 1=68%, 1.65=90%, 1.96=95% (Newey-West band width).",
     "orientation: in irf_lin_mean rows are variables and columns are horizons — do not confuse it with the 3-D IRF array of #19.",
@@ -218,7 +225,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 148,
@@ -259,6 +267,7 @@
     "bsv_shocks: a long df (shock x time + mean/lower/upper) — the estimated structural disturbances",
     "bsv_verify: logSDDR (a vector of length K per shock for SV/MSH; a scalar for t) + logSDDR_se (SV/MSH) or the SDDR ratio (t) + identified (per-shock logSDDR<0) + type/degenerate"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "SDDR sign: a NEGATIVE logSDDR is evidence AGAINST non-identification (the shock IS identified through heteroskedasticity or non-normality); a positive one means it adds no identification beyond the default lower-triangular structure. Minus infinity is VALID (strong evidence, the t model); a NaN or blank value is degenerate -> block.",
     "The default identification is a lower-triangular B (recursive; the variable ORDER matters); the heteroskedasticity allows the exclusion restrictions to be TESTED/relaxed, it does not replace the recursive structure by default.",
@@ -276,7 +285,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test",
     "bsv_verify"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 149,
@@ -314,6 +324,7 @@
     "bss_fevd: fevd = long-format long (variable, shock, horizon, median share + lower/upper)",
     "bss_forecast: forecast is a long frame (variable, horizon, median, lower, upper) + conditional (True when a conditional forecast was supplied)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "SET identification, NOT point: the IRF is a posterior DISTRIBUTION -> read the median + the credible band, NEVER a single 'true' response; the band reflects identification AND estimation uncertainty.",
     "ESS is a degeneracy diagnostic (mirroring #68 and #61): sign-only -> ess==n_draws (uniform); zero or narrative restrictions -> ess<n_draws (importance reweighting); a very low ess/n_draws means very few valid rotations -> an UNRELIABLE posterior -> STOP (ess_min_ratio, overridable with allow_nonconvergence).",
@@ -333,7 +344,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 150,
@@ -371,6 +383,7 @@
     "sst_gfevd: gfevd (a 3D array [horizon x variable x shock]) + initval_type/N — the generalized variance decomposition",
     "sst_linear_irf: point_est (a 3-D array [variables x shock x horizon], slice 1 = the impact) + conf_ints (wild-bootstrap bands, or absent) + regime/N"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "The GIRF is NON-LINEAR & NON-SYMMETRIC: the response depends on the size/sign of the shock AND on the initial state (init_regime) — NOT like a linear IRF.",
     "linear_IRF/GIRF on a reduced-form model -> an automatic lower-triangular recursive (Cholesky) ID (the variable ORDER matters); structural without an order -> the non-Gaussian fitSSTVAR.",
@@ -392,7 +405,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test",
     "c01_preparation_prechecks/linearity_battery_linearity.nlt_nonlinearity"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 151,
@@ -430,6 +444,7 @@
     "gmv_gfevd: gfevd (a 3D array [(N+1) x variable x shock]) + initval_type/N — the generalized variance decomposition",
     "gmv_linear_irf: point_est (a 3-D array [variables x shock x (N+1)], slice 1 = the impact) + conf_ints (4-D wild-bootstrap bands, or absent) + regime/N"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "The GIRF is NON-LINEAR & NON-SYMMETRIC: the response depends on the size/sign of the shock AND on the initial state (init_regimes) — NOT like a linear IRF",
     "linear_IRF/GIRF on a reduced-form model -> an automatic lower-triangular recursive (Cholesky) ID (the variable ORDER matters); genuine structural ID -> structural_W (which requires M>=2)",
@@ -448,7 +463,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 152,
@@ -482,6 +498,7 @@
     "irf (dlasso_local_projection): a named list per state, each a frame of horizon + lower/bhat/upper per alpha (the interval bands — chart data)",
     "dlasso_local_projection: states/n_states/hmax/lags/cumulate_y/OLS/seed"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "STOCHASTICITY (live-verified): although the debiasing is convex+analytic, the lambda selection uses RANDOM CV folds -> WITHOUT a seed two calls give different bhat. The seed is MANDATORY in both tools.",
     "alphas is the significance level (0.05 -> a 95% CI); the column 'lower 0.05'/'upper 0.05' corresponds to alpha=0.05 (NOT the 5% quantile).",
@@ -500,7 +517,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test (confirmatory)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 153,
@@ -534,6 +552,7 @@
     "vtt_wildboot: a wild data_frame (HCtype, the statistic from ACtest, WB.p, df, decision) + WBtype/WBdist/numberOfErrors/numberOfNA/seed",
     "vtt_fit: the model handle (a 'VARfit' producer) + K/p/N/variables/residuals (chart-data)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Polarity: H0 = CLEAN residuals (no AC / no ARCH). p<alpha => reject => misspecification is present (autocorrelation/ARCH) => the VAR FAILS the test (not the other way round).",
     "vtt_arch & vtt_wildboot are bootstrap-based => the seed is MANDATORY; the same seed => the same bootstrap p-values (cache key); without a seed they are uncacheable.",
@@ -549,7 +568,8 @@
     "c03_multivariate_nowcasting/reduced_form_var.vr_fit",
     "vtt_fit"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 424,
@@ -581,6 +601,7 @@
     "reliability: the instrument's correlation with the shock",
     "conf_band: bootstrap bands respecting the two-stage structure"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "a WEAK instrument makes the identified responses badly biased and their bands far too narrow; report the first-stage F prominently, not in a footnote",
     "the proxy identifies ONE shock, not the whole system; responses of other shocks are not identified and must not be reported as if they were",
@@ -593,7 +614,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 425,
@@ -625,6 +647,7 @@
     "nongaussianity: per-residual diagnostics, the assumption everything rests on",
     "j_statistic: overidentification test of the moment conditions"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "identification comes ENTIRELY from non-Gaussianity; with Gaussian residuals nothing is identified and the reported matrix is arbitrary -- check the diagnostic first",
     "the shocks are identified only up to PERMUTATION and SIGN; labelling them economically is an additional, separate step",
@@ -637,7 +660,8 @@
     "SVARpy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 426,
@@ -668,6 +692,7 @@
     "bias_correction: the size of the adjustment applied",
     "coverage_type: pointwise or joint, which is not the same thing"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "POINTWISE bands do not cover the whole response function simultaneously; reading a pointwise band as if it were joint overstates precision at every horizon",
     "the bias correction can push a near-unit-root system into the explosive region, which is why the stationarity adjustment exists and must be applied",
@@ -680,7 +705,8 @@
     "arch"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 427,
@@ -711,6 +737,7 @@
     "lag_augmentation: the extra lag that delivers the robustness",
     "hac_bandwidth: the truncation used for the serial correlation"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "LAG AUGMENTATION is what makes the inference uniformly valid -- omitting the extra lag reintroduces exactly the size distortion the method removes",
     "local-projection residuals are serially correlated at horizons beyond one by construction; HAC or the appropriate correction is mandatory",
@@ -722,7 +749,8 @@
     "localprojections"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 428,
@@ -753,6 +781,7 @@
     "transition_matrix: regime persistence",
     "expected_duration: mean regime length"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the LABEL SWITCHING problem means regimes are identified only up to permutation; interpreting 'regime 1' requires an explicit ordering rule",
     "the likelihood is multimodal and estimation is sensitive to starting values; a single run is not a result",
@@ -764,7 +793,8 @@
     "statsmodels.tsa.regime_switching"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 429,
@@ -795,6 +825,7 @@
     "variance_share: the share it explains at each horizon",
     "band: the frequency band, where spectral identification is used"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the identified shock is defined BY THE TARGET AND HORIZON; changing either changes the shock, so both are identifying assumptions and must be justified",
     "the maximising shock need not correspond to any economic shock -- it is a statistical construct that theory must license",
@@ -807,7 +838,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 430,
@@ -838,6 +870,7 @@
     "overidentification_test: where the restrictions exceed what is needed",
     "long_run_matrix: the implied cumulative effects"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "LONG-RUN RESTRICTIONS ARE ESTIMATED FROM AN INFINITE-HORIZON EXTRAPOLATION of a finite sample; they are notoriously imprecise and small VAR misspecifications distort them badly",
     "combining restrictions can over-identify the system, which is testable -- and the test is often ignored when it should be reported",
@@ -850,7 +883,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 431,
@@ -881,6 +915,7 @@
     "heterogeneity: variation of responses across units, where estimated",
     "n_units, n_periods: the panel dimensions the inference rests on"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "Driscoll-Kraay standard errors need a LONG TIME DIMENSION; with short T they are badly undersized, which is the opposite of what they are used for",
     "pooling imposes a common response; if the true responses are heterogeneous the pooled estimate is a weighted average that may match no unit",
@@ -892,7 +927,8 @@
     "localprojections"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

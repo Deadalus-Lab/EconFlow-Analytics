@@ -31,6 +31,7 @@
     "weighting_matrix: the matrix actually used, which determines efficiency",
     "converged, gradient_norm: whether the optimisation actually solved"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the J statistic tests the OVERIDENTIFYING restrictions only; an exactly identified model has J identically zero and tests nothing",
     "two-step GMM has poor small-sample properties and the standard errors are biased downward -- use the Windmeijer correction or the continuously-updated estimator",
@@ -42,7 +43,8 @@
     "statsmodels.sandbox.regression.gmm"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 293,
@@ -73,6 +75,7 @@
     "condition_number: how close to singular the matrix is -- the practical failure mode",
     "kernel: which kernel was applied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "an ill-conditioned weighting matrix produces enormous, meaningless efficiency gains; check the condition number before trusting a two-step gain",
     "with many moments relative to n the estimated optimal matrix is badly estimated and two-step GMM is WORSE than one-step",
@@ -85,7 +88,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 294,
@@ -117,6 +121,7 @@
     "selected_moments: the subset a criterion prefers",
     "msc: the moment-selection criterion value per candidate"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "dropping instruments until J stops rejecting is SPECIFICATION SEARCH and invalidates the reported p-value entirely",
     "J has low power against a violation shared by every moment -- a passing J is weak evidence of validity",
@@ -129,7 +134,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 295,
@@ -160,6 +166,7 @@
     "weighting_matrix: the matrix used",
     "jacobian: the derivative of the mapping at the optimum, which reveals weak identification"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "efficient weighting with a poorly estimated reduced-form covariance is WORSE than identity weighting in small samples",
     "a near-singular Jacobian means the structural parameters are weakly identified by the reduced form; the standard errors will not say so",
@@ -171,7 +178,8 @@
     "optimagic"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 296,
@@ -203,6 +211,7 @@
     "probabilities: the implied observation weights, which should be near 1/n",
     "converged: inner and outer convergence"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the inner optimisation can fail when the moment conditions cannot be satisfied by any convex weighting -- that is the empty-set problem, not a numerical glitch",
     "implied probabilities far from 1/n mean a few observations dominate the estimate",
@@ -215,7 +224,8 @@
     "statsmodels.emplike"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 297,
@@ -247,6 +257,7 @@
     "n_sim: simulation draws per evaluation, which sets the noise floor",
     "auxiliary_params: the auxiliary model's parameters under data and under simulation"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the SAME random draws must be used at every parameter evaluation -- redrawing makes the objective discontinuous and the optimiser will wander forever",
     "standard errors must include the simulation noise via the (1 + 1/S) inflation; omitting it understates uncertainty",
@@ -259,7 +270,8 @@
     "optimagic"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 298,
@@ -291,6 +303,7 @@
     "gradient, hessian: numerical derivatives at the optimum",
     "active_constraints: which bounds or constraints bind, which changes inference"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a parameter AT its bound has a non-standard sampling distribution -- the usual standard error and t-test do not apply",
     "numerical derivatives on a simulation-based objective are dominated by simulation noise unless common random numbers are used",
@@ -302,7 +315,8 @@
     "optimagic"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 299,
@@ -335,6 +349,7 @@
     "width: how informative the bounds are -- the number that decides whether this was worth doing",
     "assumptions_used: which restrictions narrowed the set"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a confidence set for the PARAMETER and one for the identified SET are different objects with different coverage; report which one you computed",
     "worst-case bounds are almost always wide -- that is the honest answer, not a failure of the method",
@@ -347,7 +362,8 @@
     "cvxpy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

@@ -35,6 +35,7 @@
     "accuracy: training-set measures (RMSE,MAE,MAPE,MASE,ACF1)",
     "model: fitted object (compact stub in to_mcp)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "accuracy(fc) is in-sample (training-set), NOT out-of-sample generalisation — for OOS use 15-model-evaluation (tsCV/DM) or a holdout",
     "MAPE is unstable/infinite when y≈0 (growth rates) — prefer MASE (<1 = better than naive)",
@@ -53,7 +54,8 @@
    "precondition_tools": [
     "c01_preparation_prechecks/unit_root_normality.run_adf_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 8,
@@ -82,6 +84,7 @@
     "components: ETS-only dable with states (level,slope,season)",
     "fitted/residuals: in-sample (type innovation vs regression)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "<distribution> is NOT a number — take median or mean, not the raw cell",
     "ar_roots/ma_roots are complex; stationarity/invertibility ⇒ modulus>1 (sqrt(re^2+im^2))",
@@ -96,7 +99,8 @@
     "c00_data_utilities/replacement_missing_values.impute_kalman (for ETS, if anyNA)",
     "c01_preparation_prechecks/unit_root_normality.run_adf_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 9,
@@ -129,6 +133,7 @@
     "cv: per cutoff yhat,y(actual),cutoff,ds,horizon (run_prophet_cv)",
     "metrics: horizon + mse/rmse/mae/mape/mdape/smape/coverage"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the default interval_width=0.8 ⇒ 80% intervals, NOT 95%",
     "without mcmc_samples>0 the intervals capture trend uncertainty only (MAP) — they understate",
@@ -142,7 +147,8 @@
     "prophet reference manual + Facebook Prophet docs"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 10,
@@ -178,6 +184,7 @@
     "model: adam/ces object (states,persistence,phi,complex params) compact stub",
     "fitted/residuals: in-sample"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "fit-time level=0.99 is the outlier-detection level, NOT forecast confidence (that is interval_level 0.95)",
     "h/holdout are fit-time; the forecast horizon is the separate forecast_h (explicit->fit h if >0->10)",
@@ -190,7 +197,8 @@
     "Svetunkov & Kourentzes (CES / complex exponential smoothing)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 133,
@@ -224,6 +232,7 @@
     "model: the mlp/elm object -> producer register field=model bucket=rds; a compact stub in to_mcp",
     "hd/lags/difforder/reps/seed/n: the selections + the pinned seed (cache key)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the seed is MANDATORY & part of the cache key — the same seed gives identical output, a different one a different forecast (live-verified)",
     "the PI are empirical ensemble quantiles, NOT frequentist/Bayesian intervals",
@@ -237,7 +246,8 @@
     "Huang, Zhou & Ding 2006 Extreme Learning Machine (Neurocomputing 70(1))"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 134,
@@ -272,6 +282,7 @@
     "learner_method/max_lag/seed/n: the public learner token + the pinned values (cache key)",
     "rml_conformal: the lower/upper conformal bounds + confidence + n_calibration; rml_variable_importance: an importance df (variable/overall)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the seed is MANDATORY and part of the cache key — the same seed gives identical output (live-verified); the resampling is stochastic",
     "the public learner token is mapped INTERNALLY (ridge and lasso become an elastic net at a fixed alpha); it is NOT a free-form string",
@@ -285,7 +296,8 @@
     "Hyndman & Athanasopoulos Forecasting: Principles and Practice 3e (fourier/recursive forecasting)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 135,
@@ -323,6 +335,7 @@
     "the iMAPA summary: a matrix per aggregation level (level/n/p/cv2/model — 1=Croston, 2=SBA, 3=SES — and whether it was used); model_fit: the parameters per level",
     "the Croston components: the in-sample and out-of-sample demand and interval, plus the SBA/SBJ scaling coefficient; decomp: demand + interval, of equal length"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "forecast = a demand RATE per period (e.g. 0.19 units/period), NOT a forecast of an individual order — sum it for total demand",
     "tsi_croston does NOT validate the type -> silently wrong; negative values are silently accepted -> a non-negativity gate; h<=0 gives a silently empty forecast",
@@ -333,7 +346,8 @@
     "Petropoulos & Kourentzes 2015, Forecast Combinations for Intermittent Demand, JORS (doi:10.1057/jors.2014.62)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 136,
@@ -367,6 +381,7 @@
     "arfima_fit: d/ar/ma/sigma/log_likelihood/std_errors(order d,ar,ma)/covariance/correlation + model (a producer, rds)",
     "arfima_difference: series (fractionally differenced; it preserves the ts attributes) + d + n"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the arfima_fit drange default c(0,0.5) CONSTRAINS d to [0,0.5] — for d>=0.5 (non-stationary) widen drange explicitly",
     "MA sign: this estimator uses the convention with REVERSED MA signs relative to the usual ARIMA parameterisation — do not compare the coefficients directly",
@@ -386,7 +401,8 @@
     "c01_preparation_prechecks/unit_root_suite.unitroot_kpss (KPSS alongside ADF for an ambiguous I(0)/I(1))",
     "c00_data_utilities/replacement_missing_values.impute_kalman (fill the gaps before the fit, if needed)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 137,
@@ -423,6 +439,7 @@
     "diagnostics: r_squared/adj_r_squared/sigma/df_residual/nobs/aic/bic (aic and bic are blank for the Koyck IV fit)",
     "method-specific: q/k (finite/poly); order=c(p,q) (ardl); geometric_coefficients alpha/beta/phi (koyck); beta+beta_tvalue/beta_pvalue (poly); formula/removed (multi-formula mode)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Koyck: interpret the geometric_coefficients (alpha/beta/phi, with phi the decay rate), NOT the raw IV delta coefficients; aic and bic are blank because the IV fit has no log-likelihood — do not compare it with least-squares models",
     "poly: beta (the original per-lag weights) is the interpretable quantity; the coefficients are the gamma of the z-transformed polynomial, NOT per-lag effects",
@@ -436,7 +453,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (stationarity of x & y first — a level DL regression on non-cointegrated I(1) series is spurious)",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test (confirmatory stationarity, the opposite H0)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 138,
@@ -463,6 +481,7 @@
     "xmin/xmax: the left/right tail limits; dvtrim: the trimmed mean deviations; kappa: the scale adjustment",
     "n/reps/trim/seed: metadata + the applied arguments (the seed for reproducibility)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "STOCHASTIC: the seed is MANDATORY (the generator is seeded before the draw); without a pinned seed the node is uncacheable",
     "reps<10, or a trim outside [0,0.5), would be accepted SILENTLY -> hard gates here (silently wrong)",
@@ -475,7 +494,8 @@
     "Vinod & López-de-Lacalle 2009 JSS 29(5) (maximum entropy bootstrap for time series)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 407,
@@ -506,6 +526,7 @@
     "method: which benchmark produced it",
     "residuals: in-sample errors, the scale MASE is computed against"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "a model that fails to beat SEASONAL NAIVE on seasonal data has no value, however sophisticated it looks",
     "naive prediction intervals assume independent errors; with autocorrelated residuals they are far too narrow",
@@ -517,7 +538,8 @@
     "statsforecast"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 408,
@@ -549,6 +571,7 @@
     "residual_diagnostics: whiteness of what remains after both parts",
     "aic, bic"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "forecasting requires FUTURE VALUES of every regressor; using actuals produces an in-sample illusion, and forecasting the regressors adds their error to yours",
     "regressors and ARIMA errors compete to explain the same variation; the coefficient changes materially with the error specification",
@@ -560,7 +583,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 409,
@@ -591,6 +615,7 @@
     "counterfactual: the path implied without the intervention",
     "significance: test of a zero effect"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the intervention SHAPE -- step, pulse, gradual -- is imposed, not estimated; the wrong shape can make a real effect insignificant",
     "an intervention at the very end of the sample is barely identified because there is almost no post-event data",
@@ -602,7 +627,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 410,
@@ -633,6 +659,7 @@
     "scenario_paths: paths conditioned on a stated future",
     "n_simulations: draws behind the bands"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "a fan of quantiles taken HORIZON BY HORIZON is not a set of plausible paths -- no single trajectory follows the median band, and reading it as one is a standard error",
     "bootstrapped innovations preserve non-normality but assume the residuals are independent",
@@ -644,7 +671,8 @@
     "statsforecast"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 411,
@@ -675,6 +703,7 @@
     "cv_score: cross-validated accuracy over the horizon",
     "n_series: how many series were pooled"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "tree models CANNOT EXTRAPOLATE beyond the range of the training target; a trending series must be differenced or detrended first or forecasts flatten",
     "feature construction must respect the forecast origin -- a lag shorter than the horizon is unavailable at prediction time and leaks",
@@ -686,7 +715,8 @@
     "mlforecast"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 412,
@@ -717,6 +747,7 @@
     "n_replicates: how many were generated",
     "variance_reduction: spread of replicates against the single fit"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "bagging reduces VARIANCE, not bias; a systematically wrong model bagged many times is still systematically wrong",
     "the bootstrap must preserve serial dependence -- an iid bootstrap of the series destroys exactly what is being forecast",
@@ -728,7 +759,8 @@
     "statsforecast"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 413,
@@ -759,6 +791,7 @@
     "horizon_scores: accuracy per horizon, which reveals where the strategy pays",
     "strategy: which reduction was used"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "DIRECT and RECURSIVE forecasts differ systematically: recursive accumulates model error, direct loses efficiency by fitting each horizon separately -- neither dominates",
     "the direct strategy fits a different model per horizon, so the resulting path can be non-smooth or even non-monotone in ways a single model would not produce",
@@ -770,7 +803,8 @@
     "sktime"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 414,
@@ -801,6 +835,7 @@
     "empirical_coverage: realised coverage on the calibration set",
     "width: interval width, the price of the guarantee"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "standard conformal guarantees rest on EXCHANGEABILITY, which time series violate; the time-series variants weaken this and their guarantee is correspondingly weaker",
     "the guarantee is MARGINAL over the calibration distribution -- it does not hold conditionally on a particular covariate value or regime",
@@ -813,7 +848,8 @@
     "mapie"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 415,
@@ -844,6 +880,7 @@
     "selection_stability: how often the choice changes across folds",
     "forecast: the path from the selected model"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "selecting on the SAME data used to report accuracy overstates performance; the selection must sit inside the evaluation loop, not outside it",
     "a selection that flips between families across folds is telling you the candidates are indistinguishable -- combination is usually better than picking",
@@ -855,7 +892,8 @@
     "sktime"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

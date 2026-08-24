@@ -36,6 +36,7 @@
     "ercomp: the random-effects variance components + theta (theta->0 ~ pooling, ->1 ~ fixed effects); absent for the other models",
     "hausman_test/lm_test/f_test: flat records {statistic, p_value, parameter, method}"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "robust inference: read the SE from rvcov/coef_table, NOT from vcov (always non-robust)",
     "FE vs RE is a Hausman test, not an assumption; reject -> FE",
@@ -55,7 +56,8 @@
     "pd_effects_ftest (F within vs pooling)",
     "c01_preparation_prechecks/panel_unit_root.run_panel_unit_root (macro/large-T only: panel unit root first)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 47,
@@ -89,6 +91,7 @@
     "autocorr_test1/autocorr_test2: the Arellano-Bond m1/m2 serial-correlation records",
     "residuals: a list per individual (not a flat vector); fitted: numeric"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Sargan: a large p is good (valid); p~1.00 signals instrument proliferation (use collapse=True)",
     "m1/AR(1) is expected to be significant (normal, due to differencing) — NOT a problem",
@@ -106,7 +109,8 @@
     "pd_gmm_autocorr_test (post: AR(2)/m2 MUST NOT be rejected)",
     "pd_gmm_sargan_test (post: overidentification, H0 valid instruments)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 173,
@@ -141,6 +145,7 @@
     "feis_test/feis_bootstrap_test: art_feis_vs_fe / art_fe_vs_re / art_feis_vs_re = {chi2, df, p_value}; the ones not requested are absent",
     "slopes (feis_slopes): an N x J matrix of alpha_i indexed by unit id; it includes the intercept"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the coefficients/r2 are in the DETRENDED space — not directly comparable with within/pooling FE",
     "art1 (FEIS vs FE) rejection -> the slope heterogeneity matters; do NOT fall back to conventional FE",
@@ -160,7 +165,8 @@
     "feis_bootstrap_test (the bootstrapped Hausman test; more reliable at small N)",
     "c08_panel_data/static_panel_estimators.pd_hausman_test (the classic FE vs RE test before considering slope heterogeneity)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 174,
@@ -194,6 +200,7 @@
     "df/nobs/nmiss: degrees of freedom, valid observations, missing panel cells",
     "pairwise: True = pairwise, False = casewise; balanced: no missing cells"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "PCSE corrects ONLY the SE — the coefficients remain pooled OLS (non-robust point estimates)",
     "casewise (pairwise=False) uses only the balanced rectangle; on a heavily unbalanced panel set pairwise=True",
@@ -210,7 +217,8 @@
     "pcse_fit (it produces the pcse object; all it needs is formula+data+index)",
     "c01_preparation_prechecks/panel_unit_root.run_panel_unit_root (a panel unit-root test for a large-T macro panel before pooled OLS)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 175,
@@ -247,6 +255,7 @@
     "log_lik/AIC/BIC: model fit (AIC/BIC are comparable only ML-vs-ML; REML likelihoods are NOT comparable across different fixed effects)",
     "singular (the logical isSingular)/converged (logical)/conv_messages (char): they record degeneracy & convergence IN THE SAME output — under a stateless node contract stderr is lost, so check these instead of relying on warnings"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "REML=True likelihoods are NOT comparable across models with different fixed effects — for a likelihood-ratio test or AIC on the fixed effects set REML=False (plain ML)",
     "the linear mixed fit returns NO p-values (there is no default degrees-of-freedom convention) — coef_table carries only the t value; judge significance with an interval or a likelihood-ratio test, never from a p that does not exist",
@@ -265,7 +274,8 @@
     "lme_fit_glm (a non-gaussian response: binomial, poisson, Gamma or inverse-gaussian)",
     "c08_panel_data/static_panel_estimators.pd_fit (comparison: FE/within when the effects are endogenous)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 458,
@@ -296,6 +306,7 @@
     "instrument_validity: over-identification test for Hausman-Taylor",
     "efficiency_gain: against the fixed-effects estimator"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE MUNDLAK TEST OF THE GROUP MEANS IS EQUIVALENT TO THE HAUSMAN TEST but is robust and never produces a negative statistic, which the classical Hausman form frequently does",
     "Hausman-Taylor requires you to classify regressors as exogenous or endogenous, and that classification is an assumption the data cannot check",
@@ -307,7 +318,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 459,
@@ -338,6 +350,7 @@
     "homogeneity_test: test of slope equality across units",
     "cd_test: cross-sectional dependence in the residuals"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POOLING HETEROGENEOUS SLOPES BIASES THE ESTIMATE, and in dynamic panels it biases the persistence parameter upward severely",
     "the mean group estimator is sensitive to outlying units; a single badly estimated unit can dominate the average",
@@ -350,7 +363,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 460,
@@ -381,6 +395,7 @@
     "se: Fama-MacBeth standard errors from their time-series variation",
     "newey_west: autocorrelation-corrected variant"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "FAMA-MACBETH STANDARD ERRORS DO NOT CORRECT FOR TIME-SERIES AUTOCORRELATION of the coefficient estimates; a Newey-West adjustment is needed when the estimates persist",
     "the method handles cross-sectional correlation but assumes the per-period estimates are independent over time, which is often false",
@@ -392,7 +407,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 461,
@@ -423,6 +439,7 @@
     "breusch_pagan: test that the errors are uncorrelated across equations",
     "efficiency_gain: against equation-by-equation estimation"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "IF EVERY EQUATION HAS THE SAME REGRESSORS, SUR IS EXACTLY OLS equation by equation -- there is no gain, and a reported gain means the specification differs from what you think",
     "the efficiency gain comes entirely from the cross-equation error correlation; test it before claiming the gain",
@@ -434,7 +451,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 462,
@@ -465,6 +483,7 @@
     "crossing: whether fitted quantile curves cross",
     "se: bootstrap standard errors, which are the usual choice here"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE FIXED EFFECT CANNOT SIMPLY BE DIFFERENCED OUT of a quantile regression -- the quantile of a difference is not the difference of quantiles, which is why these specialised estimators exist",
     "Canay's two-step assumes the unit effect is a pure location shift, which rules out heterogeneity in dispersion",
@@ -476,7 +495,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 463,
@@ -507,6 +527,7 @@
     "absorbed: the fixed effects removed",
     "cluster: the clustering applied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "ABSORBING FIXED EFFECTS REMOVES VARIATION FROM THE INSTRUMENT TOO; an instrument strong in levels can be weak after absorption, so the first stage must be recomputed after, not before",
     "the effective first-stage F must account for the absorbed dimensions in its degrees of freedom",
@@ -518,7 +539,8 @@
     "pyfixest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 464,
@@ -549,6 +571,7 @@
     "n_clusters: the cluster counts, which determine reliability",
     "comparison: how much the choice moves the standard errors"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "CLUSTERING AT TOO FINE A LEVEL UNDERSTATES STANDARD ERRORS, and the difference between unit-clustered and two-way clustered errors is frequently a factor of two",
     "two-way clustering can produce a non-positive-definite covariance matrix in small samples; the eigenvalue correction changes the answer",
@@ -561,7 +584,8 @@
     "pyfixest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 465,
@@ -592,6 +616,7 @@
     "absorbed: the fixed effects removed",
     "separation: observations dropped by perfect separation"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "LOG-LINEARISING A MODEL WITH ZEROS IS NOT A WORKAROUND -- it drops the zeros and biases the estimates; Poisson pseudo-maximum likelihood exists precisely for this",
     "Poisson PML is consistent under correct conditional-mean specification even when the outcome is not Poisson, which is why it is the default for trade and count data",
@@ -603,7 +628,8 @@
     "pyfixest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 466,
@@ -635,6 +661,7 @@
     "poolability_test: test of common slopes across units",
     "identification_warning: variables with almost no within variation"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "A REGRESSOR WITH ALMOST NO WITHIN VARIATION IS BARELY IDENTIFIED under fixed effects; the coefficient will be huge, imprecise, and meaningless",
     "a high between-share means fixed effects discards most of the information, which is a cost, not automatically the right trade",
@@ -646,7 +673,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 467,
@@ -678,6 +706,7 @@
     "weights: inverse probability weights for the retained sample",
     "attrition_rate: retention by wave"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "ATTRITION WEIGHTS ONLY FIX SELECTION ON OBSERVABLES; if leaving depends on the unobserved outcome, no weighting scheme repairs it",
     "the balanced subsample is a selected sample, and analysing it 'for consistency' is the most common way attrition bias enters silently",
@@ -689,7 +718,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 468,
@@ -720,6 +750,7 @@
     "connected_set: the largest connected component, the only place effects are identified",
     "limited_mobility_bias: the correction applied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "LIMITED MOBILITY BIAS is severe: with few movers per firm, the estimated worker-firm covariance is biased downward substantially, which understates sorting",
     "effects are identified only within the CONNECTED SET; units outside it are dropped and the sample changes silently",
@@ -732,7 +763,8 @@
     "pytwoway"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

@@ -34,6 +34,7 @@
     "is_iv: True => the standard errors are 2SLS",
     "fixef_names: which FE were absorbed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the default vcov is clustered on the 1st FE; changing the cluster changes all SE/CI",
     "event study: the reference-period coefficient is 0 by construction, not a 'zero effect'",
@@ -45,7 +46,8 @@
     "Goodman-Bacon 2021"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 34,
@@ -75,6 +77,7 @@
     "diagnostics: test/df1/df2/statistic/p_value (Weak-IV/Wu-Hausman/Sargan)",
     "confint: CI at conf_level"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "weak instruments (small F) => 2SLS biased towards OLS, SE unreliable",
     "a non-significant Wu-Hausman => endogeneity is not proven (OLS may suffice)",
@@ -87,7 +90,8 @@
     "Angrist & Pischke 2009"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 35,
@@ -117,6 +121,7 @@
     "se: sqrt of the diagonal",
     "coeftable: term/estimate/std_error/statistic/p_value (Normal z-test, not t)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the p-values are asymptotic z, not small-sample t -> take care with small n",
     "the Newey-West estimator defaults to prewhite=True (VAR(1) prewhitening)",
@@ -133,7 +138,8 @@
    "precondition_tools": [
     "c15_model_evaluation/breusch_godfrey_breusch.run_bg_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 36,
@@ -161,6 +167,7 @@
     "overall_att/att_egt/se_egt: the event study by relative time",
     "crit_val_egt: the simultaneous critical value (not 1.96)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the wrapper's default aggregation is 'dynamic' (the event study), not 'group'",
     "the intervals use crit_val_egt (a uniform band, wider than the pointwise one)",
@@ -172,7 +179,8 @@
     "Goodman-Bacon 2021"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 37,
@@ -198,6 +206,7 @@
     "n_terms: number of terms",
     "cluster_var: default = idname"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "first_stage MUST be a one-sided formula (a two-sided one -> a silently wrong LHS, ~40% error)",
     "no treated unit => a silently empty table (the gate catches it)",
@@ -208,7 +217,8 @@
     "Wooldridge 2021 (two-way fixed effects, two-way Mundlak and difference-in-differences)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 38,
@@ -231,6 +241,7 @@
     "bws: h,b bandwidths",
     "tau_T/ci_T: fuzzy first-stage/LATE; coef_covs: only with covs"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "report the ROBUST row for inference, not the Conventional p-value",
     "the estimate is LOCAL at the cutoff (LATE), not a global ATE",
@@ -242,7 +253,8 @@
     "Cattaneo-Idrobo-Titiunik 2020; Lee & Lemieux 2010"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 39,
@@ -267,6 +279,7 @@
     "coefficients_table: term/Estimate/Std.Error",
     "bandwidth; type (Sharp/Fuzzy); the fit is least squares (sharp) or 2SLS (fuzzy)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "fuzzy RD ONLY in rdd_reg_lm (rdd_reg_np is hard-blocked: a wrong D coefficient, not a LATE)",
     "the D coefficient is the quantity of interest (not the intercept/slope)",
@@ -277,7 +290,8 @@
     "Imbens & Lemieux 2008; Gelman & Imbens 2019 JBES"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 40,
@@ -305,6 +319,7 @@
     "solution_v: predictor weights; loss_w/loss_v: MSPE",
     "Y1plot/Y0plot: for the frontend gap = Y1 - Y0*W"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "a poor pre-fit (large loss_w) => the gap is not a valid effect",
     "no statistical significance directly -> placebo/permutation tests",
@@ -315,7 +330,8 @@
     "Abadie, Diamond & Hainmueller 2010 JASA / 2015 AJPS"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 41,
@@ -343,6 +359,7 @@
     "ci_in_sample, ci_gaussian/ci_ls/ci_qreg (according to e_method)",
     "bounds/sigma: variance components"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "e_method='gaussian' => ci_ls/ci_qreg are absent (not an error)",
     "prediction intervals are wider than naive CI (out-of-sample risk)",
@@ -353,7 +370,8 @@
     "Cattaneo, Feng, Palomba & Titiunik 2025 JSS (prediction intervals for synthetic control)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 42,
@@ -383,6 +401,7 @@
     "grab_unit_weights (W); grab_predictor_weights (V)",
     "grab_significance: rank/fishers_exact_pvalue/mspe_ratio; grab_loss: pre/post MSPE"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "generate_placebos=True is MANDATORY for the placebo results and the significance table (otherwise the treated unit is silently used as its own placebo)",
     "without a sufficient donor pool (~20) the rank/Fisher significance is trivial (rank=1,p=1)",
@@ -393,7 +412,8 @@
     "Abadie, Diamond & Hainmueller 2010 JASA / 2015 AJPS"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 43,
@@ -419,6 +439,7 @@
     "est_att/est_avg: ATT / standard error / interval / p (ONLY when se=True, otherwise absent)",
     "Y_ct: the counterfactual matrix; r_cv: the selected number of factors; vartype: the inference path"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the wrapper's default is force='two-way' rather than 'unit'",
     "est_att/est_avg are absent without se=True -> do not look for intervals there",
@@ -430,7 +451,8 @@
     "Liu, Wang & Xu 2024 AJPS (counterfactual estimators for time-series cross-sectional data)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 44,
@@ -455,6 +477,7 @@
     "se/ci_lower/ci_upper: the 95% normal band (causal_forest_predict); estimate/std_err: the AIPW ATE",
     "importance + variables: split-based"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the CATE are out-of-bag on the training set (not an in-sample fit)",
     "estimate_variance=True is MANDATORY for intervals (otherwise they are absent); the seed is mandatory",
@@ -465,7 +488,8 @@
     "Athey, Tibshirani & Wager 2019 Annals of Statistics"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 45,
@@ -493,6 +517,7 @@
     "se/t_stat/pval/ci_lower/ci_upper",
     "learner/n_folds/score/seed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "coef = the debiased orthogonal estimate (not a naive ML plug-in); PLR partialling-out vs IV-type changes the moment",
     "the IRM score ATE vs ATTE changes the estimand; the same seed => an identical coef/se",
@@ -504,7 +529,8 @@
     "Robinson 1988 Econometrica 56(4) (root-N-consistent semiparametric regression)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 90,
@@ -526,6 +552,7 @@
     "effect: scalars (abs/relative/p_value/alpha)",
     "series: a 15-column date-indexed frame (predictions + effect + bands, chart-ready)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "p_value = a Bayesian tail-area posterior probability (not frequentist)",
     "the bands are credible intervals; if the covariates were affected, the 'effect' is an artifact",
@@ -536,7 +563,8 @@
     "Scott & Varian 2014 (predicting the present with Bayesian structural time series)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 165,
@@ -574,6 +602,7 @@
     "sargan: {df1, df2, statistic, p_value}, the over-identification test; df1=0 with a blank statistic when just-identified; plus the overidentified flag",
     "diagnostics: the full table (chart-data); fitted/residuals: chart-data"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "three-part only: 'y ~ exog | endog | instruments'; a 2-part formula is blocked (go to #34 AER); an explicit gate on the number of RHS parts",
     "weak instruments: F<10 (weak_instruments_flag) => 2SLS bias + invalid standard CIs -> use weak-IV-robust inference; do NOT trust coef_table",
@@ -590,7 +619,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the data_frame; alternatively read_csv_data)",
     "iv_fit (the diagnostics come back inside it: the weak_instruments F, wu_hausman, sargan)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 166,
@@ -626,6 +656,7 @@
     "p_jointeffects (effects>=2) / p_jointplacebo (placebo>=2): the joint tests; p_equality_effects when effects_equal=True",
     "coef_b / coef_vcov: the full coefficient vector + its covariance, ordered [effects.., placebos..] with the post-periods first; for #168 reorder them chronologically, the placebos first"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "chaining TRAP for #168: coef_b is ordered [effects.., placebos..], post-periods first, while #168 expects CHRONOLOGICAL order (pre-periods first, with numPrePeriods equal to the number of placebos); passing coef_b AS IS produces silently wrong robust intervals — reorder it first",
     "a placebo ~0 SUPPORTS (does not prove) parallel trends/no anticipation; a high p_jointplacebo means the hypothesis is not rejected",
@@ -643,7 +674,8 @@
    "precondition_tools": [
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the long panel; it needs group/time/outcome/treatment columns and evenly spaced time)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 167,
@@ -675,6 +707,7 @@
     "total_weight: the sum of the 2x2 weights (~1); n_2x2: the number of comparisons",
     "has_covariates/within_estimate/within_weight: the share and estimate of the within component (Omega, beta_hat_w); blank without covariates"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "WATCH the 'Later vs Earlier Treated' comparison: it uses ALREADY-treated units as controls -> a forbidden comparison; a LARGE weight here means the TWFE is contaminated by negative-weighting/heterogeneity bias",
     "untreated=99999 denotes the never-treated group (the 'clean' 'Treated vs Untreated' type); it is not a real time value",
@@ -692,7 +725,8 @@
     "c01_preparation_prechecks/panel_unit_root.run_panel_unit_root (macro/large-T only: stationarity before a panel DiD)",
     "c00_data_utilities/reading_delimited_fixed.read_csv_data (loading the long panel if it comes from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 168,
@@ -726,6 +760,7 @@
     "Delta: the restriction set (DeltaSD for smoothness, DeltaRM for relmag, Original for the baseline)",
     "M (smoothness) / Mbar (relmag): the value of the bound in each row; numPrePeriods/numPostPeriods/alpha"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the CI WIDENS as M/Mbar grows — that is the point (robustness), not a problem",
     "the breakdown value = the largest M/Mbar at which the CI does NOT contain 0; compare it with honest_original_cs (the baseline)",
@@ -743,7 +778,8 @@
     "c07_causality_policy/hac_robust_standard.vcov_hac (a robust vcov -> the sigma matrix)",
     "honest_original_cs (the baseline CI under strict parallel trends — the reference point)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 169,
@@ -781,6 +817,7 @@
     "cfail / n_failed: the cutoffs where the RD fit failed (degeneracy); n_failed>0 -> a suspect estimate",
     "kernel / p / bwselect / level / conventional: the settings that were actually used"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "rdmc: C is a per-observation cutoff variable (the SAME length as X); rdms: C is a vector of cutoff values — do not confuse them (a wrong length -> silent recycling, blocked by a gate)",
     "a gap in Y, X or the fuzzy assignment is ignored SILENTLY (N falls with no warning) -> a gate forbids gaps",
@@ -801,7 +838,8 @@
     "c07_causality_policy/rdd_robust.rd_bandwidth_select (standalone bandwidth selection per cutoff)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading Y/X/C from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 170,
@@ -837,6 +875,7 @@
     "ovb_bounds: a table per (benchmark × kd/ky) with adjusted_estimate/se/lower_CI/upper_CI — the effect IF the confounder were kd/ky times stronger than the benchmark covariate",
     "unadjusted_estimate/se/t_statistic/dof: the original OLS estimate + the degrees of freedom"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the RV is NOT a p-value: a small RV = little confounder strength is required = a fragile result (not the other way round)",
     "reduce=True (the default) assumes the confounder REDUCES the effect; if the confounding would inflate it instead, set reduce=False",
@@ -853,7 +892,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_csv_data (load the cross-section before the formula+data route)",
     "c00_data_utilities/analytic_ols_closed.ols_regress (an ALREADY fitted least-squares model is passed as the object; the consuming route accepts nothing else)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 171,
@@ -892,6 +932,7 @@
     "cw_mediation_dml: ate + dir_treat/dir_control (natural direct) + indir_treat/indir_control (natural indirect); se/pval of length 6 (a 3x6 results matrix)",
     "ntrimmed: the number of observations dropped because of extreme propensity scores (an overlap diagnostic)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "unconfoundedness is an UNTESTABLE assumption — the SE do not certify it; a high ntrimmed = weak overlap, and the estimate then rests on a few units",
     "the IV-LATE (cw_late_ipw) is an effect ONLY on the compliers, not on the population; a small 'first' -> a weak instrument, the effect explodes/is unstable",
@@ -913,7 +954,8 @@
     "c07_causality_policy/double_debiased.dml_irm (cross-check the ATE with an independent DML implementation)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the tabular dataset; build the y/d/x/z/m vectors)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 172,
@@ -950,6 +992,7 @@
     "J_test: {statistic, df, p_value}, the Hansen over-identification test; df = instruments - coefficients (df=0 means just-identified, and the p-value is blank)",
     "df / nobs / type / wmatrix / vcov_type: the over-identifying degrees of freedom, the observations left after the gap gate, and the estimator settings"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Hansen J: a SMALL p_value (rejecting H0) => the instruments/moment conditions are NOT valid (misspecification), NOT 'a significant result'",
     "just-identified (df=0): the J test is NOT defined — gmm_j_test returns a statistic near 0 with a note and a blank p-value; do not read it as a 'perfect fit'",
@@ -967,7 +1010,8 @@
     "gmm_j_test (the Hansen-Sargan J test after estimation: rejecting H0 -> the instruments/moment conditions are NOT valid)",
     "c01_preparation_prechecks/unit_root_suite.unitroot_adf (stationarity of the series before GMM on time series — a HAC vcov presupposes weak dependence)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 444,
@@ -998,6 +1042,7 @@
     "se: jackknife or placebo standard error",
     "pre_treatment_fit: how well the weighted control tracked before treatment"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "synthetic DiD is a WEIGHTED DiD, so it relaxes parallel trends but does not remove the assumption -- it only makes it more plausible",
     "inference with one treated unit rests on placebo distributions, not asymptotics; the p-value is bounded below by one over the donor count",
@@ -1009,7 +1054,8 @@
     "sdid"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 445,
@@ -1041,6 +1087,7 @@
     "negative_weights: whether the naive TWFE estimator carries them",
     "cohorts: the treatment timing groups"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "TWO-WAY FIXED EFFECTS WITH STAGGERED TIMING USES ALREADY-TREATED UNITS AS CONTROLS, which can produce negative weights and an estimate opposite in sign to every underlying effect",
     "an event-study plot from a naive interacted regression is contaminated across relative periods; the interaction-weighted estimator exists to fix exactly that",
@@ -1053,7 +1100,8 @@
     "pyfixest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 446,
@@ -1084,6 +1132,7 @@
     "discontinuity: the estimated jump in the density",
     "bandwidth: the bandwidth used"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "A DENSITY DISCONTINUITY INVALIDATES THE DESIGN; this test is not a robustness check to be relegated to an appendix",
     "the test has low power in small samples, so passing it is weak evidence of no manipulation",
@@ -1095,7 +1144,8 @@
     "rddensity"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 447,
@@ -1126,6 +1176,7 @@
     "balance: covariate balance inside the window",
     "p_value: randomisation-inference p-value"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the WINDOW SELECTION is the identifying assumption; selecting it to maximise the effect is specification search",
     "inside the window the design is a small experiment, so power is usually very low and a null is uninformative",
@@ -1137,7 +1188,8 @@
     "rdlocrand"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 448,
@@ -1168,6 +1220,7 @@
     "conf_band: valid uniform bands",
     "shape_tests: tests of linearity, monotonicity or a specified polynomial"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE NUMBER OF BINS IS NOT A COSMETIC CHOICE -- the conventional twenty is arbitrary and can hide or manufacture nonlinearity; use the data-driven rule",
     "naive binscatter bands are far too narrow because they ignore the binning; the modern implementation corrects this",
@@ -1178,7 +1231,8 @@
     "binsreg"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 449,
@@ -1209,6 +1263,7 @@
     "n_clusters: the count that determines reliability",
     "over_rejection_diagnostic: comparison with the naive cluster-robust p-value"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "WITH FEWER THAN ROUGHLY FIVE CLUSTERS no method restores correct size; report the cluster count, not just a p-value",
     "Rademacher weights impose a floor on the attainable p-value that depends on the cluster count",
@@ -1220,7 +1275,8 @@
     "wildboottest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 450,
@@ -1252,6 +1308,7 @@
     "first_stage_f: the effective F statistic",
     "liml, jive: alternative point estimates"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "AN UNBOUNDED CONFIDENCE SET IS THE CORRECT ANSWER when instruments are weak -- it is information, not a failure, and reporting a tight 2SLS interval instead is the error",
     "an EMPTY confidence set means the model is rejected at that level, which is also informative",
@@ -1264,7 +1321,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 451,
@@ -1296,6 +1354,7 @@
     "distributional_test: test of a constant effect across quantiles",
     "counterfactual_distribution: the untreated distribution for the treated"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "a QUANTILE TREATMENT EFFECT IS NOT THE EFFECT ON A GIVEN UNIT unless ranks are preserved; it compares distributions, not individuals",
     "changes-in-changes replaces parallel trends with a monotonicity assumption -- weaker in some respects, stronger in others, not simply better",
@@ -1308,7 +1367,8 @@
     "econml"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 452,
@@ -1340,6 +1400,7 @@
     "heterogeneity_test: whether the effect genuinely varies",
     "feature_importance: which covariates drive the variation"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE S-LEARNER SHRINKS HETEROGENEITY TOWARD ZERO because a single model can ignore the treatment feature; a flat CATE from it is not evidence of homogeneity",
     "individual CATE estimates are very noisy; they support group-level statements, not unit-level decisions, without further calibration",
@@ -1352,7 +1413,8 @@
     "econml"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 453,
@@ -1384,6 +1446,7 @@
     "regret: distance from the infeasible optimal rule",
     "treated_share: the share the rule assigns"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POLICY VALUE ESTIMATED ON THE SAME DATA THAT LEARNED THE POLICY IS OPTIMISTIC; honest evaluation needs a held-out sample or cross-fitting",
     "a rule built from noisy CATE estimates can be worse than treating everyone or no one; always compare against both baselines",
@@ -1395,7 +1458,8 @@
     "econml"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 454,
@@ -1427,6 +1491,7 @@
     "event_window: the relative periods estimated",
     "binned_endpoints: whether distant periods were binned"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "A PRE-TREND TEST THAT FAILS TO REJECT IS WEAK EVIDENCE -- these tests have low power, and pre-testing itself distorts the subsequent inference",
     "the omitted base period is a normalisation; changing it shifts every coefficient and can flip the visual impression entirely",
@@ -1439,7 +1504,8 @@
     "paneleventstudy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 455,
@@ -1470,6 +1536,7 @@
     "predictions: fitted values at stated covariate values",
     "at: the covariate values the effects were evaluated at"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "AVERAGE MARGINAL EFFECTS AND EFFECTS AT THE MEAN ARE DIFFERENT QUANTITIES and can differ substantially in a nonlinear model; which was computed must be stated",
     "the delta method assumes the transformation is approximately linear over the sampling distribution, which fails for ratios and near boundaries",
@@ -1481,7 +1548,8 @@
     "marginaleffects"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 456,
@@ -1513,6 +1581,7 @@
     "converged: whether the projection algorithm converged",
     "connected_components: identification structure across the effect dimensions"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "with two or more high-dimensional effects the parameters are identified only WITHIN CONNECTED COMPONENTS of the bipartite mobility graph; a disconnected sample identifies less than it appears to",
     "absorbed fixed effects are not estimated, so they cannot be reported or interpreted -- if you need them, do not absorb them",
@@ -1525,7 +1594,8 @@
     "pyfixest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 457,
@@ -1556,6 +1626,7 @@
     "statistics: observation counts, R2 and other reported statistics",
     "format: the output format requested"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "A TABLE WITHOUT ITS STANDARD-ERROR TYPE IS UNREADABLE; robust, clustered and classical errors differ by large factors and the note is not decoration",
     "columns estimated on different samples are not comparable, and the observation count per column is what reveals that",
@@ -1566,7 +1637,8 @@
     "pyfixest documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

@@ -43,6 +43,7 @@
     "interpretation: mapping beta_0=level, beta_1=slope, beta_2=curvature,..",
     "n_obs / n_maturities: number of dates / pillars"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "Svensson which_rate: the default MUST be Spot; with Forward the fitted/residuals silently become the wrong quantity (the instantaneous forward instead of the spot) — adversarial-review HIGH",
     "lambda/tau are decay rates (the hump position), NOT yields — do not feed them into a probit as a spread",
@@ -57,7 +58,8 @@
     "wrapper footer IMPLEMENTATION NOTE + adversarial-review HIGH (which_rate default=Spot)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 210,
@@ -97,6 +99,7 @@
     "yc_transform spot: maturity/rate on a grid (yc_predict); forward: maturity/forward_rate (instantaneous, or forward-forward with a horizon); discount: maturity/discount_factor (continuous/annual/semi_annual)",
     "yc_transform pca: loadings [tenors × components]; scores [obs × components]; variance_explained; cumulative_variance; sdev; center; tenors"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "lambda = 1/tau is a decay rate (the hump position/loading), NOT a yield — do not use it as a spread; the NS lambda default comes from tau_init=1, but tau is estimated (optim), so the final lambda differs",
     "the cubic spline has no parametric beta or tau, so lambda is blank; its level, slope and curvature are computed empirically from the curve rather than from beta coefficients — do not compare them one-to-one with the Nelson-Siegel betas",
@@ -118,7 +121,8 @@
     "yc_fit (the fit of one curve; register field='object' -> it feeds yc_transform as a handle)",
     "c18_yield_curve/nelson_siegel_svensson.fit_nelson_siegel (the date-indexed baseline; compare the factors before changing method)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 211,
@@ -152,6 +156,7 @@
     "expected_component: (time × maturities) the expectations-hypothesis component (the average expected future short rate)",
     "maturities / sample_dates / n_obs / pc_var_explained: sample metadata & the PCA variance of the spanned factors; object = the full ATSMModelOutputs"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the identity yield = expected_component + term_premia: the term premium is the RESIDUAL above the expected future short rates; a negative term premium is valid (e.g. flight to quality)",
     "the input format is STRICT: yield series 'Y<mat>M_<economy>' (e.g. 'Y120M_Brazil'), macro '<var> <economy>', date column labels 'dd-mm-yyyy'; wrong row labels -> the economy gate blocks it; a wrong data_freq -> a silently wrong annualization of dt",
@@ -172,7 +177,8 @@
     "c18_yield_curve/parametric_yield_curve.yc_fit (a static Nelson-Siegel fit per date — a simpler alternative when you do not need a dynamic arbitrage-free model)",
     "atsm_estimate (the term-premia decomposition is returned inside it: term_premia + expected_component)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 212,
@@ -200,6 +206,7 @@
     "x: the estimation time points (dates); tau: the maturities that were used; span_x; smooth",
     "n_obs (the cash-flow rows), n_bonds (unique ids), n_dates, n_tau; plus the fitted nested estimate table"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "tupq is the time to EACH cash flow in DAYS (not years); pdint is the AMOUNT of the flow (a coupon, or a coupon+face value at maturity) — one row per (bond, cash flow), not per bond",
     "x must lie INSIDE the range of qdate and have enough data around it (the kernel window ~ span_x): an x in a sparse region or at the edges -> non-finite/unstable estimates (the wrapper hard-gates non-finite values)",
@@ -216,7 +223,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the bond cash-flow panel; the columns qdate/id/price/tupq/pdint)",
     "ycnp_estimate (the estimation returns the estimates + the yield/discount surface matrices inside it)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 535,
@@ -247,6 +255,7 @@
     "fitted_yields: model yields against observed",
     "factors: the pricing factors extracted"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE DECOMPOSITION IS NOT UNIQUE: different models attribute very different shares to the premium, and the level of the term premium is far less reliable than its changes",
     "the estimated expected-rate path is heavily influenced by the assumed persistence of the factors, which is poorly identified in short samples",
@@ -258,7 +267,8 @@
     "pyacm"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 536,
@@ -289,6 +299,7 @@
     "forward_curve: implied forwards",
     "repricing_error: how well the inputs are reproduced"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "BOOTSTRAPPING REPRICES THE INPUTS EXACTLY AND CAN PRODUCE ABSURD FORWARD RATES between nodes; smoothness and exact repricing are in direct conflict",
     "the interpolation rule -- on zeros, on log discount factors, on forwards -- changes the curve materially between nodes",
@@ -300,7 +311,8 @@
     "QuantLib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 537,
@@ -331,6 +343,7 @@
     "forecast: yield-curve forecasts",
     "macro_interaction: cross-effects where macro variables are included"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE DECAY PARAMETER IS OFTEN FIXED rather than estimated because the likelihood is nearly flat in it; fixing it at a convention is a decision that affects curvature throughout",
     "the model is not arbitrage free in its basic form, so it must not be used to price derivatives",
@@ -342,7 +355,8 @@
     "nelson-siegel-svensson"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 538,
@@ -373,6 +387,7 @@
     "fitted_yields: model yields against observed",
     "bound: the effective lower bound imposed"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "DIFFERENT SHADOW-RATE MODELS PRODUCE VERY DIFFERENT SERIES on the same data -- Wu-Xia and Krippner have disagreed by several percentage points, so the estimate is model, not measurement",
     "the shadow rate is a latent modelling device and is not a policy stance indicator despite being used as one",
@@ -384,7 +399,8 @@
     "srvar-toolkit"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 539,
@@ -415,6 +431,7 @@
     "coefficients: forward-rate loadings, the tent shape",
     "hac_inference: standard errors corrected for overlap"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "OVERLAPPING ANNUAL RETURNS FROM MONTHLY DATA INDUCE STRONG SERIAL CORRELATION; without a HAC or Hodrick correction the t-statistics are inflated by a large factor",
     "the high R2 of these regressions is partly small-sample bias, and out-of-sample performance is far weaker than in-sample fit suggests",
@@ -427,7 +444,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

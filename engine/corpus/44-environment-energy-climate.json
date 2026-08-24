@@ -32,6 +32,7 @@
     "trade_balance: emissions embodied in imports and exports",
     "sector_contributions: which sectors carry the footprint"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "consumption- and production-based accounts differ by the emissions embodied in TRADE, and for open economies that difference is large -- stating which is reported is not optional",
     "sector aggregation drives the answer; a coarse table attributes a clean product the average intensity of its sector",
@@ -43,7 +44,8 @@
     "pymrio"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 368,
@@ -74,6 +76,7 @@
     "cumulative: contributions accumulated over the period",
     "method: which index form produced the answer"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Laspeyres and Paasche leave a RESIDUAL that can be as large as the effects; LMDI exists precisely because it does not",
     "LMDI needs a convention for zero and negative values, and the convention changes the answer materially",
@@ -84,7 +87,8 @@
     "Ang & Zhang 2000 (Energy 25:1149)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 369,
@@ -117,6 +121,7 @@
     "harmonisation_offsets: the adjustment applied to each scenario",
     "coverage: which scenarios and variables survived the filter"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "scenario ensembles are NOT probability distributions; a quantile across scenarios is a spread of modelling choices, not a confidence interval",
     "harmonisation to a common base year changes the near-term path of every scenario and must be reported",
@@ -128,7 +133,8 @@
     "pyam-iamc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 370,
@@ -159,6 +165,7 @@
     "in_sample: whether the turning point lies inside the observed income range",
     "fixed_effects: the effects absorbed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a turning point OUTSIDE the observed income range is an extrapolation, not a finding, and it is the single most common overclaim in this literature",
     "the quadratic imposes a symmetric inverted U; a semiparametric fit frequently shows something else entirely",
@@ -171,7 +178,8 @@
     "pyfixest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 371,
@@ -203,6 +211,7 @@
     "base_temperature: the balance point used or estimated",
     "weather_contribution: the demand attributed to weather"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the BASE TEMPERATURE is not universal -- it differs by building stock and climate, and assuming the conventional value can misattribute a large share of demand",
     "degree days computed from daily means differ from those computed from hourly data, sometimes materially",
@@ -214,7 +223,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 372,
@@ -246,6 +256,7 @@
     "physical_component: the part driven by warming and hazards",
     "assumptions: the elasticities and damage function used"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "transition and physical risk have OPPOSITE time profiles -- strong early transition lowers late physical damage -- so reporting one without the other is systematically misleading",
     "damage functions differ by more than an order of magnitude across the literature; the choice dominates any long-horizon result",
@@ -257,7 +268,8 @@
     "Batten, Sowerbutts & Tanaka 2016, Let's talk about the weather (Bank of England Staff Working Paper 603)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 373,
@@ -289,6 +301,7 @@
     "identity_check: reconstruction error, which should be numerically zero",
     "energy_balance: supply, transformation and final consumption where requested"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the identity is an ACCOUNTING TAUTOLOGY, not a causal model -- a factor's contribution is not the effect of changing it, because the factors are not independent",
     "a non-zero identity check means the four series are on inconsistent bases or units",
@@ -299,7 +312,8 @@
     "Raupach et al. 2007 (Proceedings of the National Academy of Sciences 104:10288)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

@@ -1,6 +1,12 @@
 {
  "artifact_version": 2,
  "generated_by": "scripts/gen_artifacts.py from corpus/ -- regenerate, never edit",
+ "previous": {
+  "node_specs_sha256": "c3b3d1086762e65ba3cdcf98cf023d417c7987b9b22d1547ef9a2e54f5c43749",
+  "method_cards_sha256": "24156d4194c9960305771f5018f9b2f9b1cde308ba18df608539f11807d05635",
+  "resealed": "2026-08-23",
+  "reason": "box 2.1.15"
+ },
  "engine": {
   "n_nodes": 1456,
   "n_categories": 46
@@ -122,6 +128,23 @@
    "light",
    "heavy",
    "mcmc"
+  ],
+  "chart_kinds": [
+   "line",
+   "multi-line",
+   "heatmap",
+   "table",
+   "none"
+  ],
+  "precondition_gates": [
+   "precondition-sample-size",
+   "precondition-missing",
+   "precondition-degenerate",
+   "precondition-frequency",
+   "precondition-domain",
+   "precondition-rank",
+   "precondition-panel",
+   "precondition-cross-section"
   ]
  },
  "nodes": [

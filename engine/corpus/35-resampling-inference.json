@@ -31,6 +31,7 @@
     "replications: the bootstrap distribution itself",
     "method: which interval construction produced the answer"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the plain percentile interval is only first-order accurate and is badly wrong for skewed statistics -- BCa or percentile-t is the default worth having",
     "the bootstrap FAILS for non-smooth statistics: nearest-neighbour matching, the maximum, parameters on a boundary",
@@ -43,7 +44,8 @@
     "arch.bootstrap"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 301,
@@ -74,6 +76,7 @@
     "block_length: the length used and the rule that chose it",
     "replications: the bootstrap distribution"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the BLOCK LENGTH is the whole method: too short destroys the dependence, too long leaves too few blocks to resample",
     "the moving-block bootstrap under-weights observations at the ends of the sample; the circular version fixes that by wrapping",
@@ -85,7 +88,8 @@
     "arch.bootstrap"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 302,
@@ -115,6 +119,7 @@
     "expected_block_length: 1/p, the mean geometric block length",
     "replications: the bootstrap distribution"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the resampled series is stationary, which the moving-block resample is not -- that is the point of the method",
     "the geometric parameter plays the role of the block length and matters just as much",
@@ -126,7 +131,8 @@
     "arch.bootstrap"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 303,
@@ -156,6 +162,7 @@
     "ar_order: the order selected and the criterion used",
     "residual_diagnostics: whiteness checks on the fitted residuals -- the assumption the method rests on"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "if the fitted residuals are NOT white the sieve bootstrap is invalid; the diagnostic is not optional",
     "the autoregressive order must grow with the sample for consistency; a fixed low order gives a biased resample",
@@ -167,7 +174,8 @@
     "arch.bootstrap"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 304,
@@ -198,6 +206,7 @@
     "weights: which auxiliary distribution was used",
     "replications: the bootstrap distribution of the statistic"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Rademacher weights take only two values, so with very few clusters or observations the bootstrap distribution has a COARSE support and the p-value cannot fall below a floor",
     "Webb weights exist precisely to fix that floor when there are six or fewer clusters",
@@ -210,7 +219,8 @@
     "wildboottest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 305,
@@ -241,6 +251,7 @@
     "n_clusters: the number of clusters -- the figure that determines whether any of this is reliable",
     "p_value_floor: the smallest attainable p-value given the weights and cluster count"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "with fewer than about five clusters NO method restores correct size; report the cluster count prominently rather than a p-value that looks precise",
     "Rademacher weights impose a floor of 2^(1-G) on the p-value; with G=5 nothing below 0.0625 is attainable, so a reported 0.01 is impossible",
@@ -252,7 +263,8 @@
     "wildboottest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 306,
@@ -284,6 +296,7 @@
     "n_permutations: exhaustive or sampled, and how many",
     "conf_int: interval by test inversion, where requested"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the permutation must respect the ACTUAL randomisation -- permuting freely when assignment was blocked or clustered gives a p-value for an experiment that was never run",
     "the sharp null of no effect for any unit is stronger than the null of no average effect; the test is exact only for the former",
@@ -296,7 +309,8 @@
     "scipy.stats"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 307,
@@ -328,6 +342,7 @@
     "subsample_size: b, the size used, and the rate assumed",
     "pseudo_values: jackknife pseudo-values, for influence diagnostics"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "subsampling is consistent under far weaker conditions than the bootstrap, but it needs b to grow more slowly than n and the answer is sensitive to b",
     "the DELETE-1 jackknife is inconsistent for non-smooth statistics such as the median; delete-d is the fix",
@@ -340,7 +355,8 @@
     "arch.bootstrap"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 308,
@@ -372,6 +388,7 @@
     "n_rejected: the count before and after adjustment",
     "method: the procedure applied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "FWER and FDR control DIFFERENT things; Holm bounds the probability of any false rejection, Benjamini-Hochberg bounds their expected share, and they are not interchangeable",
     "Benjamini-Hochberg assumes independence or positive dependence; under arbitrary dependence the Benjamini-Yekutieli correction is needed and is much more conservative",
@@ -384,7 +401,8 @@
     "statsmodels.stats.multitest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

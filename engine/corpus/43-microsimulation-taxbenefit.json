@@ -32,6 +32,7 @@
     "period: the period the calculation refers to",
     "reform_delta: the difference a reform overlay makes, per variable"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "entity structure is LOAD-BEARING: a benefit assessed at family level and a tax assessed at person level cannot be added without an explicit aggregation rule",
     "period semantics matter -- monthly benefits and annual taxes must be annualised consistently or the disposable income is simply wrong",
@@ -42,7 +43,8 @@
     "Sutherland & Figari 2013 (International Journal of Microsimulation 6:4-26)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 362,
@@ -74,6 +76,7 @@
     "components: the tax and benefit elements that make it up",
     "kinks: earnings points where the slope changes discontinuously"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the budget constraint is frequently NON-CONVEX, with cliffs where a benefit withdraws entirely -- a smooth approximation hides exactly the behaviour that matters",
     "the result is for a specific household type; there is no such thing as the budget constraint without stating composition, housing costs and hours",
@@ -84,7 +87,8 @@
     "Immervoll, Kleven, Kreiner & Saez 2007 (Economic Journal 117:1-44)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 363,
@@ -116,6 +120,7 @@
     "replacement_rate: out-of-work income over in-work income",
     "high_metr_share: share of the population above a chosen threshold"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "METRs ABOVE ONE are real and common where several benefits withdraw at once -- they are a finding about the rules, not a computational error",
     "the METR depends on the size of the earnings increment used to compute it; a large increment smooths over cliffs and understates the peak",
@@ -126,7 +131,8 @@
     "Adam, Browne & Heady 2010, Taxation in the UK (Dimensions of Tax Design, Mirrlees Review)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 364,
@@ -157,6 +163,7 @@
     "budget_cost: net exchequer cost",
     "poverty_inequality: change in headline poverty and inequality measures"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a STATIC result assumes nobody changes behaviour; for large reforms that is a strong assumption and the label must travel with the number",
     "deciles must be defined on EQUIVALISED income and the ranking must be fixed before or after the reform consistently -- re-ranking changes the picture",
@@ -167,7 +174,8 @@
     "Figari, Paulus & Sutherland 2015, Microsimulation and policy analysis (Handbook of Income Distribution 2B)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 365,
@@ -198,6 +206,7 @@
     "elasticities_used: the parameters driving the answer",
     "decomposition: mechanical versus behavioural components of the cost"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the answer is a FUNCTION OF THE ASSUMED ELASTICITIES, which are not estimated here; report them beside the result or the number is uninterpretable",
     "extensive and intensive elasticities differ by an order of magnitude across groups; a single population elasticity is rarely defensible",
@@ -208,7 +217,8 @@
     "Saez, Slemrod & Giertz 2012 (Journal of Economic Literature 50:3-50)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 366,
@@ -239,6 +249,7 @@
     "weight_ratio: how far weights moved, and the extremes",
     "margins_achieved: realised totals against the targets"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "extreme calibrated weights make a handful of households drive national aggregates; bound the weights or report the extremes",
     "raking to inconsistent marginal totals does not converge, and a truncated run silently returns weights matching nothing",
@@ -250,7 +261,8 @@
     "svy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

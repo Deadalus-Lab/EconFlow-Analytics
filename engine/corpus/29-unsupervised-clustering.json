@@ -55,6 +55,7 @@
     "method / orientation / family: exactly what was computed (the plain metric route, or the correlation-converted one); p is the Minkowski power ONLY when method='minkowski', and blank otherwise",
     "dm_correlation_distance additionally: correlation_matrix (the n×n r matrix with axis labels — chart-data AND the interpretation of the sign) + cor_method + transform"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "NORMATIVE GATE 1 (KEOGH): a sliding-window subsequence input is REJECTED explicitly — the overlap of consecutive rows is detected at ANY fixed step k >= 1 (NOT only k=1: the «slide» is a free parameter of how the subsequences are built, so a step-2 window is covered by the result just as much), in both directions; k <= floor(m/2) so that the overlap stays >= 50%. The detection lives ONCE, in the shared gate_sliding_window_step helper used by #240, #241, #243 and #244. Clustering subsequences is PROVABLY meaningless: the output does NOT depend on the input (the centers degenerate into sine waves regardless of the data/k/algorithm; Keogh, Lin & Truppel). Whole-series clustering is NOT affected",
     "NORMATIVE GATE 2 (do NOT impose detrending): the node NEVER transforms the input silently — no differencing, no seasonal adjustment, no standardization. The metric and the transform are an EXPLICIT gated choice from a closed enum; the macro clustering literature (arXiv:1807.04004) DELIBERATELY uses raw, non-seasonally-adjusted, non-detrended data, since detrending introduces artificial distortions (Hamilton on the HP filter)",
@@ -82,7 +83,8 @@
     "c00_data_utilities/descriptive_statistics.desc_correlations # look at the r matrix BEFORE choosing a transform (one_minus if the DIRECTION matters; one_minus_abs if the opposite phase counts as «similar»)",
     "dm_distance # run the euclidean distance first and look at n_zero_pairs: >0 means DUPLICATE objects -> a trap in isoMDS (#245) and the bound k<=distinct in #241"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 241,
@@ -137,6 +139,7 @@
     "km_gap: gap_table (k×5: k/logW/E.logW/gap/SE.sim — the chart-data of the gap curve with error bars) + gap/se_sim/logw/e_logw (named) + optimal_k + optimal_k_by_rule (ALL 5 maxSE rules for comparison) + method/se_factor/B/d_power/space_h0",
     "ALL of them: k/n/p/n_distinct + transform + transform_center/transform_scale (§3b gate 6: fit/apply externalization as NUMBERS) + observations/variables + seed (kmeans/gap)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "NORMATIVE GATE 1 (KEOGH): a sliding-window subsequence matrix (each row = the previous one shifted by a FIXED step k >= 1 — NOT only k=1; the shared gate_sliding_window_step detector) is REJECTED — the centers degenerate into sine waves INDEPENDENTLY of the data, i.e. the output does NOT depend on the input (Keogh, Lin & Truppel). Whole-series/cross-section clustering is NOT affected",
     "NORMATIVE GATE 2 (no silent detrending or standardization): 'transform' is an EXPLICIT closed-enum option defaulting to 'none'; the node NEVER standardizes or detrends on its own (arXiv:1807.04004; Hamilton on the HP filter)",
@@ -168,7 +171,8 @@
     "km_silhouette # AFTER the fit: avg_silhouette + n_negative (observations possibly in the WRONG cluster)",
     "c00_data_utilities/fast_row_column.panel_col_stats # (stat='sd') a zero column variance before transform='scale' (division by 0 -> NaN)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 242,
@@ -229,6 +233,7 @@
     "hc_agnes: ac (the agglomerative coefficient, 0.1) + par_method (Lance-Williams, only for flexible/gaverage); hc_diana: dc (the divisive coefficient, 0.1)",
     "tree: the CANONICALIZED hclust object -> register(field='tree') in hc_linkage/hc_agnes/hc_diana; the producer node for hc_cut_tree (which is TERMINAL)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "ward.D != ward.D2 (DOCUMENTED, the hclust routine): 'ward.D' (= the old 'ward' in the reference <= 3.0.3) does NOT implement Ward's (1963) criterion; 'ward.D2' does (Murtagh & Legendre 2014) by SQUARING the dissimilarities before the Lance-Williams update. They are not equivalent — the heights differ (pinned in the tests). Also documented: agnes(*, method='ward') == hclust(*, 'ward.D2')",
     "SILENT PRECEDENCE: cutree documents «At least one of k or h must be specified, k overrides h if both are given» ⇒ if both are supplied, h is ignored SILENTLY. Our gate: EXACTLY ONE of the two (mandatory in hc_cut_tree; in hc_linkage/hc_agnes/hc_diana neither is also allowed = dendrogram data only)",
@@ -259,7 +264,8 @@
     "c29_unsupervised_clustering/partitional_clustering_rule.km_silhouette # AFTER the cut: evaluating the chosen k on the SAME data (#241)",
     "hc_linkage (without k/h) # look first at height/monotone: a non-monotone tree (median/centroid) FORBIDS a cut at a height"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 243,
@@ -306,6 +312,7 @@
     "dw_dist_matrix: n_zero_pairs — THE NUMBER OF ZERO DISTANCES; >0 ⇒ #245 mds_nonmetric/mds_sammon WILL BLOCK («zero or negative distance between objects i and j»)",
     "dw_dist_matrix: dist_object -> a registry handle (register field='dist_object') = THE CHAINING CONTRACT towards #242 hclust/cutree, #241 PAM/silhouette, #245 MDS — the SAME as in #240"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "NORMATIVE GATE 1 (Keogh): the input preparation explicitly REJECTS a sliding-window subsequence input — consecutive rows that are shifted copies at ANY fixed step k >= 1, not only k=1, detected in BOTH directions by the shared sliding-window detector. Clustering subsequences is PROVABLY meaningless, since the output does NOT depend on the input (Keogh, Lin & Truppel 2005). Whole-series objects are NOT affected",
     "NORMATIVE GATE 2 (no imposed detrending): transform is an EXPLICIT closed-enum option defaulting to 'none', i.e. RAW data — no silent differencing or detrending (arXiv:1807.04004, «Clustering Macroeconomic Time Series», DELIBERATELY used raw, non-seasonally-adjusted, non-detrended series)",
@@ -333,7 +340,8 @@
     "dw_align # run ONE pair FIRST with the same window_type, window_size and step_pattern: if no valid path exists, you find out before the O(n²) cross-distance matrix",
     "c29_unsupervised_clustering/distance_dissimilarity_matrix.dm_distance # a euclidean-distance baseline — if DTW does not change the ranking, the cheap #240 suffices"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 244,
@@ -385,6 +393,7 @@
     "mb_predict: classification (a named integer, with the SAME canonicalization) + z (n_new×G) + uncertainty + n_new/new_observations + train_cluster/train_size (for reference) + pro/mean/loglik/bic",
     "ALL of them: transform + transform_center + transform_scale (§3b gate 6 — fit/apply externalization: they are returned as NUMBERS and reused VERBATIM on the newdata) + observations/variables + seed + subset_init + canonical_order"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "DETERMINISM — THE CRITICAL POINT: below the subset threshold (2000 by default) the initialisation is model-based hierarchical clustering on an SVD basis ⇒ DETERMINISTIC with no seed (two runs identical, live-verified and asserted). ABOVE it the search draws a random initialisation subset ⇒ NON-DETERMINISTIC (live, two unseeded runs gave a DIFFERENT log-likelihood and classification) ⇒ every node takes a seed (default 1234) and runs inside a helper that RESTORES the caller's generator state, keeping the layer pure; the subset_init field states EXPLICITLY whether that path was taken",
     "SILENTLY WRONG (p > n): Mclust with 3 observations × 4 variables does NOT error — it returns a fit (G=2, EEI). The component covariances are singular ⇒ OUR OWN hard gate p < n (live-verified)",
@@ -417,7 +426,8 @@
     "mb_icl # the same grid under the ICL criterion (BIC minus the entropy): if BIC and ICL DISAGREE, the components overlap",
     "c01_preparation_prechecks/profiling_quality_report.dp_column_profile # the scale/variance/constant columns PER COLUMN before deciding on a transform (NEVER a silent standardization) AND before establishing whether n > p holds"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 245,
@@ -460,6 +470,7 @@
     "mds_sammon: stress (Sammon — NOT a percentage, NOT comparable with the isoMDS one) + niter/magic/tol + init_method='cmdscale'",
     "COMMON DIAGNOSTICS (ours, computed IDENTICALLY ⇒ COMPARABLE across the 3): stress_raw = sqrt(sum((d-dhat)^2)/sum(d^2)) (Kruskal stress-1 WITHOUT a monotone transformation, 0 = perfect) + fit_correlation = cor(d, dhat) (NA_real_ when either side is constant, e.g. an equilateral configuration) + dist_fitted = the distances of the configuration (Shepard chart-data)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE CENTRAL GATE — the input MUST be a `dist` object: cmdscale ALSO accepts a matrix/data_frame («a full symmetric matrix») BUT it also SILENTLY accepts a NON-SYMMETRIC matrix (live: with m[1,2]=99 it returned a GOF of 0.577/0.99 WITHOUT a warning) ⇒ silently wrong. A `dist` is by definition symmetric with a zero diagonal; that is why the spec uses a raw_handle (the object is returned AS IS and the wrapper decides)",
     "ZERO OR DUPLICATE DISTANCES — THE MAIN TRAP OF THIS NODE: mds_nonmetric AND mds_sammon require STRICTLY POSITIVE distances («Data are assumed to be dissimilarities... but must be positive except for self-distance») and they error with «zero or negative distance between objects i and j» on DUPLICATE ROWS (live-verified). The node blocks BEFORE the call and NAMES the offending objects, where the underlying routine gives only indices; mds_classical has no such restriction. The upstream signal is a non-zero n_zero_pairs from #243 dw_dist_matrix",
@@ -492,7 +503,8 @@
     "c29_unsupervised_clustering/dynamic_time_warping.dw_dist_matrix # DTW distances; READ the n_zero_pairs field: >0 ⇒ mds_nonmetric/mds_sammon WILL BLOCK (only mds_classical works)",
     "mds_classical # ALWAYS first: it gives n_eig_negative & gof_abs/gof_pos (how non-Euclidean the dissimilarities are) and it is the INITIALISATION of the other two"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 598,
@@ -523,6 +535,7 @@
     "noise_share: proportion labelled noise",
     "persistence: cluster stability, where HDBSCAN is used"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "DBSCAN ASSUMES A SINGLE DENSITY SCALE; with clusters of different densities it either merges the dense ones or labels the sparse ones as noise, which is what HDBSCAN was built to fix",
     "the noise label is a real output, not a failure -- forcing every point into a cluster is what these methods exist to avoid",
@@ -534,7 +547,8 @@
     "scikit-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 599,
@@ -565,6 +579,7 @@
     "gap: the gap statistic against a uniform null",
     "recommended_k: what each criterion selects"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "CLUSTERING ALGORITHMS PARTITION RANDOM DATA HAPPILY; the gap statistic is one of the few instruments that tests against a no-cluster null, and it should be run before any interpretation",
     "internal indices routinely disagree about the number of clusters, and picking the one that gives the answer you want is a common and invisible error",
@@ -577,7 +592,8 @@
     "scikit-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 600,
@@ -609,6 +625,7 @@
     "n_factors: chosen and the criterion that chose it",
     "adequacy: KMO and Bartlett tests of whether factoring is appropriate"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "FACTOR ANALYSIS AND PRINCIPAL COMPONENTS ARE DIFFERENT MODELS: PCA has no unique variances and its components are not latent factors, and the two are conflated constantly",
     "the rotation is not identified by the data -- varimax, promax and oblimin give different loadings from the same fit, and the choice is interpretive",
@@ -620,7 +637,8 @@
     "factor-analyzer"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 601,
@@ -651,6 +669,7 @@
     "contributions: which categories drive each dimension",
     "quality: representation quality per point"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MULTIPLE CORRESPONDENCE ANALYSIS UNDERSTATES EXPLAINED INERTIA severely because of how the indicator matrix is built; the Benzecri or Greenacre adjustment is needed before the percentages are reported",
     "rare categories exert disproportionate influence on the solution and often create dimensions of their own",
@@ -662,7 +681,8 @@
     "prince"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 602,
@@ -693,6 +713,7 @@
     "inertia: within-cluster distance",
     "distance: the distance measure used"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "AVERAGING SERIES UNDER DYNAMIC TIME WARPING IS NOT THE ARITHMETIC MEAN; naive averaging destroys the shape the warping was meant to preserve, which is why barycentre averaging exists",
     "DTW without a warping-window constraint is both slow and prone to pathological alignments; the Sakoe-Chiba band is the usual fix",
@@ -704,7 +725,8 @@
     "tslearn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 603,
@@ -735,6 +757,7 @@
     "measure: which distance was used",
     "lower_bound_pruning: how many computations were avoided"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "DYNAMIC TIME WARPING IS NOT A METRIC -- it violates the triangle inequality, so methods requiring a metric space (some clustering and indexing schemes) are not valid on it",
     "an unconstrained warping window allows pathological alignments that match a whole series to one point; constraining it is standard practice",
@@ -746,7 +769,8 @@
     "dtaidistance"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 604,
@@ -777,6 +801,7 @@
     "parameters: the neighbourhood and distance parameters used",
     "n_components: the embedding dimension"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "DISTANCES AND CLUSTER SIZES IN A t-SNE PLOT ARE NOT MEANINGFUL: the gap between two clusters says nothing about their dissimilarity, and this is the most misread output in applied machine learning",
     "the perplexity or neighbour parameter changes the picture completely, and a structure visible at one setting can vanish at another",
@@ -789,7 +814,8 @@
     "umap-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 605,
@@ -820,6 +846,7 @@
     "consensus_score: agreement against a reference where available",
     "n_clusters: the counts used"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "BICLUSTERING ASSUMES A SPECIFIC BLOCK STRUCTURE -- checkerboard for co-clustering -- and data without that structure will still be partitioned into apparent blocks",
     "the method is sensitive to row and column normalisation, and the normalisation choice determines what counts as a block",
@@ -831,7 +858,8 @@
     "scikit-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

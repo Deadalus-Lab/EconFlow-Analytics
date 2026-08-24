@@ -31,6 +31,7 @@
     "asset_value, asset_volatility: the recovered unobservables",
     "converged: whether the simultaneous system solved"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "asset value and asset volatility are NOT observed; they are solved from a two-equation system, and non-convergence produces plausible-looking numbers",
     "the model PD is risk-neutral and is systematically higher than the physical default rate",
@@ -43,7 +44,8 @@
     "frds"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 348,
@@ -76,6 +78,7 @@
     "stationary_distribution: the long-run state shares",
     "embeddability: whether a valid generator exists at all"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "a discrete transition matrix need not have a valid GENERATOR -- the embedding problem -- and forcing one produces negative off-diagonal rates",
     "the cohort estimator discards within-period migrations and understates volatility of ratings; the duration estimator does not",
@@ -88,7 +91,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 349,
@@ -121,6 +125,7 @@
     "scorecard: points per attribute",
     "monotonic: whether each variable's default rate is monotone in its bins"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "INFORMATION VALUE is a univariate screen; a variable with high IV can be useless after controlling for another, and one with low IV can matter",
     "binning on the full sample and then validating on part of it leaks information -- bins must be fitted on the training split only",
@@ -132,7 +137,8 @@
     "optbinning"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 350,
@@ -165,6 +171,7 @@
     "brier, reliability, resolution: the Brier decomposition",
     "binomial_test: per-grade test that the realised rate matches the assigned PD"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "DISCRIMINATION AND CALIBRATION ARE INDEPENDENT: a model can rank perfectly (AUC 1.0) while every probability is wrong by a factor of ten",
     "a model calibrated on a benign period is systematically under-calibrated in a downturn; through-the-cycle and point-in-time PDs are different objects",
@@ -176,7 +183,8 @@
     "Basel Committee 2005, Studies on the validation of internal rating systems (Working Paper 14)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 351,
@@ -208,6 +216,7 @@
     "distribution_fit: how well the bounded distribution matches the observed shape",
     "downturn_lgd: the stressed value where a downturn indicator is supplied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "observed recovery is strongly BIMODAL -- clustered near zero and near one -- so a model fitting only the conditional mean misses the shape entirely",
     "linear regression on a bounded outcome predicts outside the unit interval, and truncating the prediction is not a fix",
@@ -220,7 +229,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 352,
@@ -252,6 +262,7 @@
     "term_structure: the PD curve over the lifetime",
     "conditioning: how macroeconomic scenarios shifted the curve"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "cumulative PD is ONE MINUS the survival probability, not a sum of marginal PDs; adding them overstates lifetime risk and the error compounds with horizon",
     "extrapolating a term structure beyond the observed panel is an assumption about duration dependence, and it dominates long-horizon loss",
@@ -263,7 +274,8 @@
     "lifelines"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 353,
@@ -296,6 +308,7 @@
     "var, es: tail measures at the requested level",
     "concentration: the share of tail loss attributable to the largest exposures"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the ASSET CORRELATION drives the tail far more than the average PD does; a small change in correlation moves capital by a large multiple",
     "the single-factor model assumes an infinitely granular portfolio -- with concentrated exposures it understates the tail badly",
@@ -307,7 +320,8 @@
     "Basel Committee 2006, International Convergence of Capital Measurement and Capital Standards"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

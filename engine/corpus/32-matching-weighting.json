@@ -32,6 +32,7 @@
     "overlap_diagnostics: score distributions by arm and the minimum/maximum of the common range",
     "auc: discrimination, which should be moderate -- not high"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a HIGH propensity-score AUC is bad news, not good: near-perfect prediction of treatment means no overlap and nothing to compare",
     "trimming changes the estimand -- the effect is now for the retained overlap population, not the original one, and that must be reported",
@@ -43,7 +44,8 @@
     "causallib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 275,
@@ -75,6 +77,7 @@
     "n_unmatched: treated units dropped for want of a match inside the caliper",
     "se: standard error, which must account for the matching, not the naive one"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the naive standard error over matched pairs is WRONG -- matching is not sampling and the estimated score adds variance (-> the bias-corrected estimator)",
     "matching with replacement reuses good controls, which lowers bias and raises variance; without replacement the answer depends on the ORDER units are processed",
@@ -86,7 +89,8 @@
     "Imbens & Rubin 2015, Causal Inference for Statistics, Social and Biomedical Sciences"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 276,
@@ -117,6 +121,7 @@
     "se: the Abadie-Imbens variance, which accounts for matching and for the estimated score",
     "n_matches_used: match multiplicity per treated unit"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the bootstrap is INVALID for nearest-neighbour matching -- Abadie and Imbens proved it fails, so a bootstrapped standard error here is simply wrong",
     "a large bias correction is a warning that the matches were poor, not a sign the correction worked",
@@ -128,7 +133,8 @@
     "Abadie & Imbens 2011 (Journal of Business and Economic Statistics 29:1)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 277,
@@ -160,6 +166,7 @@
     "imbalance_l1: the multivariate L1 imbalance before and after",
     "n_dropped: units in strata lacking both arms"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "coarsening is a bias-variance dial you set BEFORE seeing the outcome; tuning it against the estimate is specification search",
     "the L1 imbalance measure is bounded above by the coarsening itself -- a small value on a coarse grid does not mean the underlying covariates balance",
@@ -171,7 +178,8 @@
     "causallib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 278,
@@ -204,6 +212,7 @@
     "max_weight, ess: the largest weight and the effective sample size -- the diagnostics that matter",
     "se, conf_int: influence-function based inference"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a handful of extreme weights can drive the entire estimate; ALWAYS read the effective sample size, which is often a small fraction of n",
     "doubly robust means consistent if EITHER model is right -- it does not mean consistent if both are wrong, and it does not fix poor overlap",
@@ -216,7 +225,8 @@
     "doubleml"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 279,
@@ -248,6 +258,7 @@
     "love_plot_data: covariates ordered by post-adjustment imbalance, ready to plot",
     "worst_covariate: the covariate that remains least balanced"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a t-test of balance is the WRONG instrument -- it conflates imbalance with sample size, so trimming makes it 'pass' by losing power",
     "balancing means says nothing about higher moments or interactions; a design can balance every mean and still compare different populations",
@@ -260,7 +271,8 @@
     "causallib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 280,
@@ -291,6 +303,7 @@
     "balance_by_stratum: standardised differences within each stratum",
     "n_strata_dropped: strata lacking one arm"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "five strata is a convention, not a result; the number of strata is a bias-variance choice and the estimate moves with it",
     "a stratum containing only one arm contributes nothing and silently changes the estimand",
@@ -303,7 +316,8 @@
     "causallib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 281,
@@ -335,6 +349,7 @@
     "e_value: the minimum confounder association that would explain away the estimate",
     "e_value_ci: the same for the confidence limit, which is the more conservative reading"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "these bound the effect of an unmeasured confounder; they do NOT test whether one exists and cannot",
     "a gamma near 1 means the finding is fragile to very mild hidden bias -- report it, do not bury it",
@@ -346,7 +361,8 @@
     "zepid"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 282,
@@ -378,6 +394,7 @@
     "influence_curve_se: inference from the influence function, valid after targeting",
     "initial_vs_targeted: how far the targeting step moved the estimate"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "plain g-computation with a machine-learned outcome model has NO valid standard error -- that is exactly the gap the targeting step exists to close",
     "a large gap between the initial and targeted estimate signals a poorly specified initial model, not a successful correction",
@@ -390,7 +407,8 @@
     "zepid"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

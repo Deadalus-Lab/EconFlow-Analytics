@@ -41,6 +41,7 @@
     "pv_identify: B (the (K×S) structural impact matrix, MG), irf (a data_frame V1=horizon + impulse->response columns), fevd_mg (a named list per response variable; the matrices sum to ~100 per row under full identification), shock_names; fit=pid (register -> a raw_handle)",
     "pv_bootstrap: irf_point/irf_lower/irf_upper as frames (V1 plus the impulse-to-response columns, at the (1-level)/2 and 1-(1-level)/2 quantiles), n_boot as actually run, level, horizon, impulse_response, and the individual index for the moving-block route"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the Breitung panel cointegration test FAILS when the type arrives as a vector; the wrapper enforces a scalar through a closed enum; the SL and CAIN variants ignore det_case and use 'SL_trend'",
     "a panel-level FEVD is NOT defined — it works per individual only; fevd_mg is the mean group of the individual FEVDs; under partial identification (an instrument with fewer shocks than variables) the rows do NOT necessarily sum to 100",
@@ -58,7 +59,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c24_panel_var/heterogeneous_panel_var)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 569,
@@ -89,6 +91,7 @@
     "ar_tests: first- and second-order serial correlation in differences",
     "irf, fevd: impulse responses and variance decompositions"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "INSTRUMENT PROLIFERATION IS THE CENTRAL PROBLEM: with many lags as instruments the Hansen test loses all power and reports a perfect p-value near 1, which is a warning sign rather than a pass",
     "the AR(2) test in differences is the key diagnostic; a rejection means the lag structure is invalid",
@@ -101,7 +104,8 @@
     "pydynpd"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 570,
@@ -132,6 +136,7 @@
     "share_causal: the fraction of units showing causality",
     "bootstrap_p: p-value robust to cross-sectional dependence"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE NULL IS NO CAUSALITY IN ANY UNIT and the alternative is causality in SOME; rejection does not mean causality holds on average, and reporting it that way is the standard misreading",
     "cross-sectional dependence invalidates the asymptotic distribution, and the bootstrap version is required whenever the CD test rejects",
@@ -142,7 +147,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 571,
@@ -173,6 +179,7 @@
     "n_units, n_periods: the panel dimensions",
     "heterogeneity: response variation across groups where estimated"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "LOCAL-PROJECTION RESIDUALS ARE SERIALLY CORRELATED at horizons beyond one, and in a panel they are also cross-sectionally correlated -- both must be handled or the bands are far too narrow",
     "unit fixed effects in a dynamic panel introduce Nickell bias, which is worse the shorter the time dimension",
@@ -184,7 +191,8 @@
     "localprojections"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 572,
@@ -215,6 +223,7 @@
     "factor_structure: leading factors in the residuals",
     "recommendation: whether robust inference or factor augmentation is needed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "A REJECTED CD TEST INVALIDATES THE STANDARD PANEL VAR STANDARD ERRORS, and continuing to report them is the most common error in applied panel VAR work",
     "the average absolute correlation is the informative number; the test statistic conflates strength with panel size",
@@ -226,7 +235,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 573,
@@ -257,6 +267,7 @@
     "weight_source: trade, financial or custom",
     "concentration: how concentrated each country's weights are"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE WEIGHT MATRIX IS THE MODEL'S TRANSMISSION STRUCTURE: results are driven by it at least as much as by the estimated coefficients, and it is usually treated as an innocuous input",
     "weights must be row-normalised and have a zero diagonal, or a country enters its own foreign variable",
@@ -267,7 +278,8 @@
     "Dees, di Mauro, Pesaran & Smith 2007 (Journal of Applied Econometrics 22:1)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

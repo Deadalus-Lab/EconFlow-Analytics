@@ -36,6 +36,7 @@
     "pseudo_r2: McFadden pseudo-R2 (ratio of log-likelihoods, fitstat pr2) — NOT an OLS R2",
     "loglik/aic/bic/deviance/nobs: fit stats; link/family/fixef_names: metadata"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "coef = the effect on the latent index, NOT the marginal effect on the probability (which shrinks at the extremes); only the sign & significance are directly readable",
     "do NOT assume length(fitted_probabilities)==nrow; fixef/separation drops rows -> align through obs_kept",
@@ -51,7 +52,8 @@
     "McFadden 1974 (pseudo-R2)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 84,
@@ -88,6 +90,7 @@
     "n_cases/n_controls: positives/negatives after dropping missing values; controls_level/cases_level: WHICH label is which",
     "direction: '<' (controls below cases, the normal case for a probability score) or '>'; percent: False"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "CRITICAL label inversion: swapped control/case labels -> AUC=1-AUC; always read controls_level/cases_level; AUC<0.5 is often inverted labels/direction",
     "direction=auto silently picks the orientation with AUC>=0.5, hiding an inversion; for a strict evaluation set direction='<'",
@@ -103,7 +106,8 @@
    "precondition_tools": [
     "c16_limited_dependent/binomial_glm_recession.run_binomial_fe_glm (produces the fitted_probabilities score)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 206,
@@ -137,6 +141,7 @@
     "ape (hdfe_average_partial_effects): the average partial effects per covariate, in probability units; ape_se: the delta-method standard error; ape_table: Estimate/SE/z/p; vcov: the covariance matrix",
     "bias_corrected / panel_structure / sampling_fe / weak_exo / bandwidth / n_pop (hdfe_average_partial_effects): the estimation settings"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "incidental-parameter bias: in nonlinear fixed-effects models with a short T the ML coefficients are biased; bias_correct=True gives the corrected beta — compare coefficients against coefficients_bias_corrected, where the difference is often 20-30%",
     "the bias correction and the partial effects are for binomial models ONLY: a Poisson fit is estimated, but bias_correct=True and hdfe_average_partial_effects are rejected by a hard gate, since the partial effects support binary choice only",
@@ -159,7 +164,8 @@
     "hdfe_glm (the PRODUCER; the fit + an optional biasCorr -> the object handle consumed by hdfe_average_partial_effects)",
     "c16_limited_dependent/binomial_glm_recession.run_binomial_fe_glm (a fast binomial FE GLM + fitted probabilities/pseudo-R2 when you do NOT need the bias correction)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 523,
@@ -191,6 +197,7 @@
     "marginal_effects: per category, which is what is interpretable",
     "brant_test: test of the proportional-odds assumption"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE PROPORTIONAL-ODDS ASSUMPTION forces one coefficient across every threshold, and it is frequently violated -- the Brant test is not optional",
     "the coefficient sign tells you the direction for the highest and lowest categories only; middle-category marginal effects can go either way",
@@ -202,7 +209,8 @@
     "statsmodels.miscmodels.ordinal_model"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 524,
@@ -234,6 +242,7 @@
     "zero_inflation: the inflation equation, where fitted",
     "vuong: comparison of zero-inflated against the plain model"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "OVERDISPERSION DOES NOT BIAS POISSON COEFFICIENTS but makes its standard errors far too small; the choice between robust Poisson and negative binomial is about inference, not consistency",
     "zero-inflated and hurdle models mean different things: hurdle treats all zeros as one process, zero-inflation mixes structural and sampling zeros",
@@ -246,7 +255,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 525,
@@ -277,6 +287,7 @@
     "sigma: the latent error standard deviation",
     "censored_share: proportion at the limit"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "TOBIT COEFFICIENTS ARE FOR THE LATENT VARIABLE, not the observed outcome; reporting them as marginal effects overstates the effect on what is actually observed",
     "Tobit forces the same parameters to govern participation and amount, which the two-part model relaxes -- and that restriction is testable and frequently rejected",
@@ -289,7 +300,8 @@
     "statsmodels.discrete.truncated_model"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 526,
@@ -320,6 +332,7 @@
     "rho: correlation between the two errors",
     "exclusion: whether an exclusion restriction was used"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "WITHOUT AN EXCLUSION RESTRICTION the model is identified only by the nonlinearity of the inverse Mills ratio, which is weak and makes the estimates extremely fragile -- this is the single most common failure",
     "a significant lambda means selection matters; an insignificant one does not license using the selected subsample if the exclusion restriction is weak",
@@ -331,7 +344,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 527,
@@ -362,6 +376,7 @@
     "precision: the beta precision parameter, where fitted",
     "boundary_share: proportion at exactly zero or one"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "BETA REGRESSION IS UNDEFINED AT EXACTLY ZERO OR ONE; the common fix of squeezing the data slightly is an arbitrary transformation that changes results, so a fractional or inflated model is usually better",
     "the fractional response estimator is a quasi-likelihood and is consistent under correct mean specification alone, which is why it is robust",
@@ -373,7 +388,8 @@
     "statsmodels.othermod.betareg"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 528,
@@ -404,6 +420,7 @@
     "predicted_probabilities: fitted choice probabilities",
     "iia_test: Hausman-McFadden test"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MULTINOMIAL LOGIT COEFFICIENTS ARE RELATIVE TO A BASE ALTERNATIVE and change entirely when the base changes; only the marginal effects and predicted probabilities are invariant",
     "the marginal effect of a covariate on one alternative can have the opposite sign to its coefficient, because the probabilities must sum to one",
@@ -415,7 +432,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 529,
@@ -446,6 +464,7 @@
     "calibration_curve: predicted against realised frequency",
     "confusion: at the chosen threshold"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "ROC-AUC IS MISLEADING UNDER SEVERE CLASS IMBALANCE -- it can look excellent while the model is useless on the rare class; the precision-recall curve is the honest instrument there",
     "a model can rank perfectly and be badly calibrated, and vice versa; the Brier decomposition separates the two",
@@ -458,7 +477,8 @@
     "scikit-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

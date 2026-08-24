@@ -116,6 +116,77 @@ def _empty(text: str, subtext: str | None = None) -> dict[str, Any]:
     }
 
 
+def _cell_text(value: object) -> str:
+    """A cell's text, with no memory address in it.
+
+    An object whose class defined neither ``__str__`` nor ``__repr__`` renders
+    through ``object.__repr__``, which embeds its ADDRESS -- a value that differs
+    between runs and leaks an internal detail into a browser-bound specification.
+    Such an object names its type instead, exactly as ``serialize.stub`` does. A
+    class that defined either one meant it, so ``Decimal('1.5')`` keeps the exact
+    text it was chosen for.
+    """
+    cls = type(value)
+    if cls.__str__ is object.__str__ and cls.__repr__ is object.__repr__:
+        return cls.__name__
+    return _label(value, "")
+
+
+def _cell(value: object) -> str | float | int | bool | None:
+    """One table cell, JSON-safe. A finite number stays a number; a non-finite one
+    becomes null, as everywhere else here; everything else becomes text."""
+    if value is None or isinstance(value, bool):
+        return value
+    if isinstance(value, np.integer):
+        return int(value)
+    if isinstance(value, float | np.floating):
+        return None if not np.isfinite(value) else float(value)
+    if isinstance(value, int):
+        return value
+    return _cell_text(value)
+
+
+def _rows(value: object) -> tuple[list[str], list[list[Any]]]:
+    """Header and body for whatever could not be drawn as a line or a heatmap."""
+    if isinstance(value, pd.DataFrame):
+        header = ["", *(str(c) for c in value.columns)]
+        body = [
+            [_label(label, f"r{i + 1}"), *(_cell(v) for v in row)]
+            for i, (label, row) in enumerate(zip(value.index, value.to_numpy(), strict=True))
+        ]
+        return header, body
+    if isinstance(value, dict):
+        return ["field", "value"], [[str(k), _cell(v)] for k, v in value.items()]
+    if isinstance(value, list | tuple | np.ndarray):
+        return ["value"], [[_cell(v)] for v in np.asarray(value, dtype=object).ravel()]
+    return ["value"], [[_cell(value)]]
+
+
+def _table_spec(value: object, title: str | None) -> dict[str, Any]:
+    """A table IS a chart specification, and it is the honest one here.
+
+    THE BRANCH THIS REPLACED emitted an empty chart carrying a subtitle that said
+    there was no specification for the type. The data was present the whole time;
+    only the LINE was impossible. ECharts reads a table from a ``dataset``
+    ``source``, which is rows of data and nothing executable -- so the fallback
+    stays inside the rule that the engine emits only data and specification, and
+    it runs through ``assert_pure`` like every other branch.
+
+    The cell ceiling is ``CHART_MAX_CELLS``, the same constant the heatmap uses
+    and for the same reason.
+    """
+    header, body = _rows(value)
+    cells = len(body) * max(len(header), 1)
+    if cells > CHART_MAX_CELLS:
+        raise _gate(
+            f"chart_spec: a table of {len(body)}x{len(header)} = {cells} cells -- the "
+            f"maximum is {CHART_MAX_CELLS}. Narrow the selection before asking for a "
+            "specification."
+        )
+    option: dict[str, Any] = {"dataset": [{"source": [header, *body]}], "series": []}
+    return _decorate(option, title, "item")
+
+
 def _numbers(values: Any) -> list[float | None]:
     return [None if v is None or not np.isfinite(v) else float(v) for v in np.asarray(values,
                                                                                       dtype=float)]
@@ -158,7 +229,12 @@ def _series_spec(series: pd.Series, title: str | None) -> dict[str, Any]:
 def _frame_spec(frame: pd.DataFrame, title: str | None) -> dict[str, Any]:
     numeric = [c for c in frame.columns if pd.api.types.is_numeric_dtype(frame[c])]
     if not numeric:
-        return _empty(title or "data frame", "no numeric column to draw")
+        # NO COLUMNS AT ALL is nothing to draw, which is a different answer from a
+        # shape this emitter cannot draw as a line. The first keeps the empty
+        # chart; the second becomes a table, because the data was always there.
+        if frame.columns.empty:
+            return _empty(title or "data frame", "no numeric column to draw")
+        return _table_spec(frame, title)
     _check_points(len(frame) * len(numeric), "the panel")
     option = {
         "xAxis": [{"type": "category", "data": _axis_labels(frame.index)}],
@@ -228,9 +304,6 @@ def chart_spec(value: object, title: str | None = None) -> dict[str, Any] | None
     elif isinstance(value, dict):
         option = dict(value)
     else:
-        option = _empty(
-            title or type(value).__name__,
-            f"there is no chart specification for type '{type(value).__name__}'",
-        )
+        option = _table_spec(value, title)
     assert_pure(option)
     return option

@@ -26,6 +26,7 @@
     "wv_coherency: cross_power (a matrix), coherence (a matrix in [0,1]), angle (the phase-difference matrix), power_x/power_y, ridge_xy/ridge_co (0/1), *_avg + *_pval, period/scale/axes/coi, n_time/n_period",
     "everything is numeric chart-data (charts are the frontend's job ONLY, §5); the raw fit sits in the 'fit' field (to_mcp -> a stub; it contains the complex Wave)"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "the period is EXPRESSED in units of dt; power/coherence INSIDE the cone of influence (coi_time/coi_period) are edge-affected -> interpret only outside the COI",
     "an upper_period above n*dt gives a spectrum lying ENTIRELY inside the cone of influence — no complete cycle — which is plausible but nonsense; the raw routine does NOT error, so a hard gate blocks it",
@@ -41,7 +42,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c27_frequency_domain/wavelet_time_frequency)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 236,
@@ -77,6 +79,7 @@
     "spec_spectrum: freq + spec; method ('pgram' or 'ar'); method_label; ar_order (blank on the periodogram route); peak_frequency and peak_period; df/bandwidth/taper/n_used; plus the spectrum object as a stub",
     "spec_cumulative_periodogram: frequency + cumulative (monotone from 0 to 1); band_upper/band_lower (the KS bands clamped to [0,1]); crit (the KS critical value); nyquist; mp; n_exceedances + white_noise_rejected (bool)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "spans MUST be odd positive integers: the routine SILENTLY accepts even spans and returns the WRONG modified-Daniell smoother -> a hard gate blocks them",
     "the reference cumulative periodogram is PLOT-ONLY — it draws and returns nothing numeric — so it is NOT called; spec_cumulative_periodogram reproduces THE SAME algorithm numerically (centre, taper, |FFT|²/n, zero the first term, then a running sum over the total; the bands have slope 1/xm and an offset of plus or minus the critical value)",
@@ -96,7 +99,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c27_frequency_domain/spectral_periodogram_quick)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 586,
@@ -127,6 +131,7 @@
     "gain: the frequency-dependent amplitude ratio",
     "conf_band: significance band for coherence"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE PHASE SPECTRUM IS ONLY INTERPRETABLE WHERE COHERENCE IS SIGNIFICANT; phase estimates at incoherent frequencies are uniformly distributed noise and reading a lead off them is meaningless",
     "phase is identified modulo 2 pi, so a lead of k periods and one of k plus a full cycle are indistinguishable",
@@ -138,7 +143,8 @@
     "spectrum"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 587,
@@ -170,6 +176,7 @@
     "correlation_by_scale: cross-correlation per scale between two series",
     "boundary_affected: coefficients contaminated by the boundary"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE DWT REQUIRES A DYADIC-LENGTH SERIES AND IS NOT SHIFT INVARIANT -- shifting the sample by one observation changes the decomposition, which is why MODWT is preferred for economic data",
     "boundary coefficients are contaminated by the periodic or reflective extension and must be excluded from any statistic",
@@ -181,7 +188,8 @@
     "PyWavelets"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 588,
@@ -212,6 +220,7 @@
     "conf_int: confidence band, from the chi-squared degrees of freedom",
     "resolution: the frequency resolution actually achieved"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE RAW PERIODOGRAM IS NOT CONSISTENT: its variance does not fall as the sample grows, so an unsmoothed spectral plot is noise however long the series",
     "there is a hard trade-off between frequency resolution and variance; more smoothing means a smoother spectrum and blurred peaks",
@@ -224,7 +233,8 @@
     "spectrum"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 589,
@@ -255,6 +265,7 @@
     "critical_values: which are frequency dependent",
     "significant_bands: where causality is detected"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE FREQUENCY-DOMAIN MEASURE INTEGRATES TO THE TIME-DOMAIN STATISTIC, so a zero overall statistic is consistent with strong causality at some frequencies offset by none at others",
     "the decomposition inherits every misspecification of the underlying VAR, particularly the lag order",
@@ -266,7 +277,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 590,
@@ -297,6 +309,7 @@
     "instantaneous_frequency: from the Hilbert transform",
     "n_modes: how many were extracted"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "MODE MIXING IS THE CENTRAL WEAKNESS: a single mode can contain oscillations of very different scales, which is what the ensemble variants exist to reduce",
     "EMD has no theoretical foundation comparable to wavelets -- it is an algorithm, and its output depends on the stopping criterion and interpolation",
@@ -308,7 +321,8 @@
     "EMD-signal"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 591,
@@ -339,6 +353,7 @@
     "components: reconstructed modes from the ridges",
     "invertible: whether the transform supports reconstruction"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "REASSIGNMENT SHARPENS BUT DESTROYS INVERTIBILITY; synchrosqueezing sharpens and remains invertible, which is the reason to prefer it when components must be reconstructed",
     "sharpening does not create resolution that the data lack -- it redistributes energy, and closely spaced components remain unresolvable",
@@ -350,7 +365,8 @@
     "ssqueezepy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 592,
@@ -382,6 +398,7 @@
     "false_alarm_probability: significance of the peaks",
     "band_shares: variance share by frequency band"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "IRREGULAR SAMPLING CREATES ALIASES AND SPURIOUS PEAKS at frequencies related to the sampling pattern; the window function must be examined before any peak is believed",
     "the false-alarm probability assumes independent frequencies, which they are not, so it understates the chance of a spurious peak",
@@ -394,7 +411,8 @@
     "scipy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

@@ -31,6 +31,7 @@
     "t_alpha, p_alpha: the test of zero alpha",
     "r_squared, residual_vol: how much the factors explain"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "alpha is the excess return the model cannot explain and is only as meaningful as the factor set is complete",
     "the standard errors need a HAC correction; returns are heteroskedastic and mildly autocorrelated",
@@ -43,7 +44,8 @@
     "linearmodels.asset_pricing"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 317,
@@ -74,6 +76,7 @@
     "mean_abs_alpha: average absolute pricing error, the economic magnitude",
     "sharpe_ratio_gain: how much the test assets improve the tangency portfolio"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the test REQUIRES more time periods than assets, and its power collapses as the two approach each other",
     "it assumes normal, homoskedastic, serially independent residuals -- all three are questionable for returns",
@@ -85,7 +88,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 318,
@@ -116,6 +120,7 @@
     "t_naive: uncorrected t-statistics, always larger -- shown so the difference is visible",
     "r_squared_cs: cross-sectional fit per period and on average"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the naive Fama-MacBeth standard error IGNORES that betas were estimated; the Shanken correction is not optional and always widens the interval",
     "using individual stocks rather than portfolios makes the beta estimates noisy and biases the risk price toward zero",
@@ -127,7 +132,8 @@
     "linearmodels.asset_pricing"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 319,
@@ -159,6 +165,7 @@
     "j_statistic, p_value: the overidentification test of the pricing restrictions",
     "pricing_errors: per-asset alpha under the model"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "for a NON-TRADED factor the risk price is not the factor mean, and treating it as such is a common and serious error",
     "the SDF coefficient b and the risk price lambda are different parameters related by the factor covariance; reporting one as the other inverts conclusions",
@@ -171,7 +178,8 @@
     "linearmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 320,
@@ -203,6 +211,7 @@
     "breakpoints: the sort thresholds used each period",
     "transition: portfolio persistence, which reveals turnover"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "breakpoints must be formed from information available AT THE SORT DATE; using full-sample quantiles is look-ahead bias and inflates every spread",
     "equal- and value-weighted spreads routinely differ in sign when small stocks drive the effect",
@@ -213,7 +222,8 @@
     "Bali, Engle & Murray 2016, Empirical Asset Pricing: The Cross Section of Stock Returns"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 321,
@@ -245,6 +255,7 @@
     "n_factors_selected: the number chosen and the criterion that chose it",
     "scree: eigenvalues, so the elbow is visible"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "principal components maximise VARIANCE explained, not pricing power -- the largest component need not carry any risk premium",
     "components are identified only up to rotation and sign; naming them is interpretation, not estimation",
@@ -257,7 +268,8 @@
     "scikit-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 322,
@@ -289,6 +301,7 @@
     "test_statistics: parametric and rank tests over the cross-section",
     "estimation_diagnostics: fit of the normal-return model per event"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "EVENT CLUSTERING in calendar time makes abnormal returns cross-correlated, and every standard test assumes they are not -- this is the single most common failure",
     "CAR and BHAR answer different questions and diverge more the longer the window; long-horizon BHAR inference is notoriously fragile",
@@ -300,7 +313,8 @@
     "Kothari & Warner 2007, Econometrics of event studies (Handbook of Corporate Finance 1)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 323,
@@ -333,6 +347,7 @@
     "turnover: portfolio churn, the cost driver",
     "se_sharpe: standard error of the Sharpe ratio, which is rarely small"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the Sharpe ratio's standard error is LARGE -- distinguishing 0.8 from 1.2 needs decades of monthly data, so ranking managers on it is mostly noise",
     "annualising by the square root of the frequency assumes independent returns; with autocorrelation it overstates the ratio",
@@ -344,7 +359,8 @@
     "Sortino & Price 1994 (Journal of Investing 3:59)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

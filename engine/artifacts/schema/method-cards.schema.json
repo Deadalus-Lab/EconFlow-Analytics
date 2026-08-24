@@ -8,6 +8,7 @@
  "required": [
   "artifact_version",
   "generated_by",
+  "previous",
   "source",
   "cards"
  ],
@@ -18,6 +19,9 @@
   "generated_by": {
    "type": "string",
    "minLength": 1
+  },
+  "previous": {
+   "$ref": "#/$defs/reseal"
   },
   "source": {
    "type": "object",
@@ -62,6 +66,36 @@
   }
  },
  "$defs": {
+  "reseal": {
+   "description": "The bytes this artifact superseded, and why. The re-seal of box 2.1.15 happened IN PLACE -- same filenames, same seven sidecars, wrapper_file untouched because mcp/gateway.py and naming.py join on it -- so without this block it would leave no trace at all. The digests are the ones the sidecars carried before the re-seal; they are authored in corpus/_provenance.json rather than read from git, because .dockerignore excludes .git/ and the image build runs the generator's own suite. The same record is emitted onto node-specs.json and method-cards.json: one re-seal, one record.",
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "node_specs_sha256",
+    "method_cards_sha256",
+    "resealed",
+    "reason"
+   ],
+   "properties": {
+    "node_specs_sha256": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{64}$"
+    },
+    "method_cards_sha256": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{64}$"
+    },
+    "resealed": {
+     "type": "string",
+     "format": "date",
+     "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "reason": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
   "card": {
    "type": "object",
    "additionalProperties": false,
@@ -75,10 +109,12 @@
     "when_not",
     "alternatives",
     "output_key_fields",
+    "chart_kind",
     "interpretation_traps",
     "sources",
     "precondition_tools",
     "precondition_gates",
+    "validation_notes",
     "embed_text"
    ],
    "properties": {
@@ -145,6 +181,16 @@
       "minLength": 1
      }
     },
+    "chart_kind": {
+     "description": "The single chart a client draws for this card's PRINCIPAL result, derived from output_key_fields and the method text. AUTHORED, not derived: nothing in the tree can compute which chart a result deserves. `none` is a real answer for a card that produces nothing to display -- file and format I/O, calendars, parsers, schema verdicts, handles -- and is never a way of avoiding a decision. The enum repeats node-specs.json's `chart_kinds` vocabulary, which is where the closed set is declared; tests/test_chart_map.py asserts every node resolves to a member of it and that no member is dead.",
+     "enum": [
+      "line",
+      "multi-line",
+      "heatmap",
+      "table",
+      "none"
+     ]
+    },
     "interpretation_traps": {
      "type": "array",
      "items": {
@@ -175,6 +221,27 @@
      }
     },
     "precondition_gates": {
+     "description": "The cross-cutting gates a body must run before trusting its input, named by the detail code the refusal carries. CLOSED: every entry resolves through gates/registry.py PRIMITIVES, and tests/test_chart_map.py asserts this enum, that registry and corpus/_vocabulary.json are one set. Null on every card today; prose describing what a wrapper validates belongs in validation_notes.",
+     "type": [
+      "array",
+      "null"
+     ],
+     "items": {
+      "type": "string",
+      "enum": [
+       "precondition-sample-size",
+       "precondition-missing",
+       "precondition-degenerate",
+       "precondition-frequency",
+       "precondition-domain",
+       "precondition-rank",
+       "precondition-panel",
+       "precondition-cross-section"
+      ]
+     }
+    },
+    "validation_notes": {
+     "description": "What this card's methods check about their own arguments and results, in prose, one sentence per note. Filesystem state, argument grammar, membership against a runtime list, a security ordering, a post-condition, a default: requirements that are real and documented and that no closed vocabulary of cross-cutting numeric gates can name. Null where the question does not arise.",
      "type": [
       "array",
       "null"

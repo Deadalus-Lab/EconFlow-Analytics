@@ -43,6 +43,7 @@
     "method / fit_class / robust + method-specific flags (family, accepts_zeros, uie, mr_terms, fixed_effects, method_family, multiway, filter_origin, filter_destination)",
     "fit: the raw fitted object (glm/lm/rlm/coeftest; to_mcp -> a stub)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "distance & (for OLS/FE/BVU/tetrads) the dependent variable and the incomes are logged AUTOMATICALLY -> they must be STRICTLY POSITIVE; non-positive values are dropped SILENTLY (log=NaN/-Inf, verified: gravity_zeros 500->355 observations with no warning) -> hard gates; for zero flows use gr_ppml (>=0)",
     "gr_ols with uie=True (unitary income elasticities) is BROKEN upstream: the formula refers to log-income columns that the unitary path never creates, so it fails with 'object not found' (verified live) -> HARD-GATED; the only working value is uie=False, with explicit income regressors",
@@ -62,7 +63,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c28_trade_gravity/gravity_bilateral_trade) — the live-verified traps: the unitary-income bug, the silent row drop, and the tetrads join"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 238,
@@ -102,6 +104,7 @@
     "pp_penalized_hdfe: coefficients (named) + deviance + bic + lambda + penalty + plugin + n_selected, the non-zero ones, + phi, the plugin penalty loadings, where they apply",
     "pp_ml_fit: beta_path (a regressors-by-lambdas matrix, with row labels) + lambdas + bic_path (a lambda-and-BIC matrix) + selected_lambda + selected_bic + selected_coefficients, the column at the minimum BIC, + n_selected + deviance (blank along the path) + phi for the plugin route + seed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "PPML models E[y]=exp(x*beta) in LEVELS rather than logs, so it handles zero flows and heteroskedasticity; the dependent variable MUST be non-negative, since a negative or missing value gives NaN and then a cryptic crash — blocked by a gate",
     "the fixed effects MUST arrive as a LIST (a list of names means an interaction effect); the wrapper normalises that, converting a plain vector of names into a list — otherwise the routine fails cryptically",
@@ -119,7 +122,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c28_trade_gravity/penalized_poisson_pml)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 239,
@@ -151,6 +155,7 @@
     "ec_complexity: eci (named numeric per country) + pci (named numeric per product) + method/iterations/extremality/discrete/cutoff + countries/products",
     "ec_proximity: proximity_country (a country-by-country matrix, when requested) + proximity_product (a product-by-product matrix, when requested) + compute + n_countries/n_products, blank for a side that was not requested"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "balassa_index silently ACCEPTS negative values & returns a plausible-but-wrong RCA -> a hard non-negativity gate (the Balassa index is defined only on non-negative exports)",
     "a single country OR a single product -> a degenerate all-1 RCA (silently wrong) -> a hard gate requiring >=2 countries AND >=2 products",
@@ -168,7 +173,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c28_trade_gravity/economic_complexity_rca)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 593,
@@ -199,6 +205,7 @@
     "welfare: real income change per country",
     "convergence: whether the equilibrium solved"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MULTILATERAL RESISTANCE IS THE WHOLE POINT: a bilateral tariff change alters every country's price index, and a partial-equilibrium calculation misses effects that are frequently larger than the direct one",
     "the counterfactual is conditional on the estimated trade elasticity, and welfare results scale directly with it",
@@ -211,7 +218,8 @@
     "gegravity"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 594,
@@ -242,6 +250,7 @@
     "zeros: how many flows are zero, and how they were handled",
     "fixed_effects: the effects absorbed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "DROPPING ZERO FLOWS BY LOGGING BIASES EVERY COEFFICIENT: zeros are a large share of bilateral pairs and are informative, which is the single strongest argument for PPML",
     "exporter-time and importer-time fixed effects are what control multilateral resistance; omitting them is the classic gold-medal mistake",
@@ -253,7 +262,8 @@
     "gme"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 595,
@@ -285,6 +295,7 @@
     "gvc_participation: backward and forward participation indices",
     "position: upstreamness of each country-sector"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "GROSS EXPORTS DOUBLE-COUNT INTERMEDIATES that cross borders repeatedly; for highly integrated supply chains the gross figure can exceed value added by a large multiple",
     "the decomposition depends entirely on the input-output table used, and different databases disagree materially",
@@ -296,7 +307,8 @@
     "pymrio"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 596,
@@ -327,6 +339,7 @@
     "grubel_lloyd: intra-industry trade share",
     "lafay: the contribution-to-trade-balance index"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE RAW BALASSA INDEX IS ASYMMETRIC -- bounded below by zero and unbounded above -- so it cannot be averaged or used in a regression without transformation; the normalised version exists for that",
     "the Grubel-Lloyd index rises mechanically with the level of product aggregation, so cross-study comparisons need the same classification level",
@@ -338,7 +351,8 @@
     "Lafay 1992, The measurement of revealed comparative advantages (International Trade Modelling)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 597,
@@ -369,6 +383,7 @@
     "separation: observations dropped by perfect separation",
     "cluster: the clustering applied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE LOG-LINEAR MODEL IS BIASED UNDER HETEROSKEDASTICITY EVEN WITHOUT ZEROS, because the expectation of the log is not the log of the expectation -- this is the Silva-Tenreyro result and it is the reason PPML replaced OLS",
     "perfect separation silently drops observations and whole fixed-effect groups, changing the estimation sample without warning",
@@ -381,7 +396,8 @@
     "pyfixest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

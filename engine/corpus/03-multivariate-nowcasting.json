@@ -42,6 +42,7 @@
     "Granger/Instant: a flat record {statistic, p_value, parameter, method}",
     "serial/arch/jb: residual-diagnostic records"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Granger = predictive causality, NOT structural; H0='does not cause', p<0.05 -> predictive causality",
     "the stability post-check (stable=True) is required before the IRF/FEVD can be trusted",
@@ -58,7 +59,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 12,
@@ -95,6 +97,7 @@
     "stable (bvar_companion): modulus<1",
     "coef (bvar_summary): posterior median (not the MLE)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "bvar_irf post-gate: an all-missing quants array -> sign/zero identification failed (stop); sign_restr is MxM with entries in {1, -1, 0, unrestricted}",
     "coef is the posterior median, not a point MLE",
@@ -108,7 +111,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 13,
@@ -139,6 +143,7 @@
     "fevd: a series over horizons 0..h, [h+1 x n_vars]; rows sum to ~1",
     "coefficients/sigma (bt_summary): posterior statistics"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "type: feir=non-orthogonalised; oir=Cholesky (order-dependent); gir=generalized (order-independent); sir/sgir=structural",
     "the input must arrive time-indexed, not as a bare matrix",
@@ -153,7 +158,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 14,
@@ -188,6 +194,7 @@
     "irf: [draws x nhor] + bands [probs x nhor]; contemporaneous",
     "parameter_draws: [draws x time] coefficient path (drift inspection)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the predictive density is a function, so it is never returned as such: it is evaluated on a grid",
     "scenario: 1=no orthogonalization, 2=Cholesky(t) default, 3=DNP variant",
@@ -202,7 +209,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 15,
@@ -237,6 +245,7 @@
     "X_fcst (df_predict): h x n nowcast/forecast in original units; F_fcst, the factors",
     "R2 (df_summary): the share of variance the common component explains, per series"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the 3 ICs often disagree; IC2 has the largest penalty -> the most parsimonious r (auto default)",
     "factors/loadings are identified only up to rotation/sign (the factor sign has no absolute interpretation)",
@@ -253,7 +262,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 17,
@@ -285,6 +295,7 @@
     "log_mdd (mf_mdd): the log marginal data density (higher is better) for model comparison",
     "mf_estimate: the prior/variance/aggregation echo, plus the fitted-model handle"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "Y is a list of series, monthly FIRST and quarterly last; gaps only at the end (the ragged edge)",
     "aggregation='average' -> n_lags>=3",
@@ -299,7 +310,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 18,
@@ -334,6 +346,7 @@
     "md_forecast: mean/lower/upper/level (newx of length h*m)",
     "best (md_select): rule-based weight selection by AIC/BIC (not by the LLM)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "md_adequacy_test H0='the restriction is adequate': p<0.05 -> REJECTION -> the scheme is wrong (Kvedaras-Zemlys)",
     "the determining condition is length(x)==m*length(y); formula/data/start are built INTERNALLY (LLM safety)",
@@ -347,7 +360,8 @@
    "precondition_tools": [
     "c01_preparation_prechecks/unit_root_normality.run_adf_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 142,
@@ -380,6 +394,7 @@
     "forecast (bvr_predict): a horizon x k path, built step by step; confint=True adds the lower/upper 95% band",
     "model: the fitted producer handle -> bvr_predict / bvr_coef"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "stationarity: this estimator shrinks towards ZERO (MN=False by default, NOT a random-walk prior) -> apply it to STATIONARY data and difference I(1) series FIRST, the opposite of #12, which wants levels; I(1) and cointegrated -> consider a VECM, #23",
     "the estimator DISCARDS the column names of Y: the variables come back as Y1..Yk by column order, consistently across fit/predict/coef -> map the positions in the frontend",
@@ -397,7 +412,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 143,
@@ -435,6 +451,7 @@
     "quants (bvs_predict): an nq x horizon x M predictive fan grid; mean: horizon x M; LPL and LPL_univariate when LPL=True (the density forecast)",
     "irf_median (bvs_irf): M x shocks x horizon; irf_quantiles: nq x M x shocks x horizon (reduced-form bands)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "stationarity: a prior mean of 0 shrinks towards ZERO (like #142, NOT a random-walk prior in levels like #12) -> use STATIONARY or growth data and difference I(1) series FIRST; precheck with ADF/KPSS",
     "single-chain convergence: there is NO split-Rhat -> the gate is on the retained and stable draws, and DEGENERATE cases (an entirely blank ESS when the sampler is stuck, a non-finite Phi, zero stable draws) count as non-convergence; allow_nonconvergence overrides it (mirroring #68 and #61); a low ESS on TINY draw counts is NOT an error -> raise the number of draws",
@@ -450,7 +467,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 144,
@@ -484,6 +502,7 @@
     "transition(A)/Sigma_u/Sigma_epsilon; converged/loglik/num_iter/alpha_opt(BIC-optimal); na_count",
     "sdf_predict: X_hat (an h x p nowcast, columns=varnames) + F_hat (h x r); sdf_factors: factors + factors_cov (r x r x n)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "err='AR1': the fit is valid BUT prediction is impossible (the shapes do not conform) — sdf_predict blocks it cleanly; use err='IID' for a nowcast",
     "method='PCA' or '2Stage': no EM is run -> converged/loglik/num_iter/alpha_opt come back blank (NOT an error; it is a static or two-step estimate)",
@@ -498,7 +517,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test (confirmatory)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 145,
@@ -530,6 +550,7 @@
     "mml_cv: lambda_min (minimising the CV error) and lambda_1se (the one-standard-error, more parsimonious choice); cvm/cvsd/cvupper/cvlower (the CV curve, chart data); nzero; beta_min/beta_1se + intercept_min/intercept_1se; seed (blank when unset)",
     "mml_predict: fitted (length==nrow(newx)) + s + kind"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "mml_predict newx = the RAW high-frequency block (the same group/ncol as at fit time); the wrapper applies the SAME MIDAS transform internally — do NOT pass a pre-transformed design.",
     "beta is in BASIS coefficients (Legendre/Gegenbauer functions), NOT per-lag weights; the per-lag shape = Psi %*% beta_group.",
@@ -545,7 +566,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 146,
@@ -577,6 +599,7 @@
     "stv_forecast: quants (a named list per variable: a [probs x horizon] posterior predictive fan) + mean [variables x horizon] + probs/horizon",
     "stv_tvp: paths (a named list per coefficient L<lag>.<var> & intercept: [probs x time] posterior bands) + coefficients/time/variable — the time-varying paths"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "Convergence: a single-chain sampler has NO split-Rhat; the gate is the minimum ESS over the beta_mean draws, IGNORING coefficients shrunk to constants (legitimate shrinkage, NOT poor convergence). A DEGENERATE entirely-blank ESS (every parameter constant) counts as NON-CONVERGENCE; it passes ONLY with allow_nonconvergence=True.",
     "the seed is MANDATORY: without it the MCMC is not reproducible (the generator is seeded before the sampling).",
@@ -592,7 +615,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 147,
@@ -629,6 +653,7 @@
     "converged/max_rhat/min_ess/nonconvergence_reasons: the convergence gate for the MCMC route; the analytic route reports converged=True with a blank Rhat",
     "bvh_predict: forecast [n_ahead x m] point + lower/upper/se credible bands; draws + lower_joint/upper_joint (MCMC)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "minnesota = an ANALYTIC conjugate NIW (closed form, no MCMC/convergence, the seed is optional); ssvs/horseshoe = MCMC (the seed is MANDATORY + a convergence gate + tiny draw counts)",
     "convergence gate (mirroring #68): num_chains<2, or an entirely blank Rhat, is DEGENERATE -> non-convergence; max(Rhat)>rhat_max or min(Bulk_ESS)<ess_min -> stop unless allow_nonconvergence=True",
@@ -644,7 +669,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 256,
@@ -683,6 +709,7 @@
     "cor_residuals/eigenvalues/r2_eigen (eq. 18) + ic_p2/n_factors_icp2 (Bai-Ng IC_p2, eq. 19) + r_max_effective",
     "h/p/n_obs/n_eff/df_residual/obs_index/time/frequency/recommended_h/recommended_p/short_sample/short_sample_threshold/short_sample_advice"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "DO NOT difference and DO NOT de-trend before the node: eq. (7) on LEVELS IS the transformation; pre-differencing transforms twice and destroys the cycle",
     "NEVER standardize the raw series (the invalid step: under I(1) the population mean does not exist and the sample sd diverges with T); the scaling is applied ONLY to the (stationary) residuals and is an explicit gated option",
@@ -706,7 +733,8 @@
     "pn_cyclical_components # run step (7) alone FIRST and look at r_squared/residual_sd/short_sample before the PCA",
     "c00_data_utilities/composite_index_dimensionality.pca_stationarity_precheck # KPSS per column; if it flags non-stationarity, THIS is the right node (NOT #117)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 416,
@@ -738,6 +766,7 @@
     "weights: the Kalman gain applied to each series",
     "revision_total: the sum, which must reconcile with the observed change"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "NEWS IS NOT THE RELEASE, it is the release minus what the model expected; a large release with no surprise moves the nowcast not at all",
     "the impacts must sum to the total revision -- a residual means the decomposition is being applied across a model or specification change",
@@ -749,7 +778,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 417,
@@ -780,6 +810,7 @@
     "shock_plausibility: how large those shocks are in standard deviations",
     "unconditional: the baseline, for comparison"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "conditioning REQUIRES shocks to hit the path; if those shocks are several standard deviations the scenario is inconsistent with the estimated model and should be reported as such",
     "which shocks are used to achieve the conditioning is not unique unless specified, and different choices give different paths for everything else",
@@ -791,7 +822,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 418,
@@ -822,6 +854,7 @@
     "variance_decomposition: contributions per shock",
     "n_factors: how many were used and the criterion that chose it"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "factors are identified only up to ROTATION, so their individual interpretation requires an explicit normalisation that must be stated",
     "the number of factors is a choice that materially changes the impulse responses; report the criterion and a robustness range",
@@ -833,7 +866,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 419,
@@ -864,6 +898,7 @@
     "converged: whether the likelihood maximisation actually converged",
     "aic, bic, loglike"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "VARMA models are NOT IDENTIFIED without restrictions -- the same dynamics have many parameterisations, and estimation without them wanders",
     "the likelihood is flat in many directions, so convergence is fragile and starting values matter a great deal",
@@ -875,7 +910,8 @@
     "statsmodels.tsa.statespace.varmax"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 420,
@@ -907,6 +943,7 @@
     "weights: the implied lag weighting",
     "ragged_edge: how the incomplete final period was handled"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the RAGGED EDGE is the whole problem: the final low-frequency period is incomplete and how the missing high-frequency observations are filled determines the nowcast",
     "unrestricted MIDAS parameter count grows with the frequency ratio and overfits quickly; the restricted forms exist for that reason",
@@ -919,7 +956,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 421,
@@ -950,6 +988,7 @@
     "irf: impulse responses with credible bands",
     "forecast: predictive distribution"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the SHRINKAGE HYPERPARAMETER dominates results in large systems; choosing it by marginal likelihood is defensible, fixing it by convention is not",
     "the sum-of-coefficients and co-persistence priors are dummy observations, so they change the effective sample and must be reported",
@@ -962,7 +1001,8 @@
     "pymc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 422,
@@ -993,6 +1033,7 @@
     "binding_periods: when the bound was active",
     "params: VAR parameters on the shadow rate"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the shadow rate is a LATENT construct and different estimators produce very different series -- comparing shadow rates across studies is usually comparing methods",
     "impulse responses are state dependent when the bound binds; reporting one linear response is exactly the error the model exists to avoid",
@@ -1005,7 +1046,8 @@
     "srvar-toolkit"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 423,
@@ -1036,6 +1078,7 @@
     "lambda_selected: the penalty and how it was chosen",
     "selected_structure: which lags and cross-effects survived"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POST-SELECTION INFERENCE IS INVALID: standard errors computed on the selected model ignore the selection and are far too small",
     "the penalty must not treat own lags and cross lags alike; own lags usually deserve less shrinkage and a uniform penalty distorts the dynamics",
@@ -1047,7 +1090,8 @@
     "skglm"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

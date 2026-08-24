@@ -44,6 +44,7 @@
     "first_efficient_release: e, 0-indexed and blank when there is none, plus a tests frame {release, F_stat, p_value, efficient}",
     "nowcast: the states and params frames, loglik/aic/bic/convergence/converged, and the raw fit as a stub"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "TWO different sign conventions: compute_revisions revision = REFERENCE - VINTAGE (nth_release='latest' => final - initial; interval/a small nth_release => NEGATIVE values for an upward-trending series); analyze_revisions revision = final - initial",
     "news/noise polarity: the News test = a regression of the revision on the INITIAL value; the Noise test = a regression on the FINAL value (the coefficient point estimates coincide with a plain lm; HAC changes ONLY the SE/p-value)",
@@ -61,7 +62,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c23_real_time_revisions/real_time_revision)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 565,
@@ -92,6 +94,7 @@
     "publication_lags: the lags applied per series",
     "coverage: how much of each vintage is real rather than assumed"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "PSEUDO-REAL-TIME CAPTURES THE RAGGED EDGE BUT NOT REVISIONS: it reproduces what was available, not what the values then were, and for heavily revised series that is the larger error",
     "publication lags change over time and across statistical agencies; a constant lag is an approximation that biases early vintages",
@@ -102,7 +105,8 @@
     "Stark & Croushore 2002 (Journal of Macroeconomics 24:507)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 566,
@@ -133,6 +137,7 @@
     "revision_contribution: how much of the error is revision rather than forecast error",
     "sensitivity: how the ranking of methods changes across conventions"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE RANKING OF FORECASTING METHODS CAN REVERSE between the first-release and final-vintage conventions; reporting one without the other is a choice that can determine the conclusion",
     "forecasting the final value is a harder problem than forecasting the first release, and includes predicting the revision",
@@ -144,7 +149,8 @@
     "utilsforecast"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 567,
@@ -175,6 +181,7 @@
     "unstable_periods: periods failing the stability threshold",
     "concurrent_vs_final: the systematic gap"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "A SERIES CAN PASS EVERY IN-SAMPLE ADJUSTMENT DIAGNOSTIC AND STILL REVISE HEAVILY; sliding spans and revision history are the only checks that see this",
     "the conventional sliding-span thresholds are rules of thumb from the Census Bureau, not statistical tests",
@@ -186,7 +193,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 568,
@@ -217,6 +225,7 @@
     "source: which archive the data came from",
     "coverage: series and periods actually returned"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "THIS NODE DOES NOT REACH THE NETWORK ITSELF: retrieval is delegated to the external-data node, and the engine's no-network property is preserved -- passing it a live endpoint is a contract violation",
     "vintage dates are not release dates; a vintage labelled by month can contain data released at various points within it",
@@ -227,7 +236,8 @@
     "SDMX 2.1 Technical Specification"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

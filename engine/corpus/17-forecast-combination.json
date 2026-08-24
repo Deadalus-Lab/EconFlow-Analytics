@@ -33,6 +33,7 @@
     "pi_combination: 'extreme' (the more extreme bounds) or 'mean'",
     "pi_disclaimer: an explicit statement that the PI are over-conservative"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the PI are OVER-CONSERVATIVE: lower/upper are heuristic, with no guaranteed nominal coverage — not strict statistical bounds",
     "silent degradation: hybridModel removes components on its own (STL/neural-net if length<2*frequency, ets if the seasonal period>24) — read dropped_models/included_models",
@@ -46,7 +47,8 @@
     "Hyndman & Athanasopoulos, Forecasting: Principles and Practice"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 207,
@@ -83,6 +85,7 @@
     "expert_loss_total: a length-K cumulative loss for EACH single expert (the baseline); best_expert = the best single one",
     "beats_best_expert: True when forecaster_loss_total <= min(expert_loss_total) — the combination beats the best single expert out of sample, which is the reason online learning exists"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "dims: experts MUST be [T x P x K] with dim1==length(y), dim2==length(tau); the wrong axis order (e.g. [T x K x P]) passes silently and gives a WRONG result -> a hard gate checks dim2==length(tau); double-check that the 2nd dimension is quantiles (in the same order as tau)",
     "tau must be STRICTLY increasing & must match exactly the quantile levels at which the expert forecasts were computed; a mismatch -> an invalid loss (the gate blocks values outside (0,1)/unsorted values but NOT a semantic mismatch of levels — that is the caller's responsibility)",
@@ -102,7 +105,8 @@
     "c02_univariate_forecasting/grouped_arima_ets.run_grouped_ets (a second expert for the array; at least two are needed)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the realized y values)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 208,
@@ -138,6 +142,7 @@
     "te/ct: agg_order/m/kt/h + tew; ct: n/n_upper/n_bottom",
     "object: the foreco object (fitted)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the ORDER OF THE base COLUMNS/ROWS: cs columns = [upper.., bottom..] (the n_a upper series FIRST, then the n_b bottom ones) consistent with agg_mat; the wrong order => a silently wrong reconciliation (the wrapper checks ONLY the dimension n, not the semantic mapping)",
     "comb DIFFERS by type: 'wlsv' is valid only for te/ct (NOT cs); 'oasd' only for cs; the wrapper blocks an invalid comb for a given type",
@@ -158,7 +163,8 @@
     "c02_univariate_forecasting/classical_univariate_forecasting.run_ets (an alternative producer of the base forecasts and residuals for the MinT combination)",
     "reconcile_cross_temporal (an ols baseline first; then MinT shr/wls with res for accuracy)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 209,
@@ -194,6 +200,7 @@
     "method / reconciliation: the selected method (min_trace(<method>) or bottom_up); structure (nested/grouped); base_model",
     "object: the reconciled model table — stubbed by to_mcp, since nothing downstream in the category consumes it"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "coherence != accuracy: reconciliation GUARANTEES that the leaves sum to the aggregates, NOT that every node becomes more accurate — MinT (min_trace) typically improves matters, but bottom_up can worsen the top level if the leaves are noisy",
     "choosing the MinT method: 'wls_struct' (default) = structural scaling, always robust; 'mint_shrink' (Wickramasuriya 2019) = shrinkage towards a diagonal, theoretically optimal but it NEEDS enough residuals — with short/few series it can be unstable; 'ols' ignores scale",
@@ -213,7 +220,8 @@
     "reconcile_grouped (run it with method='bottom_up' as a coherence baseline before comparing with MinT)",
     "c02_univariate_forecasting/grouped_arima_ets.run_grouped_arima (checking the base model on a single node before the hierarchy)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 530,
@@ -244,6 +252,7 @@
     "improvement: accuracy against the best individual and against equal weights",
     "method: which weighting produced them"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE FORECAST COMBINATION PUZZLE IS REAL: equal weights frequently beat estimated optimal weights out of sample, because estimating weights adds more variance than it removes bias",
     "unconstrained regression weights can be negative or exceed one, which is legitimate but fragile; constraining them usually improves out-of-sample performance",
@@ -256,7 +265,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 531,
@@ -288,6 +298,7 @@
     "pool_type: linear or logarithmic, which determines the shape",
     "log_score: of the pool against its components"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "A LINEAR POOL IS ALWAYS AT LEAST AS DISPERSED AS ITS COMPONENTS and can be multimodal; a logarithmic pool is narrower and unimodal -- the choice is substantive, not technical",
     "linear pools are typically underconfident, which is why they are often recalibrated afterwards",
@@ -300,7 +311,8 @@
     "scoringrules"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 532,
@@ -331,6 +343,7 @@
     "selected: the highest-probability model at each date",
     "forgetting: the forgetting factors used"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE FORGETTING FACTORS CONTROL EVERYTHING: close to one gives a nearly static average, lower values chase noise -- and the results move a great deal between them",
     "the model space grows exponentially in the number of predictors, so the approach is feasible only with a restricted set",
@@ -342,7 +355,8 @@
     "pymc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 533,
@@ -373,6 +387,7 @@
     "cv_predictions: the out-of-fold predictions the meta-learner was trained on",
     "improvement: against equal weights and the best component"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE META-LEARNER MUST BE TRAINED ON OUT-OF-FOLD PREDICTIONS; training it on in-sample fits leaks and produces weights that collapse onto the most overfitted component",
     "the folds must respect time order for time-series data, or the combination learns from the future",
@@ -384,7 +399,8 @@
     "sktime"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 534,
@@ -415,6 +431,7 @@
     "weights: the reconciliation weights",
     "improvement: accuracy per level against unreconciled forecasts"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "TEMPORAL AGGREGATION CHANGES THE APPARENT DYNAMICS: a series can look noisy monthly and strongly trending annually, which is exactly the information this method exploits",
     "reconciliation guarantees coherence, not accuracy -- forecasts can be made coherent and worse if the covariance is badly estimated",
@@ -426,7 +443,8 @@
     "hierarchicalforecast"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

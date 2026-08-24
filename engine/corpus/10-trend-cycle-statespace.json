@@ -34,6 +34,7 @@
     "lambda: the effective smoothing parameter",
     "na_each_end: how many observations stay blank at each edge (the BK / symmetric-CF endpoint problem)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "an interior gap silently blanks the WHOLE cycle (silently wrong, so a hard gate)",
     "BK and the symmetric/fixed CF leave nfix observations blank at EACH edge -> the most recent gap is missing",
@@ -49,7 +50,8 @@
     "Enders 2015"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 57,
@@ -82,6 +84,7 @@
     "n_lost_trend: h+p-1 leading blanks; n_lost_random: h",
     "coefficients/glance (ham_regression): OLS diagnostics (term/estimate/p_value, aic, r_squared)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "p>=2 is MANDATORY (p=1 does not capture seasonality)",
     "the lag is POSITIONAL, not calendar-aware -> calendar gaps silently desynchronise h and p",
@@ -93,7 +96,8 @@
     "Enders 2015"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 58,
@@ -127,6 +131,7 @@
     "trend: potential output; cycle: output gap (+_se bands)",
     "log_lik, variances H/Q, convergence, diffuse_d"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "non-convergence of fitSSM -> silently junk variances (post-gate convergence==0)",
     "diffuse_d: the first d filtered values have ~infinite variance (unreliable)",
@@ -138,7 +143,8 @@
     "Helske 2017 JSS 78(10) (exponential-family state-space models)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 59,
@@ -171,6 +177,7 @@
     "trend (smoothed level), slope, cycle (output gap)",
     "one_step_forecast, log_lik, par, convergence"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "CRITICAL: a free AR(2) cycle -> a DEGENERATE decomposition (level & cycle cancel each other out); the wrapper builds a rotation form at a FIXED frequency",
     "dlmMLE non-convergence -> junk variances (post-gate)",
@@ -183,7 +190,8 @@
     "Petris 2010 JSS 36(12)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 60,
@@ -213,6 +221,7 @@
     "states_summary: per-time records (variable/time/Mean/SD/probs%)",
     "acceptance_rate"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the seed is MANDATORY: the sampler's own default is random and this engine is deterministic",
     "the MCMC output is a jump chain (the counts are weights) -> read the weighted summary ONLY, never the raw array",
@@ -223,7 +232,8 @@
     "Durbin & Koopman 2012"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 61,
@@ -258,6 +268,7 @@
     "gaps: y - fitted (output-gap-style)",
     "log_lik/AIC/AICc, convergence"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "ORIENTATION TRAP (silently wrong #1): a T x n matrix is accepted SILENTLY -> garbage; VARIABLES GO IN ROWS (transpose)",
     "non-convergence (conv=1/2/10=maxit) -> a post-gate blocker",
@@ -270,7 +281,8 @@
     "Harvey 1989"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 92,
@@ -300,6 +312,7 @@
     "cycle: x - trend = credit gap / output gap (data_frame -> records)",
     "lambda (400000 for the Basel credit gap), n, series"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the one-sided trend DIFFERS from the two-sided one at the same lambda -> do not compare them as equals",
     "lambda=400000 is the Basel-mandated value for quarterly credit data (NOT 1600)",
@@ -313,7 +326,8 @@
     "Stock & Watson 1999 (one-sided HP)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 183,
@@ -352,6 +366,7 @@
     "shrinkage: a_xi/a_tau (double/triple only)/kappa2_B/lambda2_B — the global shrinkage hyperparameters",
     "stvp_forecast: pred_median/pred_lower/pred_upper per horizon; stvp_lpds: lpds (larger=a better forecast)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "theta_sr is the sqrt of the variance AND non-centered (it can come out negative in the posterior sample; the ABSOLUTE value/distance from 0 is what matters) — |theta_sr|~0 means a constant coefficient, NOT a zero coefficient (see beta_mean)",
     "beta_paths have n_obs+1 points (the initial state t=0 is included); beta_time runs 0.T",
@@ -371,7 +386,8 @@
     "stvp_lpds (the out-of-sample log predictive density: compare mod_type / TVP vs constant on a hold-out sample)",
     "stvp_forecast (a predictive forecast with future regressor values)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 184,
@@ -404,6 +420,7 @@
     "fitted (tvreg_fit): the posterior mean fitted values — chart data",
     "coef_table (tvreg_coef): long records {beta, time, median, lower, upper, mean, sd} — the time-varying posterior median with a 95% band (chart data)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "convergence FIRST: when converged=False (max_rhat>=1.1, or any divergence) the estimates are unreliable — raise the iterations or tighten the priors, and do NOT interpret them",
     "a small iter=400 -> low-ESS warnings; it is deliberately SMALL for a node — raise iter for a final analysis",
@@ -421,7 +438,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading a TIME-ordered data_frame; one row = one time point)",
     "tvreg_fit (max_rhat/n_divergent/converged: check the HMC convergence BEFORE interpreting the coefficients)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 185,
@@ -455,6 +473,7 @@
     "loglik_trace / traces (pf_iterated_filtering): the loglik & the parameter path per IF2 iteration — a convergence diagnostic (chart-data)",
     "converged: a finite loglik (& estimates); a stateless-node flag instead of stderr"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the loglik is a STOCHASTIC Monte Carlo estimate — two runs with a different seed/Np give different values; compare only with the same seed/Np",
     "a low min_ess (e.g. << Np) means particle depletion -> the loglik is unreliable, NOT that the model is bad; raise Np",
@@ -471,7 +490,8 @@
     "pf_loglik (run the particle filter first: check for a finite loglik & min_ess before IF2)",
     "pf_iterated_filtering (the IF2 MLE; check the converged field & the loglik_trace for convergence)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 186,
@@ -510,6 +530,7 @@
     "R2 / RMSE / marg_lik / sig2: goodness of fit + the marginal likelihood + the noise",
     "beast_changepoints: n_cp/cp/cpPr filtered by a threshold (with no NaN padding)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "ncp is a posterior MEAN (non-integer, e.g. 0.14) — NOT a fixed number of breaks; read ncp_median/ncp_mode + cpPr for a decision",
     "cp is returned with NaN padding at the end (the maximum slots); the wrapper already filters it — do not read the raw slots",
@@ -528,7 +549,8 @@
     "beast_changepoints (the CONSUMER: extracting change-point positions + probabilities with a threshold)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the series from a file -> num_array)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 187,
@@ -566,6 +588,7 @@
     "cvMSE: the cross-validated MSE of the lambda selection (blank on the robust path); plus the robust and confidence flags",
     "seasadj (regdec_seasadj): the seasonally adjusted series = the sum of the included components (default Trend+Random)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "seasadj.STR SILENTLY ignores unknown include names (a warning + skip) -> the node blocks them with a hard gate",
     "the decomposition silently accepts gaps -> the node requires a complete series (a gap gate)",
@@ -582,7 +605,8 @@
     "regdec_seasadj (the seasonally adjusted series; include must be a subset of the component names)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the series from a file before building the ts)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 188,
@@ -613,6 +637,7 @@
     "time: the numeric time index; n_obs/n_missing: the number of observations and of gaps",
     "n_p/periodic/s_window/t_window/l_window/s_degree/t_degree: the final parameters that were used"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "an even s_window or t_window is SILENTLY rounded up to the next odd value; the wrapper blocks it with an explicit odd-number gate, so you never believe the value you passed was the one used",
     "s_window='periodic' forces s_degree=0 and an enormous internal span, fixing the seasonality; for an evolving seasonality supply a finite odd s_window",
@@ -627,7 +652,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the series when it is not already a series handle)",
     "stl_tolerant_decompose (the decomposition itself; the robustness weights reveal outliers)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 189,
@@ -668,6 +694,7 @@
     "smoother: the parameters per method — loess {span, degree, equivalent_df}; the smoothing spline {spar, lambda, df, crit, cv}; the super-smoother {span}",
     "x/y/n: the index, the original series, the number of observations"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "atheoretical: the gap is statistical, NOT economic potential output — do not interpret it as structural",
     "end-point instability: loess and the smoothing spline are two-sided, so the ends of the trend and the gap are revised as new data arrive (exactly as with the HP filter); for real-time work use #92 or #57",
@@ -685,7 +712,8 @@
     "np_detrend (get the trend+cycle; check that the cycle looks mean-≈0 and stationary)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the series from a file before detrending)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 476,
@@ -716,6 +744,7 @@
     "cycle_amplitude: which is small by construction under BN",
     "model_order: the ARIMA order the decomposition rests on"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE BN CYCLE IS SMALL AND NOISY by construction, and many users mistake that for a failure -- it is a property of the permanent-transitory decomposition, not a bug",
     "the decomposition depends entirely on the fitted ARIMA order; different orders give very different trends",
@@ -727,7 +756,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 477,
@@ -758,6 +788,7 @@
     "credible_bands: posterior bands on both",
     "convergence: sampler diagnostics"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE SIGNAL-TO-NOISE RATIO IS WEAKLY IDENTIFIED and the prior does much of the work; report the prior and its sensitivity, not just the posterior",
     "trend estimates at the end of the sample are revised heavily as data arrive -- real-time and final estimates differ substantially",
@@ -769,7 +800,8 @@
     "pymc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 478,
@@ -800,6 +832,7 @@
     "seasonal_strength: strength per period",
     "robust: whether outlier-resistant weights were used"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE ORDER OF EXTRACTION MATTERS when periods are not harmonically related; components extracted first absorb variation the later ones then cannot see",
     "a period longer than half the sample cannot be identified and produces a component that is really trend",
@@ -811,7 +844,8 @@
     "statsmodels.tsa.seasonal.MSTL"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 479,
@@ -842,6 +876,7 @@
     "grouping: which singular triples were grouped into each component",
     "window_length: the embedding window used"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE GROUPING OF SINGULAR TRIPLES INTO COMPONENTS IS A JUDGEMENT, not an estimate; different groupings give different trends from identical eigenvalues",
     "the embedding window length determines what can be separated and is bounded by half the sample",
@@ -852,7 +887,8 @@
     "Hassani 2007 (Journal of Data Science 5:239)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 480,
@@ -883,6 +919,7 @@
     "stopping_criterion: the criterion value path",
     "comparison: the plain HP components for reference"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "BOOSTING DOES NOT FIX HP'S END-POINT PROBLEM; the last observations are still revised heavily as data arrive, and boosting can amplify that",
     "the stopping rule determines how much trend is extracted; running to convergence removes almost everything into the trend",
@@ -894,7 +931,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 481,
@@ -925,6 +963,7 @@
     "bounds: the significance bands the paths must stay inside",
     "first_crossing: where a path leaves the band, if it does"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "EARLY RECURSIVE ESTIMATES ARE ESTIMATED ON VERY FEW OBSERVATIONS and swing wildly; the early part of the path is not evidence of instability",
     "CUSUM has low power against a break that does not shift the mean of the residuals; CUSUM-squared complements it by targeting variance shifts",
@@ -935,7 +974,8 @@
     "statsmodels.regression.recursive_ls"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 482,
@@ -966,6 +1006,7 @@
     "restriction_test: likelihood-ratio test that rho is zero",
     "cycle_amplitude: which changes sharply with rho"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE ZERO-CORRELATION RESTRICTION IS WHAT MAKES THE CYCLE LARGE; relaxing it typically produces a much smaller, BN-like cycle, and the difference is the entire substantive debate",
     "rho is weakly identified and the likelihood can be nearly flat in it -- a point estimate without a profile likelihood is not informative",
@@ -977,7 +1018,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 483,
@@ -1008,6 +1050,7 @@
     "ensemble_size: draws behind an ensemble filter",
     "loglike: where the filter provides it"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE STANDARD KALMAN COVARIANCE RECURSION CAN LOSE POSITIVE DEFINITENESS numerically, which the square-root form prevents by construction -- this is a real failure mode in long or ill-conditioned models",
     "ensemble filters underestimate covariance with small ensembles, which is why inflation and localisation exist",
@@ -1019,7 +1062,8 @@
     "filterpy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

@@ -31,6 +31,7 @@
     "expected_return, volatility, sharpe: the optimum's characteristics",
     "status: whether the solver actually reached optimality"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "mean-variance is an ERROR MAXIMISER: it loads on assets whose returns are most overestimated, which is why raw sample means give unusable weights",
     "the covariance matrix must be well conditioned; with more assets than periods it is singular and the optimum is arbitrary",
@@ -43,7 +44,8 @@
     "riskfolio-lib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 325,
@@ -75,6 +77,7 @@
     "condition_number: before and after -- the number that says whether it worked",
     "eigenvalues: the spectrum, for the denoising diagnostic"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "a shrinkage intensity near one means the sample covariance carried almost no usable information; that is a finding, not a fix",
     "shrinking the covariance while using raw sample MEANS leaves the larger problem untouched -- means are far harder to estimate than covariances",
@@ -87,7 +90,8 @@
     "skfolio"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 326,
@@ -119,6 +123,7 @@
     "weights: the implied optimal portfolio",
     "view_impact: how far each view moved the posterior"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the prior comes from REVERSE-OPTIMISING market weights; feeding it arbitrary weights silently discards the method's whole logic",
     "tau, the prior scaling, is barely identified and the posterior is sensitive to it -- report the value used",
@@ -131,7 +136,8 @@
     "PyPortfolioOpt"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 327,
@@ -163,6 +169,7 @@
     "converged: whether the nonlinear problem solved",
     "leverage: the gross exposure implied, often above one"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "risk parity IGNORES expected returns entirely -- that is the design, and it is also its main weakness",
     "the solution is invariant to leverage, so it usually needs scaling to a risk target, which reintroduces a decision the method was meant to avoid",
@@ -174,7 +181,8 @@
     "riskfolio-lib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 328,
@@ -206,6 +214,7 @@
     "quasi_diagonal_order: the reordering that makes the correlation matrix near block-diagonal",
     "clusters: the cluster assignment at the chosen cut"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the answer depends on the LINKAGE and the distance metric; single linkage chains and produces very different trees from ward",
     "no matrix inversion is the selling point -- so a near-singular covariance that would break mean-variance does not break this, but it does not become informative either",
@@ -217,7 +226,8 @@
     "riskfolio-lib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 329,
@@ -249,6 +259,7 @@
     "status: solver status",
     "comparison: the same portfolio's variance-based risk, for reference"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "CVaR at a given level is estimated from the observations BEYOND that level -- at 99% on monthly data that is a handful of points, and the estimate is correspondingly unstable",
     "full Kelly maximises long-run growth but produces violent drawdowns; fractional Kelly is what is actually used",
@@ -261,7 +272,8 @@
     "riskfolio-lib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 330,
@@ -292,6 +304,7 @@
     "uncertainty_size: the radius used, which drives everything",
     "status: solver status"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the uncertainty-set SIZE is the whole method; with a large set the answer collapses to the minimum-variance or equal-weight portfolio",
     "robust weights are more diversified by construction -- that is not evidence they are better out of sample",
@@ -304,7 +317,8 @@
     "cvxpy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 331,
@@ -336,6 +350,7 @@
     "cost_drag: the return given up to costs, which often reverses the ranking of rules",
     "weights_path: the weight history, so the rule is auditable"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "any use of full-sample information -- covariances, breakpoints, even the asset universe -- is LOOK-AHEAD BIAS and inflates every result",
     "transaction costs frequently reverse the ranking of allocation rules; a backtest without them is not a backtest",
@@ -348,7 +363,8 @@
     "skfolio"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 332,
@@ -380,6 +396,7 @@
     "marginal_risk: the derivative of risk with respect to each weight",
     "concentration: how far contributions are from equal"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "risk contributions sum to total risk only for HOMOGENEOUS risk measures; that holds for volatility and CVaR but not for every measure",
     "a large factor contribution can come from a small exposure to a very volatile factor -- exposure and contribution are not the same thing",
@@ -392,7 +409,8 @@
     "riskfolio-lib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

@@ -45,6 +45,7 @@
     "q=0.95, a hardcoded constant; n_institutions/n_state_variables/n_months/seed as the audit trail",
     "network: it requires n_months>=3 (a post-gate, blocked-by-gate); ~>=100 daily rows — 90 rows give only 2 months, where the monthly min-max degenerates every measure to {0,1}"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "q=0.95 and q_50=0.5 ARE HARDCODED — the quantile level is NOT parameterisable (tau=0.05)",
     "Delta_CoVaR = CoVaR_95 - CoVaR_50 EXACTLY; its sign follows the slope of the quantile regression (a positive co-movement with the market ⇒ Delta-CoVaR<0, a loss)",
@@ -61,7 +62,8 @@
     "live introspection in the engine (an independent quantile-regression recomputation) — wrapper footer IMPLEMENTATION NOTE (c21_systemic_risk/market_systemic_risk)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 222,
@@ -110,6 +112,7 @@
     "weights_defaulted (nrm_contagion): True when equal weights were used, the fallback when none were supplied",
     "user weights in nrm_contagion: a hard gate requires their sum to be strictly positive; a zero sum would divide by zero and give a NaN systemic stress (blocked by the gate)"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "MATRIX ORIENTATION: rowsums=ASSETS (the creditor/lender per row), colsums=LIABILITIES (the debtor/borrower per column); M[i,j]>0 means an «assets network»: i holds a claim/asset on j (i lent to j). exposure_type='liabilities' REVERSES the convention — state correctly which one describes your matrix",
     "BALANCE is mandatory: sum(rowsums)==sum(colsums) (total assets = total liabilities in a closed system); otherwise ME silently rescales the rowsums → a hard gate",
@@ -128,7 +131,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c21_systemic_risk/financial_network_contagion)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 223,
@@ -170,6 +174,7 @@
     "model / samples: the raw handles (systemicrisk_er_model / systemicrisk_gv_samples) -> a to_mcp stub, registered for chaining",
     "seed: the reproducibility seed (every stochastic path is seeded)"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "ORIENTATION: l = the row sums = the LIABILITIES (what bank i owes, row i), a = the column sums = the CLAIMS (what is owed to it, column j); L[i,j] = the exposure of i to j — do not transpose l/a; the post-gate rowSums==l & colSums==a catches it",
     "sum(l) MUST equal sum(a) (total liabilities == total claims); a mismatch -> a hard gate 'they do not balance', NOT a silent adjustment",
@@ -185,7 +190,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c21_systemic_risk/market_systemic_riskisk)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 553,
@@ -216,6 +222,7 @@
     "lrmes: long-run MES from the simulated dynamics",
     "ranking: institutions ordered by contribution"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "SRISK IS DOMINATED BY SIZE AND LEVERAGE; ranking institutions by it largely reproduces a ranking by liabilities, which is informative but not the same as a risk measure",
     "MES and CoVaR answer opposite conditional questions and routinely produce different rankings of the same institutions",
@@ -227,7 +234,8 @@
     "arch"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 554,
@@ -258,6 +266,7 @@
     "eigenvalues: the spectrum",
     "centrality: institution contributions to the leading components"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "THE LEVEL OF THE ABSORPTION RATIO IS NOT COMPARABLE across different asset universes; only its CHANGE within one universe carries information",
     "a rising ratio indicates fragility, not an imminent event -- it has led major drawdowns but also many non-events",
@@ -269,7 +278,8 @@
     "scikit-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 555,
@@ -301,6 +311,7 @@
     "centrality: in, out and eigenvector centrality per node",
     "n_tests: the multiplicity the adjustment had to handle"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "PAIRWISE GRANGER TESTS ACROSS N INSTITUTIONS ARE N(N-1) HYPOTHESES; without multiplicity adjustment the network density is mostly false positives",
     "Granger causality in returns is predictive lead-lag, not a causal or contagion mechanism, and the naming misleads readers persistently",
@@ -312,7 +323,8 @@
     "networkx"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 556,
@@ -343,6 +355,7 @@
     "correlation_contribution: how much time-varying correlation adds",
     "components: the standardised inputs"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "CORRELATION-WEIGHTED AGGREGATION IS THE POINT: simultaneous stress across segments is systemic in a way that the same stress in one segment is not, and a simple average cannot express that",
     "the transformation of raw indicators to a common scale -- cumulative distribution or standardisation -- changes the index level and its history",
@@ -353,7 +366,8 @@
     "Kliesen, Owyang & Vermann 2012 (Federal Reserve Bank of St. Louis Review 94:369)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 557,
@@ -384,6 +398,7 @@
     "centrality: node importance in the filtered graph",
     "stability: edge persistence across rolling windows"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "FILTERING DISCARDS INFORMATION BY DESIGN; the minimum spanning tree keeps only N-1 edges and the discarded ones are not noise by assumption",
     "the tree is unstable when correlations are close together, so edges flip between windows without any economic change",
@@ -395,7 +410,8 @@
     "networkx"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [

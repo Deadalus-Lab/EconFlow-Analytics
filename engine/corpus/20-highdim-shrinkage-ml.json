@@ -50,6 +50,7 @@
     "predictions (enet_predict): a frame of row_id + prediction, or the per-class probabilities and predicted_class",
     "model / cv: the raw fits (to_mcp -> a stub; registry chaining)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "shrinkage means BIASED coefficients, pulled towards 0; do NOT read them as unbiased least-squares effects — penalized coefficients carry no valid p-value or interval",
     "lambda_min against lambda_1se: lambda_1se is ALWAYS at least lambda_min, so it keeps fewer variables; the one-standard-error rule is more parsimonious, not 'a better prediction'",
@@ -67,7 +68,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/regularized_regression_lasso)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 217,
@@ -107,6 +109,7 @@
     "model: the raw forest (registered as a raw handle for rf_predict; a stub once serialised)",
     "rf_predict predictions: a numeric vector (regression), character labels (classification), a probability matrix (probability), a q<value> matrix (quantiles); se/se_table (type='se')"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "DETERMINISM: the forest is NON-reproducible with more than one thread EVEN with a fixed seed, because each thread carries its own generator stream; the wrapper PINS the thread count to 1 and does not expose it — do not bypass that",
     "type='se' (the jackknife-after-bootstrap of Wager, Hastie & Efron) draws at random, so it was NON-deterministic; the wrapper seeds the generator BEFORE predicting. The infinitesimal-jackknife standard error can also be blank at a few points when the tree count is small — that is real, not an error",
@@ -129,7 +132,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/random_forests_oob)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 218,
@@ -178,6 +182,7 @@
     "family/tau/nu/mstop/center/n/p/cv_type/cv_B/seed: the rules that produced the result (an audit trail)",
     "model: the raw glmboost fit — a register handle for downstream chaining; to_mcp -> a stub"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the binomial coefficients are HALF the size of the corresponding GLM coefficients (the fitter emits a note about it); do NOT compare them directly with a logistic regression — multiply by 2 for the GLM scale",
     "mstop IS the regularization knob: too large -> overfitting, too small -> underfitting; for an honest choice use boost_glm_cv (cross-validated), NOT an arbitrary fixed mstop",
@@ -196,7 +201,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/component_wise_gradient)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 219,
@@ -241,6 +247,7 @@
     "mean_n_regressors (=the sum of the PIP, the posterior E[#regressors]), shrinkage_av, K, N",
     "bma: the raw fit (a stub once serialised; a register handle for chaining into bma_coefficients)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a PIP is not a p-value: under a uniform prior the prior-neutral point is 0.5; PIP>0.5 = 'supported'; the scale depends on mprior",
     "post_mean and post_sd are UNCONDITIONAL, averaged over ALL models including those that exclude the regressor -> a low inclusion probability means a post_mean shrunk towards 0; it is NOT the conditional effect (read the conditional coefficient for that)",
@@ -260,7 +267,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/bayesian_averaging)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 220,
@@ -303,6 +311,7 @@
     "path: a frame of step/lambda/df/deviance with a DECREASING lambda; group_structure of variable and group; plus group_multiplier",
     "object: the raw fit (a stub once serialised)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the fit is DETERMINISTIC (coordinate descent, with no random draws); ONLY the cross-validation is stochastic, through the random fold assignment -> the seed defaults to 20240720; the same seed reproduces lambda_min and the CV error exactly, a different seed does not (live-verified)",
     "group=all-or-nothing: grLasso/grMCP/grSCAD zero out a WHOLE group together; gel/cMCP allow partial selection within a group — do not confuse them",
@@ -320,7 +329,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c20_highdim_shrinkage_ml/grouped_level_penalized)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 545,
@@ -351,6 +361,7 @@
     "lambda_: the penalty and the rule that chose it",
     "penalty_loadings: heteroskedasticity-robust loadings, where used"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "CROSS-VALIDATED PENALTIES SELECT TOO MANY VARIABLES for inference purposes; the rigorous penalty exists precisely because the cross-validated one invalidates the post-selection theory",
     "the square-root lasso's penalty does not depend on the unknown error variance, which is why it is pivotal and preferred in high dimensions",
@@ -363,7 +374,8 @@
     "skglm"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 546,
@@ -394,6 +406,7 @@
     "selected_controls: the union of the two selection steps",
     "bias_correction: the size of the correction applied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "NAIVE POST-SELECTION INFERENCE IS INVALID: standard errors computed on the selected model ignore that the model was chosen from the data and are far too small",
     "double selection selects on BOTH equations because a control weakly related to the outcome but strongly to the treatment must be kept",
@@ -406,7 +419,8 @@
     "doubleml"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 547,
@@ -437,6 +451,7 @@
     "best_iteration: where early stopping fired",
     "cv_score: cross-validated performance"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "GAIN-BASED FEATURE IMPORTANCE IS BIASED toward high-cardinality and continuous features; permutation importance on held-out data is the defensible measure",
     "tree ensembles cannot extrapolate beyond the training range of the target, which makes them unsuitable for trending series without differencing",
@@ -448,7 +463,8 @@
     "lightgbm"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 548,
@@ -479,6 +495,7 @@
     "partial_dependence: effect curves per feature",
     "interaction: pairwise interaction strength where computed"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "SHAP AND PARTIAL DEPENDENCE ARE UNRELIABLE WITH CORRELATED FEATURES because they evaluate the model at combinations that never occur; accumulated local effects is the fix for the curve",
     "attributions are explanations of the MODEL, not of the world -- they are not causal effects and must not be reported as such",
@@ -491,7 +508,8 @@
     "shap"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 549,
@@ -522,6 +540,7 @@
     "predictions: fitted values",
     "accuracy: against a black-box baseline"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE EXPLANATION IS THE MODEL HERE, not an approximation of it -- which is the whole argument for this class over post-hoc explanation of a black box",
     "the additive structure with pairwise interactions cannot represent higher-order interactions, and the accuracy gap against full boosting shows where that matters",
@@ -533,7 +552,8 @@
     "interpret"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 550,
@@ -564,6 +584,7 @@
     "width: interval width or set size",
     "adaptivity: how width varies with the input"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE GUARANTEE IS MARGINAL, NOT CONDITIONAL: coverage holds on average over the population, not for any particular subgroup, and subgroup coverage can be far below nominal",
     "plain split conformal produces constant-width intervals regardless of local difficulty; conformalised quantile regression is what makes them adaptive",
@@ -576,7 +597,8 @@
     "mapie"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 551,
@@ -607,6 +629,7 @@
     "shrinkage: per-coefficient shrinkage factors",
     "convergence: sampler diagnostics"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE HORSESHOE DOES NOT PRODUCE EXACT ZEROS; it shrinks aggressively toward zero while leaving heavy tails, so selection requires a separate thresholding decision",
     "spike-and-slab posteriors are multimodal and mix badly in high dimensions; convergence diagnostics are essential and often fail quietly",
@@ -619,7 +642,8 @@
     "bambi"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 552,
@@ -650,6 +674,7 @@
     "edf: effective degrees of freedom per term",
     "gcv: the criterion that selected the penalties"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "EFFECTIVE DEGREES OF FREEDOM NEAR ONE MEANS THE TERM IS LINEAR, which is a finding about the shape rather than a failure of the fit",
     "the bands are conditional on the selected smoothing parameters and exclude the uncertainty of selecting them",
@@ -661,7 +686,8 @@
     "pygam"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
