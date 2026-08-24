@@ -86,9 +86,9 @@ class _Registry:
 
     def listing(self) -> dict[str, dict[str, Any]]:
         with self._lock:
-            items = list(self._entries.items())
+            items = sorted(self._entries.items())
         out: dict[str, dict[str, Any]] = {}
-        for handle, entry in sorted(items):
+        for handle, entry in items:
             value = entry.value
             shape = getattr(value, "shape", None)
             out[handle] = {

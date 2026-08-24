@@ -564,7 +564,7 @@ class _Parser:
         self._nl_sig = saved_nl
         return _Call(_Sym("("), (e,))
 
-    def _parse_prefix(self) -> _Node:  # noqa: C901 - one flat dispatch, as in the grammar
+    def _parse_prefix(self) -> _Node:  # noqa: C901 - one flat dispatch as in the grammar
         t = self._next()
         if t.t == "eof":
             raise _parse_error("unexpected end of input")

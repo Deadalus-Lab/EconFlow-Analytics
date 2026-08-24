@@ -380,14 +380,17 @@ def gate_cross_section_only(
             "precondition-cross-section",
         )
 
+    if not ordered:
+        decision = "pass-unordered"
+    elif all(g.tested for g in diagnostics):
+        decision = "pass"
+    else:
+        decision = "pass-untested"
+
     return CrossSectionReport(
         groups=diagnostics,
         gate_alpha=float(gate_alpha),
         ordered=ordered,
         branch="ljung-box-tested" if ordered else "skipped-by-declaration",
-        decision=(
-            "pass-unordered"
-            if not ordered
-            else ("pass" if all(g.tested for g in diagnostics) else "pass-untested")
-        ),
+        decision=decision,
     )
