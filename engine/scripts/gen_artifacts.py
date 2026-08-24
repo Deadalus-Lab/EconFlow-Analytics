@@ -75,7 +75,15 @@ ARTIFACTS: Final = ENGINE_ROOT / "artifacts"
 CORPUS: Final = ENGINE_ROOT / "corpus"
 METHOD_SOURCES: Final = ENGINE_ROOT / "METHOD-SOURCES.json"
 VOCABULARY_FILE: Final = "_vocabulary.json"
+PROVENANCE_FILE: Final = "_provenance.json"
 LEGACY_FILE: Final = "legacy-inventory.json"
+
+#: The keys of the re-seal record, in emitted order. The corpus file also carries
+#: a ``_comment``, which is written for a reader of the corpus and does not travel
+#: into the artifacts.
+PROVENANCE_KEYS: Final = (
+    "node_specs_sha256", "method_cards_sha256", "resealed", "reason",
+)
 
 #: EVERY FILE THIS GENERATOR EMITS, named relative to the engine root. ``build``
 #: writes exactly this set under the directory it is handed and nothing outside
@@ -89,6 +97,29 @@ GENERATED: Final = (
     "artifacts/method-cards.sha256",
     "METHOD-SOURCES.json",
 )
+
+#: THE REGISTER'S TWO HALVES, DECLARED ONCE. ``sync_method_sources`` rebuilds a
+#: row's derived half from the corpus and carries the authored half across from
+#: the committed register; tests/test_gen_artifacts.py reads both to assert that
+#: a rebuild changes nothing outside the first. Splitting them here is what lets
+#: that test be written about the RULE rather than about a list of column names
+#: it would have to be remembered and edited alongside.
+DERIVED_COLUMNS: Final = frozenset(
+    {"module", "category", "package", "cards", "methods", "node_fns"}
+)
+
+#: The authored columns, each with the value a row that has never been decided
+#: reads as. ``None`` for four of them is deliberate and not a convenience: a row
+#: whose wave or source nobody has chosen must read as undecided, which
+#: tests/test_method_sources.py refuses, rather than as a decision it never
+#: received. A new authored column belongs HERE and nowhere else.
+AUTHORED_COLUMNS: Final[dict[str, Any]] = {
+    "status": "planned",
+    "library": None,
+    "paper": None,
+    "dataset": None,
+    "wave": None,
+}
 
 #: Emitted key order. Not correctness -- readability. A stable order keeps a
 #: one-card diff to one card rather than to the whole file.
@@ -104,8 +135,9 @@ ARG_KEYS: Final = (
 )
 CARD_KEYS: Final = (
     "id", "category", "method", "wrapper_file", "tool_fns", "when", "when_not",
-    "alternatives", "output_key_fields", "interpretation_traps", "sources",
-    "precondition_tools", "precondition_gates", "embed_text",
+    "alternatives", "output_key_fields", "chart_kind", "interpretation_traps",
+    "sources", "precondition_tools", "precondition_gates", "validation_notes",
+    "embed_text",
 )
 
 EXECUTABLE: Final = {"status": "executable", "reason_code": None,
@@ -166,6 +198,20 @@ def read_corpus() -> tuple[list[dict[str, Any]], dict[str, Any]]:
     return categories, vocabulary
 
 
+def read_provenance() -> dict[str, Any]:
+    """The re-seal record, projected onto the keys the artifacts carry.
+
+    Read separately from :func:`read_corpus` rather than returned beside the
+    categories: every existing caller of that function unpacks a pair, and
+    widening it would edit four call sites to deliver one field.
+    """
+    record = json.loads((CORPUS / PROVENANCE_FILE).read_bytes().decode("utf-8"))
+    missing = [key for key in PROVENANCE_KEYS if key not in record]
+    if missing:
+        raise SystemExit(f"gen_artifacts: {PROVENANCE_FILE} is missing {missing}.")
+    return {key: record[key] for key in PROVENANCE_KEYS}
+
+
 def write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(payload, indent=1, ensure_ascii=False) + "\n"
@@ -178,6 +224,7 @@ def write_json(path: Path, payload: Any) -> None:
 def build_node_specs(
     categories: list[dict[str, Any]],
     vocabulary: dict[str, Any],
+    provenance: dict[str, Any],
 ) -> dict[str, Any]:
     """Corpus -> the node-specs artifact.
 
@@ -212,6 +259,7 @@ def build_node_specs(
     return {
         "artifact_version": 2,
         "generated_by": "scripts/gen_artifacts.py from corpus/ -- regenerate, never edit",
+        "previous": provenance,
         "engine": {
             "n_nodes": len(nodes),
             "n_categories": len({n["category"] for n in nodes}),
@@ -225,6 +273,7 @@ def build_method_cards(
     categories: list[dict[str, Any]],
     node_specs: dict[str, Any],
     node_specs_sha256: str,
+    provenance: dict[str, Any],
 ) -> dict[str, Any]:
     cards: list[dict[str, Any]] = []
     for block in categories:
@@ -249,6 +298,7 @@ def build_method_cards(
     return {
         "artifact_version": 2,
         "generated_by": "scripts/gen_artifacts.py from corpus/ -- regenerate, never edit",
+        "previous": provenance,
         "source": {
             "node_specs_sha256": node_specs_sha256,
             "n_cards": len(cards),
@@ -263,10 +313,20 @@ def build_method_cards(
 def sync_method_sources(categories: list[dict[str, Any]], out: Path) -> tuple[int, int]:
     """Reconcile METHOD-SOURCES.json with the corpus, writing the result under ``out``.
 
-    THE DERIVED COLUMNS ARE REFRESHED, THE AUTHORED ONES ARE PRESERVED.
-    ``category``, ``package``, ``cards``, ``methods`` and ``node_fns`` all follow
-    from the corpus and are rewritten; ``status``, ``library`` and ``paper`` are
-    the register's own content and are carried over untouched.
+    THE DERIVED COLUMNS ARE REFRESHED AND THE AUTHORED ONES ARE PRESERVED;
+    :data:`DERIVED_COLUMNS` and :data:`AUTHORED_COLUMNS` are where each set is
+    stated. A column missing from the second is a column this function DELETES
+    from all 598 rows on the next ``--build`` -- after which ``--check`` compares
+    the emptied register against an equally empty rebuild and reports that
+    everything reproduces. The data is gone and both gates read green.
+
+    THE SETS ARE DECLARED RATHER THAN SPELLED OUT IN THE LOOP BELOW, because the
+    loop was a list somebody had to remember to extend and it has been extended
+    twice -- ``wave``, then ``dataset``. Declaring them lets
+    tests/test_gen_artifacts.py assert the RULE, that a rebuild changes no column
+    outside the derived set, rather than listing the columns it happens to know
+    about: a test written the second way cannot fail for the column nobody
+    thought to add to it, which is precisely how ``dataset`` would have been lost.
 
     Refreshing rather than skipping existing rows is the point. An earlier
     scratch version only ADDED missing rows, so when a node was later appended to
@@ -304,9 +364,8 @@ def sync_method_sources(categories: list[dict[str, Any]], out: Path) -> tuple[in
 
     for key, row in modules.items():
         carried = previous.get(key, {})
-        row["status"] = carried.get("status", "planned")
-        row["library"] = carried.get("library")
-        row["paper"] = carried.get("paper")
+        for column, default in AUTHORED_COLUMNS.items():
+            row[column] = carried.get(column, default)
 
     register["modules"] = modules
     register["n_modules"] = len(modules)
@@ -327,7 +386,8 @@ def build(out: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     read-only.
     """
     categories, vocabulary = read_corpus()
-    specs = build_node_specs(categories, vocabulary)
+    provenance = read_provenance()
+    specs = build_node_specs(categories, vocabulary, provenance)
     specs_path = out / "artifacts/node-specs.json"
     write_json(specs_path, specs)
     digest = hashlib.sha256(specs_path.read_bytes()).hexdigest()
@@ -336,7 +396,7 @@ def build(out: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     )
 
     sync_method_sources(categories, out)
-    cards = build_method_cards(categories, specs, digest)
+    cards = build_method_cards(categories, specs, digest, provenance)
     cards_path = out / "artifacts/method-cards.json"
     write_json(cards_path, cards)
     cards_digest = hashlib.sha256(cards_path.read_bytes()).hexdigest()

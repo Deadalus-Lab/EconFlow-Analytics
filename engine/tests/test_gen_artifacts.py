@@ -264,6 +264,50 @@ def test_v2_declares_its_version_and_its_producer() -> None:
         assert "gen_artifacts.py" in artifact["generated_by"]
 
 
+#: THE DIGESTS THIS RE-SEAL SUPERSEDED, recorded here as a second, independent
+#: home. Read from the committed tree on 2026-08-23 with
+#: ``git show HEAD:engine/artifacts/node-specs.sha256`` and
+#: ``git show HEAD:engine/artifacts/method-cards.sha256``. They cannot be read
+#: that way from the suite: ``.dockerignore`` excludes ``.git/`` and
+#: run_verifications.sh runs this suite inside the image build, so a git-reading
+#: test would fail the build rather than check anything. Keeping the pair here as
+#: well as in ``corpus/_provenance.json`` is what makes the provenance block
+#: checkable at all -- a block edited to name a digest that never existed is
+#: worse than no block, and with one home nothing would notice.
+SUPERSEDED = {
+    "node_specs_sha256": "c3b3d1086762e65ba3cdcf98cf023d417c7987b9b22d1547ef9a2e54f5c43749",
+    "method_cards_sha256": "24156d4194c9960305771f5018f9b2f9b1cde308ba18df608539f11807d05635",
+}
+
+
+def test_both_artifacts_record_the_digests_this_reseal_superseded() -> None:
+    """Box 2.1.15. The re-seal happens IN PLACE, so the only trace it leaves is
+    this block: same filenames, same sidecar count, ``wrapper_file`` untouched.
+    Both artifacts carry the same record, because one re-seal produced both."""
+    import hashlib
+    import re
+
+    blocks = {name: read(name)["previous"] for name in ("node-specs.json", "method-cards.json")}
+    assert blocks["node-specs.json"] == blocks["method-cards.json"], (
+        "one re-seal, one record: the two artifacts disagree about what they superseded"
+    )
+    previous = blocks["node-specs.json"]
+    assert previous["reason"] == "box 2.1.15"
+    assert re.match(r"^\d{4}-\d{2}-\d{2}$", previous["resealed"]), previous["resealed"]
+    for key, digest in SUPERSEDED.items():
+        assert previous[key] == digest
+
+    # A block naming the file it sits in records nothing. Both digests must be
+    # the ones the re-seal REPLACED, so neither may equal what is on disk now.
+    for stem, key in (("node-specs", "node_specs_sha256"),
+                      ("method-cards", "method_cards_sha256")):
+        current = hashlib.sha256((ARTIFACTS / f"{stem}.json").read_bytes()).hexdigest()
+        assert previous[key] != current, (
+            f"{stem}: the provenance block names the current bytes, so it records no "
+            "prior state at all"
+        )
+
+
 def test_the_v2_sidecars_match_the_bytes() -> None:
     import hashlib
 
@@ -303,15 +347,122 @@ def test_method_sources_covers_every_node_and_module(
     assert register["n_node_fns"] == len(listed) == len(spec)
 
 
-def test_method_sources_preserves_the_authored_columns() -> None:
-    """category, package, cards, methods and node_fns are derived and rewritten;
-    status, library and paper are the register's own content and must survive a
-    rebuild, or every implementation decision is lost on the next --build."""
+def test_a_rebuild_carries_every_authored_column_across(
+    corpus: tuple[list[dict[str, Any]], dict[str, Any]], tmp_path: Path,
+) -> None:
+    """THE RULE, NOT THE COLUMN LIST -- because the list is what keeps growing.
+
+    ``category``, ``package``, ``cards``, ``methods`` and ``node_fns`` are derived
+    from the corpus and rewritten on every build. Everything else in a row is the
+    register's own content, and a column absent from the carry-over is a column
+    ``--build`` DELETES from all 598 rows at once -- after which ``--check``
+    compares the emptied register against an equally empty rebuild and reports
+    that everything reproduces. The data is gone and both gates are green.
+
+    NAMING THE COLUMNS HERE WOULD REPRODUCE THE DEFECT IT CHECKS FOR. This suite
+    named ``status``, ``library``, ``paper`` and ``wave`` while ``dataset`` was
+    being added, and a test listing the columns it knows about cannot fail for
+    the one it does not. So this rebuilds into a temporary tree and asserts the
+    rebuilt rows are IDENTICAL to the committed ones outside the derived set --
+    which is the rule, and holds for the next authored column without being
+    edited.
+    """
+    categories, _ = corpus
+    committed = json.loads(
+        (ENGINE_ROOT / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"]
+
+    G.sync_method_sources(categories, tmp_path)
+    rebuilt = json.loads(
+        (tmp_path / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"]
+
+    assert set(rebuilt) == set(committed)
+    for key, row in committed.items():
+        assert set(rebuilt[key]) == set(row), (
+            "a rebuild changed which columns a row carries; an authored column "
+            "missing from sync_method_sources' carry-over is deleted here",
+            key, sorted(set(row) ^ set(rebuilt[key])),
+        )
+        for column in set(row) - G.DERIVED_COLUMNS:
+            assert rebuilt[key][column] == row[column], (key, column)
+
+
+def test_a_rebuild_carries_a_column_no_committed_row_exercises_yet(
+    corpus: tuple[list[dict[str, Any]], dict[str, Any]],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """THE POSITIVE CONTROL, because the register above cannot supply one.
+
+    The test before this compares rebuilt rows against committed ones, and for a
+    column no row has filled in that comparison is ``None == None`` -- which
+    holds just as well with the carry-over deleted. ``dataset`` is exactly such a
+    column today: the kind is defined and the row it was defined for is still
+    planned, so nothing in the live register would notice it being dropped.
+
+    So this plants a register in which EVERY authored column carries a
+    distinctive value and drives the real ``sync_method_sources`` over it. No
+    mock and no stub: the function reads a register and writes a register, and
+    this hands it a different one. It names no column, so it covers the next
+    authored column as it stands.
+    """
+    categories, _ = corpus
+    key = sorted(G.read_corpus()[0][0]["cards"], key=lambda c: c["id"])[0]["wrapper_file"]
+    key = key.removesuffix(".py")
+
+    # THE PLANTED COLUMNS COME FROM THE COMMITTED REGISTER, NOT FROM
+    # AUTHORED_COLUMNS. Reading the constant would make this control blind to the
+    # one failure it exists for: a column deleted from that constant would vanish
+    # from the planted record in the same edit, and the control would pass while
+    # --build dropped the column from all 598 rows. Measured -- written the other
+    # way first, it stayed green for `dataset`, `wave` and `paper` alike.
+    committed = json.loads(
+        (ENGINE_ROOT / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"]
+    authored = sorted(set(next(iter(committed.values()))) - G.DERIVED_COLUMNS)
+    assert authored, "the register carries no authored column; this control is empty"
+
+    planted = {column: f"planted-{column}" for column in authored}
+    # The planted register keeps the real FILENAME: sync_method_sources derives
+    # what it writes under `out` from the same constant it reads, so a register
+    # named anything else lands under a name the assertions below would miss.
+    source = tmp_path / "in"
+    source.mkdir()
+    register = source / "METHOD-SOURCES.json"
+    register.write_text(json.dumps({"modules": {key: planted}}), encoding="utf-8")
+    monkeypatch.setattr(G, "METHOD_SOURCES", register)
+
+    out = tmp_path / "out"
+    out.mkdir()
+    G.sync_method_sources(categories, out)
+    rebuilt = json.loads(
+        (out / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"][key]
+
+    for column, value in planted.items():
+        assert rebuilt[column] == value, (
+            f"{column} did not survive a rebuild; it is missing from "
+            "gen_artifacts.AUTHORED_COLUMNS and --build deletes it from every row",
+            column,
+        )
+
+    # And a row the planted register says nothing about reads as UNDECIDED,
+    # rather than inheriting the value from the row beside it.
+    rest = json.loads((out / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"]
+    other = next(k for k in rest if k != key)
+    assert {c: rest[other][c] for c in authored} == {c: G.AUTHORED_COLUMNS[c] for c in authored}
+
+
+def test_the_register_admits_exactly_one_source_kind_per_row() -> None:
+    """The register's own domain, asserted where the generator reads it.
+
+    tests/test_method_sources.py answers for the CONTENT of the register against
+    the lockfile and the tree; this answers for the shape the generator and
+    gen_wrappers.py both depend on -- a status from the closed pair, and never
+    two source kinds on one row, which stops gen_wrappers mid-generation.
+    """
     register = json.loads(
         (ENGINE_ROOT / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))
-    rows = register["modules"].values()
-    assert any(r["library"] for r in rows), "no row names a library"
-    for row in rows:
+    kinds = ("library", "paper", "dataset")
+    for row in register["modules"].values():
         assert row["status"] in {"planned", "selected"}, row
-        assert not (row["library"] and row["paper"]), (
-            "a row names a library AND a paper; the register permits one", row)
+        assert sum(bool(row[k]) for k in kinds) <= 1, (
+            "a row names more than one of a library, a paper and a dataset; "
+            "the register permits one", row)
