@@ -1,0 +1,22 @@
+{
+  "fn": "rs_multiple_testing",
+  "inputs": {
+    "p_values": [
+      0.0001, 0.0004, 0.0019, 0.0095, 0.0201, 0.0278, 0.0298, 0.0344,
+      0.0459, 0.3240, 0.4262, 0.5719, 0.6528, 0.7590, 1.000
+    ],
+    "method": "bh",
+    "alpha": 0.05
+  },
+  "expected": {
+    "n_rejected": 4
+  },
+  "unchecked_keys": [
+    "p_adjusted",
+    "rejected",
+    "method"
+  ],
+  "tolerance_class": "exact",
+  "citation": "Benjamini, Y. and Hochberg, Y. (1995), Controlling the False Discovery Rate: a Practical and Powerful Approach to Multiple Testing, Journal of the Royal Statistical Society Series B 57(1), 289-300, DOI 10.1111/j.2517-6161.1995.tb02031.x -- Section 3.2 'Example of False Discovery Rate Controlling Procedure', p. 295: the fifteen ordered p-values of the fourth family of endpoints in the trial of Neuhaus et al. (1992), and the sentence 'Thus we reject the four hypotheses having p-values which are less than or equal to 0.013'.",
+  "notes": "The fifteen p-values are transcribed in the order the paper prints them, which is ascending. The rejection count is the paper's own, stated for q* = 0.05 after it shows p_(4) = 0.0095 <= (4/15) x 0.05 = 0.013; the same page records that Bonferroni at 0.05/15 = 0.0033 and Hochberg's procedure each reject three, so the four is the specific claim this method makes and the specific claim the wrapper must reproduce. WHAT THIS CASE DOES NOT CLAIM. The paper prints no adjusted p-values at all, which is why `p_adjusted` is unchecked -- there is no published number to compare it against, and inventing one would make this file evidence about nothing. `rejected` is unchecked for a narrower reason: the paper identifies the rejected hypotheses only by their rank in the ordering it prints, so any boolean mask or index list is an encoding this engine chose and the source does not publish. `method` is an echo of the input. A NOTE ON THE KEY SET, because it is a claim and not an observation: no artifact in this tree declares the payload's field names, so the four fields named here are taken from method card #308's `output_key_fields`. Step 1 of the harness compares that set against the real payload the first time a body runs, so a body that returns a different set turns this case red -- which is the intended effect, and the reason the set is written down before the body is."
+}

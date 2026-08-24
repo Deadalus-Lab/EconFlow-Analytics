@@ -1,0 +1,35 @@
+{
+  "fn": "to_mcp",
+  "inputs": {
+    "value": [
+      [10.0, 8.04],
+      [8.0, 6.95],
+      [13.0, 7.58],
+      [9.0, 8.81],
+      [11.0, 8.33],
+      [14.0, 9.96],
+      [6.0, 7.24],
+      [4.0, 4.26],
+      [12.0, 10.84],
+      [7.0, 4.82],
+      [5.0, 5.68]
+    ]
+  },
+  "expected": [
+    [10.0, 8.04],
+    [8.0, 6.95],
+    [13.0, 7.58],
+    [9.0, 8.81],
+    [11.0, 8.33],
+    [14.0, 9.96],
+    [6.0, 7.24],
+    [4.0, 4.26],
+    [12.0, 10.84],
+    [7.0, 4.82],
+    [5.0, 5.68]
+  ],
+  "unchecked_keys": [],
+  "tolerance_class": "exact",
+  "citation": "Anscombe, F. J. (1973), Graphs in Statistical Analysis, The American Statistician 27(1), 17-21, DOI 10.1080/00031305.1973.10478966 -- the eleven (x, y) pairs of data set 1, read from the unnumbered table on p. 19 captioned 'Four data sets, each comprising 11 (x, y) pairs'.",
+  "notes": "The x column is printed once in the source and shared by data sets 1 to 3; the y column here is the one headed '1'. WHAT THIS CASE CLAIMS AND WHAT IT DOES NOT: it claims that eleven published pairs reach the wire form with every digit intact, through the sequence and float branches of to_mcp. It claims nothing about any method -- Anscombe's point is that these four data sets share every regression summary, so the pairs are evidence about transport and not about estimation."
+}
