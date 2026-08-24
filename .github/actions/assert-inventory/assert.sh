@@ -125,10 +125,18 @@ check python_version "$EXP_PYTHON_VERSION" "$(tr -d ' \n' <.python-version)"
 # the node functions whose body is NOT the emitted raise, so the figure cannot
 # be talked up in prose. It lives here rather than in engine/scripts/ because
 # that directory's file count IS the `generators` constant asserted above.
-check n_implemented "$EXP_N_IMPLEMENTED" "$(
+#
+# ONE WALK, THREE ANSWERS, AND THAT IS DELIBERATE. It prints the implemented
+# count, the stub count and the names of the implemented functions, because the
+# payload sentinel below spends all three. A second walk written beside this one
+# would be free to disagree with it in silence -- which is exactly what README.md
+# did while it carried its own spelling of this definition, and the disagreement
+# was found by measuring the two against a planted stub rather than by reading
+# them. There is one definition of an implemented body in this repository.
+ledger="$(
   python3 - <<'AST'
 import ast, pathlib
-written = 0
+written, stubs, names = 0, 0, []
 for path in sorted(pathlib.Path("src/econflow_engine/wrappers").rglob("*.py")):
     if path.name == "__init__.py":
         continue
@@ -142,11 +150,82 @@ for path in sorted(pathlib.Path("src/econflow_engine/wrappers").rglob("*.py")):
                         and isinstance(s.value.value, str))]
         exc = body[0].exc if (len(body) == 1 and isinstance(body[0], ast.Raise)) else None
         name = getattr(exc, "func", exc)
-        if not (isinstance(name, ast.Name) and name.id == "NotImplementedError"):
+        if isinstance(name, ast.Name) and name.id == "NotImplementedError":
+            stubs += 1
+        else:
             written += 1
-print(written)
+            names.append(node.name)
+print(written, stubs, ",".join(sorted(names)[:5]) or "-")
 AST
 )"
+read -r measured_written measured_stubs measured_names <<EOF
+$ledger
+EOF
+# A WALK THAT RETURNED SOMETHING OTHER THAN TWO COUNTS HAS NOT MEASURED THE TREE.
+# Without this the two counts arrive empty, every later comparison silently reads
+# as a string mismatch, and the premise below would be evaluated on nothing.
+case "$measured_written:$measured_stubs" in
+  *[!0-9]*:* | *:*[!0-9]*)
+    echo "  FAIL  n_implemented            the wrapper walk returned '${ledger}', not two counts"
+    fail=1
+    measured_written=-1
+    measured_stubs=-1
+    ;;
+esac
+check n_implemented "$EXP_N_IMPLEMENTED" "$measured_written"
+
+# THE ARGUMENTS A METHOD IS RUN WITH, WHICH NOTHING IN THIS TREE SUPPLIES YET.
+# The double-run gate hashes a method's output twice, and it cannot call one
+# without arguments. parity-fixtures.json holds argument-adapter verdicts and
+# node-specs.json holds argument kinds; neither is a call. This constant reads
+# "unmeasured" and therefore OWED, deliberately: the directory below does not
+# exist, so the count does not come back zero -- it comes back not at all, which
+# is the difference between a measurement and the absence of one. The shape of a
+# payload, where it goes and what produces it are written down in
+# engine/tests/controls/double_run.py, so that the first body author in 2.2 reads
+# the contract rather than inventing one against a red gate. NOT a bare `find`
+# with its error swallowed: a missing tree must say so in the report, exactly as
+# the absent lockfile and the absent SBOM do below.
+#
+# THE WORD IS CONDITIONAL ON A PREMISE THIS SCRIPT MEASURES, AND THE LINE STAYS.
+# A hard failure needed no premise: it could only ever be cleared by landing the
+# artifact. Green resting on a counter is a weaker thing, so the counter is
+# fenced on both sides. The OWED line is printed in every one of these branches
+# -- its visibility is the point, and only the exit code follows the premise.
+#
+#   the two counts must account for the whole catalogue -- a walk that stopped
+#     finding wrapper files would otherwise report an empty implemented set, and
+#     the premise would read true for the worst reason available;
+#   no method may carry a body -- the double-run gate cannot skip a method it was
+#     never given arguments for, so an empty implemented set is the one state in
+#     which the absent payload tree costs nothing.
+if [ "$EXP_INVOCATION_PAYLOADS" = "unmeasured" ] && [ ! -d tests/payloads ]; then
+  measured_catalogue=$((measured_written + measured_stubs))
+  if [ "$measured_catalogue" != "$EXP_METHODS" ]; then
+    printf '  FAIL  %-24s %s implemented + %s stub = %s, manifest counts %s methods\n' \
+      invocation_payloads "$measured_written" "$measured_stubs" \
+      "$measured_catalogue" "$EXP_METHODS"
+    echo "        The wrapper walk did not see the whole catalogue, so it cannot answer"
+    echo "        for the implemented set this marker's premise rests on."
+    fail=1
+  elif [ "$measured_written" -ne 0 ]; then
+    printf '  FAIL  %-24s %s method(s) carry a body: %s\n' \
+      invocation_payloads "$measured_written" "$measured_names"
+    echo "        A method with a body has no committed arguments to be run with, so"
+    echo "        the double-run gate would skip it and report success. Land its"
+    echo "        payload under engine/tests/payloads/ and replace"
+    echo "        engine.invocation_payloads with the count its command returns."
+    fail=1
+  else
+    printf '  OWED  %-24s no measurable artifact in the tree yet\n' invocation_payloads
+    printf '        premise holds: 0 of %s methods carry a body\n' "$EXP_METHODS"
+  fi
+elif [ -d tests/payloads ]; then
+  check invocation_payloads "$EXP_INVOCATION_PAYLOADS" \
+    "$(find tests/payloads -name '*.json' -not -name '_*' | wc -l | tr -d ' ')"
+else
+  check invocation_payloads "$EXP_INVOCATION_PAYLOADS" "no-payload-tree"
+fi
 
 # THE LOCKFILE IS AT THE WORKSPACE ROOT, NOT IN THIS DIRECTORY.
 # engine/ and backend/ are the two members of ONE uv workspace, so there is one
