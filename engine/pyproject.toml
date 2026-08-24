@@ -139,6 +139,19 @@ dev = [
     # stub that raises, so a coverage figure would describe the harness rather
     # than the catalogue. A floor lands with the first real bodies, in Phase 2.
     "pytest-cov==7.1.0",
+    # CONTINUOUS BENCHMARKING OF THE RESPONSE PATH. Every node reply leaves the
+    # engine through serialize.to_mcp, so a regression there is paid once per
+    # call and is invisible to a correctness suite: the assertions stay green
+    # while the answer arrives slower. tests/test_serialize_benchmarks.py
+    # measures it on the payload shapes the contract actually returns -- a
+    # thousand-element Series, a 100x20 frame, a nested mixture, and one
+    # carrying NaN, since the null guard is per element and only a payload that
+    # holds nulls exercises it.
+    # NOT a run_verifications.sh leaf and carrying no floor, for the same reason
+    # pytest-cov carries none: a wall-clock number measured on one machine
+    # compares against nothing. The comparison that means something is made
+    # against the base commit, by .github/workflows/codspeed.yml.
+    "pytest-codspeed==5.0.3",
 ]
 
 [tool.hatch.build.targets.wheel]
