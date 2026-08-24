@@ -220,7 +220,45 @@ echo "== 9. no wrapper reaches the network =="
 bash ../.github/scripts/check-no-network.sh .. ||
   fail "a wrapper reaches the network; fetching belongs to the external-data node"
 
-echo "== 10. every inventory constant still measures what the manifest claims =="
+echo "== 10. running a method twice returns the same bytes =="
+# BOX 2.1.14. Zero methods qualify today -- engine.n_implemented is 0 and every
+# wrapper body is a typed stub that raises -- so a harness that iterated the
+# implemented set and printed "all match" would have examined NOTHING. The proof
+# is therefore carried by planted controls: three that MUST be caught (the wall
+# clock, a live object's address, an unseeded draw) and two that MUST NOT be (a
+# constant, and a draw from a generator seeded inside the call). Both counts are
+# printed, and the method count is compared EXACTLY against the manifest so it
+# rises on its own with the first body in 2.2.
+$RUN python -m tests.controls.double_run ||
+  fail "the double-run determinism harness failed; a method or a planted control did not reproduce"
+
+echo "== 11. doctests, counted rather than exit-coded =="
+# BOX 2.1.18. `pytest --doctest-modules` over a tree with no examples collects
+# zero and EXITS 0 -- green, having run nothing. Wired in as
+# `pytest --doctest-modules src/ || fail` it would be a gate that can never fail
+# over 1456 modules. This asserts the COLLECTED COUNT instead, with a wrapper
+# floor that reads engine.n_implemented, and proves itself on three controls: a
+# deliberately wrong example that MUST fail, a correct one that MUST pass, and a
+# prose-only docstring that must collect 0 without erroring.
+$RUN python -m tests.controls.doctest_gate ||
+  fail "the doctest gate failed; see the collected counts above"
+
+echo "== 12. the planted control sets are the size the manifest claims =="
+# The counts are EXACT, not floors. A harness quietly left with fewer controls
+# than it claims is indistinguishable from one that has stopped proving itself,
+# and both of the harnesses above are only as good as their controls. Deleting
+# one is therefore a visible one-line diff in .github/inventory.json.
+for pair in "determinism_controls:determinism.py" "property_controls:property_controls.py"; do
+  key="${pair%%:*}"
+  module="tests/controls/${pair#*:}"
+  planted="$(grep -cE '"""(POSITIVE|NEGATIVE)\.' "$module" || true)"
+  expected="$(inventory suite "$key")" || fail "the ${key} floor is unreadable"
+  [ "$planted" -eq "$expected" ] ||
+    fail "${module} plants ${planted} control(s), the manifest says ${expected}"
+  echo "   ${module}: ${planted} planted control(s)"
+done
+
+echo "== 13. every inventory constant still measures what the manifest claims =="
 # THE GATE THE OTHER GATES DEPEND ON, and until now it ran only in continuous
 # integration -- so a contributor could see this suite green while every published
 # figure had moved. It is offline, it re-measures rather than trusts, and it is
