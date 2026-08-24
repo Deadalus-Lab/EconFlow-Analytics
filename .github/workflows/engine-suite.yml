@@ -223,6 +223,27 @@ jobs:
           printf '  %s\n' "${sel[@]}"
           uv run --locked pytest "${sel[@]}"
 
+      - name: The suite inside the image, on an uncached build
+        if: needs.scope.outputs.mode == 'full'
+        run: |
+          set -euo pipefail
+          # THE AUTHORITATIVE RUN OF run_verifications.sh, and the guarantee the
+          # image build used to carry. It moved here for one measured reason: a
+          # `RUN ./run_verifications.sh` on the default build path can be
+          # satisfied from a cached layer, so it reports success having executed
+          # nothing. That is the vacuous-gate shape ARCHITECTURE.md 11.1 refuses,
+          # and through BuildKit it arrives without anybody weakening a single
+          # assertion. Docker's own guidance is a separate stage invoked on
+          # demand, run with --no-cache.
+          #
+          # `--target test` selects the stage that runs the suite; nothing else
+          # depends on it, so the runtime build below never enters it.
+          # `--no-cache` is the half that makes the run real -- without it this
+          # step is the same cached lie in a different place.
+          # `--progress=plain` keeps the suite's own output in the log, so a
+          # reader can see which of the thirteen steps ran.
+          docker build --target test --no-cache --progress=plain .
+
       - name: Build the image and score it with dockle
         if: needs.scope.outputs.mode == 'full'
         env:
@@ -240,7 +261,7 @@ jobs:
           # byte-for-byte comparison and how to reproduce it.
           SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
           export SOURCE_DATE_EPOCH
-          docker build -t econflow-engine:ci .
+          docker build --target runtime -t econflow-engine:ci .
 
           base="https://github.com/goodwithtech/dockle/releases/download/v${DOCKLE_VERSION}"
           curl -sSfL "${base}/dockle_${DOCKLE_VERSION}_Linux-64bit.tar.gz" -o dockle.tgz
@@ -260,6 +281,42 @@ jobs:
           # ends with `rm -rf /var/lib/apt/lists/*`. Verified by reading both.
           ./dockle --exit-code 1 --exit-level fatal \
             -af settings.py -i DKL-DI-0005 econflow-engine:ci
+
+      - name: The image size stays between its floor and its ceiling
+        if: needs.scope.outputs.mode == 'full'
+        run: |
+          set -euo pipefail
+          # BOTH BOUNDS, AND THE FLOOR IS NOT DECORATION. A ceiling on its own
+          # passes on an image that never built and inspects as 0 bytes -- the
+          # gate-that-examined-nothing shape this repository refuses everywhere
+          # else. The floor is the half that says a real image was measured.
+          #
+          # READ WITH NO DEFAULT. `d["image"]["ceiling_bytes"]` raises KeyError if
+          # the section is missing, and the step fails there. A `.get(..., 2**30)`
+          # would let a deleted manifest section read as a passing gate against a
+          # number nobody reviewed. .github/inventory.json explains why an `image`
+          # section is inert in assert-inventory/assert.sh and measured here.
+          read -r ceiling floor < <(python3 -c "
+          import json
+          d = json.load(open('.github/inventory.json'))['image']
+          print(int(d['ceiling_bytes']), int(d['floor_bytes']))
+          ")
+          size=$(docker image inspect econflow-engine:ci --format '{{.Size}}')
+
+          printf 'image size %s bytes (floor %s, ceiling %s)\n' "$size" "$floor" "$ceiling"
+          if [ "$size" -lt "$floor" ]; then
+            echo "::error::the image is $size bytes, below the $floor-byte floor."
+            echo "A figure this small means the build produced no engine, not that"
+            echo "the image got smaller. Read the build log before touching the floor."
+            exit 1
+          fi
+          if [ "$size" -gt "$ceiling" ]; then
+            echo "::error::the image is $size bytes, above the $ceiling-byte ceiling."
+            echo "Galaxy pulls this image once per job. Find what was added -- a new"
+            echo "dependency tree, an un-pruned build stage -- or raise the ceiling in"
+            echo ".github/inventory.json in a reviewed one-line diff that says why."
+            exit 1
+          fi
 
       - name: The image runs on a read-only root filesystem
         if: needs.scope.outputs.mode == 'full'
@@ -301,3 +358,117 @@ jobs:
             echo "announcer, because it looks like one."
             exit 1
           }
+
+  # ---------------------------------------------------------------------------
+  # BOX 2.1.17 -- MUTATION TESTING. NIGHTLY (and on demand), NEVER ON A PULL REQUEST.
+  #
+  # WHY IT IS A SEPARATE JOB AND NOT A run_verifications.sh LEAF. mutmut rebuilds
+  # the tree under mutants/ and re-runs the suite once per mutant: minutes,
+  # against the three seconds the correctness gate takes. Putting it in the
+  # verification script would make every local run and every image build pay that
+  # cost, and a gate people start skipping is not a gate.
+  #
+  # AND IT MUST NEVER BECOME A ci-gate LEAF. ci-gate asserts EXACTLY 12 results at
+  # ci.yml:1685 and check-required-contexts.sh cross-checks that needs list, so a
+  # thirteenth required context would turn ci-gate red on arrival. This job lives
+  # in engine-suite.yml, which ci-gate does not aggregate, and is deliberately NOT
+  # added to any required-contexts list.
+  #
+  # `continue-on-error` ON THE TWO MEASURING STEPS IS DELIBERATE AND IS NOT A
+  # SOFTENED GATE. The kill rate over serialize.py and chart_spec.py is low today
+  # and is recorded honestly as such; this job exists to MEASURE and REPORT it
+  # nightly, and a red cron nobody can act on until the 2.2 bodies land would
+  # train people to ignore the nightly. The assertions inside mutation_gate.py
+  # are real and its output is read. The positive control below carries NO
+  # continue-on-error: if the gate ever stops refusing a zero-mutant run, this
+  # job fails outright. Delete the two lines when the floor is worth blocking on.
+  mutation:
+    name: mutation testing (nightly)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    steps:
+      # EGRESS AUDIT, FIRST STEP OF EVERY JOB. See the note in `scope` above.
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      - name: Install uv at the pinned version
+        run: python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+
+      - name: Restore the locked environment
+        run: uv sync --locked --all-extras
+
+      # THE TARGET LIST LIVES IN .github/inventory.json, NOT HERE, and one of its
+      # three entries does not exist yet: gates/primitives.py is being written in
+      # a separate worktree. Naming it now means the coverage lands with that
+      # merge instead of being remembered afterwards. An absent target is
+      # REPORTED AND SKIPPED; ALL THREE absent is a hard failure, because that
+      # means the paths are wrong rather than the tree being early.
+      - name: Report which mutation targets exist
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          present=0
+          while IFS= read -r target; do
+            if [ -f "$target" ]; then
+              echo "present  $target"
+              present=$((present + 1))
+            else
+              echo "::notice::mutation target not in the tree yet, skipped: $target"
+            fi
+          done < <(python3 -c "import json;print('\n'.join(json.load(open('../.github/inventory.json'))['mutation']['targets']))")
+          [ "$present" -gt 0 ] || {
+            echo "::error::not ONE mutation target exists. The paths in"
+            echo "mutation.targets are wrong, not the tree. A run over no target"
+            echo "generates no mutants and would score 100 % for testing nothing."
+            exit 1
+          }
+          echo "$present mutation target(s) present"
+
+      - name: Run mutmut over the configured targets
+        working-directory: ${{ env.ENGINE_DIR }}
+        continue-on-error: true
+        run: uv run --locked mutmut run
+
+      # `export-cicd-stats` EXITS 0 WITHOUT WRITING ITS FILE when no run has
+      # happened, printing "No previous mutation data found" -- so its exit
+      # status proves nothing and mutation_gate.py reads the FILE instead.
+      - name: Export the stats and assert the floors
+        working-directory: ${{ env.ENGINE_DIR }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          uv run --locked mutmut export-cicd-stats
+          cat mutants/mutmut-cicd-stats.json
+          uv run --locked python -m tests.controls.mutation_gate
+
+      # THE ANTI-VACUITY CONTROL, RUN EVERY NIGHT AND NOT ONCE BY HAND.
+      # Points the gate at stats describing zero mutants and requires it to FAIL.
+      # 0 killed of 0 generated is the shape that reads as a perfect score for
+      # having tested nothing, and the only way to know this gate still refuses
+      # it is to make it refuse one on every run.
+      - name: Positive control -- a zero-mutant run MUST be refused
+        working-directory: ${{ env.ENGINE_DIR }}
+        run: |
+          set -euo pipefail
+          empty="${RUNNER_TEMP}/zero-mutants.json"
+          printf '{"killed": 0, "survived": 0, "total": 0}\n' > "$empty"
+          if uv run --locked python -m tests.controls.mutation_gate "$empty"; then
+            echo "::error::the mutation gate ACCEPTED a run of 0 mutants."
+            echo "That is the vacuous measurement it exists to refuse: 0 killed of"
+            echo "0 generated is not a 100 % kill rate, it is a missing measurement."
+            exit 1
+          fi
+          echo "positive control fired: a 0-mutant run was refused, as it must be"
