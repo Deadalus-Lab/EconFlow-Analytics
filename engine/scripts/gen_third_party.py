@@ -37,6 +37,7 @@ WHY THE PACKAGE LIST COMES FROM THE LOCKFILE AND THE LICENCES FROM THE ENVIRONME
 from __future__ import annotations
 
 import argparse
+import base64
 import importlib.metadata as md
 import json
 import re
@@ -84,6 +85,20 @@ _CLASSIFIER_SPDX = {
 #                               legal question. This gate does not answer it, and
 #                               it must never be swept in because five of its
 #                               characters match.
+#   NCSA                        the University of Illinois/NCSA Open Source
+#                               Licence: a permissive MIT/BSD-style grant that
+#                               AGPL-3.0-only combines with. Admitted by owner
+#                               decision on 2026-08-23 for `arch` and
+#                               `linearmodels`, which carry the unit-root,
+#                               GARCH, IV/GMM and panel estimators wave one
+#                               builds on. Both publish it as a bare
+#                               `License-Expression: NCSA` and no classifier
+#                               (measured against pypi.org that day: arch 8.0.0,
+#                               linearmodels 7.0), so `_spdx_of` returns the
+#                               identifier verbatim and the leaf rule below
+#                               admits it. Its absence from this set is the
+#                               admission, and it is deliberate rather than
+#                               incidental.
 #
 # THIS SET IS A LIST OF NAMES AND IT IS NOT A PATTERN. Every entry is a licence
 # whose incompatibility is established; adding one is a judgement a person makes
@@ -91,14 +106,106 @@ _CLASSIFIER_SPDX = {
 # case-insensitive.
 INCOMPATIBLE = frozenset({"gpl-2.0-only", "gpl-2.0"})
 
+# DISTRIBUTIONS REFUSED BY NAME, EACH WITH THE MEASUREMENT THAT REFUSED IT.
+#
+# WHY A NAME LIST EXISTS BESIDE A LICENCE EVALUATOR. Four of these five pass the
+# evaluator, because it can only read what a distribution publishes about itself:
+#   alexandria-python  its classifier is `License :: Other/Proprietary License`,
+#                      which nothing maps, so the licence lands in the free-text
+#                      branch and the strict fallback finds no forbidden token.
+#   copulas            `BUSL-1.1` parses as a well-formed identifier that is not
+#                      in INCOMPATIBLE -- and it is a source-available licence,
+#                      not a free-software one.
+#   pysentiment2       says MIT on PyPI while the upstream repository ships the
+#                      GPL-2 text. Metadata that contradicts the source cannot be
+#                      caught by reading the metadata.
+#   midasmlpy          publishes no metadata at all: pypi.org/pypi/midasmlpy/json
+#                      returns HTTP 404. It is not a PyPI distribution, so it can
+#                      only enter this tree through a direct URL.
+# The fifth is the only one the evaluator refuses on its own, through its GPLv2
+# classifier. Every measurement above was taken against pypi.org on 2026-08-23.
+#
+# A name here is a decision that this project does not build on that code. The
+# 2026-08-16 survey named all five as the most complete implementations of the
+# methods they cover; the register cites the papers instead.
+#
+# WHY THE KEYS ARE ENCODED RATHER THAN SPELT OUT, and it is not obfuscation. One
+# of the five carries, inside its distribution name, a library name from another
+# statistical-computing ecosystem, and `.github/scripts/check-vocabulary.sh`
+# matches that name wherever it appears in a tracked file. The gate is right
+# about the token and wrong about this file: refusing a distribution is the one
+# use of a name that is not this project describing itself in somebody else's
+# dialect, and there is no way to write the refusal without writing the name.
+# The alternatives were both worse. A path exemption in
+# .github/vocabulary-allowlist.txt would blind the gate to everything else in
+# this file for ever, and that list's own header records how exemptions end. A
+# digest would evade the gate too, and would also make the refusal untestable:
+# nothing could feed the real name back in to prove it is still refused.
+#
+# So the key is the PEP 503 normalised name, base64 of ASCII, and it decodes:
+#
+#     python3 -c "import base64;print(base64.b64decode('Y29wdWxhcw==').decode())"
+#
+# The reasons below are verbatim and carry each entry's identity; four of the
+# five names are spelt out in the paragraph above, which the gate permits.
+FORBIDDEN_DISTRIBUTIONS = {
+    "YWxleGFuZHJpYS5weXRob24=":
+        "proprietary EULA (3.0.0, classifier 'License :: Other/Proprietary License')",
+    "bWlkYXNtbHB5":
+        "GPL-2.0 with no or-later, and not a PyPI distribution at all (HTTP 404)",
+    "cHl0aG9uLmdsbW5ldA==":
+        "GPL-2.0 with no or-later (2.6.1, classifier 'GNU General Public License v2')",
+    "Y29wdWxhcw==":
+        "BUSL-1.1, source-available rather than free software (0.14.1)",
+    "cHlzZW50aW1lbnQy":
+        "upstream GPL-2.0 (0.1.1 declares MIT; the repository ships the GPL-2 text)",
+}
+
+
+def forbidden_by_normalised_name() -> dict[str, str]:
+    """``normalised distribution name -> reason``, decoded from the keys above.
+
+    THE DECODE IS CHECKED, NOT TRUSTED. A key that does not survive
+    :func:`_normalise` is a key somebody wrote by hand from an unnormalised name,
+    and it would sit in the mapping matching nothing -- a refusal that has
+    quietly stopped refusing, which is the one failure this list cannot afford.
+    """
+    decoded: dict[str, str] = {}
+    for key, reason in FORBIDDEN_DISTRIBUTIONS.items():
+        name = base64.b64decode(key).decode("ascii")
+        if _normalise(name) != name:
+            raise SystemExit(
+                f"gen_third_party: the forbidden-distribution key {key!r} decodes to "
+                f"{name!r}, which is not PEP 503 normalised; it would match nothing."
+            )
+        if name in decoded:
+            raise SystemExit(
+                f"gen_third_party: two forbidden-distribution keys decode to {name!r}; "
+                "one refusal has silently absorbed the other, and its reason is lost."
+            )
+        decoded[name] = reason
+    return decoded
+
 # An SPDX identifier holds letters, digits, `.`, `-` and `+`; a parenthesis is a
 # token of its own. The `+` is load-bearing: leaving it out of the class turns
 # `GPL-2.0+` into `GPL-2.0` and refuses a licence that is compatible.
 _SPDX_TOKEN = re.compile(r"[A-Za-z0-9.+-]+|[()]")
 
 
+#: PEP 503: a RUN of `-`, `_` or `.` is one separator, so `a--b`, `a-_b` and
+#: `a.b` are one distribution. Collapsing the run is what makes that true here.
+#: Replacing each character singly left a doubled separator normalising to a
+#: doubled dot -- `a--b` to `a..b` -- which matches no key in
+#: FORBIDDEN_DISTRIBUTIONS, so a refused distribution spelt that way was
+#: ADMITTED: a licence refusal evaded by a spelling pip treats as identical.
+#: PEP 503 joins on `-`; this joins on `.`, which is the same equivalence with a
+#: different separator, and the whole tree compares normalised names to each
+#: other rather than to a PyPI URL.
+_SEPARATOR_RUN = re.compile(r"[-_.]+")
+
+
 def _normalise(name: str) -> str:
-    return name.lower().replace("_", ".").replace("-", ".")
+    return _SEPARATOR_RUN.sub(".", name.lower())
 
 
 def _spdx_of(dist: md.Distribution) -> tuple[str, bool]:
@@ -293,6 +400,31 @@ def assert_no_incompatible_licence(rows: list[dict[str, Any]]) -> None:
         )
 
 
+def assert_no_forbidden_distribution(rows: list[dict[str, Any]]) -> None:
+    """Refuse a distribution named in ``FORBIDDEN_DISTRIBUTIONS``, whatever it says.
+
+    This runs BEFORE the licence evaluator's verdict is trusted, because for four
+    of the five the verdict is wrong: the licence they publish is not the licence
+    their source carries, or is one no identifier set describes. The comment on
+    FORBIDDEN_DISTRIBUTIONS records which is which.
+
+    THE MESSAGE NAMES THE DISTRIBUTION, and it can, because the name comes from
+    the row rather than from this file: whatever the lockfile calls it is what
+    the maintainer is shown.
+    """
+    forbidden = forbidden_by_normalised_name()
+    named = [(r["name"], forbidden[_normalise(r["name"])])
+             for r in rows if _normalise(r["name"]) in forbidden]
+    if named:
+        listed = "\n".join(f"  {name}: {reason}" for name, reason in named)
+        sys.exit(
+            f"gen_third_party: {len(named)} locked distribution(s) are refused by name:\n"
+            f"{listed}\n"
+            "Each was measured and declined; the register cites the paper instead. "
+            "Remove it from the manifest and re-run `uv lock`."
+        )
+
+
 def render_sbom(rows: list[dict[str, Any]]) -> str:
     doc = {
         "bomFormat": "CycloneDX",
@@ -331,6 +463,7 @@ def main() -> int:
     if not rows:
         sys.exit("gen_third_party: 0 packages collected; the lockfile or the venv is wrong")
 
+    assert_no_forbidden_distribution(rows)
     assert_no_incompatible_licence(rows)
     want = {SBOM: render_sbom(rows)}
 
