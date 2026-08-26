@@ -6,7 +6,7 @@
 
 Category 32-matching-weighting; module ``hidden_bias``.
 
-Reference implementation: zepid.
+Reference implementation: 10.7326/M16-2607.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

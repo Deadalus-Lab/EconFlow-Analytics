@@ -6,7 +6,7 @@
 
 Category 41-credit-risk-default; module ``merton_structural``.
 
-Reference implementation: frds.
+Reference implementation: 10.1111/j.1540-6261.1974.tb03058.x.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

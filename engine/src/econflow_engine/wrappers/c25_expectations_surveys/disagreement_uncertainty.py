@@ -6,7 +6,7 @@
 
 Category 25-expectations-surveys; module ``disagreement_uncertainty``.
 
-Reference implementation: scoringrules.
+Reference implementation: 10.1086/261473.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

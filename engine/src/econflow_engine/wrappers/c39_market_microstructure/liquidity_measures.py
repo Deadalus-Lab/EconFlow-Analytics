@@ -6,7 +6,7 @@
 
 Category 39-market-microstructure; module ``liquidity_measures``.
 
-Reference implementation: frds.
+Reference implementation: 10.1016/s1386-4181(01)00024-6.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

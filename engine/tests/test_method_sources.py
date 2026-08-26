@@ -92,8 +92,83 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 #: 149 of these were examined by the source-selection box, which probed the four
 #: installed distributions live and enumerated the four uninstalled ones from
 #: upstream source; 21 of the 149 named a library that does not implement their
-#: method. This figure moves only when rows are actually examined.
-AUDITED_ROWS = 149
+#: method. The remaining 275 are the deferred tier, examined against PyPI
+#: metadata, upstream code search and rendered API references; 32 of those 275
+#: named a library that does not implement their method.
+#: This figure moves only when rows are actually examined.
+AUDITED_ROWS = 424
+
+#: EVERY (row, distribution) PAIR AN AUDIT MEASURED AS NOT IMPLEMENTING THE ROW'S
+#: METHOD, and the reason this is a table rather than prose in a note: the
+#: measurement is expensive, it is not visible anywhere in the tree, and nothing
+#: else would notice a row being pointed back at a source that was already
+#: refuted. A register row becomes a wrapper docstring's "Reference
+#: implementation:" line, so a silent reversion sends a reader to code that
+#: cannot compute the method.
+#:
+#: The pairs are the register's own history, not a transcription: the wave-one
+#: half is every row that was `selected` before the source-selection box and
+#: carries no library after it, less the one that moved because its distribution
+#: publishes no licence rather than because it lacked the method. The deferred
+#: half is this audit's own moves.
+#:
+#: A row may name a REFUTED distribution again only with a new measurement
+#: showing the distribution gained the method -- in which case the pair is
+#: deleted here, in a diff that says which release added it.
+REFUTED_SOURCES: dict[str, str] = {
+    "c01_preparation_prechecks/bubble_tests": "arch",
+    "c01_preparation_prechecks/cross_sectional_dependence": "statsmodels",
+    "c03_multivariate_nowcasting/shadow_rate_var": "srvar-toolkit",
+    "c04_structural_shocks/ms_var": "statsmodels",
+    "c05_cointegration/gregory_hansen": "arch",
+    "c05_cointegration/panel_cointegration": "statsmodels",
+    "c05_cointegration/threshold_ecm": "statsmodels",
+    "c06_volatility_regimes/icss_variance_breaks": "ruptures",
+    "c06_volatility_regimes/jump_tests": "arch",
+    "c06_volatility_regimes/realised_garch": "arch",
+    "c07_causality_policy/quantile_treatment_effects": "econml",
+    "c08_panel_data/heterogeneous_panel": "linearmodels",
+    "c09_cross_section_networks/connectedness": "diebold-yilmaz",
+    "c09_cross_section_networks/spatial_weights_diagnostics": "esda",
+    "c10_trend_cycle_statespace/beveridge_nelson": "statsmodels",
+    "c12_distribution_risk/caviar_fhs": "arch",
+    "c12_distribution_risk/distributional_regression": "pygam",
+    "c12_distribution_risk/implied_density_gar": "py-vollib",
+    "c12_distribution_risk/var_backtesting": "arch",
+    "c15_model_evaluation/density_evaluation": "scoringrules",
+    "c15_model_evaluation/nested_predictive_tests": "dieboldmariano",
+    "c17_forecast_combination/density_combination": "scoringrules",
+    "c17_forecast_combination/dynamic_model_averaging": "pymc",
+    "c18_yield_curve/dynamic_nelson_siegel": "nelson-siegel-svensson",
+    "c18_yield_curve/shadow_short_rate": "srvar-toolkit",
+    "c19_business_cycle_dating/bry_boschan": "scipy",
+    "c19_business_cycle_dating/online_change_detection": "skchange",
+    "c21_systemic_risk/mes_srisk": "arch",
+    "c22_inequality/polarisation": "ineqpy",
+    "c24_panel_var/gmm_panel_var": "pydynpd",
+    "c24_panel_var/panel_granger": "statsmodels",
+    "c25_expectations_surveys/disagreement_uncertainty": "scoringrules",
+    "c26_text_as_data/news_indices": "nltk",
+    "c26_text_as_data/readability": "nltk",
+    "c27_frequency_domain/cross_spectral": "spectrum",
+    "c29_unsupervised_clustering/elastic_distances": "dtaidistance",
+    "c32_matching_weighting/bias_corrected_matching": "causallib",
+    "c32_matching_weighting/coarsened_exact_matching": "causallib",
+    "c32_matching_weighting/hidden_bias": "zepid",
+    "c32_matching_weighting/subclassification": "causallib",
+    "c35_resampling_inference/sieve_bootstrap": "arch",
+    "c35_resampling_inference/subsampling_jackknife": "arch",
+    "c38_portfolio_allocation/robust_optimisation": "cvxpy",
+    "c39_market_microstructure/intraday_patterns": "arch",
+    "c39_market_microstructure/liquidity_measures": "frds",
+    "c39_market_microstructure/realised_measures": "arch",
+    "c39_market_microstructure/trade_classification": "frds",
+    "c40_option_implied_derivatives/bs_pricing_iv": "py-vollib",
+    "c40_option_implied_derivatives/model_free_variance": "QuantLib",
+    "c41_credit_risk_default/merton_structural": "frds",
+    "c42_fiscal_debt_sustainability/debt_fan_charts": "arch",
+    "c44_environment_energy_climate/climate_macro_mapping": "pyam-iamc",
+}
 
 
 def _normalise(name: str) -> str:
@@ -244,7 +319,7 @@ def test_every_paper_is_a_doi(rows: dict[str, dict[str, Any]]) -> None:
     during the research resolved to entirely different papers, so the register
     holds resolvable identifiers and the prose lives in the cards."""
     papers = [(k, r["paper"]) for k, r in rows.items() if r["paper"]]
-    assert len(papers) == 108, len(papers)
+    assert len(papers) == 131, len(papers)
     assert [k for k, doi in papers if not DOI.match(doi)] == []
 
 
@@ -309,6 +384,69 @@ def test_the_audited_flag_is_a_decision_and_never_a_stray_value(
     above would move without anybody examining a row."""
     stray = sorted(k for k, r in rows.items() if r["audited"] not in (True, None))
     assert stray == [], stray
+
+
+def _refuted_faults(rows: dict[str, dict[str, Any]]) -> list[str]:
+    """Every row pointed back at a distribution an audit measured as not fitting.
+
+    ONE FUNCTION, TWO CALLERS, like ``_dataset_faults``. Over the live register
+    it must find nothing, and finding nothing there proves nothing on its own --
+    so the control below drives it over a row put back on its refuted source and
+    requires it to speak.
+    """
+    return [
+        f"{key} names {rows[key]['library']}, measured not to implement its method"
+        for key, refuted in REFUTED_SOURCES.items()
+        if key in rows and rows[key]["library"]
+        and _normalise(rows[key]["library"]) == _normalise(refuted)
+    ]
+
+
+def test_no_row_names_a_source_an_audit_already_refuted(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """THE MEASUREMENT IS EXPENSIVE AND INVISIBLE, so this is what keeps it.
+
+    Establishing that a distribution does not implement a method costs a code
+    search or a live probe, and the result appears nowhere in the tree -- the
+    row simply names something else. Nothing else here would notice a row being
+    pointed back at the refuted name, and the reversion would reappear in a
+    wrapper docstring as a reference to code that cannot compute the method.
+    """
+    assert _refuted_faults(rows) == [], _refuted_faults(rows)
+
+
+def test_the_refutation_check_flags_a_row_put_back_on_its_refuted_source(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """THE POSITIVE CONTROL, and the live register cannot supply one.
+
+    Every row above already names something else, so the assertion holds over a
+    table that had been emptied to nothing just as well as over the real one.
+    This plants the reversion the rule exists to catch -- one row moved back to
+    the distribution measured not to implement its method -- and requires the
+    same function to name it.
+    """
+    key, refuted = next(iter(REFUTED_SOURCES.items()))
+    planted = {k: dict(r) for k, r in rows.items()}
+    planted[key]["library"] = refuted
+
+    faults = _refuted_faults(planted)
+    assert len(faults) == 1, faults
+    assert key in faults[0], faults
+
+
+def test_every_refuted_pair_names_a_row_the_register_still_carries(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """A table of pairs keyed on modules that no longer exist checks nothing.
+
+    Renaming a wrapper module would leave its entry above matching no row, and
+    the guard would go on passing while covering one row fewer -- which is the
+    quiet way an anti-vacuity table stops being one.
+    """
+    orphans = sorted(k for k in REFUTED_SOURCES if k not in rows)
+    assert orphans == [], orphans
 
 
 def test_wave_one_libraries_resolve_in_the_lockfile(

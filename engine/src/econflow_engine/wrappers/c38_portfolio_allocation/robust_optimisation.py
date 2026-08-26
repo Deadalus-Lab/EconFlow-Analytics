@@ -6,7 +6,7 @@
 
 Category 38-portfolio-allocation; module ``robust_optimisation``.
 
-Reference implementation: cvxpy.
+Reference implementation: riskfolio-lib.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

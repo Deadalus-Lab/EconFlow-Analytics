@@ -6,7 +6,7 @@
 
 Category 09-cross-section-networks; module ``spatial_weights_diagnostics``.
 
-Reference implementation: esda.
+Reference implementation: libpysal.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

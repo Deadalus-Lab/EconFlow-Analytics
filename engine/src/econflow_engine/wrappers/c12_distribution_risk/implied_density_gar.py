@@ -6,7 +6,7 @@
 
 Category 12-distribution-risk; module ``implied_density_gar``.
 
-Reference implementation: py-vollib.
+Reference implementation: 10.1086/296025.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

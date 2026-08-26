@@ -6,7 +6,7 @@
 
 Category 09-cross-section-networks; module ``connectedness``.
 
-Reference implementation: diebold-yilmaz.
+Reference implementation: 10.1016/j.ijforecast.2011.02.006.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

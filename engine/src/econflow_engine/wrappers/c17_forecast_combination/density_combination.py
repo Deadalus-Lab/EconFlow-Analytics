@@ -6,7 +6,7 @@
 
 Category 17-forecast-combination; module ``density_combination``.
 
-Reference implementation: scoringrules.
+Reference implementation: 10.1016/j.jeconom.2011.02.017.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

@@ -6,7 +6,7 @@
 
 Category 32-matching-weighting; module ``subclassification``.
 
-Reference implementation: causallib.
+Reference implementation: 10.1080/01621459.1984.10478078.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

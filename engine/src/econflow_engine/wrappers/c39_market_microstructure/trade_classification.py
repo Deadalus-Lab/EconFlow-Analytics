@@ -6,7 +6,7 @@
 
 Category 39-market-microstructure; module ``trade_classification``.
 
-Reference implementation: frds.
+Reference implementation: 10.1111/j.1540-6261.1991.tb02683.x.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

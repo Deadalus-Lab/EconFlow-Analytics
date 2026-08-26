@@ -6,7 +6,7 @@
 
 Category 07-causality-policy; module ``quantile_treatment_effects``.
 
-Reference implementation: econml.
+Reference implementation: DoubleML.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

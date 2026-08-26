@@ -6,7 +6,7 @@
 
 Category 26-text-as-data; module ``news_indices``.
 
-Reference implementation: nltk.
+Reference implementation: 10.1093/qje/qjw024.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

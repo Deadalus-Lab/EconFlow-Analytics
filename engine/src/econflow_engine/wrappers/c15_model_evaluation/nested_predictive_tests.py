@@ -6,7 +6,7 @@
 
 Category 15-model-evaluation; module ``nested_predictive_tests``.
 
-Reference implementation: dieboldmariano.
+Reference implementation: 10.1016/j.jeconom.2006.05.023.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

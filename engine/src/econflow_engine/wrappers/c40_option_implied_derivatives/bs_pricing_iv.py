@@ -6,7 +6,7 @@
 
 Category 40-option-implied-derivatives; module ``bs_pricing_iv``.
 
-Reference implementation: py-vollib.
+Reference implementation: vollib.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

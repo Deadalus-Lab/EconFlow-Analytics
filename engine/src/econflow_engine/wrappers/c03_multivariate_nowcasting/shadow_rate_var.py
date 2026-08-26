@@ -6,7 +6,7 @@
 
 Category 03-multivariate-nowcasting; module ``shadow_rate_var``.
 
-Reference implementation: srvar-toolkit.
+Reference implementation: 10.1111/jmcb.12300.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

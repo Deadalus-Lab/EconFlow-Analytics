@@ -6,7 +6,7 @@
 
 Category 18-yield-curve; module ``dynamic_nelson_siegel``.
 
-Reference implementation: nelson-siegel-svensson.
+Reference implementation: 10.1016/j.jeconom.2005.01.011.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

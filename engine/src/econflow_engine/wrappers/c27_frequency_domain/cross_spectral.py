@@ -6,7 +6,7 @@
 
 Category 27-frequency-domain; module ``cross_spectral``.
 
-Reference implementation: spectrum.
+Reference implementation: scipy.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

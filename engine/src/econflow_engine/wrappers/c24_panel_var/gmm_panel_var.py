@@ -6,7 +6,7 @@
 
 Category 24-panel-var; module ``gmm_panel_var``.
 
-Reference implementation: pydynpd.
+Reference implementation: 10.2307/1913103.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

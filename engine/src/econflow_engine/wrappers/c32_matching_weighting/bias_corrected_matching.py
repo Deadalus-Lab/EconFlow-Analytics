@@ -6,7 +6,7 @@
 
 Category 32-matching-weighting; module ``bias_corrected_matching``.
 
-Reference implementation: causallib.
+Reference implementation: 10.1198/jbes.2009.07333.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

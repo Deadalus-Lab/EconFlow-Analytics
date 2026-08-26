@@ -6,7 +6,7 @@
 
 Category 12-distribution-risk; module ``distributional_regression``.
 
-Reference implementation: pygam.
+Reference implementation: 10.1111/j.1467-9876.2005.00510.x.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

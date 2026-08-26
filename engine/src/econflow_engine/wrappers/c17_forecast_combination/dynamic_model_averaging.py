@@ -6,7 +6,7 @@
 
 Category 17-forecast-combination; module ``dynamic_model_averaging``.
 
-Reference implementation: pymc.
+Reference implementation: 10.1198/tech.2009.08104.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

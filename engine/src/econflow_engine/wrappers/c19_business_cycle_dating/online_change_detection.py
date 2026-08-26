@@ -6,7 +6,7 @@
 
 Category 19-business-cycle-dating; module ``online_change_detection``.
 
-Reference implementation: skchange.
+Reference implementation: river.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

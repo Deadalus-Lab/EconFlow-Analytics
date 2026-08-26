@@ -6,7 +6,7 @@
 
 Category 15-model-evaluation; module ``density_evaluation``.
 
-Reference implementation: scoringrules.
+Reference implementation: 10.1198/073500106000000332.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

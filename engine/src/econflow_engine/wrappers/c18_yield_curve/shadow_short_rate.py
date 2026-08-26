@@ -6,7 +6,7 @@
 
 Category 18-yield-curve; module ``shadow_short_rate``.
 
-Reference implementation: srvar-toolkit.
+Reference implementation: 10.1111/jmcb.12300.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

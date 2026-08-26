@@ -6,7 +6,7 @@
 
 Category 06-volatility-regimes; module ``icss_variance_breaks``.
 
-Reference implementation: ruptures.
+Reference implementation: 10.1080/01621459.1994.10476824.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

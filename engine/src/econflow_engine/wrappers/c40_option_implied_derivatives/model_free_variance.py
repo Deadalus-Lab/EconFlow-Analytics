@@ -6,7 +6,7 @@
 
 Category 40-option-implied-derivatives; module ``model_free_variance``.
 
-Reference implementation: QuantLib.
+Reference implementation: 10.1111/0022-1082.00228.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

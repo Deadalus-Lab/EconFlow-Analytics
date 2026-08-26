@@ -6,7 +6,7 @@
 
 Category 32-matching-weighting; module ``coarsened_exact_matching``.
 
-Reference implementation: causallib.
+Reference implementation: 10.1093/pan/mpr013.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

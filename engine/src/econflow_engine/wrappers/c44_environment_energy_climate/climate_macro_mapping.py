@@ -6,7 +6,7 @@
 
 Category 44-environment-energy-climate; module ``climate_macro_mapping``.
 
-Reference implementation: pyam-iamc.
+Reference implementation: 10.1038/nature15725.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

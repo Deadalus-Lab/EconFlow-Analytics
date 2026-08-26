@@ -6,7 +6,7 @@
 
 Category 29-unsupervised-clustering; module ``elastic_distances``.
 
-Reference implementation: dtaidistance.
+Reference implementation: aeon.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

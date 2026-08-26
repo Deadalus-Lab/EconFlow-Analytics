@@ -6,7 +6,7 @@
 
 Category 22-inequality; module ``polarisation``.
 
-Reference implementation: ineqpy.
+Reference implementation: inequality.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

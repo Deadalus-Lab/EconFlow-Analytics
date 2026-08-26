@@ -6,7 +6,7 @@
 
 Category 26-text-as-data; module ``readability``.
 
-Reference implementation: nltk.
+Reference implementation: textstat.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
