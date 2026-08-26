@@ -111,6 +111,16 @@ CASES: dict[str, tuple[bool, str]] = {
 #: gets published.
 PRIVATE_NAMES = ("_private_stub", "_private_body")
 
+# REUSE-IgnoreStart
+#
+# THE PLANTED MODULES CARRY AN SPDX HEADER BECAUSE THE REAL ONES DO, and
+# ``reuse lint`` reads a string literal it cannot distinguish from a declaration.
+# Measured 2026-08-26 in CI: it parsed ``AGPL-3.0-only\n"""Planted."""\n`` as an
+# expression and reported two invalid ones, turning workflow-lint red over text
+# that licenses nothing and is written to a temporary directory. Dropping the
+# header from the fixtures would be the wrong repair -- the header is part of
+# what a wrapper module looks like, and a fixture that omits it stops resembling
+# the thing under test. The tool documents this bracket for exactly this case.
 _MODULE = f'''# SPDX-License-Identifier: AGPL-3.0-only
 """A planted wrapper module. Not part of the engine."""
 
@@ -232,6 +242,9 @@ def planted(tmp_path_factory: pytest.TempPathFactory) -> Path:
     )
     (package / "planted.py").write_text(_MODULE, encoding="utf-8")
     return root
+
+
+# REUSE-IgnoreEnd
 
 
 def readme_command() -> str:
