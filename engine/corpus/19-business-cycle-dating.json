@@ -38,6 +38,7 @@
     "n_complete_phases: complete (non-censored) phases",
     "the raw dating fit (a stub once serialised)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "sign convention: +1=expansion, -1=recession — not the reverse, not a z-score",
     "peaks/troughs are position indices, NOT dates; a peak = the end of an expansion/the start of a recession",
@@ -52,7 +53,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c19_business_cycle_dating/harding_pagan_bbq)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 213,
@@ -94,6 +96,7 @@
     "penalty/method/test_stat/minseglen/Q/pen_value_used: the rules that produced the segmentation (an audit trail)",
     "fit: the raw change-point fit (a stub once serialised; a register field for the changepoint_segments accessor node)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "changepoints are SEGMENT-END INDICES (the last observation of a segment), 1-based; they do NOT include the final n; they are not dates",
     "the parameter-estimate field names CHANGE with the test statistic: mean and variance for the normal; scale and shape for the gamma; rate for the exponential; lambda for the Poisson — do not always assume mean and variance",
@@ -113,7 +116,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c19_business_cycle_dating/change_point_detection)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 214,
@@ -152,6 +156,7 @@
     "threshold/p0/w0/burnin/mcmc/seed: the audit trail of the rules/parameters",
     "bcp_fit: the raw fit (a stub once serialised)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the LAST posterior_prob is blank by construction — the last position cannot host a change, because there is no following block; do not read it as 0",
     "a change AT position i ⇒ a block boundary AFTER i (the new segment starts at i+1); it is a position index, NOT a date",
@@ -171,7 +176,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c19_business_cycle_dating/bayesian_change_point)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 215,
@@ -216,6 +222,7 @@
     "alpha/sig_lvl/permutations/min_size/k/penalty: the rules that produced the result (an audit trail)",
     "seed (divisive): the seed that was used (reproducibility)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the raw estimates INCLUDE the boundaries 1 and n+1 on the divisive route, and a cyclic wrap on the agglomerative one — those are NOT change points; the wrapper removes them, so report ONLY the changepoints field",
     "the divisive route is STOCHASTIC (it permutes); WITHOUT a seed the p-values, and the borderline splits, change from call to call — the wrapper seeds the generator internally (default 20240101)",
@@ -235,7 +242,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c19_business_cycle_dating/energy_statistics_nonparametric)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 540,
@@ -267,6 +275,7 @@
     "peaks, troughs: dated turning points from a probability rule",
     "expected_duration: mean regime length"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE RECESSION LABEL IS ASSIGNED BY THE USER, not the model: the algorithm finds two regimes and which is the recession must be decided by their estimated means",
     "a probability threshold of 0.5 is a convention; the dated chronology moves with it",
@@ -279,7 +288,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 541,
@@ -311,6 +321,7 @@
     "amplitude, cumulation: depth and cumulative loss per phase",
     "censoring: rules applied and turning points they removed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE CENSORING RULES DO THE WORK: minimum phase and cycle durations are what stop the algorithm dating every wiggle, and changing them changes the chronology entirely",
     "the algorithm cannot date turning points near the ends of the sample, so the most recent period is always provisional",
@@ -321,7 +332,8 @@
     "Harding & Pagan 2002 (Journal of Monetary Economics 49:365-381)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 542,
@@ -352,6 +364,7 @@
     "delay: detection delay against known changes, where available",
     "false_alarm_rate: at the chosen threshold"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THERE IS ALWAYS A TRADE-OFF BETWEEN DETECTION DELAY AND FALSE ALARMS; a detector reported without both numbers cannot be assessed",
     "online detectors are far less accurate than offline segmentation on the same data, which is the price of not seeing the future",
@@ -360,10 +373,11 @@
    "sources": [
     "Page 1954 (Biometrika 41:100-115)",
     "Adams & MacKay 2007, Bayesian online changepoint detection (arXiv:0710.3742)",
-    "skchange"
+    "river"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 543,
@@ -394,6 +408,7 @@
     "cost_path: cost against number of segments, for the elbow",
     "segment_summaries: per-segment statistics"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE PENALTY DETERMINES THE NUMBER OF CHANGE POINTS, and calibrating it on the same data that is segmented is circular -- state the rule used",
     "kernel methods detect distributional changes including variance and shape, which mean-shift detectors miss entirely",
@@ -406,7 +421,8 @@
     "ruptures"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 544,
@@ -437,6 +453,7 @@
     "discords: the most unusual subsequences",
     "window: the subsequence length used"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "THE WINDOW LENGTH DETERMINES WHAT CAN BE FOUND: a motif shorter or longer than the window is invisible, and the results change completely with it",
     "trivial matches -- a subsequence matching its own neighbour -- must be excluded or every point is its own motif",
@@ -448,7 +465,8 @@
     "stumpy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -459,6 +477,10 @@
    "input_example": {
     "series": "<series_handle>",
     "dates": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -496,6 +518,10 @@
    "input_example": {
     "fit": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -522,6 +548,10 @@
     "y": "<series_handle>",
     "mincycle": 5,
     "minphase": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -590,6 +620,10 @@
     "mcmc": 500,
     "threshold": 0.5,
     "seed": 20240719
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -697,6 +731,10 @@
     "Q": 5,
     "know_mean": false,
     "shape": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -870,6 +908,10 @@
     "X": "<matrix_handle>",
     "alpha": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "X",
@@ -939,6 +981,10 @@
     "min_size": 30,
     "alpha": 1,
     "seed": 20240101
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1048,6 +1094,10 @@
     "threshold": 0.5,
     "n_starts": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1153,6 +1203,10 @@
     "k_regimes": 2,
     "factor_order": 2
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1218,6 +1272,10 @@
     "min_cycle": 15,
     "smoothing": "spencer",
     "end_censor": 6
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1307,6 +1365,10 @@
      2
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1358,6 +1420,15 @@
     "method": "bocpd",
     "hazard": 0.01,
     "burn_in": 50
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "detections",
+     "run_length_posterior",
+     "delay",
+     "false_alarm_rate"
+    ]
    },
    "arguments": [
     {
@@ -1441,6 +1512,15 @@
     "model": "rbf",
     "method": "pelt",
     "min_size": 5
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "change_points",
+     "penalty",
+     "cost_path",
+     "segment_summaries"
+    ]
    },
    "arguments": [
     {
@@ -1546,6 +1626,15 @@
     "n_motifs": 3,
     "n_discords": 3,
     "normalise": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "profile",
+     "motifs",
+     "discords",
+     "window"
+    ]
    },
    "arguments": [
     {

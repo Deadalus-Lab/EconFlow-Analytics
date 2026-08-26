@@ -31,6 +31,7 @@
     "separating_sets: the conditioning sets that removed each edge",
     "n_tests: how many independence tests were run"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "PC returns an EQUIVALENCE CLASS, not one graph -- an undirected edge means the direction is unidentified, and reading it as a null finding is wrong",
     "PC assumes causal sufficiency (no latent confounders); if that fails the output is not merely imprecise but wrong, which is why FCI exists",
@@ -42,7 +43,8 @@
     "causal-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 375,
@@ -74,6 +76,7 @@
     "n_variables, search_space: the size of the problem actually solved",
     "converged: whether the search terminated at a local optimum"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "the score assumes a MODEL FAMILY -- BIC assumes linear Gaussian -- and a mis-specified score returns a confident, wrong graph",
     "greedy search finds a local optimum; different starting points give different graphs and the difference is rarely reported",
@@ -85,7 +88,8 @@
     "causal-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 376,
@@ -117,6 +121,7 @@
     "non_gaussianity: per-variable measures -- the assumption the method rests on",
     "bootstrap_probabilities: edge stability across resamples"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "identification comes ENTIRELY from NON-GAUSSIANITY; with Gaussian errors the model is unidentified and the returned ordering is arbitrary -- always check the diagnostic",
     "ICA-LiNGAM depends on ICA convergence and can return different orders across runs; DirectLiNGAM is deterministic",
@@ -129,7 +134,8 @@
     "lingam"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 377,
@@ -162,6 +168,7 @@
     "adjustment_sets: minimal sufficient sets, of which there are usually several",
     "instruments: variables the graph qualifies as instruments"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "identification is a property of the GRAPH, not of the data -- a wrong graph yields a confidently derived, wrong estimand",
     "adjusting for a COLLIDER or a mediator introduces bias rather than removing it; more controls is not safer",
@@ -174,7 +181,8 @@
     "dowhy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 378,
@@ -206,6 +214,7 @@
     "sensitivity: the confounder strength that would nullify the effect",
     "p_values: significance of the change under each refuter"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a PLACEBO effect that is not near zero means the estimate is driven by something other than the treatment -- this is the single most informative check here",
     "passing every refuter does not prove the graph is right; the refuters test consequences of the assumptions, not the assumptions",
@@ -217,7 +226,8 @@
     "dowhy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 379,
@@ -249,6 +259,7 @@
     "conditioning_set: the variables conditioned on",
     "power_warning: flagged when the conditioning set is large relative to the sample"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "conditional independence testing is HARD: power falls sharply as the conditioning set grows, and a non-rejection with a large set is uninformative rather than evidence of independence",
     "distance correlation detects any dependence but says nothing about its direction or form",
@@ -261,7 +272,8 @@
     "hyppo"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -274,6 +286,10 @@
     "independence_test": "fisherz",
     "stable": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -358,6 +374,10 @@
     "independence_test": "fisherz",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -426,6 +446,10 @@
     "data": "<df_handle>",
     "score": "bic"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -481,6 +505,10 @@
     "data": "<df_handle>",
     "score": "bic",
     "max_parents": 3
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -538,6 +566,10 @@
     "variant": "direct",
     "lags": 1,
     "nboot": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -621,6 +653,10 @@
     "test": "jarque_bera",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -679,6 +715,10 @@
     "treatment": "...",
     "outcome": "...",
     "method": "auto"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -751,6 +791,10 @@
     "outcome": "...",
     "max_sets": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "graph",
@@ -815,6 +859,10 @@
     "data": "<df_handle>",
     "method": "linear_regression",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -886,6 +934,10 @@
     "data": "<df_handle>",
     "n_simulations": 100,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -963,6 +1015,10 @@
     "estimand": "<raw_handle>",
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "estimand",
@@ -1028,6 +1084,10 @@
     "test": "dcorr",
     "n_permutations": 1000,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1137,6 +1197,10 @@
    "input_example": {
     "x": "<multiseries_handle>",
     "y": "<multiseries_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

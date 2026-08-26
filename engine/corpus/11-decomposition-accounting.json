@@ -38,6 +38,7 @@
     "REV/COST/PROF in Levels: profitability, ONLY when prices are supplied (w_vars/p_vars)",
     "Changes (prod_fare_primont): the changes are prefixed with 'd' (dTFP, dOTE, dPROF); Shadowp only when shadow=True"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "efficiency scores ∈(0,1]; a value=1 = best-in-sample frontier, NOT absolutely perfect (DEA is relative/deterministic)",
     "zero/negative inputs/outputs → SILENT garbage (a zero output → malmquist ~1e30); the gate requires strictly >0",
@@ -53,7 +54,8 @@
     "Caves-Christensen-Diewert 1982 (Malmquist index)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 63,
@@ -91,6 +93,7 @@
     "y: y_A/y_B/y_diff — mean outcomes & the total gap (= the sum of the components)",
     "n: n_A/n_B/n_pooled; n_dropped: the rows silently dropped for missing values"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "an invalid group, input or formula makes the decomposition emit a message and return nothing at all rather than raising — hence a pre-gate and a post-gate that the result is non-empty",
     "a degenerate fit: a per-group least-squares fit that is rank-deficient or has df_residual<=0 comes back with misleading coefficients and NO error; hence a post-gate on each group regression",
@@ -106,7 +109,8 @@
     "Jann 2008 Stata Journal 8(4):453-479 (two-fold reference schemes, three-fold, unexplained≠discrimination)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 190,
@@ -141,6 +145,7 @@
     "aggregate (pi_contributions): one row {Value_difference, Price_indicator, Quantity_indicator} — the identity value = price + quantity",
     "contributions (pi_contributions): a per-product frame {prodID, value_differences, price_contributions, quantity_contributions}; plus n_products"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "start > end SILENTLY returns a wrong, inverted index — the wrapper blocks it with a gate; always keep start <= end",
     "bilateral Laspeyres/Paasche over/understate because of substitution bias; Fisher/Törnqvist (superlative) is the correct baseline; a large Laspeyres–Paasche gap => move to multilateral",
@@ -160,7 +165,8 @@
     "pi_multilateral (GEKS/CCDI/GK/TPD; a transitive base for splicing)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the long-format CSV micro data)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 484,
@@ -191,6 +197,7 @@
     "shares: the factor shares used, period by period",
     "index: the Tornqvist or Divisia index level"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE SOLOW RESIDUAL IS A RESIDUAL: it absorbs measurement error, capacity utilisation, markups and mismeasured input quality, and calling it technology is an interpretation",
     "using fixed shares when shares actually move introduces a substitution bias that the Tornqvist index exists to remove",
@@ -202,7 +209,8 @@
     "OECD 2001, Measuring Productivity"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 485,
@@ -233,6 +241,7 @@
     "lambda_: ratio of inefficiency to noise variance -- the identification diagnostic",
     "one_sided_test: test that inefficiency is present at all"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "IF LAMBDA IS NEAR ZERO THE INEFFICIENCY COMPONENT IS NOT IDENTIFIED and the efficiency scores are noise dressed as estimates",
     "the test of no inefficiency sits on the boundary of the parameter space, so the naive p-value is wrong and a mixture distribution is required",
@@ -244,7 +253,8 @@
     "pystoned"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 486,
@@ -275,6 +285,7 @@
     "peers: the reference units defining each unit's frontier segment",
     "returns_to_scale: increasing, constant or decreasing per unit"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "DEA ATTRIBUTES ALL DEVIATION TO INEFFICIENCY; a single mismeasured unit can shift the frontier and change every other unit's score",
     "with many inputs and outputs relative to units, almost everything is efficient by construction -- the dimensionality rule of thumb is not optional",
@@ -286,7 +297,8 @@
     "Pyfrontier"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 487,
@@ -317,6 +329,7 @@
     "window: the estimation window and the splicing method",
     "churn: product entry and exit rates, which motivate the method"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "CHAIN DRIFT is the problem these methods solve: a bilateral chained index over high-frequency scanner data can drift by tens of percent with no underlying price change",
     "multilateral indices must be extended over time by splicing, and the splicing choice -- movement, window, mean -- changes the series",
@@ -328,7 +341,8 @@
     "PriceIndexCalc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 488,
@@ -359,6 +373,7 @@
     "by_industry: contributions per industry",
     "residual: zero by construction in the classic form"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE COMPETITIVE COMPONENT IS A RESIDUAL and absorbs everything the classification does not capture -- it is not a measure of competitiveness in any causal sense",
     "the decomposition is sensitive to the level of industry aggregation; finer classifications shift variation from competitive to industry mix",
@@ -369,7 +384,8 @@
     "Goldsmith, Sragovicz & Varela 2020 (American Economic Review 110:2586)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 489,
@@ -400,6 +416,7 @@
     "common_support: units dropped for lack of overlap",
     "reweighting_factors: the DFL weights"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE DETAILED DECOMPOSITION DEPENDS ON THE OMITTED CATEGORY of every categorical variable; the aggregate split does not, but the per-covariate numbers do",
     "reweighting requires common support; without it the counterfactual distribution is an extrapolation",
@@ -411,7 +428,8 @@
     "Fortin, Lemieux & Firpo 2011 (Handbook of Labor Economics 4A)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 490,
@@ -442,6 +460,7 @@
     "decomposition_form: which of the many equivalent forms was used",
     "by_sector: sectoral detail of each contribution"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THERE ARE MANY EQUIVALENT DECOMPOSITION FORMS and they give different answers; the convention is to average over polar forms, and the form used must be stated",
     "the two tables must be in constant prices and on the same classification, or the decomposition attributes price and classification changes to technology",
@@ -453,7 +472,8 @@
     "pymrio"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -466,6 +486,18 @@
     "data": "<df_handle>",
     "n_bootstrap": 100,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "twofold",
+     "twofold_variables",
+     "threefold",
+     "threefold_variables",
+     "x_means",
+     "y",
+     "n"
+    ]
    },
    "arguments": [
     {
@@ -531,6 +563,10 @@
     "start": "...",
     "end": "...",
     "interval": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -620,6 +656,10 @@
     "matched": false,
     "interval": false,
     "prec": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -728,6 +768,10 @@
     "end": "...",
     "window": 13
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -824,6 +868,10 @@
     "end": "...",
     "window": 13,
     "interval": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -950,6 +998,10 @@
     "tech_reg": true,
     "scaled": true,
     "shadow": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1149,6 +1201,10 @@
     "tech_reg": true,
     "scaled": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1286,6 +1342,15 @@
     "inputs": "<multiseries_handle>",
     "index": "tornqvist"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "tfp_growth",
+     "contributions",
+     "shares",
+     "index"
+    ]
+   },
    "arguments": [
     {
      "name": "output",
@@ -1358,6 +1423,15 @@
     "frontier": "production",
     "distribution": "half_normal",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "efficiency",
+     "lambda_",
+     "one_sided_test"
+    ]
    },
    "arguments": [
     {
@@ -1459,6 +1533,10 @@
     "orientation": "input",
     "decompose": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "inputs",
@@ -1547,6 +1625,15 @@
     "method": "geks",
     "window": 13,
     "splice": "movement"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "index",
+     "method",
+     "window",
+     "churn"
+    ]
    },
    "arguments": [
     {
@@ -1678,6 +1765,10 @@
     "time": "...",
     "dynamic": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1776,6 +1867,10 @@
     "nboot": 999,
     "seed": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1913,6 +2008,15 @@
     "table_start": "<raw_handle>",
     "table_end": "<raw_handle>",
     "form": "average_polar"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "contributions",
+     "residual",
+     "decomposition_form",
+     "by_sector"
+    ]
    },
    "arguments": [
     {

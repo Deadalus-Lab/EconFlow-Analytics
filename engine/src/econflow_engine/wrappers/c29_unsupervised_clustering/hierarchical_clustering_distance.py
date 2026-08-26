@@ -1,3 +1,4 @@
+# --- gen_wrappers: header begin ---
 # SPDX-License-Identifier: AGPL-3.0-only
 """Method wrapper ``hierarchical_clustering_distance`` -- method card #242.
 
@@ -8,7 +9,7 @@
 
 Category 29-unsupervised-clustering; module ``hierarchical_clustering_distance``.
 
-Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+Reference implementation: scipy.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
@@ -31,6 +32,8 @@ __all__ = [
     "NODE_META",
     "wire_model",
 ]
+
+# --- gen_wrappers: header end ---
 
 
 def hc_linkage(
@@ -78,6 +81,20 @@ def hc_linkage(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "hc_linkage: not implemented."
@@ -108,6 +125,20 @@ def hc_cut_tree(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "hc_cut_tree: not implemented."
@@ -161,6 +192,20 @@ def hc_agnes(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "hc_agnes: not implemented."
@@ -195,6 +240,20 @@ def hc_diana(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "hc_diana: not implemented."

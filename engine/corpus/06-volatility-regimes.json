@@ -39,6 +39,7 @@
     "nyblom: parameter stability, teststat-vs-critical-value WITHOUT a p-value",
     "gof: adjusted Pearson goodness-of-fit, p<0.05 => the wrong distribution"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "ga_fit blocks if convergence!=0 (a non-converged fit does not escape)",
     "gof_groups must be > params+1, otherwise the test degenerates silently",
@@ -59,7 +60,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test",
     "c15_model_evaluation/arch.run_arch_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 29,
@@ -96,6 +98,7 @@
     "rcov_forecast/rcor_forecast: the first element of the forecast list (n_roll=0)",
     "infocriteria: AIC/BIC of the whole model"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "dcc_fit blocks when the fit did not converge; the convergence flag is read straight off the fit",
     "groups must have length == #assets, otherwise it is silently wrong (gate)",
@@ -114,7 +117,8 @@
     "c15_model_evaluation/arch.run_arch_test",
     "c06_volatility_regimes/univariate_garch_family.ga_diagnostics"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 30,
@@ -150,6 +154,7 @@
     "regime: argmax filtProb per t (chart-data)",
     "log_lik/AIC: for comparing k"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "filtered vs smoothed: for ex-post dating use smoProb, not the filtered-based regime",
     "label switching: the numbering of regimes is arbitrary — identify them from the coefficients",
@@ -165,7 +170,8 @@
    "precondition_tools": [
     "c01_preparation_prechecks/structural_change"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 31,
@@ -204,6 +210,7 @@
     "Viterbi: most probable regime path (integer vector, global MAP path)",
     "VaR/ES: Value-at-Risk / Expected Shortfall per alpha"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "Viterbi != argmax(SmoothProb): the optimal sequence, not the per-t marginal MAP",
     "label switching in MCMC (do_sort); identify the regimes from the volatility parameters",
@@ -220,7 +227,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test",
     "c15_model_evaluation/arch.run_arch_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 32,
@@ -260,6 +268,7 @@
     "Ftests/pval/cval (setar_test): Hansen F-stat, bootstrapped p-value & critical values",
     "bests/res (setar_select): the best delay/lags/threshold & the criterion grid"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the setar_test p-value is bootstrapped (seeded, default 2025); p<0.05 => linearity is rejected",
     "thr_regime applies to setar/lstar only — not to star (on star the regime default would silently be empty, so the gate refuses)",
@@ -279,7 +288,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test",
     "c06_volatility_regimes/threshold.setar_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 154,
@@ -317,6 +327,7 @@
     "converged/kkt1/kkt2: the optimisation KKT conditions (converged=KKT1, first order); a stateless capture",
     "aic/bic/loglik: for comparing the model and the distribution; table (tg_backtest): sigma/actual/convergence per forecast"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "y MUST be returns (log/simple), NOT price levels — the wrapper does not difference",
     "persistence>=0.999 (near_nonstationary=True) => the unconditional variance explodes and the long-horizon sigma_t forecast is unreliable",
@@ -334,7 +345,8 @@
     "c15_model_evaluation/arch.run_arch_test (ARCH effects: H0=no ARCH; rejection -> GARCH is justified)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the returns from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 155,
@@ -372,6 +384,7 @@
     "loglik/AIC/BIC/nobs/n_series/n_pars; converged: convergence of the second stage (a stateless capture)",
     "covariance/correlation (tm_cov): an N×N×T array; forecast_covariance/forecast_correlation (tm_predict): N×N×h (the mean)"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "alpha+beta ~ 1 -> high persistence of the correlation; alpha ~ 0 -> ~constant (the DCC adds nothing)",
     "with constant dynamics the tm_cov correlation is N×N×1 (time-invariant); only the covariance varies, through the GARCH variances",
@@ -389,7 +402,8 @@
     "c15_model_evaluation/arch.run_arch_test (ARCH-LM: there must be ARCH effects in each series, otherwise GARCH is pointless)",
     "tm_cov (post: check whether the dynamic correlation really varies — if not, a constant/CCC suffices)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 156,
@@ -430,6 +444,7 @@
     "hf_realized_cov with measure=rSemiCov: semicov=list{mixed,negative,positive,concordant} N×N + rcov (=the sum)",
     "hf_spot_vol: spot_vol (the numeric intraday series); timestamps; daily (per day); periodic (the intraday pattern); n_na"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the multivariate two-scale covariance requires a LIST of per-asset series; a single multi-column input reduces SILENTLY to a scalar — the wrapper handles that, so do not bypass it",
     "measure='medRV' -> rMedRVar (rMedRV is deprecated in 1.0.3)",
@@ -453,7 +468,8 @@
     "hf_realized_cov (a multivariate realized covariance/semicovariance; >=2 assets)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading an intraday CSV: spotVol needs DT+price columns)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 157,
@@ -492,6 +508,7 @@
     "har_forecast: forecast (the getForc vector); forecast_matrix (step×roll); actual (forecastComparison); forecast_residuals; rmse/mae; an object of class HARForecast",
     "har_simulate: simulation (a numeric vector); an object of class HARSim (object@simulation)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "RM is a realized VARIANCE (not returns, not a standard deviation) and must be a positive series; gaps are accepted silently by the routine -> an explicit gate blocks them",
     "an invalid type returns nothing SILENTLY (it only prints a message); the wrapper fences it with a closed enum {HAR, HARJ, HARQ, HARQ-J}",
@@ -510,7 +527,8 @@
     "har_simulate (generating a controlled HAR series for validation/benchmarking)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the realized-measure series from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 158,
@@ -548,6 +566,7 @@
     "loglik_sum / aic / bic: fit criteria; converged + status_optim/status_hessian: convergence (a stateless node — do not ignore them)",
     "gas_forecast: y_ahead_mean (+ y_ahead_sd/y_ahead_quant with simulated_paths = a fan chart); gas_simulate: y_sim/par_tv_sim"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the DEFAULT drives the MEAN (par_static=[False, True] for the normal); for a volatility model you MUST set par_static=[1,0] so that the VARIANCE is the dynamic parameter",
     "converged=False (for instance status_optim='iteration_limit_reached') => the estimates are NOT reliable; the bounded evaluation budget yields converged=False rather than a hang",
@@ -565,7 +584,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_jarque_bera_test (normality of the innovations: rejection -> distr='t'/'ged' instead of 'norm')",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the return series from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 159,
@@ -599,6 +619,7 @@
     "variance_ratio: the share of variance explained by the long-run component; tau_forecast: the one-step long-run value",
     "llh/bic; convergence (the integer optim code); converged (logical)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "silent non-convergence: optim RETURNS a fit even when convergence!=0 — CHECK the converged field before interpreting",
     "x MUST be constant within each low_freq period; mixed values trip the 'a SINGLE unique value' gate (not a silent error)",
@@ -617,7 +638,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the long-format frame with its date, y, x and low_freq columns)",
     "mfg_fit (check convergence==0 before interpreting the parameters)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 160,
@@ -652,6 +674,7 @@
     "var_values (bekk_var): the T×1 (portfolio) or T×N (per-series) VaR path",
     "virf/virf_upper/virf_lower (bekk_virf): n_ahead × N(N+1)/2 responses + bands"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "bekk_valid=False is NOT blocked (a valid output with a flag, since the node is stateless): always read it before using the VaR or VIRF",
     "VaR with distribution='empirical' requires >=1000 observations (gated); the default is 'normal' — switch to 't' for fat tails",
@@ -669,7 +692,8 @@
     "bekk_estimate (bekk_valid=True declares a stationary, valid BEKK process before the VaR or the VIRF)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the T×N matrix of returns if it comes from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 161,
@@ -706,6 +730,7 @@
     "hmm_decode: states (an integer sequence of length T); state_counts/state_labels; n_states_used; degenerate (True => fewer than nstates were actually used)",
     "hmm_predict: state_probs (ahead × nstates probabilities); forecast (ahead × {lb,estimate,ub} observations); it decodes internally (predict requires it)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "state labelling is not inherently ordered (label switching); identify the states through the mu/sigma in estimates, not through the index 1/2",
     "degenerate=True or converged=False => the solution collapsed or did not converge — do NOT interpret the regimes; raise the number of runs or change the state-dependent distribution",
@@ -723,7 +748,8 @@
     "hmm_decode (the degenerate flag: did the fit fall back to fewer than k states?)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the series from a file, if needed)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 162,
@@ -765,6 +791,7 @@
     "sv_predict: vol_mean/vol_median + vol_lower(5%)/vol_upper(95%) per step — posterior predictive bands of the future volatility",
     "sv_simulate: y (returns) + vol (the true latent volatility) + para — chart-data for a synthetic path"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "check the converged flag first: SV MCMC can silently suffer monstrous autocorrelation (a very low phi ESS); 500 draws is a smoke test — for production raise draws/burnin",
     "phi≈1 ⇒ an almost non-stationary log-volatility (high persistence); phi near 0 ⇒ the volatility is nearly white noise",
@@ -783,7 +810,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the return series; NOT price levels)",
     "sv_simulate (a data-generating check / prior predictive check before fitting real data)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 163,
@@ -818,6 +846,7 @@
     "cov_mean/cor_mean, with their _sd (fsv_cov): the posterior mean and posterior standard deviation of the conditional covariance and correlation at the last t",
     "pred_cov_mean/pred_cor_mean (fsv_predict): a list of posterior-mean matrices per horizon, keyed by the horizon"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "restrict='none' is preferable for ESTIMATING the covariance/forecast; 'upper' only when you want identifiable/interpretable loadings (a strong a-priori assumption)",
     "exceeds_ledermann=True is NOT an error: the sampler deliberately allows more factors than the static Ledermann bound, since identification comes from the time-varying volatilities; it is a caveat for interpreting the loadings, nothing more",
@@ -835,7 +864,8 @@
     "fsv_predict (the posterior predictive h-step cov/cor)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the T×N returns if they come from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 164,
@@ -869,6 +899,7 @@
     "the mean first-passage time: the expected number of steps i->j (the diagonal is 0); absent, with mfpt_note, when the chain is not ergodic",
     "is_irreducible / period: the irreducibility flag + the period (blank, with period_note, when it is not irreducible)"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "the fitter does NOT fail on a gap (it treats it as a separate state) and it accepts a single state — the wrapper's gates block both explicitly",
     "steadyStates returns a MATRIX: >1 row means several closed recurrent classes (a non-unique stationary distribution)",
@@ -884,7 +915,8 @@
     "mc_fit (it produces the fitted chain, the input to mc_analytics)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the state sequence from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 437,
@@ -915,6 +947,7 @@
     "forecast_variance: which decays hyperbolically",
     "loglike, aic, bic"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "STRUCTURAL BREAKS MASQUERADE AS LONG MEMORY -- an estimated d near 0.4 is entirely consistent with a stable process containing two variance breaks",
     "FIGARCH is not covariance stationary for many parameter values yet still has a well-defined conditional variance; the usual stationarity intuition does not carry",
@@ -926,7 +959,8 @@
     "arch"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 438,
@@ -957,6 +991,7 @@
     "half_life: the implied memory in periods",
     "forecast: which is flat at all horizons"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "EWMA has NO MEAN REVERSION, so every multi-step forecast equals the current variance -- for long horizons this is badly wrong",
     "the conventional decay factors of 0.94 daily and 0.97 monthly are conventions from one 1996 document, not estimates for your data",
@@ -968,7 +1003,8 @@
     "arch"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 439,
@@ -999,6 +1035,7 @@
     "measurement_residuals: which diagnose the realised measure's bias",
     "loglike, aic"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the measurement equation must account for the realised measure covering only TRADING HOURS while the return covers the full day; omitting that biases the level",
     "a noisy realised measure degrades the model rather than improving it -- use a noise-robust estimator upstream",
@@ -1006,11 +1043,11 @@
    ],
    "sources": [
     "Hansen, Huang & Shek 2012 (Journal of Applied Econometrics 27:877-906)",
-    "Shephard & Sheppard 2010 (Journal of Applied Econometrics 25:197)",
-    "arch"
+    "Shephard & Sheppard 2010 (Journal of Applied Econometrics 25:197)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 440,
@@ -1041,6 +1078,7 @@
     "continuous_variation, jump_variation: the decomposition",
     "jump_share: proportion of total variation attributable to jumps"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MICROSTRUCTURE NOISE inflates every jump test at high sampling frequencies and produces spurious jumps; the sampling interval is not a detail",
     "the intraday periodicity of volatility must be removed first, or the opening and closing periods generate false jump detections",
@@ -1048,11 +1086,11 @@
    ],
    "sources": [
     "Barndorff-Nielsen & Shephard 2006 (Journal of Financial Econometrics 4:1-30)",
-    "Lee & Mykland 2008 (Review of Financial Studies 21:2535)",
-    "arch"
+    "Lee & Mykland 2008 (Review of Financial Studies 21:2535)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 441,
@@ -1083,6 +1121,7 @@
     "n_breaks: how many were found",
     "persistence_before_after: GARCH persistence with and without break dummies"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "IGNORING VARIANCE BREAKS INFLATES GARCH PERSISTENCE toward one; an estimated alpha+beta of 0.99 very often means unmodelled breaks rather than genuine near-integration",
     "ICSS assumes independent observations and over-detects breaks when the data are conditionally heteroskedastic; the corrected versions exist for that",
@@ -1090,11 +1129,11 @@
    ],
    "sources": [
     "Inclan & Tiao 1994 (JASA 89:913-923)",
-    "Sanso, Arago & Carrion 2004 (Revista de Economia Financiera 4:32)",
-    "ruptures"
+    "Sanso, Arago & Carrion 2004 (Revista de Economia Financiera 4:32)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 442,
@@ -1125,6 +1164,7 @@
     "smoothed_probabilities: regime probabilities at each date",
     "expected_duration: which now varies over time"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "identifying the transition equation needs ENOUGH SWITCHES; with two or three regime changes in sample the coefficients are estimated on almost nothing",
     "the label-switching problem is worse here because the transition equation's sign flips with the labelling",
@@ -1136,7 +1176,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 443,
@@ -1167,6 +1208,7 @@
     "hurst: the roughness parameter, where a rough model is fitted",
     "diagnostics: convergence of the sampler or filter"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "stochastic volatility models have NO CLOSED-FORM LIKELIHOOD; every estimate comes from simulation or filtering, and its convergence must be checked rather than assumed",
     "GARCH and stochastic volatility parameters are not comparable -- persistence means different things in a deterministic and a latent recursion",
@@ -1178,7 +1220,8 @@
     "stochvolmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -1195,6 +1238,10 @@
     "max_iter": 50,
     "crit": 1e-09,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1315,6 +1362,10 @@
     "object": "<raw_handle>",
     "p": 0.99
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1386,6 +1437,10 @@
     "n_ahead": 10,
     "ci": 0.9,
     "time_shock": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1492,6 +1547,10 @@
     "data": "<matrix_handle>",
     "out_sample": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spec",
@@ -1561,6 +1620,10 @@
     "n_ahead": 1,
     "n_roll": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1615,6 +1678,10 @@
      "<raw_handle_2>"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "specs",
@@ -1640,6 +1707,10 @@
     "data": "<matrix_handle>",
     "forecast_length": 50,
     "refit_every": 25
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1740,6 +1811,10 @@
     "n_start": 0,
     "m_sim": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1805,6 +1880,10 @@
     "uspec": "<raw_handle>",
     "VAR": false,
     "lag": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1889,6 +1968,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1916,6 +1999,10 @@
      1
     ],
     "each": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1971,6 +2058,10 @@
     "draws": 300,
     "burnin": 100,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2064,6 +2155,10 @@
     "fit": "<raw_handle>",
     "gof_groups": 20
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -2103,6 +2198,10 @@
     "spec": "<raw_handle>",
     "data": "<series_handle>",
     "out_sample": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2174,6 +2273,10 @@
     "n_ahead": 10,
     "n_roll": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -2226,6 +2329,10 @@
     "forecast_length": 500,
     "refit_every": 25,
     "calculate_VaR": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2341,6 +2448,10 @@
     "n_start": 0,
     "m_sim": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -2407,6 +2518,10 @@
     "archm": false,
     "archpow": 1,
     "variance_targeting": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2565,6 +2680,10 @@
     "q": 1,
     "maxeval": 10000
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2707,6 +2826,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2789,6 +2912,10 @@
     "object": "<raw_handle>",
     "t_sim": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2836,6 +2963,10 @@
     "type": "HAR",
     "insanityFilter": true,
     "h": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2985,6 +3116,10 @@
     "windowType": "rolling",
     "insanityFilter": true,
     "h": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3176,6 +3311,10 @@
     "errorTermSD": 0.001,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "len",
@@ -3262,6 +3401,10 @@
     "makeReturns": true,
     "cor": false,
     "J": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3360,6 +3503,10 @@
     "makeReturns": true,
     "kernelParam": 1,
     "J": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3478,6 +3625,10 @@
     "marketClose": "16:00:00",
     "tz": "GMT"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3594,6 +3745,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3625,6 +3780,10 @@
     "runs": 5,
     "iterlim": 100,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3722,6 +3881,10 @@
     "ahead": 5,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3774,6 +3937,10 @@
     "x": "<series_handle>",
     "m": 1,
     "d": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3868,6 +4035,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3900,6 +4071,10 @@
     "nboot": 10,
     "sanitize": false,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4012,6 +4187,10 @@
     "K": 1,
     "low_freq": "date",
     "gamma": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4130,6 +4309,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -4179,6 +4362,10 @@
     "low_freq": 1,
     "n_intraday": 288,
     "corr": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4388,6 +4575,10 @@
     "spec": "<raw_handle>",
     "data": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spec",
@@ -4427,6 +4618,10 @@
     "spec": "<raw_handle>",
     "data": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spec",
@@ -4464,6 +4659,10 @@
     "fit": "<raw_handle>",
     "nahead": 1,
     "do_cumulative": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4516,6 +4715,10 @@
     "do_es": true,
     "nahead": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -4567,6 +4770,10 @@
     "nsim": 1,
     "nahead": 1,
     "nburn": 500
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4632,6 +4839,10 @@
    "input_example": {
     "K": 2,
     "do_mix": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4708,6 +4919,10 @@
    "input_example": {
     "fit": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -4735,6 +4950,10 @@
     "data": "<df_handle>",
     "k": 2,
     "p": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4799,6 +5018,10 @@
     "fit": "<raw_handle>",
     "level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -4834,6 +5057,10 @@
    "register": null,
    "input_example": {
     "fit": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4877,6 +5104,10 @@
     "thDelay": 0,
     "nthresh": 1,
     "trim": 0.15
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5022,6 +5253,10 @@
     "nthresh": 1,
     "trim": 0.15
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5152,6 +5387,10 @@
     "thDelay": 0,
     "trim": 0.1,
     "nboot": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5287,6 +5526,10 @@
     "d": 1,
     "sig": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5363,6 +5606,10 @@
     "object": "<raw_handle>",
     "steps": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -5408,6 +5655,10 @@
     "priorsigma": 1,
     "thin": 1,
     "ess_min": 20
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5586,6 +5837,10 @@
     "sigma": 0.2,
     "rho": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "len",
@@ -5681,6 +5936,10 @@
     "estimate_every": 1,
     "rolling": false,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5861,6 +6120,10 @@
     "solver": "nloptr",
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -5995,6 +6258,10 @@
     "nsim": 0,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6076,6 +6343,10 @@
     "nboot": 100,
     "ci": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6156,6 +6427,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6179,6 +6454,10 @@
    "input_example": {
     "object": "<raw_handle>",
     "correlation": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6220,6 +6499,10 @@
     "garch_model": "garch",
     "garch_distribution": "norm",
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6381,6 +6664,10 @@
     "nsim": 1000,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6465,6 +6752,10 @@
     "q": 1,
     "truncation": 1000,
     "distribution": "t"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6565,6 +6856,15 @@
     "lambda_": 0.94,
     "initial": "sample_variance"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "variance",
+     "lambda_",
+     "half_life",
+     "forecast"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -6623,6 +6923,10 @@
     "model": "realised_garch",
     "leverage": true,
     "distribution": "t"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6710,6 +7014,10 @@
     "deseasonalise": true,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "prices",
@@ -6791,6 +7099,15 @@
     "method": "icss",
     "max_breaks": 10,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "break_dates",
+     "segment_variances",
+     "n_breaks",
+     "persistence_before_after"
+    ]
    },
    "arguments": [
     {
@@ -6878,6 +7195,15 @@
     "k_regimes": 2,
     "switching_variance": true,
     "n_starts": 10
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "transition_probabilities",
+     "params",
+     "smoothed_probabilities",
+     "expected_duration"
+    ]
    },
    "arguments": [
     {
@@ -6973,6 +7299,15 @@
     "draws": 5000,
     "warmup": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "latent_volatility",
+     "hurst",
+     "diagnostics"
+    ]
    },
    "arguments": [
     {

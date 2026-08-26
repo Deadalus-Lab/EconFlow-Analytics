@@ -1,3 +1,4 @@
+# --- gen_wrappers: header begin ---
 # SPDX-License-Identifier: AGPL-3.0-only
 """Method wrapper ``fast_transformation`` -- method card #103.
 
@@ -6,7 +7,7 @@
 
 Category 00-data-utilities; module ``fast_transformation``.
 
-Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+Reference implementation: pandas.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
@@ -37,6 +38,8 @@ __all__ = [
     "NODE_META",
     "wire_model",
 ]
+
+# --- gen_wrappers: header end ---
 
 
 def fast_growth(
@@ -72,6 +75,20 @@ def fast_growth(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_growth: not implemented."
@@ -108,6 +125,20 @@ def fast_diff(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_diff: not implemented."
@@ -138,6 +169,20 @@ def fast_lag(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_lag: not implemented."
@@ -166,6 +211,20 @@ def fast_cumsum(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_cumsum: not implemented."
@@ -199,6 +258,20 @@ def fast_scale(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_scale: not implemented."
@@ -232,6 +305,20 @@ def fast_within(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_within: not implemented."
@@ -277,6 +364,20 @@ def fast_aggregate(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_aggregate: not implemented."
@@ -306,6 +407,20 @@ def fast_summary(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_summary: not implemented."
@@ -349,6 +464,20 @@ def fast_transform(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "fast_transform: not implemented."

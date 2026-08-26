@@ -1,3 +1,4 @@
+# --- gen_wrappers: header begin ---
 # SPDX-License-Identifier: AGPL-3.0-only
 """Method wrapper ``real_time_revision`` -- method card #229.
 
@@ -6,7 +7,7 @@
 
 Category 23-real-time-revisions; module ``real_time_revision``.
 
-Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+Reference implementation: 10.1111/j.1538-4616.2008.00115.x.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
@@ -33,6 +34,8 @@ __all__ = [
     "wire_model",
 ]
 
+# --- gen_wrappers: header end ---
+
 
 def build_revision_triangle(
     *,
@@ -51,6 +54,20 @@ def build_revision_triangle(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "build_revision_triangle: not implemented."
@@ -85,6 +102,20 @@ def compute_revisions(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "compute_revisions: not implemented."
@@ -116,6 +147,20 @@ def analyze_revisions(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "analyze_revisions: not implemented."
@@ -153,6 +198,20 @@ def first_efficient_release(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "first_efficient_release: not implemented."
@@ -188,6 +247,20 @@ def nowcast_revisions(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "nowcast_revisions: not implemented."

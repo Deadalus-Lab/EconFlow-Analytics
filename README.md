@@ -21,7 +21,7 @@ Every figure below is reproduced by the command beside it, run from `engine/`.
 | Wrapper modules | **598** | `find src/econflow_engine/wrappers -name '*.py' -type f -not -name '__init__.py' \| wc -l` |
 | Category packages | **46** | `find src/econflow_engine/wrappers -mindepth 1 -maxdepth 1 -type d -not -name '__pycache__' \| wc -l` |
 | Methods (nodes) in the contract | **1456** | `python3 -c "import json;print(json.load(open('artifacts/node-specs.json'))['engine']['n_nodes'])"` |
-| Methods carrying an implementation | **0** | `python3 -c "import ast,pathlib;print(sum(1 for p in pathlib.Path('src/econflow_engine/wrappers').rglob('*.py') for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,ast.FunctionDef) and not n.name.startswith('_') and not(len(n.body)==2 and isinstance(n.body[1],ast.Raise) and 'NotImplementedError' in ast.unparse(n.body[1]))))"` |
+| Methods carrying an implementation | **0** | `python3 -c "import ast,pathlib;body=lambda f:[s for s in f.body if not(isinstance(s,ast.Expr) and isinstance(s.value,ast.Constant) and isinstance(s.value.value,str))];stub=lambda b:len(b)==1 and isinstance(b[0],ast.Raise) and isinstance(getattr(b[0].exc,'func',b[0].exc),ast.Name) and getattr(b[0].exc,'func',b[0].exc).id=='NotImplementedError';print(sum(1 for p in pathlib.Path('src/econflow_engine/wrappers').rglob('*.py') if p.name!='__init__.py' for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and not n.name.startswith('_') and not stub(body(n))))"` |
 | Method cards | **600** | `python3 -c "import json;print(json.load(open('artifacts/method-cards.json'))['source']['n_cards'])"` |
 | Python version | **3.12** | `cat .python-version` |
 

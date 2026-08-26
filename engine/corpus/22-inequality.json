@@ -51,6 +51,7 @@
     "L_general (lorenz_curve): the generalized Lorenz curve = L × mean (units of x); it embeds the level → a welfare comparison",
     "gini (lorenz_curve): the Gini of the same series, for consistency; n: the size"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "Theil/entropy are NOT bounded at 1 — do not read them as a percentage; only Gini/Atkinson/RS∈[0,1]",
     "Kolm is absolute (units of x), not a 0-1 relative index — do not compare it with the Gini",
@@ -69,7 +70,8 @@
     "Kolm 1976 JET 12:416 (absolute inequality)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 224,
@@ -119,6 +121,7 @@
     "within/between (the ineqd_decomp_* nodes): the within- and between-group inequality; third_component and third_name (overlap, stratification, cross or residual); between_elmo, the Elbers 'maximum' between-group term (blank when it is not requested, and OUTSIDE the identity)",
     "reconciled_total and reconcile_error (the ineqd_decomp_* nodes): the recomposition check, |total - sum(components)| <= 1e-6; plus decomp_method; groups, a frame per group with group/index/share/weight and optionally contribution; and n_groups"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the EXTENDED GINI param: param=2 == the classic Gini; param>1 weights the poor; param->1 => 0; 0<param<1 => a NEGATIVE index (a mathematically valid S-Gini, NOT conventional inequality — for a headline figure use param>=1)",
     "the ATKINSON DECOMPOSITION: BDA is MULTIPLICATIVE (total=1-(1-within)(1-between)) — do NOT add within+between+cross (it does not equal the total; the 'cross' term = within+between-total); DP is ADDITIVE (within+between+residual)",
@@ -138,7 +141,8 @@
     "Reynolds M., Smolensky E. (1977) Public Expenditure, Taxes and the Distribution of Income (the redistribution effect)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 225,
@@ -194,6 +198,7 @@
     "inequality_measures (ineq_regression_decomp): a named record (gini, mld, theil, variance_logincome); a decomposition frame (variable, contribution — summing to 1); adjusted_r2/r_squared; n_deleted/n_used; plus a note",
     "variance_logincome (ineq_change_decomp): (year1, year2, change); the change_absolute and change_relative frames (variable, price, quantity, total); residual_absolute/residual_relative; the Yun identity holds: the sum of price and quantity, plus the residual, equals the change"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a DUAL weights convention: rif/gini_decomp/mld_decomp take weights = a numeric VECTOR; rifr/rifrSE/dineq_rb/dineq_change_rb take weights = a COLUMN NAME (a string) inside data — the wrong type = a silent error/misalignment",
     "rifr CHANGES ITS OUTPUT SHAPE per method (quantile: Coef/SE/t/p matrices; gini/variance: a coefficients matrix + a scalar r2) — the wrapper normalises it into ONE long-format data_frame; do not rely on the raw shape",
@@ -212,7 +217,8 @@
     "Heckley, Gerdtham & Kjellsson 2016 (J. Health Economics 48:89, a general RIF decomposition of socioeconomic inequality)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 226,
@@ -262,6 +268,7 @@
     "measure/income: which index, and which variable; n_total/n_used/n_na: the sizes; n_used counts the observations that ACTUALLY enter the estimator (n_total minus n_na, or the count within the domain) and is NOT inflated by the incomes the estimator drops",
     "g/type_thresh/abs_thresh (svy_poverty): the FGT parameters; alpha1/alpha2 (svy_inequality): the QSR quantiles"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the linearisation step is MANDATORY: svyfgt/svyarpr/svyqsr error without it, BUT svygini/svyzenga compute SILENTLY (with a possibly wrong SE) — the wrapper always runs it",
     "wrong ids/weights/strata → a wrong linearized SE (the estimate may be right while the SE is not); the design must reflect the ACTUAL sampling",
@@ -279,7 +286,8 @@
     "Eurostat EU-SILC methodology (ARPR at 60% of the median, the S80/S20 quintile share ratio)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 227,
@@ -324,6 +332,7 @@
     "gini (gini_gb2): the analytic Gini of the GB2, scale-free and depending only on a, p and q",
     "arpr (arpr_gb2): the analytic ARPR (scale-free); prop is the poverty line as a proportion of the median"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "CONVERGENCE: a small or heavy-tailed sample stops the FULL ML from converging, and yet it returns parameters as if it had succeeded — the convergence gate blocks that, and converged=False is not a valid output",
     "POSITIVE SUPPORT: zero, negative or missing incomes do NOT raise an error in the ML fit; it proceeds silently. The x>0 and no-gaps gate is imposed by the project, and the reference example itself filters to positive incomes",
@@ -334,7 +343,8 @@
    ],
    "sources": null,
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 228,
@@ -385,6 +395,7 @@
     "income_share (income_share_top): the income share of those above the p-quantile, in [0,1]; threshold_quantile is that quantile; top_fraction is 1-p (p=0.9 gives the top 10%); plus count_top and n",
     "affluence_line: the Medeiros affluence line; median_multiple = rho/median, above 1; median_income; poverty_gap; k; n"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THRESHOLD DIRECTION (critical): the affluence line is an UPPER threshold. richness_index requires k>1, so that rho = k times the median sits above the median; k<=1 puts the line at or below the median and makes 'everyone rich' (live: k=0.5 gives a headcount of 0.9, k=1 gives 0.4). A gate blocks it",
     "the OPPOSITE meaning of k: in affluence_line, k defines a POVERTY line BELOW the median, so 0<k<1; it mirrors richness_index — do not confuse the two",
@@ -403,7 +414,8 @@
     "Brzezinski 2010 Social Indicators Research 99:285-299 (income affluence in Poland; the richness headcount & top income share)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 558,
@@ -434,6 +446,7 @@
     "se, conf_int: design-based inference",
     "decomposition: contributions by subgroup"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE HEADCOUNT IS INSENSITIVE TO HOW POOR THE POOR ARE: a transfer to the least poor person can reduce it while worsening the gap, which is why the FGT family exists",
     "a relative poverty line moves with the median, so poverty can fall in a recession as the median falls -- that is arithmetic, not improvement",
@@ -445,7 +458,8 @@
     "svy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 559,
@@ -476,6 +490,7 @@
     "top_shares: shares of the top percentiles",
     "goodness_of_fit: whether the Pareto assumption holds above the threshold"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE HILL ESTIMATOR IS ACUTELY SENSITIVE TO THE THRESHOLD, and the Hill plot is usually unstable enough that any index in a wide range can be justified",
     "survey data systematically under-cover the top, so a tail fitted to survey data understates concentration regardless of the estimator",
@@ -487,7 +502,8 @@
     "powerlaw"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 560,
@@ -518,6 +534,7 @@
     "se: inference by simulation or bootstrap",
     "n_units: the number of areas, which drives the bias"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "SEGREGATION INDICES ARE BIASED UPWARD WHEN UNITS ARE SMALL, because random allocation produces uneven counts -- the bias correction is not optional with small areas",
     "the dissimilarity index measures evenness only; two cities with identical indices can differ completely in isolation and exposure",
@@ -530,7 +547,8 @@
     "segregation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 561,
@@ -561,6 +579,7 @@
     "by_region: within-region inequality per region",
     "spatial_component: the neighbour-based part, where the spatial Gini is used"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE GINI DOES NOT DECOMPOSE ADDITIVELY when subgroup distributions overlap -- it leaves a residual overlap term, which is why the Theil index is used for decomposition",
     "the between-share depends entirely on the regional classification; finer regions mechanically raise it",
@@ -572,7 +591,8 @@
     "inequality"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 562,
@@ -603,6 +623,7 @@
     "transition_matrix: quintile or decile mobility",
     "upward_mobility: the expected rank of children from the bottom"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "THE INTERGENERATIONAL ELASTICITY IS SENSITIVE TO THE AGE AT WHICH INCOME IS MEASURED (lifecycle bias) and to changing inequality between generations; the rank-rank slope is robust to both, which is why it replaced it",
     "single-year income is a noisy proxy for permanent income and attenuates every mobility measure",
@@ -614,7 +635,8 @@
     "giddy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 563,
@@ -645,6 +667,7 @@
     "median_split: shares above and below the median",
     "comparison: the Gini, for contrast"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POLARISATION AND INEQUALITY CAN MOVE IN OPPOSITE DIRECTIONS: a transfer from a rich person to a middle-income person lowers the Gini and can raise bipolarisation",
     "the Esteban-Ray index depends on a sensitivity parameter with no natural value; results must be reported across a range",
@@ -654,10 +677,11 @@
     "Esteban & Ray 1994 (Econometrica 62:819-851)",
     "Wolfson 1994 (American Economic Review 84:353)",
     "Foster & Wolfson 2010 (Journal of Economic Inequality 8:247)",
-    "ineqpy"
+    "inequality"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 564,
@@ -688,6 +712,7 @@
     "sensitivity: how inequality and poverty move across scales",
     "elasticity: the implied economies-of-scale elasticity"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE SCALE CHOICE MATERIALLY CHANGES MEASURED INEQUALITY AND POVERTY, and it changes them differently for households of different types -- reporting a sensitivity range is the honest practice",
     "equivalised income is assigned to every household member, which assumes equal sharing within the household -- an assumption with no support in the data",
@@ -698,7 +723,8 @@
     "OECD 2013, Framework for Statistics on the Distribution of Household Income"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -709,6 +735,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "k": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -761,6 +791,10 @@
     "shape1": 0.5,
     "shape2": 0.5,
     "shape3": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -824,6 +858,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -884,6 +922,10 @@
     "data1": "<df_handle>",
     "formula2": "y ~ x",
     "data2": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -974,6 +1016,10 @@
     "formula": "y ~ x",
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -1022,6 +1068,10 @@
    "register": null,
    "input_example": {
     "z": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1086,6 +1136,10 @@
     "x": "<matrix_handle>",
     "z": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1137,6 +1191,10 @@
     "shape2": 0.5,
     "shape3": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "shape1",
@@ -1185,6 +1243,10 @@
    "register": null,
    "input_example": {
     "x": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1237,6 +1299,10 @@
     "z": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1332,6 +1398,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1409,6 +1479,10 @@
     "z": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1501,6 +1575,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1550,6 +1628,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1586,6 +1668,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "y": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1649,6 +1735,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1699,6 +1789,10 @@
     "x": "<matrix_handle>",
     "p": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1748,6 +1842,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1771,6 +1869,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "z": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1821,6 +1923,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "k": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1916,6 +2022,10 @@
     "x": "<matrix_handle>",
     "quantile": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2003,6 +2113,10 @@
    "input_example": {
     "formula": "y ~ x",
     "data": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2108,6 +2222,10 @@
     "Nboot": 100,
     "confidence": 0.95,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2250,6 +2368,10 @@
     "income": "...",
     "ids": "...",
     "weights": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2449,6 +2571,10 @@
     "income": "...",
     "ids": "...",
     "weights": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2690,6 +2816,10 @@
     "relative": 0.6,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "income",
@@ -2811,6 +2941,15 @@
     ],
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "alpha",
+     "threshold",
+     "top_shares",
+     "goodness_of_fit"
+    ]
+   },
    "arguments": [
     {
      "name": "income",
@@ -2914,6 +3053,15 @@
     "index": "dissimilarity",
     "bias_correct": true,
     "nboot": 500
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "index",
+     "decomposition",
+     "se",
+     "n_units"
+    ]
    },
    "arguments": [
     {
@@ -3038,6 +3186,10 @@
     "region": "<series_handle>",
     "index": "theil"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "income",
@@ -3120,6 +3272,15 @@
     "destination": "<series_handle>",
     "n_groups": 5,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "rank_rank",
+     "ige",
+     "transition_matrix",
+     "upward_mobility"
+    ]
    },
    "arguments": [
     {
@@ -3212,6 +3373,10 @@
     "alpha": 1.0,
     "n_groups": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "income",
@@ -3295,6 +3460,15 @@
     "scale": "oecd_modified",
     "elasticity": 0.5,
     "sensitivity": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "equivalised",
+     "scale_values",
+     "sensitivity",
+     "elasticity"
+    ]
    },
    "arguments": [
     {

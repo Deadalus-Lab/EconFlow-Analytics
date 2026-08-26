@@ -31,6 +31,7 @@
     "implied_volatility: the inverted volatility, None where no solution exists",
     "moneyness, time_to_expiry: the inputs, echoed for auditability"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "implied volatility DOES NOT EXIST when the price violates the no-arbitrage bounds; returning None is correct and a returned number in that case is a solver artefact",
     "deep in- and out-of-the-money inversions are numerically ill-conditioned because vega goes to zero -- small price errors become large volatility errors",
@@ -40,10 +41,11 @@
     "Black & Scholes 1973 (Journal of Political Economy 81:637-654)",
     "Bachelier 1900, Theorie de la speculation",
     "Jaeckel 2015, Let's be rational (Wilmott 2015:40)",
-    "py-vollib"
+    "vollib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 341,
@@ -76,6 +78,7 @@
     "butterfly_arbitrage, calendar_arbitrage: violation flags and where they occur",
     "rmse: fit quality against the quotes"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "a surface that fits well can still admit ARBITRAGE; the butterfly and calendar checks are not diagnostics of fit, they are constraints on validity",
     "SVI in raw parameterisation has parameter combinations that guarantee butterfly arbitrage -- fitting without the constraint routinely lands there",
@@ -88,7 +91,8 @@
     "QuantLib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 342,
@@ -119,6 +123,7 @@
     "quantiles: implied quantiles, which are the usable summary",
     "negative_mass: where the density came out negative, which signals arbitrage or over-fitting"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the density is a SECOND DERIVATIVE of price in strike, so it amplifies quote noise enormously -- differentiating raw quotes is never acceptable",
     "negative density values mean the fitted price function is not convex, i.e. butterfly arbitrage; they are a validity failure, not a rounding issue",
@@ -130,7 +135,8 @@
     "Figlewski 2010, Estimating the implied risk-neutral density (Volatility and Time Series Econometrics)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 343,
@@ -162,6 +168,7 @@
     "truncation_error: the contribution the missing strike wings would have made",
     "variance_risk_premium: implied minus realised, where realised is supplied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the integral requires strikes over the WHOLE positive axis; a finite strike range truncates it and systematically understates variance, especially in stressed markets",
     "the VIX construction interpolates two maturities to a constant horizon; comparing a raw single-maturity figure with VIX is not like for like",
@@ -170,11 +177,11 @@
    "sources": [
     "Britten-Jones & Neuberger 2000 (Journal of Finance 55:839-866)",
     "Carr & Wu 2009 (Review of Financial Studies 22:1311)",
-    "CBOE 2019, VIX White Paper",
-    "QuantLib"
+    "CBOE 2019, VIX White Paper"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 344,
@@ -204,6 +211,7 @@
     "skew_measure: the strike-based skew slope, an alternative summary",
     "wing_contribution: how much of each moment comes from the extrapolated wings"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "higher moments are dominated by the WINGS, which is exactly where quotes are sparsest and extrapolation is least reliable -- report the wing contribution",
     "risk-neutral skewness is not physical skewness; it embeds the price of crash risk",
@@ -214,7 +222,8 @@
     "Carr & Madan 2001, Optimal positioning in derivative securities (Quantitative Finance 1:19)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 345,
@@ -246,6 +255,7 @@
     "fan: implied quantile bands per horizon",
     "slope, curvature: summary shape statistics"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "FORWARD variance computed from two maturities can come out negative when the term structure is non-monotonic and the quotes are noisy -- that is a data problem surfacing, not a calculation error",
     "the fan chart is risk-neutral and is systematically wider than a physical forecast interval",
@@ -257,7 +267,8 @@
     "QuantLib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 346,
@@ -290,6 +301,7 @@
     "feller_satisfied: whether the Heston variance can reach zero",
     "implied_surface: the model surface, for comparison with the market"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the Heston FELLER CONDITION is routinely violated by calibrated parameters, which lets variance hit zero and makes simulation schemes fail silently",
     "calibration is a non-convex problem with many local optima; a good fit from one starting point is not the global fit",
@@ -302,7 +314,8 @@
     "stochvolmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -319,6 +332,10 @@
     "option_type": "call",
     "model": "black_scholes",
     "dividend": 0.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -447,6 +464,10 @@
     "option_type": "<series_handle>",
     "model": "black_scholes"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "price",
@@ -559,6 +580,10 @@
     "model": "svi",
     "enforce_no_arbitrage": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "strikes",
@@ -660,6 +685,10 @@
      2.0
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "surface",
@@ -710,6 +739,10 @@
     "surface": "<raw_handle>",
     "grid_size": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "surface",
@@ -751,6 +784,15 @@
     "rate": 1.0,
     "smoothing": "svi",
     "grid_size": 500
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "density",
+     "cdf",
+     "quantiles",
+     "negative_mass"
+    ]
    },
    "arguments": [
     {
@@ -863,6 +905,10 @@
     "time_to_expiry": 1.0,
     "rate": 1.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "strikes",
@@ -953,6 +999,10 @@
     "realised_variance": "<series_handle>",
     "horizon": 21
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "implied_variance",
@@ -1006,6 +1056,10 @@
     "forward": 1.0,
     "time_to_expiry": 1.0,
     "rate": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1102,6 +1156,10 @@
      2.0
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "maturities",
@@ -1148,6 +1206,10 @@
      0.75,
      0.95
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1210,6 +1272,10 @@
     "forward": "<series_handle>",
     "model": "heston",
     "n_starts": 5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1325,6 +1391,10 @@
      2.0
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -1377,6 +1447,10 @@
     "n_steps": 252,
     "scheme": "qe",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

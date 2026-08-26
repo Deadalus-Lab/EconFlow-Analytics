@@ -1,3 +1,4 @@
+# --- gen_wrappers: header begin ---
 # SPDX-License-Identifier: AGPL-3.0-only
 """Method wrapper ``markov_switching_garch`` -- method card #31.
 
@@ -5,7 +6,7 @@
 
 Category 06-volatility-regimes; module ``markov_switching_garch``.
 
-Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+Reference implementation: 10.1093/jjfinec/nbh020.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
@@ -34,6 +35,8 @@ __all__ = [
     "wire_model",
 ]
 
+# --- gen_wrappers: header end ---
+
 
 def msg_spec(
     *,
@@ -59,6 +62,20 @@ def msg_spec(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "msg_spec: not implemented."
@@ -84,6 +101,20 @@ def msg_fit_ml(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "msg_fit_ml: not implemented."
@@ -109,6 +140,20 @@ def msg_fit_mcmc(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "msg_fit_mcmc: not implemented."
@@ -136,6 +181,20 @@ def msg_predict(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "msg_predict: not implemented."
@@ -158,6 +217,20 @@ def msg_state(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "msg_state: not implemented."
@@ -186,6 +259,20 @@ def msg_sim(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "msg_sim: not implemented."
@@ -212,6 +299,20 @@ def msg_risk(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "msg_risk: not implemented."

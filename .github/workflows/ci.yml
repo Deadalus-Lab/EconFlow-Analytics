@@ -144,18 +144,15 @@ jobs:
           done < <(find src scripts tests -name '*.py' -type f -not -path '*__pycache__*')
 
           echo "scanned $total Python files, $missing without a header"
-          # Anti-vacuity: the loop must actually have scanned the tree. The floor
-          # sits below the 783 this glob matches today -- spdx.py_files_total in
-          # .github/inventory.json, reproduced from engine/ by
-          #   find src scripts tests -name '*.py' -not -path '*__pycache__*' | wc -l
-          # -- and ABOVE the 687 that remain if the generated tier is ever
-          # dropped from the glob by accident:
-          #   find src scripts tests -name '*.py' -not -path '*__pycache__*' \
-          #     -not -path 'src/econflow_engine/generated/*' | wc -l
-          # So losing a whole tier turns this red, which is the one thing a floor
-          # placed anywhere below 687 could no longer do.
-          if [ "$total" -lt 740 ]; then
-            echo "FAIL: scanned only $total files; the glob is wrong, not the tree"
+          # Anti-vacuity: the loop must actually have scanned the tree, and the
+          # floor is READ FROM THE MANIFEST rather than written here. It is a
+          # different quantity from spdx.py_files_total -- that pair is an exact
+          # equality, this is a floor -- so it has its own key, and the reason it
+          # sits where it does is recorded beside it in .github/inventory.json.
+          floor="$(python3 -c "import json;print(json.load(open('../.github/inventory.json'))['spdx']['min_scanned'])")"
+          if [ "$total" -lt "$floor" ]; then
+            echo "FAIL: scanned only $total files against a floor of $floor;"
+            echo "the glob is wrong, not the tree"
             exit 1
           fi
           [ "$missing" -eq 0 ]

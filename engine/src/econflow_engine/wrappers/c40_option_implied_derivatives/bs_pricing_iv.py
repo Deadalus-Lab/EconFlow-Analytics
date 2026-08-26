@@ -1,3 +1,4 @@
+# --- gen_wrappers: header begin ---
 # SPDX-License-Identifier: AGPL-3.0-only
 """Method wrapper ``bs_pricing_iv`` -- method card #340.
 
@@ -5,7 +6,7 @@
 
 Category 40-option-implied-derivatives; module ``bs_pricing_iv``.
 
-Reference implementation: py-vollib.
+Reference implementation: vollib.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
@@ -28,6 +29,8 @@ __all__ = [
     "NODE_META",
     "wire_model",
 ]
+
+# --- gen_wrappers: header end ---
 
 
 def opt_price(
@@ -59,6 +62,20 @@ def opt_price(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "opt_price: not implemented."
@@ -92,6 +109,20 @@ def opt_implied_volatility(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "opt_implied_volatility: not implemented."

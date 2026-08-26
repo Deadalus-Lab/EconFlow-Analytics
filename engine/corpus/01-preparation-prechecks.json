@@ -33,6 +33,7 @@
     "decision: pre-computed interpretation at alpha",
     "warnings: 'p-value smaller/greater than printed' -> p-value clamped (0.01/0.10), not exact"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "KPSS polarity: H0=stationarity -> rejection=NON-stationarity (the opposite of ADF/PP)",
     "non-rejection by ADF does not prove a unit root (low power) -> confirmatory KPSS",
@@ -46,7 +47,8 @@
     "Enders 2015 Applied Econometric Time Series 4th ed. ch.4"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 2,
@@ -85,6 +87,7 @@
     "bpoint (unitroot_zivot_andrews): estimated break position; tstats: rolling t-stat profile; yd (unitroot_dfgls): GLS-detrended",
     "testreg/model/res: heavy lm/text -> stubbed by to_mcp"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "NO p-value: compare teststat with cval by hand",
     "tail polarity: ADF/PP/ERS/ZA reject when teststat < cval (left tail); KPSS when teststat > cval (right tail)",
@@ -96,7 +99,8 @@
     "KPSS 1992; Phillips & Perron 1988; Enders 2015 ch.4"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 3,
@@ -130,6 +134,7 @@
     "run_structural_change_test: atomic statistic/p_value/method/data_name = the main decision",
     "breakpoints_full: heavy breakpointsfull -> stubbed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the par of run_fluctuation_process is NOT a decision; the decision is the p-value of run_structural_change_test",
     "run_structural_change_test takes RAW Fstats/efp objects (not wrapper lists) — gate inherits",
@@ -141,7 +146,8 @@
     "Andrews 1993 (Econometrica 61:821, sup-F)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 4,
@@ -174,6 +180,7 @@
     "qs: QS seasonality test (post-check, small p = seasonality remains); udg: diagnostics",
     "err/model/fivebestmdl: X-13 warnings, selected ARIMA, top-5"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "there is no seasonal extractor — the spec is auto-detected; seasonal is None when no SEATS spec was selected",
     "final = original/(seasonal*trading-days); use get_x13_series(obj,'seats.adjustfac') for the ratio",
@@ -186,7 +193,8 @@
    "precondition_tools": [
     "check_x13 (X-13 binaries installed/working before seas)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 5,
@@ -216,6 +224,7 @@
     "yadj: series cleaned of outliers (ts); fit: final ARIMA; effects: contribution of the outliers",
     "tsoutliers_object: the whole object (the docs do not enumerate named elements)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "LS (level shift) != AO: a permanent level shift -> a possible structural break/pseudo unit root",
     "before concluding I(1), check whether a single LS explains the non-stationarity",
@@ -226,7 +235,8 @@
     "Chen & Liu 1993 (JASA 88(421):284)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 6,
@@ -259,6 +269,7 @@
     "ips_tbar_crit: critical values only for ips_stat=tbar (lags=0)",
     "run_cipstest: the whole test record"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "polarity: LLC/IPS/Fisher/CIPS have H0=unit root; BUT hadri has H0=stationarity (the opposite, like KPSS)",
     "IPS non-rejection != all units I(1); it rejects if SOME units are stationary (heterogeneous alternative)",
@@ -274,7 +285,8 @@
     "make_panel_frame (panel structure before cipstest: pseries gate)",
     "run_cipstest (model=cmg if cross-sectional dependence is present)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 89,
@@ -306,6 +318,7 @@
     "lag_method/lag_order/strdet/deterministic: the regression specification",
     "test_object/fitted_model: stubbed by to_mcp"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "polarity: HEGY H0=unit root (small p=NO root); Canova-Hansen H0=stability (small p=changing) — OPPOSITE",
     "HEGY = MANY verdicts (one per frequency); not one; a root may sit at a seasonal harmonic but not at zero frequency",
@@ -319,7 +332,8 @@
     "Diaz-Emparanza 2014 (CSDA 76:237, response-surface p-values)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 122,
@@ -356,6 +370,7 @@
     "boot_panel: statistic(Group-Mean)/some_stationary + individual_statistics/pvalues/estimates/selected_lags (N×specs matrices) + series_names",
     "order_integration: order_int (named I(d) per series) + classification + diff_data (the stationarised TxN matrix — a PRODUCER, register->Parquet)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POLARITY: H0=unit root ⇒ p<alpha ⇒ STATIONARY (the OPPOSITE of KPSS, where rejection ⇒ non-stationary)",
     "the panel H0 is that ALL series have a UR; rejection ⇒ SOME are stationary (NOT all) — run a per-series follow-up",
@@ -373,7 +388,8 @@
     "boot_adf",
     "boot_union"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 123,
@@ -411,6 +427,7 @@
     "decision",
     "warnings"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POLARITY: H0=unit root, rejection (p<alpha) => STATIONARITY (the OPPOSITE of KPSS)",
     "silently wrong (gated): a silent gap-drop in y; silent acceptance of gaps or a misaligned X; a cryptic out-of-bounds error on a constant y, on min_lag_X>max_lag_X, or on excessive lags",
@@ -427,7 +444,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 124,
@@ -456,6 +474,7 @@
     "gts_indicator_saturation: is_names (e.g. sis41), n_indicators, and the saturation dates per indicator type (breaks/date/index/coef/coef_se/coef_t/coef_p)",
     "gts_model_selection: specific_spec (the regressor numbers kept), terminals_results, n_estimations, the empty_model flag"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "sisNN=a step shift at observation NN (a permanent level change); iisNN=an impulse (a single outlier); tisNN=a trend shift — do not confuse them",
     "gauge: a tighter t_pval ⇒ fewer false detections and lower power; the saturation default is t_pval=0.001, NOT 0.05",
@@ -469,7 +488,8 @@
    "precondition_tools": [
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (stationarity of y before the GUM)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 125,
@@ -505,6 +525,7 @@
     "run_seasonality_test (combined): no single statistic; p_values carries the three named Webel-Ollech component p-values (QS, QS on the residuals, Kruskal-Wallis on the residuals)",
     "ocsb: + method/augmentations/nrun/seed; the null is a seasonal unit root"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POLARITY: combined/qs/fried/kw/seasdum/welch have H0=no seasonality (a small p => seasonal); ocsb has H0=A SEASONAL UNIT ROOT, REVERSED (fail to reject, p>=alpha => seasonal, the nsdiffs convention) -> which is why null_hypothesis is always returned",
     "the combined test returns a LOGICAL decision (QS p<0.01 OR Kruskal-Wallis p<0.002), NOT a statistic; alpha does not affect it",
@@ -517,7 +538,8 @@
     "Osborn, Chui, Smith & Birchenhall (1988), Seasonality and the order of integration for consumption, Oxford Bull. Econ. Stat. 50(4):361-377 (OCSB)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 126,
@@ -554,6 +576,7 @@
     "decomp (tsf_stl/tsf_classical_decomposition): mable mdl_df [PRODUCER -> RDS bucket]",
     "features (tsf_features): a named numeric list (one row) + feature_names + n_features"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "STL on frequency==1 SILENTLY drops the seasonal component -> a frequency>1 gate (do not read it as 'no seasonality')",
     "STL or the classical decomposition on a series with gaps yields an empty model and then a cryptic component error -> a gap gate plus an empty-model post-gate",
@@ -570,7 +593,8 @@
     "tsf_stl",
     "tsf_classical_decomposition"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 127,
@@ -597,6 +621,7 @@
     "bwidth: the relative [0,1] data-driven IPI bandwidth (NOT a number of observations); sum_autocov: the estimated sum of autocovariances",
     "model: the fitted decomposition object (a producer -> a binary pointer)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the routine accepts a matrix SILENTLY (silently wrong) — the wrapper blocks multivariate input",
     "bwidth is a RELATIVE bandwidth, not a number of observations",
@@ -609,7 +634,8 @@
    "precondition_tools": [
     "c01_preparation_prechecks/seasonality.run_seasonality_test (seasonality is present)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 128,
@@ -642,6 +668,7 @@
     "model: the full fit (a producer -> the 'model' register field, a binary bucket; a stub once serialised)",
     "bfast_monitor: breakpoint (a date, or blank), disturbance (a boolean), magnitude = median(data - prediction), history_period/monitor_period"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the breakpoints are positions within the gap-free component series, NOT raw positions — the node already returns them as dates",
     "no break: the no-breakpoint flags are set, so the breakpoint fields come back blank rather than as a breakpoint object -> n=0 and empty fields",
@@ -658,7 +685,8 @@
     "c00_data_utilities/series_layout_conversion.ts_convert (to a series with frequency>1)",
     "c00_data_utilities/replacement_missing_values.impute_kalman (fill the gaps; otherwise use the gap-tolerant decomposition)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 129,
@@ -690,6 +718,7 @@
     "ps_descriptives: stats_table records with a 'statistic' column (the names preserved) + one column per variable; skew_2se/kurt_2se > 1 ⇒ significantly different from 0; normtest_p is the Shapiro-Wilk p-value",
     "ps_decompose: the components as a frame — differencing gives filtered/residuals; loess with trend=True gives trend/seasonal/residuals, and with trend=False deseasoned/seasonal"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "ps_descriptives on a NON-numeric input silently blanks everything (a hard gate: every column must be numeric)",
     "the differencing route FILLS gaps in the input silently -> a single gap gate across the whole of ps_decompose",
@@ -705,7 +734,8 @@
     "c00_data_utilities/replacement_missing_values.impute_interpolation (fill the gaps before the decomposition or the analysis)",
     "c00_data_utilities/series_layout_conversion.ts_fill_regular (make the series regular before the loess decomposition)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 130,
@@ -741,6 +771,7 @@
     "r/P/n (rdesc_correlation): matrices (nested rows + labels); the diagonal of P is blank; pairwise deletion -> one n per pair",
     "weighted_mean/weighted_var/weighted_sd/weighted_quantiles (rdesc_weighted_stats), named, plus probs/var_method/normwt/n/sum_weights"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "describe: quantiles ONLY for continuous variables (>10 distinct); discrete ones get no quantiles; the values are rounded to digits significant figures (raise digits for precision); pMedian=Hodges-Lehmann robust location, Gmd=Gini robust dispersion",
     "the P matrix has a blank diagonal (there is no self-correlation p-value); with pairwise deletion a strong correlation on a small n is fragile (read the n matrix); Spearman is Pearson on the ranks",
@@ -751,7 +782,8 @@
     "Hollander & Wolfe, Nonparametric Statistical Methods 1973 (rcorr midrank Spearman)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 131,
@@ -789,6 +821,7 @@
     "tr_pettitt: change_point_index (an integer index 1.n, NOT a date), statistic (U*), Uk (the |U[k]| series, chart-data)",
     "tr_seasonal_mann_kendall: overall statistic/p_value + season_S/season_varS/season_pvalue/season_z per-season vectors (length=frequency)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MK/Sen test MONOTONICITY, not linearity — a U shape gives a non-significant MK despite a strong non-monotone change",
     "on autocorrelated data the p-value is understated (a spurious trend) — prewhiten or use a block bootstrap",
@@ -799,7 +832,8 @@
     "Hipel & McLeod (1994) Time Series Modelling of Water Resources and Environmental Systems; Sen (1968) JASA 63:1379-1389; Pettitt (1979) Appl. Statist. 28:126-135; Hirsch, Slack & Smith (1982) Water Resources Research 18:107-121"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 132,
@@ -826,6 +860,7 @@
     "nlt_nonlinearity: n_reject/reject_tests/overall_nonlinear/verdict",
     "nlt_surrogate: data_statistic vs surrogates_statistics (a vector, chart-data) + n_surrogates + reject_linearity/direction/decision"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "McLeod-Li returns a VECTOR of p-values, one per lag; the decision takes the MINIMUM and there is no single statistic; it tests ARCH (heteroscedasticity), NOT a nonlinear mean",
     "the White/Teraesvirta ANN test is STOCHASTIC (random weights): the p-value varies without a seed -> the seed is MANDATORY in nlt_nonlinearity too",
@@ -838,7 +873,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (stationarity first)",
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test (stationarity first)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 246,
@@ -887,6 +923,7 @@
     "mv_outliers: distance_table (an n×2 «classical | robust» table — THE CENTRAL chart-data) + classical/robust + outlier_classical/outlier_robust + masked / swamped / both (+ n_ and _labels for each) + order_robust / ranked_labels (by decreasing robust D², ties broken on the name) + classical_center/classical_cov/classical_rcond + robust_center/robust_cov/robust_rcond + h/h_share/best_subset/in_best_subset/mcd_weight/crit + cutoff/quantile/df/alpha/use_correction/small_sample/seed",
     "ALL of them: observations/variables (the row/column names; if they are missing, obs1.obsN / v1.vP are generated) — every flag/distance is named PER ROW"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MASKING AND SWAMPING ARE THE POINT OF THIS NODE: the classical mean and covariance are computed FROM the outlying points themselves, so an outlier «hides» itself by inflating the variance, while clean points look outlying. The MCD estimates from the «cleanest» subset h, so it is not corrupted. Do NOT read ONLY the classical column: read n_masked and n_swamped (live in the tests, the classical method found 2 of the 4 planted outliers while the MCD found all 4 — and no univariate check would have seen any of them)",
     "alpha STRICTLY in [0.5, 1) — SILENTLY WRONG: the MCD routine(alpha = 0.2) does NOT error, it only warns «subsample size h < n/2 may be too small» and returns a fit with h = 9 out of 30 (a breakdown point > 50%: the «robust» subset can be ENTIRELY outlying). The reference documentation states «Allowed values are between 0.5 and 1» => OUR OWN hard gate",
@@ -915,7 +952,8 @@
     "c00_data_utilities/replacement_missing_values.impute_interpolation # gaps must be imputed BEFORE the node: the MCD SILENTLY drops the incomplete rows (live, 29 observations out of 30)",
     "mv_mahalanobis # a cheap algebraic pass: cov_rcond reveals collinearity BEFORE the MCD runs"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 247,
@@ -967,6 +1005,7 @@
     "the individual tests: test/test_label/method/statistic/statistic_name/p_value/alpha/reject/decision ('reject_normality' or 'fail_to_reject') + interpretation, a ready-made sentence, + n/series/na_policy + the raw test record",
     "the Pearson chi-square ONLY: df / n_classes / expected_per_class / adjust / min_expected (blank in the other tests, which is how you see that they do NOT apply)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MIN-N PER TEST, NEVER A GLOBAL n (live-verified messages): Anderson-Darling and Cramér-von Mises need n > 7 («sample size must be greater than 7»); Lilliefors needs n > 4; Shapiro-Francia needs 5 <= n <= 5000 («sample size must be between 5 and 5000» — it RULES OUT large samples too); the Pearson chi-square has NO gate of its own (see below). In the battery there is NO silent skip: if a requested test does not fit, the call STOPS and the user removes it EXPLICITLY from 'tests' (blocked-by-gate, §5)",
     "AN INCOMPATIBLE MISSING-VALUE POLICY — AN EXPLICIT PROJECT DECISION: the EDF tests declare «Missing values are allowed» and SILENTLY drop the incomplete cases (live, a gap in the input still returns a normal-looking result), whereas the EXISTING Jarque-Bera node (#1) ERRORS. On the SAME input the two normality nodes would give one result and one error, and the reported n would NOT be the n of the input, so the min-n gates would be read wrongly. THE CHOICE: ONE policy, the STRICTER one — a HARD STOP, with a message pointing at the imputation path (category 00); na_policy='error' is ALWAYS returned in the output",
@@ -999,7 +1038,8 @@
     "c00_data_utilities/replacement_missing_values.impute_interpolation # gaps must be imputed BEFORE the node (PROJECT POLICY: a hard stop, NEVER a silent dropping of observations)",
     "nt_normality_battery # n / the min-n values are checked PER TEST: if one does not fit, the node BLOCKS and says WHICH one to remove"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 248,
@@ -1049,6 +1089,7 @@
     "dp_quality_flags: flags = long-format records {scope, column, issue, severity, detail, value} SORTED (blocker < warning < info, then issue, then column) + n_flags/n_blockers/n_warnings/has_blocker/blocked_columns + profile + dataset + thresholds",
     "ALL of them: quantile_type + moment_type + kurtosis_excess=True (§3b gate 6 — TWO profiles are comparable ONLY under the SAME estimator)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "AN EXPLICIT DEFINITION OF THE MOMENTS (NEVER «just skewness»): Joanes & Gill (1998), the standard three-type typology. m_r = (1/n) * sum (x_i - xbar)^r, the MOMENT estimator with divisor n rather than n-1. type1 (THE DEFAULT): g1 = m3/m2^(3/2), g2 = m4/m2^2 - 3; type2 (SAS and SPSS): G1 = g1*sqrt(n(n-1))/(n-2) for n>=3, G2 = ((n+1)g2+6)(n-1)/((n-2)(n-3)) for n>=4; type3 (Minitab and BMDP): b1 = g1*((n-1)/n)^(3/2), b2 = (g2+3)(1-1/n)^2 - 3. THE KURTOSIS IS ALWAYS EXCESS — 0 under normality — in ALL THREE types, and that is declared explicitly as kurtosis_excess=True",
     "COMPARABILITY: OUR default is type1, whereas other implementations default to type = 3 — TWO «skewness» values on the same data can differ because the ESTIMATOR changed, not the data. That is why moment_type/quantile_type/kurtosis_excess are ALWAYS returned (§3b gate 6). The tests pin identity against an INDEPENDENT recomputation AND against an independent implementation for all 3 types",
@@ -1073,7 +1114,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c01_preparation_prechecks/profiling_quality_report) — the explicit moment formulas, the live-verified silently-wrong cases (a duration stored as a double; the minimum of an all-missing column returning an infinity with a warning; an infinite standard deviation on overflow), and the justification for building the histogram directly rather than through the conventional helper"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 249,
@@ -1121,6 +1163,7 @@
     "mp_pairs: rr / rm / mr / mm (FOUR p x p INTEGER matrices with axis labels — chart-data) + pairs (long-format records i<j {variable_1, variable_2, both_observed, both_missing, only_1_missing, only_2_missing, pct_both_missing}) + summary {n_pairs, n_pairs_co_missing, max_both_missing}",
     "ALL of them: columns (ALWAYS in the INPUT ORDER) + time_name (+ sort_by in mp_pattern, time_labels in mp_runs) — §3b gate 6: ALL the parameters that determine the output are returned, so that two runs are COMPARABLE"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "WHY THE STANDARD LIBRARY AND NOT A MISSING-DATA DEPENDENCY (the normative gate spec §3b REJECTED it — a DOCUMENTED DECISION): we take the SEMANTICS of the pattern and pair matrices WITHOUT the dependency, because (a) it would shadow common verbs in the SHARED source environment and (b) its pattern function DRAWS by default, violating charter §5, «charts ONLY in the frontend». Here: ZERO new dependencies, ZERO drawing, only numeric chart data. The ENCODING — 1 observed, 0 missing — and the rr/rm/mr/mm convention are preserved",
     "A DELIBERATE DIFFERENCE FROM THE CONVENTIONAL IMPLEMENTATION: (i) the counts are NOT appended as the LAST ROW and COLUMN of the same matrix, since they would pollute the chart data with non-binary values — they are SEPARATE fields, pattern_counts and variables; (ii) the COLUMNS are NEVER reordered, whereas the conventional implementation «sorts rows and columns in increasing amounts of missing information», so the SAME schema with different data would give a DIFFERENT column order, and incomparable runs",
@@ -1145,7 +1188,8 @@
     "c01_preparation_prechecks/profiling_quality_report.dp_profile # FIRST the per-column profile (#248: how many are missing per column); HERE the question WHICH are missing TOGETHER is answered",
     "mp_pattern # run it FIRST: n_patterns, n_complete_cases and the is_monotone flag inside monotone decide whether mp_runs or mp_pairs are needed at all"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 250,
@@ -1195,6 +1239,7 @@
     "tp_anova/tp_welch (shared): levels (CANONICALLY sorted) / k / n / n_na / n_by_group / mean_by_group / sd_by_group / grand_mean / response / group — the per-group chart-data",
     "ALL: cross_section_gate = {groups, lb_statistic, lb_p_value, lb_lag, n, n_na, gate_alpha, ordered, branch ∈ {ljung-box-tested, skipped-by-declaration}, tested, decision ∈ {pass, pass-untested, pass-unordered}} — the NUMERIC diagnostics of normative gate 4, ALWAYS in the output"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "NORMATIVE GATE 4 (the normative gate spec §3b) — CROSS-SECTION ONLY: AUTOCORRELATION INFLATES THE TYPE I ERROR, since it shrinks the variance estimator, giving spuriously significant p-values. EVERY exported function calls the SHARED cross-section gate (written ONCE in the shared gates module, and shared with #251 and #257; NEVER copied). Two branches, BOTH a hard stop: (a) an explicit rejection of any time-indexed input type; (b) a Ljung-Box whiteness precheck at lag = min(10, n/5), the DOCUMENTED default of the residual check (Hyndman & Athanasopoulos, FPP 3rd ed. §5.4; the fitted-parameter count is 0, because the input is DATA rather than residuals) — a rejection at alpha stops the call. The message points EXPLICITLY at the HAC path, #35 in category 07. A CONSEQUENCE: the minimum n rises to 3, and for n < 5 the rule gives a lag below 1 ⇒ an explicit tested=False with decision='pass-untested' (NEVER a silent pass)",
     "gate_alpha (default 0.05) — DECOUPLED FROM THE TEST'S alpha: alpha determines ONLY the reject/decision of the output; the level of the cross-section gate is ITS OWN argument (gate_alpha). WHY: the Ljung-Box precheck is a TEST OF SIZE gate_alpha, so BY CONSTRUCTION it blocks a small share of VALID i.i.d. input (a false block). LIVE-MEASURED (the engine, rnorm, 5000 replications): n=200 -> 1.6%/5.7%/10.1% and n=60 -> 2.3%/6.7%/10.8% for gate_alpha = 0.01/0.05/0.10. With the level tied, a «t-test at 10%» would raise the gate's false-block rate to ~10% WITHOUT any statistical justification",
@@ -1226,7 +1271,8 @@
     "c01_preparation_prechecks/profiling_quality_report.dp_quality_flags # (#248) constant columns / Inf / few_rows — EXACTLY the gates that will block here",
     "tp_welch # run BOTH: if tp_anova and tp_welch disagree, the EQUAL-VARIANCE assumption is the problem"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 251,
@@ -1286,6 +1332,7 @@
     "tn_friedman: statistic (Friedman chi-squared) + df (= k-1) + p_value + rank_means/rank_sums (WITHIN-BLOCK ranks per group — chart-data) + within_block_ranks (a blocks x groups NUMERIC matrix) + groups/blocks/n_groups/n_blocks/n_blocks_dropped + input_form ∈ {wide, long}",
     "ALL: cross_section_gate = {groups, statistic, p_value, lag, n, n_na, gate_alpha, ordered, branch ∈ {ljung-box-tested, skipped-by-declaration}, tested, decision ∈ {pass, pass-untested, pass-unordered}} — the NUMERIC diagnostics of normative gate 4"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "NORMATIVE GATE 4 (the normative gate spec §3b) — CROSS-SECTION ONLY: all three tests presuppose INDEPENDENT observations, and autocorrelation INFLATES THE TYPE I ERROR ⇒ spuriously significant p-values. The rule is implemented ONCE in the SHARED cross-section gate (the shared gates module, shared with #250 and #257) and is CALLED here, NEVER copied: (a) an explicit rejection of any time-indexed input type and (b) a Ljung-Box whiteness precheck at lag = min(10, n/5), the DOCUMENTED default of the residual check (Hyndman & Athanasopoulos, FPP 3rd ed. §5.4). The message points EXPLICITLY at the HAC path, #35 in category 07 (vcov_hac, vcov_cluster, vcov_panel). LIVE-VERIFIED: the Friedman routine accepts a time-indexed matrix WITHOUT COMPLAINT — ONLY the gate stops it. A CONSEQUENCE: the minimum n PER GROUP rises to 3, deliberately stricter than the underlying routine",
     "gate_alpha (default 0.05) — THE LEVEL BELONGS EXCLUSIVELY TO THE GATE: the three non-parametric tests have no alpha of their own (no decision column), which is why the argument is called gate_alpha and NOT alpha. The precheck is a TEST OF SIZE gate_alpha ⇒ by construction it blocks a small share of VALID i.i.d. input; LIVE-MEASURED (the engine, rnorm, 5000 replications): n=200 -> 1.6%/5.7%/10.1%, n=60 -> 2.3%/6.7%/10.8% for 0.01/0.05/0.10",
@@ -1317,7 +1364,8 @@
     "c01_preparation_prechecks/battery_normality_edf.nt_normality_battery # (#247) you come HERE when normality was REJECTED or n is very small",
     "c01_preparation_prechecks/profiling_quality_report.dp_quality_flags # (#248) constant/infinite_values/few_rows — exactly the gates that will block here"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 392,
@@ -1349,6 +1397,7 @@
     "durbin_watson: the first-order statistic, around 2 under no autocorrelation",
     "decision: whiteness verdict at alpha"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "when testing MODEL RESIDUALS the degrees of freedom must be reduced by the number of estimated ARMA parameters; failing to do so makes the test far too conservative",
     "Durbin-Watson is INVALID with a lagged dependent variable -- it is biased toward 2 and will not detect autocorrelation that is there",
@@ -1361,7 +1410,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 393,
@@ -1392,6 +1442,7 @@
     "epsilon: the distance thresholds used, in standard deviations",
     "decision: independence verdict"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the BDS statistic is sensitive to the choice of EPSILON and embedding dimension; report the grid, because a rejection at one setting is not a rejection",
     "rejection means 'not independent and identically distributed' -- it does not identify the nonlinearity, and ARCH is the most common cause by far",
@@ -1402,7 +1453,8 @@
     "statsmodels.tsa.stattools.bds"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 394,
@@ -1433,6 +1485,7 @@
     "kernel: the kernel applied",
     "prewhitened: whether an autoregressive filter was applied first"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "with strong persistence the kernel estimator is severely DOWNWARD biased, which makes HAC standard errors too small exactly when they matter most -- prewhitening is the standard remedy",
     "the automatic bandwidth rules of Andrews and of Newey-West disagree materially and neither is right in general",
@@ -1445,7 +1498,8 @@
     "arch"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 395,
@@ -1477,6 +1531,7 @@
     "episodes: dated start and end of each explosive period",
     "bsadf: the backward-supremum sequence used for dating"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "critical values must be SIMULATED for the specific sample size and window; using values from a paper with a different sample is simply wrong",
     "SADF has low power when there are multiple bubbles, because a later episode contaminates the recursive windows -- that is what GSADF is for",
@@ -1484,11 +1539,11 @@
    ],
    "sources": [
     "Phillips, Wu & Yu 2011 (International Economic Review 52:201-226)",
-    "Phillips, Shi & Yu 2015 (International Economic Review 56:1043)",
-    "arch"
+    "Phillips, Shi & Yu 2015 (International Economic Review 56:1043)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 396,
@@ -1519,6 +1574,7 @@
     "test: which variant was applied and why it suits the panel dimensions",
     "decision: independence verdict"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the LM test is badly OVERSIZED when N is large relative to T -- it rejects almost always, which is why Pesaran's CD exists",
     "rejection means standard errors assuming cross-sectional independence are wrong; Driscoll-Kraay or common-factor methods are the response",
@@ -1526,11 +1582,11 @@
    ],
    "sources": [
     "Pesaran 2004/2021 (Empirical Economics 60:13-50)",
-    "Breusch & Pagan 1980 (Review of Economic Studies 47:239)",
-    "statsmodels"
+    "Breusch & Pagan 1980 (Review of Economic Studies 47:239)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 397,
@@ -1562,6 +1618,7 @@
     "variance_decomposition: which regressors load on each near-dependency",
     "flagged: regressors above the chosen thresholds"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a VIF threshold of 10 is a CONVENTION, not a result -- collinearity is a matter of degree and the threshold has no theoretical basis",
     "VIFs identify that collinearity exists but not which regressors are collinear WITH WHICH; only the variance decomposition does that",
@@ -1572,7 +1629,8 @@
     "statsmodels.stats.outliers_influence"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 398,
@@ -1604,6 +1662,7 @@
     "test_path: the sequence of tests and their outcomes, so the choice is auditable",
     "seasonal_strength: the strength measure behind the period detection"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "OVER-DIFFERENCING is as damaging as under-differencing: it induces a non-invertible moving-average unit root that no estimator handles well",
     "seasonal differencing is a strong assumption; a deterministic seasonal pattern is better handled with dummies or harmonics",
@@ -1615,7 +1674,8 @@
     "statsforecast"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 399,
@@ -1646,6 +1706,7 @@
     "critical_values: from the non-standard distribution these tests require",
     "trimming: the search range, which determines what could be found"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the null distribution is NON-STANDARD -- these are not chi-squared tests, and using conventional critical values grossly over-rejects",
     "the estimated break date has wide sampling uncertainty; reporting it as a point without an interval overstates precision",
@@ -1658,7 +1719,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 400,
@@ -1690,6 +1752,7 @@
     "scaling_range: the scales the exponent was fitted over",
     "variance_ratio, p_value: the random-walk test where requested"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "STRUCTURAL BREAKS AND TRENDS MIMIC LONG MEMORY -- an exponent above 0.5 is not evidence of long memory until breaks have been excluded",
     "the estimate depends strongly on the range of scales fitted; reporting the exponent without the scaling range is uninformative",
@@ -1702,7 +1765,8 @@
     "nolds"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 401,
@@ -1733,6 +1797,7 @@
     "contamination: the assumed anomaly rate, which sets the threshold",
     "feature_contributions: what drove each flag, where the method provides it"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the CONTAMINATION parameter effectively sets how many anomalies you find -- it is an assumption, not a discovery, and the flagged count follows it almost mechanically",
     "these methods are unsupervised: 'anomalous' means unusual, not wrong, and the two are frequently different things",
@@ -1744,7 +1809,8 @@
     "scikit-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 402,
@@ -1776,6 +1842,7 @@
     "n_features: how many were computed and how many survived",
     "missing_features: features undefined for some series and why"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "computing hundreds of features and selecting on the outcome is MULTIPLE TESTING; the relevance filter's p-values must be adjusted or the selection is spurious",
     "many features are undefined for short or constant series and return missing values that propagate silently into downstream models",
@@ -1787,7 +1854,8 @@
     "tsfresh"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 403,
@@ -1818,6 +1886,7 @@
     "partial_dcor: partialling out a third set, where supplied",
     "n_permutations: the null the p-value came from"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "distance correlation is ZERO IF AND ONLY IF INDEPENDENT, which Pearson is not -- that is the whole reason to use it",
     "it detects dependence without characterising it; a high value says look at the scatter, not what the relationship is",
@@ -1829,7 +1898,8 @@
     "dcor"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 404,
@@ -1860,6 +1930,7 @@
     "parameters: embedding dimension and tolerance, which drive the answer",
     "forecastability: one minus normalised spectral entropy, a rough predictability index"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "sample and approximate entropy depend strongly on the TOLERANCE and embedding dimension; values computed with different settings are not comparable",
     "approximate entropy is biased by self-matching, which is exactly what sample entropy was introduced to remove",
@@ -1871,7 +1942,8 @@
     "antropy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 405,
@@ -1902,6 +1974,7 @@
     "laminarity, trapping_time: vertical-structure measures indicating intermittency",
     "entropy: diagonal-line-length entropy"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the RECURRENCE THRESHOLD determines everything; a common convention fixes the recurrence rate rather than the distance, and the two give different pictures",
     "embedding parameters must be chosen before analysis -- mutual information for the delay, false nearest neighbours for the dimension -- and defaults are rarely right",
@@ -1913,7 +1986,8 @@
     "PyRQA"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 406,
@@ -1944,6 +2018,7 @@
     "conformity: the conventional verdict band the MAD falls in",
     "n_observations: the count, which drives whether any of this is meaningful"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "BENFORD DOES NOT APPLY to every dataset -- it needs several orders of magnitude and no assignment rule; applying it to bounded data manufactures a failure",
     "a rejection is a screening flag, not evidence of fraud; rounding, thresholds and unit changes all produce it",
@@ -1954,7 +2029,8 @@
     "Nigrini 2012, Benford's Law: Applications for Forensic Accounting, Auditing and Fraud Detection"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -1972,6 +2048,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2091,6 +2171,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2190,6 +2274,10 @@
     "min_lag": 0,
     "criterion_scale": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2369,6 +2457,10 @@
     "min_lag": 0,
     "criterion_scale": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2574,6 +2666,10 @@
     "union_quantile": 0.05,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2733,6 +2829,10 @@
     "B": 1999,
     "min_lag": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2891,6 +2991,10 @@
     "fullcheck": true,
     "htmlcheck": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fail",
@@ -2945,6 +3049,10 @@
     "kernel_fun": "epanechnikov",
     "inflation_rate": "optimal",
     "autocor": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3035,6 +3143,10 @@
     "quantile_type": 7,
     "bins": 10,
     "top_n": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3129,6 +3241,10 @@
     "data": "<df_handle>",
     "quantile_type": 7
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3185,6 +3301,10 @@
     "max_unique_ratio": 0.95,
     "min_rows": 8,
     "quantile_type": 7
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3282,6 +3402,10 @@
     "autoarima": true,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3372,6 +3496,10 @@
    "input_example": {
     "series": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series",
@@ -3411,6 +3539,10 @@
    "input_example": {
     "series": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series",
@@ -3435,6 +3567,10 @@
    },
    "input_example": {
     "series": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3487,6 +3623,10 @@
     "series": "...",
     "reeval": true,
     "verbose": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3552,6 +3692,10 @@
    "input_example": {
     "y": "<series_handle>",
     "mc": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3632,6 +3776,10 @@
    "input_example": {
     "object": "<raw_handle>",
     "t_pval": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3722,6 +3870,10 @@
     "sis": true,
     "tis": false,
     "t_pval": 0.001
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3855,6 +4007,10 @@
     "data": "<df_handle>",
     "digits": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3890,6 +4046,10 @@
    "register": null,
    "input_example": {
     "data": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3934,6 +4094,10 @@
      0.5
     ],
     "normwt": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4016,6 +4180,10 @@
     "residuals": false,
     "autoarima": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4106,6 +4274,10 @@
     "x": "<df_handle>",
     "drop_index": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4155,6 +4327,10 @@
    "input_example": {
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -4190,6 +4366,10 @@
    "register": null,
    "input_example": {
     "data": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4243,6 +4423,10 @@
    "input_example": {
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -4283,6 +4467,10 @@
     "use_correction": true,
     "robust_cor": false,
     "seed": 1234
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4373,6 +4561,10 @@
     "x": "<matrix_handle>",
     "quantile": 0.975
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4438,6 +4630,10 @@
     "quantile": 0.975,
     "use_correction": true,
     "seed": 1234
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4516,6 +4712,10 @@
     "seed": 1,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4571,6 +4771,10 @@
     "alternative": "smaller",
     "K": 1,
     "tau": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4694,6 +4898,10 @@
     "alpha": 0.05,
     "series_name": "x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4745,6 +4953,10 @@
     "alpha": 0.05,
     "series_name": "x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4795,6 +5007,10 @@
     "x": "<raw_handle>",
     "alpha": 0.05,
     "series_name": "x"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4848,6 +5064,10 @@
     "adjust": true,
     "min_expected": 5,
     "series_name": "x"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4954,6 +5174,10 @@
     "min_expected": 5,
     "series_name": "x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5044,6 +5268,10 @@
     "alpha": 0.05,
     "series_name": "x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5099,6 +5327,10 @@
     ],
     "nrun": 1000,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5212,6 +5444,10 @@
     "t_degree": 2,
     "robust": false,
     "trend": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5393,6 +5629,10 @@
     "norm": false,
     "p": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5469,6 +5709,10 @@
     "x": "<series_handle>",
     "calc_proba": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5508,6 +5752,10 @@
     "residuals": false,
     "autoarima": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5600,6 +5848,10 @@
     "formula": "y ~ x",
     "from": 0.15
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -5649,6 +5901,10 @@
    "input_example": {
     "x": "<series_handle>",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5716,6 +5972,10 @@
     "formula": "y ~ x",
     "h": 0.15,
     "ci_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5808,6 +6068,10 @@
     "min_lag_X": 0,
     "max_lag_X": 0,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5934,6 +6198,10 @@
     "x": "<series_handle>",
     "lag1": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6003,6 +6271,10 @@
     "x": "<raw_handle>",
     "lags": 2,
     "truncated": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6091,6 +6363,10 @@
     "h": 0.15,
     "dynamic": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -6178,6 +6454,10 @@
     "bootstrap": false,
     "boot_nb": 1000,
     "seed": 123
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6290,6 +6570,10 @@
     "alpha": 0.01,
     "seed": 123
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6374,6 +6658,10 @@
     "x": "<series_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6411,6 +6699,10 @@
     "x": "<series_handle>",
     "lshort": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6478,6 +6770,10 @@
     "x": "<series_handle>",
     "lshort": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6560,6 +6856,10 @@
    "input_example": {
     "object": "<df_handle>",
     "pmax": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6653,6 +6953,10 @@
     "x": "<raw_handle>",
     "asymptotic": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6709,6 +7013,10 @@
     "x": "<series_handle>",
     "out": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6759,6 +7067,10 @@
     "y": "<series_handle>",
     "delta": 0.7,
     "maxit": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6853,6 +7165,10 @@
     "autoarima": false,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6916,6 +7232,10 @@
     "y": "<raw_handle>",
     "gate_alpha": 0.05,
     "ordered": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7023,6 +7343,10 @@
     "gate_alpha": 0.05,
     "ordered": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7107,6 +7431,10 @@
     "conf_level": 0.95,
     "gate_alpha": 0.05,
     "ordered": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7312,6 +7640,10 @@
     "gate_alpha": 0.05,
     "ordered": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -7437,6 +7769,10 @@
     "y_name": "y",
     "gate_alpha": 0.05,
     "ordered": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7643,6 +7979,10 @@
     "gate_alpha": 0.05,
     "ordered": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -7775,6 +8115,10 @@
     "continuity": true,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7842,6 +8186,10 @@
     "x": "<series_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7879,6 +8227,10 @@
     "x": "<series_handle>",
     "conf_level": 0.95,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7930,6 +8282,10 @@
     "x": "<series_handle>",
     "continuity": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8014,6 +8370,10 @@
     "autoarima": true,
     "rank": false,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8117,6 +8477,10 @@
     "y": "<series_handle>",
     "lags": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -8188,6 +8552,10 @@
     "y": "<series_handle>",
     "lag_max": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -8256,6 +8624,10 @@
    "input_example": {
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -8311,6 +8683,10 @@
    "register": null,
    "input_example": {
     "x": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8383,6 +8759,10 @@
    "input_example": {
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -8438,6 +8818,10 @@
     "model_df": 0,
     "boxpierce": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8514,6 +8898,10 @@
    "input_example": {
     "residuals": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "residuals",
@@ -8552,6 +8940,10 @@
     "max_dim": 5,
     "distance": 1.5,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8630,6 +9022,15 @@
     "kernel": "bartlett",
     "bandwidth_rule": "andrews",
     "prewhiten": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "long_run_variance",
+     "bandwidth",
+     "kernel",
+     "prewhitened"
+    ]
    },
    "arguments": [
     {
@@ -8720,6 +9121,10 @@
     "n_simulations": 1000,
     "seed": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8830,6 +9235,10 @@
     "seed": 1,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8922,6 +9331,10 @@
     "test": "cd",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "residuals",
@@ -9003,6 +9416,10 @@
     "x": "<df_handle>",
     "threshold": 10.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9040,6 +9457,10 @@
     "x": "<df_handle>",
     "scale": true,
     "threshold": 30.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9092,6 +9513,10 @@
     "max_period": 365,
     "method": "acf",
     "threshold": 0.64
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9163,6 +9588,10 @@
     "max_d": 2,
     "max_D": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9276,6 +9705,15 @@
     "trim": 0.15,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "statistic",
+     "break_date",
+     "critical_values",
+     "trimming"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -9358,6 +9796,10 @@
     "method": "dfa",
     "min_scale": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9433,6 +9875,10 @@
     "robust": true,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9502,6 +9948,15 @@
     "method": "isolation_forest",
     "contamination": 0.05,
     "n_neighbors": 20
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "scores",
+     "flagged",
+     "contamination",
+     "feature_contributions"
+    ]
    },
    "arguments": [
     {
@@ -9587,6 +10042,10 @@
     "value": "...",
     "feature_set": "efficient",
     "normalise": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9682,6 +10141,10 @@
     "target": "<series_handle>",
     "fdr_level": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "features",
@@ -9733,6 +10196,10 @@
     "y": "<multiseries_handle>",
     "n_permutations": 1000,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9825,6 +10292,15 @@
     "tolerance": 0.2,
     "normalise": true
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "entropy",
+     "normalised",
+     "parameters",
+     "forecastability"
+    ]
+   },
    "arguments": [
     {
      "name": "x",
@@ -9904,6 +10380,10 @@
     "threshold": 0.1,
     "min_line_length": 2
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9980,6 +10460,10 @@
     "x": "<series_handle>",
     "digits": "first",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

@@ -39,6 +39,7 @@
     "dsge_forecast: forecasts {period,variable,value}; horizon; states (h×n_states); obs_matrix (h×n_obs); variables",
     "dsge_shock_decomposition: decomposition_by_obs (per observable: T×{shocks..,initial}); obs_names; shock_names; observed (T×n_obs deviations); smoothed_shocks ((T-1)×n_shocks) + smoothed_shock_names"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "saddle-path stability is a PREREQUISITE: stable=False means the solution is neither unique nor stable (a Blanchard-Kahn violation) — do NOT interpret the impulse responses or forecasts; change the parameters or the specification",
     "the number of exogenous state shocks MUST equal the number of observed controls (the Klein solver): the wrapper gates it explicitly (#state_eqs == #obs_eqs); fewer shocks -> stochastic singularity",
@@ -62,7 +63,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the observed macro series as a data_frame; the column names == the observed controls)",
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (the observables must be stationary deviations — demean=True removes the mean, NOT a trend or a unit root)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 201,
@@ -103,6 +105,7 @@
     "sem_simulate (stochastic): mode='stochastic'; sim_mean & sim_sd (a named list of ts per endogenous variable); stoch_replica; seed",
     "sem_multipliers: multiplier_matrix (a TARGET×INSTRUMENT matrix with var_period axis labels); target_labels (row labels); instrument_labels (column labels); tsrange"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the data must extend AT LEAST one period before the start of the estimation or simulation whenever the equations contain a lag operator (otherwise a clean stop; the raw routine gives a cryptic error)",
     "simulation, stochastic simulation and the multiplier matrix all require an estimated model with no blank coefficients; the node gates them, so an unestimated model is blocked",
@@ -122,7 +125,8 @@
     "c00_data_utilities/series_layout_conversion.ts_convert (a long frame -> a wide multi-series frame; one column per model variable)",
     "sem_estimate (the PRODUCER: the estimated BIMETS_MODEL handle -> sem_simulate/sem_multipliers)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 202,
@@ -160,6 +164,7 @@
     "tolerance / tolCond / converged: the convergence error against the threshold; converged=True exactly when tolerance<=tolCond",
     "ts_p/ts_z/ts_S/ts_q (only with ts=True): the adjustment paths of the prices, levels, supply and sales rate in the last iteration"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "ONLY relative prices: a GE determines prices up to scale; ALWAYS use p_normalized (numeraire=commodity 1); the absolute p values are arbitrary",
     "converged=False means the solution is NOT an equilibrium (tolerance>tolCond); raise maxIteration or check the structure; the node is stateless, so there is no silent retry",
@@ -179,7 +184,8 @@
     "c00_data_utilities/canonical_disk_format.arw_read_parquet (loading the IO/SAM demand/supply matrices A/B/S0Exg from Parquet)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (alternatively: loading the coefficient matrices from CSV)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 203,
@@ -215,6 +221,7 @@
     "sfc_scenario_run: paths (the scenario data_frame; chart-data); final_values; shocked_vars; shock_start/shock_end; object (the scenario sfcr_tbl handle)",
     "sfc_balance_check: consistent (a boolean; True means water-tight); leaking_rows/leaking_cols (the names that leak); max_row_residual/max_col_residual (the largest absolute accounting residual); row_residual_by_period/col_residual_by_period (chart data); plus a message"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the underlying validation returns NO value — it either prints 'Water tight!' or aborts; the wrapper traps that into a consistent flag with the leaking rows and columns, AND computes explicit numeric residuals per period, which would otherwise never surface",
     "SFC is calibrated/theory-driven, NOT estimated; the parameters (alpha1, theta,..) are given exogenously — do not 'estimate' them; the steady state depends on them (e.g. SIM: Y* = G/theta)",
@@ -235,7 +242,8 @@
     "sfc_scenario_run (a scenario = baseline + shock; it needs the baseline object)",
     "sfc_balance_check (run it AFTER simulate/scenario to certify accounting consistency — a water-tight check)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 499,
@@ -268,6 +276,7 @@
     "irf: linear impulse responses of aggregates and distributions",
     "convergence: whether the steady state and the transition solved"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE STEADY STATE MUST SOLVE ACCURATELY FIRST; Jacobians computed around an inaccurate steady state are wrong in ways that look like economics",
     "the method linearises the transition, so it cannot represent occasionally binding constraints or large nonlinear responses",
@@ -279,7 +288,8 @@
     "sequence-jacobian"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 500,
@@ -311,6 +321,7 @@
     "mpc: marginal propensities to consume, by wealth",
     "aggregates: implied aggregate consumption and wealth"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE MPC DISTRIBUTION IS THE MODEL'S MAIN TESTABLE IMPLICATION and is very sensitive to the calibration of the income process and the borrowing constraint",
     "a stationary distribution requires enough simulation or a fine enough grid; a truncated grid silently caps the top of the wealth distribution",
@@ -323,7 +334,8 @@
     "econ-ark"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 501,
@@ -356,6 +368,7 @@
     "moments: the discretisation's implied persistence and variance against the target",
     "solution_diagnostics: convergence of the solver"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "TAUCHEN'S METHOD IS POOR FOR HIGHLY PERSISTENT PROCESSES -- with an autoregressive coefficient near 0.99 it badly understates persistence; Rouwenhorst matches it exactly and should be the default there",
     "the number of grid points trades accuracy against speed and materially changes aggregate results in heterogeneous-agent models",
@@ -368,7 +381,8 @@
     "quantecon"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 502,
@@ -399,6 +413,7 @@
     "converged: whether the shooting or Newton solve converged",
     "linear_comparison: the linear path, for reference"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE PATH IS STATE DEPENDENT: the response to a shock depends on where the economy starts and how large the shock is, so a single impulse response does not characterise the model",
     "perfect foresight means agents know the whole future path, which is a strong assumption precisely when constraints bind",
@@ -410,7 +425,8 @@
     "econpizza"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 503,
@@ -443,6 +459,7 @@
     "identification: which parameters the data can actually pin down",
     "blanchard_kahn: whether the solution exists and is unique"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE BLANCHARD-KAHN CONDITIONS DECIDE WHETHER A SOLUTION EXISTS AT ALL -- indeterminacy or no solution is a property of the parameters, and a solver that returns something anyway is misleading",
     "many DSGE parameters are weakly identified by the data; the posterior then reproduces the prior, which must be checked rather than assumed away",
@@ -455,7 +472,8 @@
     "gEconpy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 504,
@@ -487,6 +505,7 @@
     "existence, uniqueness: the determinacy verdict",
     "simulated: simulated paths where requested"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "A SINGULAR SYSTEM BREAKS THE BLANCHARD-KAHN METHOD but not the QZ methods; choosing the wrong solver produces a spurious 'no solution' verdict",
     "the count of explosive eigenvalues against forward-looking variables is what decides determinacy, and it must be reported",
@@ -498,7 +517,8 @@
     "linearsolve"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 505,
@@ -530,6 +550,7 @@
     "steady_state: the long-run position, where one exists",
     "convergence: solver convergence per period"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "THE ACCOUNTING CHECK IS THE MODEL'S MAIN VALIDATION: a non-zero residual in the transaction-flow matrix means the model is wrong, not merely imprecise",
     "these models have no optimising agents, so behavioural equations are assumptions rather than derived; their parameters are not structural in the Lucas sense",
@@ -541,7 +562,8 @@
     "pysolve3"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 506,
@@ -573,6 +595,7 @@
     "ensemble: results across seeds, which is the only honest summary",
     "calibration_fit: distance from targeted moments"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "A SINGLE RUN OF AN AGENT-BASED MODEL IS ONE DRAW, not a result; every reported quantity must be an ensemble statistic across seeds",
     "these models have many free parameters and can be made to produce almost any pattern; the calibration discipline is what makes them evidence",
@@ -584,7 +607,8 @@
     "mesa"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -597,6 +621,10 @@
    "input_example": {
     "model": "...",
     "data": "<multiseries_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -696,6 +724,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "mm_shock": 1e-05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -811,6 +843,10 @@
     "seed": 2025,
     "simConvergence": 1e-05,
     "simIterLimit": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -950,6 +986,10 @@
     "numberOfPeriods": 300,
     "priceAdjustmentVelocity": 0.15,
     "ts": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1199,6 +1239,10 @@
     "demean": true,
     "maxit": 500
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "obs_eqs",
@@ -1332,6 +1376,10 @@
     "object": "<raw_handle>",
     "horizon": 12
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1370,6 +1418,10 @@
     "periods": 20,
     "se": true,
     "level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1459,6 +1511,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1490,6 +1546,10 @@
     ],
     "params": "...",
     "tol": 1e-06
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1600,6 +1660,10 @@
     "rows": "...",
     "tol": 1,
     "rtol": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1714,6 +1778,10 @@
     "periods": 1,
     "max_iter": 350,
     "tol": 1e-10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1844,6 +1912,10 @@
     "tol": 1e-08,
     "rhtol": false,
     "hidden_tol": 0.1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1993,6 +2065,10 @@
     "calibration": "<df_handle>",
     "tol": 1e-09
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -2062,6 +2138,10 @@
      "b"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "steady_state",
@@ -2113,6 +2193,10 @@
     "shock": "...",
     "persistence": 0.9,
     "horizon": 50
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2180,6 +2264,10 @@
     "model": "buffer_stock",
     "n_grid": 100,
     "horizon": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2251,6 +2339,10 @@
     "n_periods": 1000,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solution",
@@ -2316,6 +2408,10 @@
     "n_states": 7,
     "method": "rouwenhorst",
     "n_std": 3.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2400,6 +2496,10 @@
     "state_cost": "<matrix_handle>",
     "beta": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "transition",
@@ -2478,6 +2578,10 @@
     "beta": 0.95,
     "method": "policy_iteration"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "rewards",
@@ -2547,6 +2651,15 @@
     "horizon": 100,
     "tol": 1e-08,
     "max_iter": 100
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "path",
+     "binding_periods",
+     "converged",
+     "linear_comparison"
+    ]
    },
    "arguments": [
     {
@@ -2641,6 +2754,10 @@
     "order": 1,
     "check_determinacy": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -2709,6 +2826,10 @@
     "draws": 10000,
     "warmup": 5000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2799,6 +2920,10 @@
     "solution": "<raw_handle>",
     "method": "rank"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solution",
@@ -2843,6 +2968,10 @@
     "B": "<matrix_handle>",
     "n_forward": 1,
     "method": "klein"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2925,6 +3054,10 @@
     "n_periods": 1000,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solution",
@@ -2989,6 +3122,10 @@
     "parameters": "<df_handle>",
     "n_periods": 100,
     "tol": 1e-10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3066,6 +3203,10 @@
     "solution": "<raw_handle>",
     "tolerance": 1e-08
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solution",
@@ -3106,6 +3247,10 @@
     "n_periods": 500,
     "n_seeds": 30,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3199,6 +3344,10 @@
     "n_seeds": 10,
     "method": "surrogate",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

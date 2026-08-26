@@ -420,7 +420,7 @@ def _field_spec(arg: NodeArgMeta, projection: Projection, default: Any) -> tuple
 def _strip_before_validators(annotated: Any) -> Any:
     origin = get_args(annotated)[0]
     keep = [m for m in annotated.__metadata__ if not isinstance(m, BeforeValidator)]
-    return Annotated[tuple([origin, *keep])] if keep else origin
+    return Annotated[(origin, *keep)] if keep else origin
 
 
 def build_wire_model(meta: NodeMeta) -> type[BaseModel]:

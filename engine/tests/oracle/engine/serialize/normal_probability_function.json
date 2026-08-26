@@ -1,0 +1,21 @@
+{
+  "fn": "to_mcp",
+  "inputs": {
+    "value": {
+      "P(1.00)": 0.841344746068543,
+      "P(1.50)": 0.933192798731142,
+      "P(2.00)": 0.977249868051821,
+      "P(2.50)": 0.993790334674224
+    }
+  },
+  "expected": {
+    "P(1.00)": 0.841344746068543,
+    "P(1.50)": 0.933192798731142,
+    "P(2.00)": 0.977249868051821,
+    "P(2.50)": 0.993790334674224
+  },
+  "unchecked_keys": [],
+  "tolerance_class": "exact",
+  "citation": "Abramowitz, M. and Stegun, I. A., eds. (1964), Handbook of Mathematical Functions, National Bureau of Standards Applied Mathematics Series 55 -- Table 26.1, 'Normal Probability Function and Derivatives', p. 966, column P(x), tabulated to 15 decimal places.",
+  "notes": "P(x) is the standard normal distribution function, defined at the foot of the table page as the integral of Z(t) from minus infinity to x. Four rows are transcribed at x = 1.00, 1.50, 2.00 and 2.50. WHAT THIS CASE CLAIMS: fifteen published decimal places survive the mapping branch of to_mcp without narrowing or rounding, which the 'exact' class states by refusing a difference of one representable step. It claims nothing about any method; no code here computes P(x)."
+}

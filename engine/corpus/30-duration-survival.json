@@ -32,6 +32,7 @@
     "median_survival: the first time the curve crosses 0.5, None if it never does",
     "logrank: statistic, df and p_value for equality of curves across groups"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the curve is only identified up to the largest observed time; beyond it the estimate is undefined, not flat",
     "median_survival is None when the curve never reaches 0.5 -- that is heavy censoring, not an error",
@@ -44,7 +45,8 @@
     "statsmodels.duration.survfunc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 259,
@@ -77,6 +79,7 @@
     "baseline_cumhazard: the Breslow estimate of the baseline",
     "loglike, concordance: fit and discrimination"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "coefficients are on the LOG hazard scale -- exponentiate before reading them as hazard ratios",
     "a hazard ratio is not a risk ratio and does not integrate to one over time",
@@ -90,7 +93,8 @@
     "statsmodels.duration.hazard_regression.PHReg"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 260,
@@ -123,6 +127,7 @@
     "aic, bic, loglike: for choosing among the four families",
     "predicted_median/predicted_mean: fitted survival summaries"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "an AFT coefficient is a TIME ratio, not a hazard ratio -- a positive coefficient lengthens survival",
     "only the Weibull and exponential are simultaneously AFT and proportional-hazards; for the others the two scales disagree",
@@ -135,7 +140,8 @@
     "lifelines documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 261,
@@ -167,6 +173,7 @@
     "survival: the implied discrete survivor function",
     "loglike, aic: fit"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the input must be a PERSON-PERIOD table -- one row per unit per interval at risk -- not one row per unit",
     "with a cloglog link the coefficients are the underlying continuous-time proportional-hazards parameters; with a logit link they are not",
@@ -180,7 +187,8 @@
     "statsmodels.discrete"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 262,
@@ -214,6 +222,7 @@
     "subdistribution: Fine-Gray coefficients, on the CIF scale",
     "gray_test: statistic and p_value for equality of CIFs across groups"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "ONE minus Kaplan-Meier is NOT the cumulative incidence under competing risks -- it is biased upward, sometimes severely",
     "a cause-specific hazard ratio and a subdistribution hazard ratio answer different questions and routinely point in opposite directions",
@@ -226,7 +235,8 @@
     "statsmodels.duration.survfunc.CumIncidenceRight"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 263,
@@ -258,6 +268,7 @@
     "loglike, aic: fit",
     "lrt_frailty: likelihood-ratio test of theta = 0, which is on the boundary"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the test of theta = 0 sits on the boundary of the parameter space, so the null distribution is a mixture and the naive p-value is conservative",
     "conditional (frailty) and marginal (population-average) coefficients differ; they are not interchangeable",
@@ -270,7 +281,8 @@
     "lifelines documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 264,
@@ -303,6 +315,7 @@
     "slope: the fitted trend, which is the direction the hazard ratio drifts",
     "martingale/deviance: residuals for functional-form and outlier checks"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the global test is not a substitute for the per-covariate tests -- a large violation in one direction can cancel another",
     "the test depends on the time transform: identity, log and rank transforms disagree, and a violation visible under one can vanish under another",
@@ -316,7 +329,8 @@
     "lifelines documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 265,
@@ -348,6 +362,7 @@
     "weibull_p: the Weibull shape parameter, where p > 1 is positive duration dependence",
     "conf_band: pointwise band on the hazard"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "unobserved heterogeneity biases the estimated hazard DOWNWARD over the spell -- apparent negative duration dependence is the single most common artefact in this literature",
     "the piecewise grid drives the answer: too few intervals hide the shape, too many make it noise",
@@ -359,7 +374,8 @@
     "Machin & Manning 1999 (Handbook of Labor Economics 3C)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -371,6 +387,10 @@
     "time": "<series_handle>",
     "event": "<series_handle>",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -436,6 +456,10 @@
     "event": "<series_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "time",
@@ -500,6 +524,10 @@
     "event": "<series_handle>",
     "group": "<series_handle>",
     "weighting": "logrank"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -574,6 +602,10 @@
     "event": "...",
     "ties": "efron",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -680,6 +712,10 @@
     "fit": "<raw_handle>",
     "what": "survival"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -739,6 +775,10 @@
     "stop": "...",
     "event": "...",
     "id": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -833,6 +873,10 @@
     "event": "...",
     "distribution": "weibull",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -930,6 +974,10 @@
     "event": "...",
     "criterion": "aic"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1010,6 +1058,10 @@
     "what": "survival",
     "q": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1080,6 +1132,10 @@
     "event": "...",
     "id": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1147,6 +1203,10 @@
     "duration": "...",
     "link": "cloglog",
     "baseline": "dummies"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1247,6 +1307,10 @@
     "event": "<series_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "time",
@@ -1313,6 +1377,10 @@
     "time": "...",
     "event": "...",
     "cause": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1394,6 +1462,10 @@
     "event": "...",
     "cause": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1486,6 +1558,10 @@
     "group": "<series_handle>",
     "cause": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "time",
@@ -1553,6 +1629,10 @@
     "event": "...",
     "cluster": "...",
     "frailty": "gamma"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1646,6 +1726,10 @@
    "input_example": {
     "fit": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1669,6 +1753,10 @@
    "input_example": {
     "fit": "<raw_handle>",
     "transform": "km"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1712,6 +1800,10 @@
     "fit": "<raw_handle>",
     "transform": "km",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1768,6 +1860,10 @@
     "fit": "<raw_handle>",
     "kind": "martingale"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1811,6 +1907,10 @@
     "event": "<series_handle>",
     "n_intervals": 6,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1887,6 +1987,10 @@
    "input_example": {
     "time": "<series_handle>",
     "event": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

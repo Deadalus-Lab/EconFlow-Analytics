@@ -78,13 +78,19 @@
 # from `artifacts/node-specs.json` by `gen_schemas.py`, which is itself built
 # from the corpus. The corpus is the only place any of this prose is written.
 #
-# THREE ANTI-VACUITY GUARDS, because a scan that examined nothing must never read
+# FOUR ANTI-VACUITY GUARDS, because a scan that examined nothing must never read
 # as a scan that passed:
 #   1. it asserts it examined at least the floor in .github/inventory.json
-#   2. a POSITIVE control it must catch on every invocation
-#   3. a NEGATIVE control -- a line of real mathematics, a citation and an
-#      author's initial -- that it must NOT flag, so the token list cannot
-#      silently decay into one that matches nothing that matters
+#   2. POSITIVE controls it must catch on every invocation, ONE PER RULE FAMILY.
+#      One string for all of them is satisfied by whichever rule fires first in
+#      it, so every other rule could be narrowed to nothing and this would still
+#      report success -- which is what happened to the first draft of the
+#      namespace control, whose example names were themselves in LIBRARIES
+#   3. a NEGATIVE control -- a line of real mathematics, a citation, an author's
+#      initial and a pytest node ID -- that it must NOT flag, so the token list
+#      cannot silently decay into one that matches nothing that matters
+#   4. a SECOND negative-direction control on the one rule here that has been
+#      narrowed, asserting the narrowing did not reach further than intended
 #
 # Binary files are skipped: there is no prose in a parquet fixture to fix.
 #
@@ -160,7 +166,24 @@ SYNTAX = (
     # `foo::bar` are the GENERIC FORM the formula allowlist refuses, named in its
     # own refusal message and in the fixtures that prove it; they are
     # placeholders, not a real namespace, and are exempted below.
-    r"(?<![:\w])(?!pkg::fn|foo::bar)[A-Za-z][A-Za-z0-9._]*::[A-Za-z_.]|"
+    #
+    # `(?<!\.py)` IS WHAT KEEPS A PYTEST NODE ID OUT, and it is not a courtesy.
+    # `tests/test_cli.py::test_list_prints_every_node_one_per_line` is pytest's
+    # own selector syntax and this project's own vocabulary; the mutmut deselect
+    # list in engine/pyproject.toml is twenty-one of them and cannot be written
+    # in any other form. Silencing it by editing that list would damage the tree
+    # to make a gate green, which is the failure recorded in the header above.
+    #
+    # IT IS ONE EDIT AND IT COSTS NOTHING ELSE. The guard is evaluated at the
+    # `::`, so it does not matter where the scan started: whatever precedes the
+    # colons is what it reads, and only a node ID has `.py` there. A real
+    # namespace call keeps matching from any position, `.mypkg::somefn` included.
+    # A draft of this line ALSO widened the leading lookbehind to `(?<![:\w.])`,
+    # on the reasoning that the scan would otherwise restart at the `py`. It does
+    # not, and measuring the four combinations is what showed it: the widening
+    # suppressed no node ID the guard had not already suppressed, and it dropped
+    # a namespace call written after a dot. It is not here.
+    r"(?<![:\w])(?!pkg::fn|foo::bar)[A-Za-z][A-Za-z0-9._]*(?<!\.py)::[A-Za-z_.]|"
     r"%>%|%in%|"
     # a leading-dot function name, the "internal function" convention of another
     # ecosystem. Anchored to a known engine-internal prefix so it cannot reach a
@@ -182,9 +205,15 @@ TRANSLATION = (
 )
 PATTERN = re.compile("|".join((LIBRARIES, TOOLCHAINS, SYNTAX, TRANSLATION)))
 
+# TOOL CACHES, NOT SOURCE. Every entry is generated, gitignored and holds no
+# prose anybody could fix; `.hypothesis` is the example database and constant
+# pool hypothesis writes beside the suite, and it is here for the same reason
+# `.pytest_cache` and `.ruff_cache` are. A cache is absent from a fresh clone,
+# so this changes what a CONTRIBUTOR sees locally and nothing about what CI
+# examines: the floor below is measured over tracked files and still applies.
 SKIP_DIRS = (".git", ".venv", "__pycache__", ".mypy_cache", ".ruff_cache",
              ".pytest_cache", ".import_linter_cache", ".private", ".claude",
-             ".fastembed_cache", ".token-optimizer", "node_modules")
+             ".fastembed_cache", ".token-optimizer", ".hypothesis", "node_modules")
 SKIP_NAMES = ("todo.md", "CLAUDE.md")
 
 exempt = [line.strip() for line in pathlib.Path(allowlist_path).read_text().splitlines()
@@ -228,10 +257,27 @@ if examined < floor:
     sys.exit(f"FAIL: examined {examined} files, below the floor {floor}. "
              "The scan is wrong, not the tree.")
 
-# --- anti-vacuity 2: the positive control --------------------------------
-POSITIVE = "this was ported from a package installed with install.packages, using set.seed"
-if not PATTERN.search(POSITIVE):
-    sys.exit("FAIL: the positive control was NOT detected; the token list is broken.")
+# --- anti-vacuity 2: the positive controls -------------------------------
+# ONE PER RULE FAMILY, EACH MATCHED ON ITS OWN. A single control string is
+# satisfied by whichever rule fires first in it, so every other rule in this
+# file could be narrowed to nothing and the control would still report success.
+# The namespace rule carries its own line here because it HAS been narrowed --
+# see `(?<!\.py)` above.
+# EACH CONTROL MUST BE CATCHABLE BY ITS RULE ALONE. The namespace control names
+# `mypkg`, which appears in no token list, precisely so that the namespace rule
+# is the only thing that can match it. The first draft of this line used real
+# library names -- and neutering the namespace rule to `ZZZNOMATCHZZZ::` left
+# the gate reporting success, because `urca` matched the LIBRARIES rule before
+# the namespace rule was ever reached. A control another rule can satisfy is not
+# a control for the rule it was written for.
+POSITIVE = (
+    "this was ported from a package installed with install.packages, using set.seed",
+    "the estimate comes from mypkg::somefn, which names another ecosystem's namespace",
+)
+undetected = [control for control in POSITIVE if not PATTERN.search(control)]
+if undetected:
+    sys.exit(f"FAIL: {len(undetected)} of {len(POSITIVE)} positive control(s) were NOT "
+             f"detected; the token list is broken: {undetected}")
 
 # --- anti-vacuity 3: the negative control --------------------------------
 # Real mathematics, a real citation and a real author initial. If any of this
@@ -242,8 +288,21 @@ NEGATIVE = (
     "window; the gbm and vasicek asset models differ; inference type np; "
     "Hyndman, R.J. and Tsay, R. and D'Agostino, R.B.; Blanchard-Quah 1989 AER; "
     "robust standard errors, the leverage effect, and a pivotal statistic; "
-    "chown -R the engine; a listwise drop; Granger causality; NA is missing"
+    "chown -R the engine; a listwise drop; Granger causality; NA is missing; "
+    # pytest's own selector syntax, in the three shapes the tree writes it.
+    "tests/test_cli.py::test_list_prints_every_node_one_per_line; "
+    '"tests/conformance/test_conformance.py::test_the_harness_compares_something_today"; '
+    "# tests/test_gates_primitives.py::test_in_range_blocks_a_non_number"
 )
+
+# --- anti-vacuity 4: the namespace rule still reaches past a dot ----------
+# The one construct the rejected lookbehind widening would have lost. It is
+# asserted rather than left to the token list, because nothing else in this file
+# would have gone red when that widening was in place.
+AFTER_A_DOT = "as in .mypkg::somefn, a namespace written straight after a dot"
+if not PATTERN.search(AFTER_A_DOT):
+    sys.exit("FAIL: a namespace call written after a dot was NOT detected; the "
+             "leading lookbehind has been widened and the rule now has a blind spot.")
 flagged = [m.group(0) for m in PATTERN.finditer(NEGATIVE)]
 if flagged:
     sys.exit("FAIL: the negative control was flagged on "
@@ -268,5 +327,6 @@ if findings:
     sys.exit(1)
 
 print(f"ok: the vocabulary is this project's own "
-      f"(examined {examined} files, floor {floor}, both controls fired).")
+      f"(examined {examined} files, floor {floor}, "
+      f"{len(POSITIVE)} positive control(s) and 2 negative control(s) all fired).")
 PY

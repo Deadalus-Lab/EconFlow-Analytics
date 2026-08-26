@@ -31,6 +31,7 @@
     "asset_value, asset_volatility: the recovered unobservables",
     "converged: whether the simultaneous system solved"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "asset value and asset volatility are NOT observed; they are solved from a two-equation system, and non-convergence produces plausible-looking numbers",
     "the model PD is risk-neutral and is systematically higher than the physical default rate",
@@ -39,11 +40,11 @@
    "sources": [
     "Merton 1974 (Journal of Finance 29:449-470)",
     "Crosbie & Bohn 2003, Modeling default risk (Moody's KMV)",
-    "Bharath & Shumway 2008 (Review of Financial Studies 21:1339)",
-    "frds"
+    "Bharath & Shumway 2008 (Review of Financial Studies 21:1339)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 348,
@@ -76,6 +77,7 @@
     "stationary_distribution: the long-run state shares",
     "embeddability: whether a valid generator exists at all"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "a discrete transition matrix need not have a valid GENERATOR -- the embedding problem -- and forcing one produces negative off-diagonal rates",
     "the cohort estimator discards within-period migrations and understates volatility of ratings; the duration estimator does not",
@@ -88,7 +90,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 349,
@@ -121,6 +124,7 @@
     "scorecard: points per attribute",
     "monotonic: whether each variable's default rate is monotone in its bins"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "INFORMATION VALUE is a univariate screen; a variable with high IV can be useless after controlling for another, and one with low IV can matter",
     "binning on the full sample and then validating on part of it leaks information -- bins must be fitted on the training split only",
@@ -132,7 +136,8 @@
     "optbinning"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 350,
@@ -165,6 +170,7 @@
     "brier, reliability, resolution: the Brier decomposition",
     "binomial_test: per-grade test that the realised rate matches the assigned PD"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "DISCRIMINATION AND CALIBRATION ARE INDEPENDENT: a model can rank perfectly (AUC 1.0) while every probability is wrong by a factor of ten",
     "a model calibrated on a benign period is systematically under-calibrated in a downturn; through-the-cycle and point-in-time PDs are different objects",
@@ -176,7 +182,8 @@
     "Basel Committee 2005, Studies on the validation of internal rating systems (Working Paper 14)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 351,
@@ -208,6 +215,7 @@
     "distribution_fit: how well the bounded distribution matches the observed shape",
     "downturn_lgd: the stressed value where a downturn indicator is supplied"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "observed recovery is strongly BIMODAL -- clustered near zero and near one -- so a model fitting only the conditional mean misses the shape entirely",
     "linear regression on a bounded outcome predicts outside the unit interval, and truncating the prediction is not a fix",
@@ -220,7 +228,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 352,
@@ -252,6 +261,7 @@
     "term_structure: the PD curve over the lifetime",
     "conditioning: how macroeconomic scenarios shifted the curve"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "cumulative PD is ONE MINUS the survival probability, not a sum of marginal PDs; adding them overstates lifetime risk and the error compounds with horizon",
     "extrapolating a term structure beyond the observed panel is an assumption about duration dependence, and it dominates long-horizon loss",
@@ -263,7 +273,8 @@
     "lifelines"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 353,
@@ -296,6 +307,7 @@
     "var, es: tail measures at the requested level",
     "concentration: the share of tail loss attributable to the largest exposures"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the ASSET CORRELATION drives the tail far more than the average PD does; a small change in correlation moves capital by a large multiple",
     "the single-factor model assumes an infinitely granular portfolio -- with concentrated exposures it understates the tail badly",
@@ -307,7 +319,8 @@
     "Basel Committee 2006, International Convergence of Capital Measurement and Capital Standards"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -322,6 +335,10 @@
     "rate": "<series_handle>",
     "horizon": 1.0,
     "barrier": "short_plus_half_long"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -416,6 +433,10 @@
     "distance_to_default": "<series_handle>",
     "mapping": "normal"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "distance_to_default",
@@ -472,6 +493,10 @@
     "date": "...",
     "estimator": "duration",
     "horizon": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -565,6 +590,10 @@
     "transition_matrix": "<matrix_handle>",
     "method": "qo"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "transition_matrix",
@@ -606,6 +635,10 @@
    "input_example": {
     "transition_matrix": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "transition_matrix",
@@ -632,6 +665,10 @@
     "monotonic_trend": "auto",
     "max_bins": 10,
     "min_bin_size": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -717,6 +754,10 @@
     "y": "<series_handle>",
     "smoothing": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -783,6 +824,10 @@
     "y": "...",
     "base_points": 600.0,
     "pdo": 20.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -860,6 +905,10 @@
     "y": "<series_handle>",
     "score": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -898,6 +947,10 @@
     "pd": "<series_handle>",
     "n_bins": 10,
     "strategy": "quantile"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -967,6 +1020,10 @@
     "grade_pd": "<series_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1032,6 +1089,10 @@
     "data": "<df_handle>",
     "lgd": "...",
     "model": "fractional"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1118,6 +1179,10 @@
     "ccf": "...",
     "model": "fractional"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1190,6 +1255,10 @@
     "event": "...",
     "horizon": 10,
     "model": "cox"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1285,6 +1354,10 @@
     "fit": "<raw_handle>",
     "scenarios": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1337,6 +1410,10 @@
     "exposure": "<series_handle>",
     "asset_correlation": 1.0,
     "confidence": 0.999
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1418,6 +1495,10 @@
     "n_simulations": 100000,
     "confidence": 0.999,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1519,6 +1600,10 @@
    "register": null,
    "input_example": {
     "exposure": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

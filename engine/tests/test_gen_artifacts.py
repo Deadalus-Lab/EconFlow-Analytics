@@ -33,6 +33,8 @@ from typing import Any
 
 import pytest
 
+from econflow_engine.metrics import find_manifest
+
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ENGINE_ROOT / "scripts"))
 
@@ -264,6 +266,67 @@ def test_v2_declares_its_version_and_its_producer() -> None:
         assert "gen_artifacts.py" in artifact["generated_by"]
 
 
+#: THE DIGESTS THIS RE-SEAL SUPERSEDED, recorded here as a second, independent
+#: home. Read from the committed tree on 2026-08-26 with
+#: ``git show HEAD:engine/artifacts/node-specs.sha256`` and
+#: ``git show HEAD:engine/artifacts/method-cards.sha256``. They cannot be read
+#: that way from the suite: ``.dockerignore`` excludes ``.git/`` and
+#: run_verifications.sh runs this suite inside the image build, so a git-reading
+#: test would fail the build rather than check anything. Keeping the pair here as
+#: well as in ``corpus/_provenance.json`` is what makes the provenance block
+#: checkable at all -- a block edited to name a digest that never existed is
+#: worse than no block, and with one home nothing would notice.
+#:
+#: MOVED ON 2026-08-26 BY BOX 2.1.1.12, and the pair here moved with the corpus
+#: record in the same commit -- that is the whole point of two homes.
+#:
+#: THE TWO MOVE BY VERY DIFFERENT AMOUNTS, AND A REVIEWER MUST READ THE PAIR
+#: KNOWING IT. ``sources`` is a CARD field, so method-cards.json moves by 93
+#: lines -- 46 entries and the 46 ``embed_text`` blobs that carry them into
+#: retrieval -- while nothing in node-specs.json's catalogue changes at all: it
+#: moves by exactly the two lines of the provenance block, which is emitted onto
+#: both artifacts. Both digests are still the committed bytes each file
+#: superseded, read with ``git show HEAD:engine/artifacts/<stem>.sha256``.
+#:
+#: NO ``contract_hash`` MOVES: the projection is fn, arguments, register and
+#: export, and ``sources`` is none of them and lives in the other artifact.
+SUPERSEDED = {
+    "node_specs_sha256": "758ce29823b3cb5bb2eff5dc304969412f31c4ce079fbeab801377005f8bd39a",
+    "method_cards_sha256": "49223d87e845f0423d9f1033daa131f649e8520659dd7b7cc4c8f9ebb0062dcc",
+}
+
+
+def test_both_artifacts_record_the_digests_this_reseal_superseded() -> None:
+    """Box 2.1.1.12. The re-seal happens IN PLACE, so the only trace it leaves is
+    this block: same filenames, same sidecar count, ``wrapper_file`` untouched.
+    Both artifacts carry the same record, because one re-seal produced both."""
+    import hashlib
+    import re
+
+    blocks = {name: read(name)["previous"] for name in ("node-specs.json", "method-cards.json")}
+    assert blocks["node-specs.json"] == blocks["method-cards.json"], (
+        "one re-seal, one record: the two artifacts disagree about what they superseded"
+    )
+    previous = blocks["node-specs.json"]
+    assert previous["reason"] == (
+        "box 2.1.1.12 -- 46 cards stop naming a distribution the register measured "
+        "as not implementing their method"
+    )
+    assert re.match(r"^\d{4}-\d{2}-\d{2}$", previous["resealed"]), previous["resealed"]
+    for key, digest in SUPERSEDED.items():
+        assert previous[key] == digest
+
+    # A block naming the file it sits in records nothing. Both digests must be
+    # the ones the re-seal REPLACED, so neither may equal what is on disk now.
+    for stem, key in (("node-specs", "node_specs_sha256"),
+                      ("method-cards", "method_cards_sha256")):
+        current = hashlib.sha256((ARTIFACTS / f"{stem}.json").read_bytes()).hexdigest()
+        assert previous[key] != current, (
+            f"{stem}: the provenance block names the current bytes, so it records no "
+            "prior state at all"
+        )
+
+
 def test_the_v2_sidecars_match_the_bytes() -> None:
     import hashlib
 
@@ -303,15 +366,255 @@ def test_method_sources_covers_every_node_and_module(
     assert register["n_node_fns"] == len(listed) == len(spec)
 
 
-def test_method_sources_preserves_the_authored_columns() -> None:
-    """category, package, cards, methods and node_fns are derived and rewritten;
-    status, library and paper are the register's own content and must survive a
-    rebuild, or every implementation decision is lost on the next --build."""
+def test_a_rebuild_carries_every_authored_column_across(
+    corpus: tuple[list[dict[str, Any]], dict[str, Any]], tmp_path: Path,
+) -> None:
+    """THE RULE, NOT THE COLUMN LIST -- because the list is what keeps growing.
+
+    ``category``, ``package``, ``cards``, ``methods`` and ``node_fns`` are derived
+    from the corpus and rewritten on every build. Everything else in a row is the
+    register's own content, and a column absent from the carry-over is a column
+    ``--build`` DELETES from all 598 rows at once -- after which ``--check``
+    compares the emptied register against an equally empty rebuild and reports
+    that everything reproduces. The data is gone and both gates are green.
+
+    NAMING THE COLUMNS HERE WOULD REPRODUCE THE DEFECT IT CHECKS FOR. This suite
+    named ``status``, ``library``, ``paper`` and ``wave`` while ``dataset`` was
+    being added, and a test listing the columns it knows about cannot fail for
+    the one it does not. So this rebuilds into a temporary tree and asserts the
+    rebuilt rows are IDENTICAL to the committed ones outside the derived set --
+    which is the rule, and holds for the next authored column without being
+    edited.
+    """
+    categories, _ = corpus
+    committed = json.loads(
+        (ENGINE_ROOT / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"]
+
+    G.sync_method_sources(categories, tmp_path)
+    rebuilt = json.loads(
+        (tmp_path / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"]
+
+    assert set(rebuilt) == set(committed)
+    for key, row in committed.items():
+        assert set(rebuilt[key]) == set(row), (
+            "a rebuild changed which columns a row carries; an authored column "
+            "missing from sync_method_sources' carry-over is deleted here",
+            key, sorted(set(row) ^ set(rebuilt[key])),
+        )
+        for column in set(row) - G.DERIVED_COLUMNS:
+            assert rebuilt[key][column] == row[column], (key, column)
+
+
+def test_a_rebuild_carries_a_column_no_committed_row_exercises_yet(
+    corpus: tuple[list[dict[str, Any]], dict[str, Any]],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """THE POSITIVE CONTROL, because the register above cannot supply one.
+
+    The test before this compares rebuilt rows against committed ones, and for a
+    column no row has filled in that comparison is ``None == None`` -- which
+    holds just as well with the carry-over deleted. ``dataset`` is exactly such a
+    column today: the kind is defined and the row it was defined for is still
+    planned, so nothing in the live register would notice it being dropped.
+
+    So this plants a register in which EVERY authored column carries a
+    distinctive value and drives the real ``sync_method_sources`` over it. No
+    mock and no stub: the function reads a register and writes a register, and
+    this hands it a different one. It names no column, so it covers the next
+    authored column as it stands.
+    """
+    categories, _ = corpus
+    key = sorted(G.read_corpus()[0][0]["cards"], key=lambda c: c["id"])[0]["wrapper_file"]
+    key = key.removesuffix(".py")
+
+    # THE PLANTED COLUMNS COME FROM THE COMMITTED REGISTER, NOT FROM
+    # AUTHORED_COLUMNS. Reading the constant would make this control blind to the
+    # one failure it exists for: a column deleted from that constant would vanish
+    # from the planted record in the same edit, and the control would pass while
+    # --build dropped the column from all 598 rows. Measured -- written the other
+    # way first, it stayed green for `dataset`, `wave` and `paper` alike.
+    committed = json.loads(
+        (ENGINE_ROOT / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"]
+    authored = sorted(set(next(iter(committed.values()))) - G.DERIVED_COLUMNS)
+    assert authored, "the register carries no authored column; this control is empty"
+
+    planted = {column: f"planted-{column}" for column in authored}
+    # The planted register keeps the real FILENAME: sync_method_sources derives
+    # what it writes under `out` from the same constant it reads, so a register
+    # named anything else lands under a name the assertions below would miss.
+    source = tmp_path / "in"
+    source.mkdir()
+    register = source / "METHOD-SOURCES.json"
+    register.write_text(json.dumps({"modules": {key: planted}}), encoding="utf-8")
+    monkeypatch.setattr(G, "METHOD_SOURCES", register)
+
+    out = tmp_path / "out"
+    out.mkdir()
+    G.sync_method_sources(categories, out)
+    rebuilt = json.loads(
+        (out / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"][key]
+
+    for column, value in planted.items():
+        assert rebuilt[column] == value, (
+            f"{column} did not survive a rebuild; it is missing from "
+            "gen_artifacts.AUTHORED_COLUMNS and --build deletes it from every row",
+            column,
+        )
+
+    # And a row the planted register says nothing about reads as UNDECIDED,
+    # rather than inheriting the value from the row beside it.
+    rest = json.loads((out / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))["modules"]
+    other = next(k for k in rest if k != key)
+    assert {c: rest[other][c] for c in authored} == {c: G.AUTHORED_COLUMNS[c] for c in authored}
+
+
+def test_the_register_admits_exactly_one_source_kind_per_row() -> None:
+    """The register's own domain, asserted where the generator reads it.
+
+    tests/test_method_sources.py answers for the CONTENT of the register against
+    the lockfile and the tree; this answers for the shape the generator and
+    gen_wrappers.py both depend on -- a status from the closed pair, and never
+    two source kinds on one row, which stops gen_wrappers mid-generation.
+    """
     register = json.loads(
         (ENGINE_ROOT / "METHOD-SOURCES.json").read_bytes().decode("utf-8"))
-    rows = register["modules"].values()
-    assert any(r["library"] for r in rows), "no row names a library"
-    for row in rows:
+    kinds = ("library", "paper", "dataset")
+    for row in register["modules"].values():
         assert row["status"] in {"planned", "selected"}, row
-        assert not (row["library"] and row["paper"]), (
-            "a row names a library AND a paper; the register permits one", row)
+        assert sum(bool(row[k]) for k in kinds) <= 1, (
+            "a row names more than one of a library, a paper and a dataset; "
+            "the register permits one", row)
+
+
+# --------------------------------------------------------------------------
+# output_keys: what a node's payload contains, and the debt of not saying
+# --------------------------------------------------------------------------
+
+INVENTORY = find_manifest(Path(__file__))
+
+
+def _inventory(section: str, key: str) -> int:
+    manifest = json.loads(INVENTORY.read_bytes().decode("utf-8"))
+    return int(manifest[section][key])
+
+
+def test_every_node_declares_an_output_keys_record() -> None:
+    """``status`` has NO DEFAULT, and ``keys`` agrees with it.
+
+    An absent record would read to every consumer as "nothing to declare", which
+    is the same silence as "declared, and the payload is empty" -- two different
+    claims sharing one text. The generator subscripts the corpus rather than
+    calling ``.get``, so a node authored without one is a KeyError at build time;
+    this asserts the property on the EMITTED artifact, where a consumer reads it.
+    """
+    nodes = read("node-specs.json")["nodes"]
+    assert len(nodes) == _inventory("artifacts", "n_nodes")
+    for node in nodes:
+        record = node["output_keys"]
+        assert set(record) == {"status", "keys"}, node["fn"]
+        if record["status"] == "declared":
+            assert isinstance(record["keys"], list) and record["keys"], node["fn"]
+            assert len(set(record["keys"])) == len(record["keys"]), node["fn"]
+        else:
+            assert record["status"] == "undeclared", node["fn"]
+            assert record["keys"] is None, node["fn"]
+
+
+def test_the_undeclared_output_key_debt_is_the_measured_one() -> None:
+    """A DEBT COUNTER THAT MUST REACH ZERO, and not an allowlist.
+
+    Exact equality in both directions is what separates the two. An allowlist
+    would only refuse a NEW undeclared node; exact equality also refuses a node
+    that quietly stops being declared, and it forces the number down in a reviewed
+    one-line diff as the payloads are written. Same shape and same reasoning as
+    ``engine.unresolved_sources``.
+    """
+    nodes = read("node-specs.json")["nodes"]
+    undeclared = [n["fn"] for n in nodes if n["output_keys"]["status"] == "undeclared"]
+    declared = [n["fn"] for n in nodes if n["output_keys"]["status"] == "declared"]
+    owed = _inventory("engine", "undeclared_output_keys")
+    assert len(undeclared) + len(declared) == len(nodes)
+    assert declared, "no node declares its payload; the containment gate compares nothing"
+    assert len(undeclared) == owed, (
+        f"{len(undeclared)} node(s) have not written down what their payload "
+        f"contains, and engine.undeclared_output_keys says {owed}. Re-run the "
+        f"command in the 'commands' block and move the number in its own diff -- "
+        f"DOWNWARD, which is the only direction this constant is meant to travel."
+    )
+
+
+def test_the_containment_check_compares_the_cards_it_can() -> None:
+    """The denominator is a MEASUREMENT, so the gate cannot pass over an empty set.
+
+    ``check_output_key_containment`` returns how many cards it actually compared
+    -- those with at least one declared function -- and refuses zero. Asserting
+    that count against the committed catalogue is what stops the gate decaying
+    into a loop that skips every card and reports success.
+    """
+    cards = read("method-cards.json")["cards"]
+    nodes = read("node-specs.json")["nodes"]
+    assert len(cards) == _inventory("artifacts", "n_cards")
+    compared = G.check_output_key_containment(cards, nodes)
+    declared = sum(1 for n in nodes if n["output_keys"]["status"] == "declared")
+    assert 0 < compared <= len(cards)
+    assert compared <= declared, (
+        "more cards were compared than there are declared nodes to compare them "
+        "against; the two counts describe the same declarations"
+    )
+
+
+def test_a_card_naming_a_field_its_declared_node_lacks_is_refused() -> None:
+    """THE POSITIVE CONTROL. Planted, because a gate nobody watched fail is a hope.
+
+    The containment direction is one-way on purpose -- a declared key the card
+    never mentioned is fine -- so the only thing this can catch is a card naming a
+    field its own declared node does not carry. That contradiction is planted here
+    rather than argued about.
+    """
+    nodes = read("node-specs.json")["nodes"]
+    declared = next(n for n in nodes if n["output_keys"]["status"] == "declared")
+    card = {
+        "id": 9999,
+        "tool_fns": [declared["fn"]],
+        "output_key_fields": ["a_field_no_node_carries: and its description"],
+    }
+    with pytest.raises(SystemExit, match="a_field_no_node_carries"):
+        G.check_output_key_containment([card], nodes)
+
+
+def test_the_containment_check_never_parses_a_prose_entry() -> None:
+    """THE NEGATIVE CONTROL. 626 of the 2623 entries are sentences, not names.
+
+    A sentence turned into a field name by a regular expression is a payload key
+    nobody wrote down, so an entry that does not open with ``name: value`` is
+    passed over rather than guessed at. Without this the gate would invent a field
+    and then demand that a node declare it.
+    """
+    nodes = read("node-specs.json")["nodes"]
+    declared = next(n for n in nodes if n["output_keys"]["status"] == "declared")
+    card = {
+        "id": 9999,
+        "tool_fns": [declared["fn"]],
+        "output_key_fields": [
+            "The frame carries one row per observation and one column per series.",
+            "Whether the test rejected at the requested level.",
+        ],
+    }
+    assert G.check_output_key_containment([card], nodes) == 1
+
+
+def test_the_prose_share_of_the_card_entries_is_the_measured_one() -> None:
+    """The split the seeding rule rests on, asserted rather than remembered.
+
+    ``FIELD_ENTRY`` reads 1997 of the 2623 committed entries and never the other
+    626, and the decision to seed 142 nodes rather than 543 rests on that split. A
+    catalogue edit that turned most of the prose into parseable names would make
+    the debt mechanically closable, and this says so loudly instead of leaving the
+    seeding rule looking arbitrary for ever.
+    """
+    cards = read("method-cards.json")["cards"]
+    entries = [e for c in cards for e in (c["output_key_fields"] or [])]
+    parseable = [e for e in entries if G.FIELD_ENTRY.match(e)]
+    assert len(entries) == 2623, len(entries)
+    assert len(parseable) == 1997, len(parseable)

@@ -31,6 +31,7 @@
     "sfa: the residual that closes the identity",
     "debt_ratio: the level series the decomposition explains"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the STOCK-FLOW ADJUSTMENT is a residual, not an explanation; a large one means the identity does not close and the data need checking before anything is concluded",
     "the identity is exact only when the interest rate, growth rate and deflator are on consistent bases -- mixing nominal and real is the standard error",
@@ -41,7 +42,8 @@
     "Blanchard 2019 (American Economic Review 109:1197-1229)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 355,
@@ -74,6 +76,7 @@
     "debt_stabilising_balance: the primary balance that holds the ratio constant",
     "assumptions: the inputs, echoed so the projection is auditable"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the projection is ENTIRELY driven by the assumed interest-growth differential; a small change in it dominates any plausible fiscal effort",
     "standardised shocks are calibrated to historical volatility and understate risk when the past was unusually calm",
@@ -84,7 +87,8 @@
     "European Commission 2023, Debt Sustainability Monitor"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 356,
@@ -116,6 +120,7 @@
     "shock_correlation: the joint distribution the fan rests on",
     "n_simulations: draws behind the bands"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the bands inherit the CORRELATION between growth, rates and the balance; simulating them independently badly understates the tail",
     "historical shock distributions embed the policy reactions of the past, so a fan chart is not a counterfactual for a different policy",
@@ -123,11 +128,11 @@
    ],
    "sources": [
     "Celasun, Debrun & Ostry 2006 (IMF Staff Papers 53:401-425)",
-    "Berti 2013, Stochastic public debt projections (European Economy Economic Papers 480)",
-    "arch"
+    "Berti 2013, Stochastic public debt projections (European Economy Economic Papers 480)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 357,
@@ -159,6 +164,7 @@
     "threshold: the debt level at which the response changes, where a nonlinear form is fitted",
     "regimes: identified fiscal regimes and their reaction coefficients"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a positive response coefficient is SUFFICIENT for sustainability in Bohn's sense but says nothing about the level of debt or its political feasibility",
     "the response weakens or reverses at high debt in many samples, so a linear estimate averages two regimes and can conclude sustainability where none holds",
@@ -170,7 +176,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 358,
@@ -202,6 +209,7 @@
     "state_multipliers: the multiplier in each state, where a state variable is supplied",
     "conf_band: bands, which must be robust to the induced serial correlation"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "local-projection residuals are SERIALLY CORRELATED by construction at horizons beyond one; standard errors must be HAC or the bands are far too narrow",
     "the cumulative multiplier depends on the normalisation of the shock; reporting it without stating the normalisation makes it uncomparable",
@@ -214,7 +222,8 @@
     "localprojections"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 359,
@@ -246,6 +255,7 @@
     "cyclical_component: the part attributed to the cycle",
     "elasticity_used: the semi-elasticity applied, which drives the whole adjustment"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the adjustment is only as good as the OUTPUT GAP, which is unobserved, heavily revised, and estimated with wide uncertainty -- real-time structural balances are revised by large amounts",
     "the aggregate semi-elasticity hides very different revenue and expenditure elasticities; using a single number misstates composition effects",
@@ -257,7 +267,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 360,
@@ -289,6 +300,7 @@
     "adjustment_path: the balance path that would restore compliance",
     "binding_rule: which rule binds first when several apply"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "several rules usually apply at once and they can CONFLICT; reporting compliance with one while another binds is the standard misuse",
     "escape clauses and transition arrangements are part of the rule; a mechanical compliance calculation that ignores them is not the legal test",
@@ -299,7 +311,8 @@
     "Eyraud, Debrun, Hodge, Lledo & Pattillo 2018, Second-generation fiscal rules (IMF Staff Discussion Note 18/04)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -312,6 +325,10 @@
     "primary_balance": "<series_handle>",
     "interest_rate": "<series_handle>",
     "growth_rate": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -390,6 +407,10 @@
     "interest_rate": "<series_handle>",
     "growth_rate": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "debt_ratio",
@@ -451,6 +472,10 @@
      2.0
     ],
     "horizon": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -528,6 +553,10 @@
     "baseline": "<raw_handle>",
     "shock_size": 1.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "baseline",
@@ -578,6 +607,10 @@
     "debt_ratio": 1.0,
     "interest_rate": 1.0,
     "growth_rate": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -639,6 +672,10 @@
      0.9
     ],
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -753,6 +790,10 @@
     "fan": "<raw_handle>",
     "threshold": 1.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fan",
@@ -793,6 +834,10 @@
     "debt_ratio": "<series_handle>",
     "cov_type": "hac",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -888,6 +933,10 @@
     "debt_ratio": "<series_handle>",
     "model": "threshold",
     "n_regimes": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -986,6 +1035,10 @@
     "lags": 4,
     "cumulative": true,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1094,6 +1147,10 @@
     "lags": 4,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "output",
@@ -1200,6 +1257,10 @@
     "output_gap": "<series_handle>",
     "elasticity": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "balance",
@@ -1265,6 +1326,10 @@
     "output_gap": "<series_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "revenue",
@@ -1328,6 +1393,10 @@
     "debt_ratio": "<series_handle>",
     "debt_limit": 0.6,
     "deficit_limit": 0.03
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1421,6 +1490,10 @@
     "interest_rate": 1.0,
     "growth_rate": 1.0,
     "multiplier": 0.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

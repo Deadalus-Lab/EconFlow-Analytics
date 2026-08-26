@@ -5,9 +5,12 @@
   "description": "The enumerated list of places where the typed schema is DELIBERATELY stricter than the corpus it is checked against. Every entry is a decision someone made and must defend; the suite asserts each one is still live, so a divergence that stops occurring fails as a dead entry rather than quietly widening what the engine accepts.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "note", "key_scheme", "oracle", "divergences"],
+  "required": ["artifact_version", "note", "key_scheme", "oracle", "divergences"],
   "properties": {
-    "schema_version": { "const": 1 },
+    "artifact_version": {
+      "description": "One spelling across all seven sealed artifacts. This file declared its version under `schema_version` while the other six used `artifact_version`, so a reader had to know which of two names to ask for. It is a FROZEN input with no generator, so the rename is a hand edit, a recomputed sidecar and this line, in one change.",
+      "const": 1
+    },
     "note": { "type": "string", "minLength": 1 },
     "key_scheme": {
       "description": "How to read `members`. They are CLASSES, not fixture ids, and reading them as ids silently matches nothing.",

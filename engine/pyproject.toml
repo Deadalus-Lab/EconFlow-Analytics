@@ -42,16 +42,38 @@ dependencies = [
     # then it fails at import time on a clean install rather than in any test.
     # Found by `deptry .` (DEP003), which is step 6 of run_verifications.sh.
     "annotated-types",
-    "pandas",
+    # Upper-bounded because `statsforecast` (<3.0.0) and `mlforecast` (<3.0) both
+    # refuse pandas 3, and METHOD-SOURCES.json commits eight wrapper rows to them.
+    "pandas>=2.2,<3",
     "numpy",
     "scipy",
     "statsmodels",
     "orjson",
+    # WAVE ONE. METHOD-SOURCES.json carries a `wave` column, and these four plus
+    # pandas, scipy and statsmodels are every distribution it marks `one`: the 214
+    # rows whose bodies are written next. tests/test_method_sources.py asserts
+    # that each of them resolves here, so a row cannot promise an import the
+    # lockfile does not supply. A `deferred` row arrives with its own wrapper.
+    #
+    # arch and linearmodels are NCSA (University of Illinois/NCSA Open Source
+    # Licence), admitted by owner decision on 2026-08-23; scripts/gen_third_party.py
+    # records why beside the incompatible set.
+    "arch",
+    "linearmodels",
+    "pyfixest",
+    "scikit-learn",
 ]
 
 [project.urls]
 Homepage = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
 Source = "https://github.com/Deadalus-Lab/EconFlow-Analytics"
+
+# The same entry point the module path reaches, for anyone who installs the
+# wheel. The Dockerfile keeps `CMD ["python", "-m", "econflow_engine"]`: a
+# console script is a generated shim in the environment's bin directory, and the
+# module path is what the image's own smoke test exercises.
+[project.scripts]
+econflow-engine = "econflow_engine.__main__:main"
 
 # The tools the engine's own gates are made of. They live HERE rather than in
 # the workspace root's `dev` group because they check the engine and nothing
@@ -70,7 +92,32 @@ dev = [
     "beartype==0.22.9",
     "deptry==0.25.1",
     "griffe==2.1.0",
+    # PROPERTY TESTS, box 2.1.16. An example-based test asserts a method's answer
+    # on the inputs whoever wrote it thought of; a property test asserts what must
+    # hold for EVERY input and lets the library search for the counterexample. The
+    # inputs that break numerical code are the ones nobody types by hand: the
+    # constant series with zero variance, the all-NaN column, the length-one
+    # sample. tests/controls/strategies.py asserts that the strategies really do
+    # emit those three shapes within a pinned example budget, because a generator
+    # that only produces comfortable middle-of-the-range values satisfies every
+    # property and proves nothing.
+    # 6.165.9 and not the newest release: the workspace root pyproject.toml
+    # pins `exclude-newer`, and 6.165.10 was uploaded after that instant. The
+    # date itself is authored there and witnessed by uv.lock; a third copy of it
+    # here would rot, and .github/scripts/check-toolchain-pin.sh refuses one.
+    # Resolution fails outright rather than falling back, reporting "there is no
+    # version of hypothesis==6.165.10" -- a message about the snapshot date, not
+    # about the index.
+    "hypothesis==6.165.9",
     "interrogate==1.7.0",
+    # MUTATION TESTING, box 2.1.17, NIGHTLY ONLY. Coverage says a line ran;
+    # it cannot say an assertion would have noticed the line being wrong. mutmut
+    # changes one operator or constant at a time and reports which changes the
+    # suite failed to catch. It is deliberately not a run_verifications.sh leaf:
+    # a full run rebuilds the tree under mutants/ and re-runs the suite once per
+    # mutant, which is minutes rather than the three seconds the correctness gate
+    # takes. Wired into the nightly path of .github/workflows/engine-suite.yml.
+    "mutmut==3.7.0",
     # The `nodejs` extra rather than bare `pyright`: without it the package
     # downloads a Node runtime into a user cache on first run, which is an
     # unpinned network fetch in the middle of an image build whose whole claim is
@@ -92,6 +139,19 @@ dev = [
     # stub that raises, so a coverage figure would describe the harness rather
     # than the catalogue. A floor lands with the first real bodies, in Phase 2.
     "pytest-cov==7.1.0",
+    # CONTINUOUS BENCHMARKING OF THE RESPONSE PATH. Every node reply leaves the
+    # engine through serialize.to_mcp, so a regression there is paid once per
+    # call and is invisible to a correctness suite: the assertions stay green
+    # while the answer arrives slower. tests/test_serialize_benchmarks.py
+    # measures it on the payload shapes the contract actually returns -- a
+    # thousand-element Series, a 100x20 frame, a nested mixture, and one
+    # carrying NaN, since the null guard is per element and only a payload that
+    # holds nulls exercises it.
+    # NOT a run_verifications.sh leaf and carrying no floor, for the same reason
+    # pytest-cov carries none: a wall-clock number measured on one machine
+    # compares against nothing. The comparison that means something is made
+    # against the base commit, by .github/workflows/codspeed.yml.
+    "pytest-codspeed==5.0.3",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -194,10 +254,16 @@ extend_exclude = ["api-baseline"]
 [tool.deptry.per_rule_ignores]
 # DEP002 = declared and never imported. TRUE TODAY AND DELIBERATE: every wrapper
 # function in the tree is a typed stub that raises NotImplementedError, so nothing
-# imports statsmodels yet. It is declared because the Phase 2 bodies
-# are written against it. DELETE THIS LINE with the first wrapper that imports
-# statsmodels -- at that point the ignore starts hiding a real answer.
-DEP002 = ["statsmodels"]
+# imports any of these yet. They are declared because the Phase 2 bodies are
+# written against them -- these five are exactly the wave-one distributions
+# METHOD-SOURCES.json marks `one`, less pandas, numpy and scipy, which the
+# infrastructure already imports.
+#
+# EVERY NAME IS LISTED SEPARATELY AND THE RULE IS NOT DISABLED. A blanket DEP002
+# ignore would also swallow the sixth dependency somebody declares and forgets to
+# use. DELETE A NAME FROM THIS LIST with the first wrapper that imports it -- at
+# that point its ignore starts hiding a real answer.
+DEP002 = ["statsmodels", "arch", "linearmodels", "pyfixest", "scikit-learn"]
 
 # THE SECOND TYPE CHECKER, AND IT IS NOT REDUNDANT.
 # mypy and pyright disagree about real code: pyright narrows through `assert`,
@@ -247,3 +313,142 @@ exclude = "^src/econflow_engine/generated/"
 # they would return. The others are the scientific stack, same reason.
 module = ["scipy.*", "statsmodels.*", "threadpoolctl"]
 ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------
+# BOX 2.1.17 -- MUTATION TESTING, NIGHTLY ONLY.
+#
+# THE CONFIGURATION HAS TO LIVE HERE and nowhere else: mutmut 3.7.0 reads
+# `[tool.mutmut]` from the pyproject.toml in its WORKING DIRECTORY, and falls
+# back to a `[mutmut]` section of setup.cfg only when that table is absent
+# (mutmut/configuration.py:20-63). A second config file beside this one would be
+# a second place to look for one answer.
+#
+# WHAT IT MEASURES. Coverage says a line RAN. It cannot say an assertion would
+# have NOTICED the line being wrong. mutmut changes one operator or constant at a
+# time and re-runs the suite; a mutant that survives is a change to the engine no
+# test objects to. The floors live in .github/inventory.json under `mutation`,
+# and min_mutants is asserted BEFORE any kill rate is read -- 0 killed of 0
+# generated is the shape that reads as a perfect score for having tested nothing.
+#
+# NOT A run_verifications.sh LEAF, deliberately. mutmut rebuilds the tree under
+# mutants/ and re-runs the suite once per mutant: minutes against the three
+# seconds the correctness gate takes. It runs in the nightly path of
+# .github/workflows/engine-suite.yml.
+[tool.mutmut]
+# The shared numerical helpers and the refusal primitives -- the code every
+# future wrapper body routes its output through, and the gate every body raises
+# its refusals through. `only_mutate` is matched with fnmatch against each walked
+# path, so these are paths and not module names.
+#
+# THIS LIST AND `mutation.targets` IN .github/inventory.json NAME THE SAME THREE
+# PATHS, and the figures under `mutation` are measured over exactly this set. A
+# path added here without a re-measurement leaves both floors describing a tree
+# that is no longer the one being mutated.
+source_paths = ["src/econflow_engine"]
+only_mutate = [
+    "src/econflow_engine/serialize.py",
+    "src/econflow_engine/chart_spec.py",
+    "src/econflow_engine/gates/primitives.py",
+]
+# `-p no:randomly` because pytest-randomly reshuffles the suite on every run, and
+# a mutant's verdict must not depend on the order the tests happened to take.
+pytest_add_cli_args = ["-p", "no:randomly"]
+
+# THREE SELECTORS, AND NONE OF THEM IS A MANIFEST READ. Twenty of the twenty-two
+# that used to sit here were, and box 2.1.1.7 removed the reason for every one:
+# mutmut runs the suite from `engine/mutants/`, which inserts one directory level,
+# so a harness locating the manifest as `ENGINE_ROOT.parent / ".github" /
+# "inventory.json"` resolved one level ABOVE the sandbox and could not run there at
+# all. `econflow_engine.metrics.find_manifest` walks up to the directory holding
+# both the manifest and `engine/` instead of counting `..`, which finds the same
+# one file from inside the sandbox and from outside it.
+#
+# THE SELECTION IS STILL MEASURED, NOT CURATED, and the criterion has not changed:
+# it is the exact set that fails a baseline run inside mutants/, arrived at by
+# running the suite there and deselecting what it reports. The list shrank because
+# the failures went away, not because anything was excused. Keeping the criterion
+# mechanical is the point -- a hand-picked list of "relevant tests" would be taste,
+# and taste is how a mutation score gets quietly improved.
+#
+# THE PREVIOUS LIST HAD STOPPED BEING THAT MEASURED SET, and re-running it is what
+# showed it. At 0100fb0, with its own twenty-two selectors in place, a baseline run
+# inside mutants/ reported `14 failed, 420 passed, 1 skipped, 27 deselected` -- so
+# `mutmut run` aborted on the baseline and the nightly mutation job could not have
+# produced a figure at all. Thirteen of those fourteen were harnesses that adopted
+# the manifest read after the list was last measured on 2026-08-24; the fourteenth
+# is the sentinel named below. The 340 the previous comment quoted was the collected
+# count on that date and the suite has grown since.
+#
+# WHY THESE THREE REMAIN.
+# tests/test_thread_pinning.py asserts environment variables that
+# run_verifications.sh exports, so it fails under a bare pytest anywhere.
+# tests/test_gates_primitives.py::test_in_range_blocks_a_non_number_in_the_shipped_function
+# calls `as_shipped()` to strip the dev-only beartype wrapper and assert the
+# primitive's OWN refusal; under mutation the function is rewritten behind
+# mutmut's trampoline, `as_shipped` no longer reaches the original, and beartype
+# raises BeartypeCallHintParamViolation instead of GateError. That is an
+# instrumentation artifact of mutmut 3.7.0, not a defect in gates/primitives.py.
+# tests/test_payload_sentinel.py::test_the_resting_tree_is_green_and_still_says_owed
+# runs the real assert.sh over the tree it is POINTED AT and requires exit 0, and
+# inside the sandbox that tree is the sandbox. assert.sh:239 reads `../uv.lock`,
+# relative to that tree, so from mutants/ it looks for engine/uv.lock; the file is
+# not there and :244 sets fail=1. THE CONTRADICTION IS ACROSS THE TWO INVOCATIONS,
+# NOT WITHIN ONE -- placing engine/uv.lock does satisfy the sandbox run, and it
+# then turns the NORMAL run red, because there assert.sh is pointed at engine/ and
+# :235 tests `uv.lock` in that same directory and :236 refuses it: the workspace
+# lock belongs at the repository root. (:235 from the sandbox tests
+# mutants/uv.lock, which is a different file and is not the one at issue.) No
+# arrangement of the tree satisfies both invocations at once, which is what
+# "cannot execute here by construction" means here, and it is a different reason
+# from the manifest read the walk fixed. The suite's other two sentinel fixtures
+# assert exit 1 and both run here unchanged.
+pytest_add_cli_args_test_selection = [
+    "--deselect",
+    "tests/test_thread_pinning.py",
+    "--deselect",
+    "tests/test_gates_primitives.py::test_in_range_blocks_a_non_number_in_the_shipped_function",
+    "--deselect",
+    "tests/test_payload_sentinel.py::test_the_resting_tree_is_green_and_still_says_owed",
+]
+
+# WITHOUT THESE THE RUN DOES NOT START, and the failure names a missing file
+# rather than a missing setting. mutmut rebuilds the tree under `mutants/` and
+# runs the suite THERE, copying only tests/, setup.cfg, pyproject.toml and the
+# lockfiles by default (mutmut/configuration.py:128-137). This suite reads the
+# committed artifacts by ENGINE_ROOT-relative path, so under mutants/ they are
+# simply absent:
+#
+#     FileNotFoundError: .../engine/mutants/artifacts/node-specs.json
+#         tests/parity/replay.py:39 -> _read("node-specs.json")
+#
+# and mutmut reports `failed to collect stats` -- which reads like a mutmut
+# problem and is not one.
+#
+# THE LIST IS NOT DERIVABLE BY GREPPING tests/, WHICH IS THE TRAP. artifacts/ and
+# METHOD-SOURCES.json are named in tests/ directly, but corpus/ is not named
+# there at all: tests/test_gen_artifacts.py imports scripts/gen_artifacts.py,
+# which resolves CORPUS against ITS OWN parent. Missing it fails one layer
+# deeper, and only after the first 100 tests have passed:
+#
+#     SystemExit: gen_artifacts: no corpus at .../engine/mutants/corpus.
+#         scripts/gen_artifacts.py:160 -> read_corpus()
+#
+# So the rule is: copy what the suite reads TRANSITIVELY, and add a directory
+# here the moment a test reaches it through a script rather than by name.
+also_copy = [
+    "artifacts",
+    "scripts",
+    "corpus",
+    "METHOD-SOURCES.json",
+    ".python-version",
+    # engine/sbom.cdx.json, added by box 2.1.1.7. tests/test_payload_sentinel.py
+    # runs the real assert.sh over the tree it is pointed at, and inside the
+    # sandbox that tree is the sandbox: without this the run reports
+    # `FAIL sbom_components expected 115, measured no-sbom` and the resting-tree
+    # fixture goes red over a file that was simply never copied in. The workspace
+    # lockfile is the one thing that cannot join this list -- it lives at the
+    # REPOSITORY root and mutmut's destination is always `mutants/<path>`, so an
+    # entry for it would plant a second lockfile inside engine/. assert.sh already
+    # says so and exits 0: `OWED py_packages  no uv.lock at the repository root`.
+    "sbom.cdx.json",
+]

@@ -129,7 +129,11 @@ class TestP3EnumeratedDivergence:
     OBSERVED = {divergence_key(r.case) for r in DIVERGING}
 
     def test_the_divergence_file_is_well_formed(self) -> None:
-        assert DIVERGENCES["schema_version"] == 1
+        # ONE SPELLING ACROSS ALL SEVEN SEALED ARTIFACTS. This file declared its
+        # version under `schema_version` while the other six used
+        # `artifact_version`, so a reader looking for the version of a sealed
+        # artifact had to know which of two names to ask for. Box 2.1.15.
+        assert DIVERGENCES["artifact_version"] == 1
         entries = DIVERGENCES["divergences"]
         assert len(entries) > 0
         for entry in entries:

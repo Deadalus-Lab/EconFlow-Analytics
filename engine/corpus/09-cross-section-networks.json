@@ -39,6 +39,7 @@
     "key_sectors: Rasmussen-Hirschman quadrants (I = high BL&FL = a key sector)",
     "extraction/field_of_influence: inconsistent shape (a matrix or a nested list per region/type)"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "io_linkages / io_key_sector: with normalize=False (the default) type='direct' equals type='total' (a quirk, live-verified) — a message, not a block; use normalize=True",
     "io_key_sector does NOT expose normalize -> the quirk is always active there",
@@ -53,7 +54,8 @@
     "Dietzenbacher, van der Linden & Steenge 1993 (hypothetical extraction)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 49,
@@ -92,6 +94,7 @@
     "backward_linkage/forward_linkage: normalized (>1 = above average)",
     "power/sensitivity_dispersion (+_cv): dispersion indices + CV"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "lt_income_multiplier / lt_employment_multiplier: pass an ALREADY normalised w/d or e/d, NOT a raw wage — they do not divide internally",
     "the C++ layer strips axis labels -> the wrapper puts them back (otherwise anonymous vectors)",
@@ -104,7 +107,8 @@
     "Chilean input-output tables 2013 (Central Bank of Chile)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 50,
@@ -145,6 +149,7 @@
     "gv_residual_correlation: mean cross-sectional residual cor, VAR vs GVAR (a reduction is good)",
     "gv_structural: G0/G1/G2/F1/F2 structural matrices (for downstream IRF/forecast)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "weight_matrix is accessed POSITIONALLY -> the wrong column order = silently wrong (gated where the mis-order is detectable)",
     "the 'ID' column is EXACTLY upper case (the documentation says 'id' — stale); Time must be a character-parseable date (not an integer)",
@@ -160,7 +165,8 @@
    "precondition_tools": [
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (+ KPSS confirmatory) — stationarity per variable"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 51,
@@ -194,6 +200,7 @@
     "NPT/NPDC: net pairwise directional connectedness",
     "TABLE/CT: the full spillover matrix (row=origin, column=recipient)"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "Diebold-Yılmaz = predictive/forecast-error connectedness, NOT structural causality",
     "minimum sample n>=nlag*(k+1)+2 (VAR); otherwise silent NaN se/a wrong dimension (gated)",
@@ -209,7 +216,8 @@
    "precondition_tools": [
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (+ KPSS) — stationarity (the VAR requires it)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 52,
@@ -251,6 +259,7 @@
     "overall (fq_overall): total connectedness per band (where the interconnection sits: short or long)",
     "fq_from/to/net/pairwise: FROM/TO/NET per band"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "SECURITY: the rolling spillover resolves its estimator by name, so func_est is restricted to a closed enum ('VAR') — a mandatory check",
     "partition is mandatory and must be in DESCENDING order; no_corr is a mandatory boolean",
@@ -265,7 +274,8 @@
     "c03_multivariate_nowcasting/reduced_form_var.vr_fit (chaining: take the model handle out of vr_fit and pass it in)",
     "c01_preparation_prechecks/unit_root_normality.run_adf_test — stationarity for the upstream VAR"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 53,
@@ -303,6 +313,7 @@
     "lr_test_vs_ols/wald_test_rho/lm_test: spatial-dependence diagnostics, as atomic records",
     "hausman_test: error models ONLY; bp_test: Breusch-Pagan heteroskedasticity"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "spr_impacts is MANDATORY for lag/Durbin/SAC: the raw coefficients are misleading because of the feedback through W",
     "method='moments' was excluded (it fails on ML fits); Hausman is for error models ONLY (gated)",
@@ -319,7 +330,8 @@
     "c09_cross_section_networks/spatial_weights_diagnostics.spw_weights (building spatial weights — a mandatory input)",
     "c09_cross_section_networks/spatial_weights_diagnostics.spw_moran_test (is there any spatial autocorrelation at all? otherwise this is pointless)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 54,
@@ -363,6 +375,7 @@
     "moran_test/geary_test/joincount_test: atomic records {statistic, p_value, estimate, alternative}",
     "local_moran: data_frame Ii/E.Ii/Var.Ii/Z.Ii/Pr + quadrant (HH/LL clusters, HL/LH outliers)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Moran I: +1=positive autocorrelation (clusters), rejecting H0=structure is present",
     "Geary C has the INVERSE scale: C<1=positive autocorrelation, C=1 random, C>1 negative (do not read it like Moran)",
@@ -376,7 +389,8 @@
     "Anselin 1995 (Geographical Analysis 27:93, LISA)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 55,
@@ -407,6 +421,7 @@
     "net_community_louvain: membership, modularity (>0.3 = good structure), n_communities",
     "net_connectivity: density/transitivity_global/diameter/mean_distance/components/assortativity_degree"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "cluster_louvain works on an undirected graph ONLY (gated)",
     "degree does NOT use weights (for a weighted degree -> strength, out of scope)",
@@ -421,7 +436,8 @@
     "Newman 2010 Networks: An Introduction"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 176,
@@ -454,6 +470,7 @@
     "bgvar_spillover with type=girf: irf_median, K x (horizon+1), the posterior median responses to the shock; plus the quantiles",
     "bgvar_predict: forecast, K x horizon x quantiles, plus forecast_median (chart data); has_holdout; lps and rmse are present ONLY when hold_out>0 at fit time"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "GFEVD orientation (Lanne-Nyberg 2016 corrected): the ROWS sum to 1; spillover_matrix[i,j] = the contribution OF j TO the variance of i; from_i=sum over {j≠i}, to_j=sum over {i≠j} — do not confuse them",
     "max_eigenvalue>=1 or a low stable_draw_share -> the VAR has unstable draws; a high geweke_exceed_share -> the MCMC did not converge (raise draws/burnin) — do NOT interpret spillovers/forecasts before checking these (a stateless node: they are returned in the list, NOT to the console)",
@@ -471,7 +488,8 @@
     "bgvar_fit (read max_eigenvalue<1 = a stable VAR & geweke_perc/geweke_exceed_share = MCMC convergence before interpreting spillovers/forecasts)",
     "c00_data_utilities/reading_delimited_fixed.read_csv_data (load the country data before building the named list; names must contain NO dot)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 177,
@@ -510,6 +528,7 @@
     "rho (spgm): the spatial autoregressive (lag) coefficient; sigma2: the idiosyncratic variance",
     "sp_panel_lm_tests: statistic/p_value/method/alternative (lml -> the lag test, lme -> the error test)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "naming: 'rho' and 'lambda' swap roles between the ML and GM routes — in the ML coefficient table lambda is the spatial error and rho the spatial lag, while in the GM route the spatial-lag coefficient sits in the rho field and lambda holds the error; read the labels, do not assume",
     "the within (fixed-effects) model puts the spatial parameters into coef_table, NOT into a separate ar_table or errcomp_table (those are absent) — only the random model separates them",
@@ -528,7 +547,8 @@
     "c08_panel_data/static_panel_estimators.pd_hausman_test (the FE vs RE dimension, on the non-spatial baseline)",
     "c01_preparation_prechecks/panel_unit_root.run_panel_unit_root (macro/large-T only: a panel unit-root test first)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 178,
@@ -564,6 +584,7 @@
     "vcov: the coefficient covariance; s2: the residual variance; residuals/nobs",
     "nonstationary: True when the absolute spatial coefficient reaches 1; se_na: True when a robust standard error came back blank"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the OPPOSITE convention to #53: here lambda is the spatial LAG (Wy) and rho the spatial ERROR (Wu), while #53 has rho as the lag and lambda as the error. ALWAYS read spatial_lag and spatial_error, the explicit names, never the raw lambda/rho",
     "het=True => the standard errors in coef_table are ALREADY heteroskedasticity-robust; do NOT apply a robust covariance again",
@@ -581,7 +602,8 @@
     "c09_cross_section_networks/spatial_weights_diagnostics.spw_weights (building/checking a spatial-weights object from adjacency; here W is supplied as a matrix)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading cross-section data)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 179,
@@ -619,6 +641,7 @@
     "n_units/n_times: the panel dimensions; converged: True when rho and the log-likelihood are both finite",
     "impacts: direct/indirect/total (matrices Estimate/SE/t/p) + estimates/std_errors/t_stats/p_values"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "The beta coefficient is NOT the marginal effect when rho!=0 — read the impacts (direct=own unit, indirect=spillover, total=direct+indirect); the same feedback loop as in #178",
     "'sem' is not supported (the enum allows only sar and sdm); for a spatial-error component go to #177",
@@ -639,7 +662,8 @@
     "c09_cross_section_networks/spatial_weights_diagnostics.spw_weights (building/checking the spatial neighbourhoods before you build W)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the long-format panel from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 180,
@@ -674,6 +698,7 @@
     "spatial_effect: the N x 1 estimated spatial component/random effect (chart-data); fitted/residuals",
     "n_eigenvectors / eigenvalues / eigenvectors: (sp_moran_eigenvectors) the count & the scaled eigenvalues (max=1) & the N x L matrix (chart-data)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "sp_eigenvector_filter and sp_random_effects_filter CONSUME the object produced by sp_moran_eigenvectors (the raw handle 'object'); they do not rebuild the eigenvectors — if you changed W, re-run sp_moran_eigenvectors",
     "moran_i is SCALED to [0,1] (Moran.I/max(Moran.I)), NOT the raw Moran's I — do not compare it with the spw_moran_test statistic",
@@ -693,7 +718,8 @@
     "c09_cross_section_networks/spatial_weights_diagnostics.spw_moran_test (confirm that spatial autocorrelation EXISTS before the ESF)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load y/x/coords from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 181,
@@ -734,6 +760,7 @@
     "lambda_used/selected_lambda/ic_table: the penalty that was used; (grid) the selection + a table {lambda,rss,npar,ic}",
     "rss/npar/p_used/N/T/degenerate_concentration: fit diagnostics + a degeneracy flag for C.hat"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "the Granger network is DIRECTED, read off the AR matrices, while the concentration network and the partial correlations are UNDIRECTED and contemporaneous — do not confuse them",
     "lambda controls the sparsity: a large lambda -> a sparser network; the graph structure DEPENDS on lambda (use lambda_grid+ic for a data-driven choice)",
@@ -752,7 +779,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_kpss_test (a complementary stationarity check before the network)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the T x N matrix of series)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 182,
@@ -790,6 +818,7 @@
     "beta: the (N * var_order) x N VAR parameters (column j is the regression of variable j); Gamma: the innovation covariance; lambda: the regularisation",
     "fnets_factor: loadings (2-D when restricted; a 3-D impulse-response array (p, q, trunc_lags+2) when unrestricted); factors (the factor series, the common shocks); plus the degenerate flag"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "the edge weights CAN be negative (entries of the VAR parameters/partial correlations) — they are not |weights|",
     "granger_network[i,j] = the effect i -> j (the orientation of network(type=granger)); the diagonal is zeroed (self-lags are removed)",
@@ -807,7 +836,8 @@
     "fnets_factor (estimate the number of factors q first; degenerate=True, or q=0, means there is no common structure — consider #181 directly)",
     "c00_data_utilities/reading_delimited_fixed.read_csv_data (load the T x N matrix of series)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 469,
@@ -838,6 +868,7 @@
     "local_r2: fit varying over space",
     "condition_number: local collinearity, the main failure mode"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "LOCAL COLLINEARITY is severe in GWR and produces wild coefficient surfaces that look like findings; check the local condition numbers before interpreting anything",
     "GWR forces every covariate to vary at the same spatial scale, which MGWR exists to relax -- a single bandwidth is a strong restriction",
@@ -849,7 +880,8 @@
     "mgwr"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 470,
@@ -880,6 +912,7 @@
     "constraint_type: which margins were imposed",
     "distance_decay: the estimated decay parameter"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE CONSTRAINT TYPE CHANGES WHAT IS IDENTIFIED: a doubly constrained model cannot estimate origin or destination attributes, because the margins already absorb them",
     "flows with structural zeros must be handled explicitly; log-linear estimation drops them and biases the decay parameter",
@@ -891,7 +924,8 @@
     "spint"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 471,
@@ -922,6 +956,7 @@
     "significance: permutation p-values, adjusted for multiplicity",
     "quadrants: high-high, low-low and outlier classifications"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE WEIGHTS MATRIX DETERMINES THE ANSWER; contiguity, k-nearest-neighbour and distance-band weights routinely give different clustering conclusions on the same data",
     "local statistics involve one test per unit, so multiplicity adjustment is essential or spurious clusters appear everywhere",
@@ -933,7 +968,8 @@
     "esda"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 472,
@@ -964,6 +1000,7 @@
     "steady_state: long-run distribution per neighbourhood context",
     "mobility: summary mobility indices"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "CONDITIONING ON NEIGHBOURS SPLITS THE SAMPLE, so each conditional matrix rests on far fewer transitions and rare cells become zero",
     "a zero estimated transition probability propagates to zero multi-period probability, which is almost never substantively right",
@@ -974,7 +1011,8 @@
     "giddy documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 473,
@@ -1005,6 +1043,7 @@
     "method: the interpolation applied",
     "source_target_overlap: how much of each target unit is covered"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "EXTENSIVE VARIABLES (counts, totals) MUST BE MASS PRESERVING; intensive ones (rates, densities) must not be -- treating one as the other is the standard error here",
     "simple areal weighting assumes population is uniform within source units, which is almost never true and is worst exactly where it matters",
@@ -1016,7 +1055,8 @@
     "tobler"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 474,
@@ -1048,6 +1088,7 @@
     "value_added_content: domestic and foreign content of final demand",
     "extensions: attached environmental or social accounts"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "THE LEONTIEF INVERSE ASSUMES FIXED TECHNICAL COEFFICIENTS -- it is an accounting snapshot, not a model of how the economy responds to a shock",
     "MRIO tables are constructed with large balancing adjustments; results at fine sector or region detail carry construction error that is never reported",
@@ -1059,7 +1100,8 @@
     "pymrio"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 475,
@@ -1091,6 +1133,7 @@
     "goodness_of_fit: simulated network statistics against the observed ones",
     "n_dimensions: the embedding dimension"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "EMBEDDINGS ARE IDENTIFIED ONLY UP TO ROTATION AND SCALE; comparing coordinates across runs or datasets without alignment is meaningless",
     "network formation models are notoriously prone to degeneracy, where the fitted model places almost all mass on empty or complete graphs -- check the goodness of fit",
@@ -1102,7 +1145,8 @@
     "graspologic"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -1125,6 +1169,10 @@
     "eigen": true,
     "trend": false,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1302,6 +1350,10 @@
     ],
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1370,6 +1422,10 @@
     "n_ahead": 8,
     "type": "gfevd",
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1450,6 +1506,10 @@
     "x": "<irregular_series_handle>",
     "nlag": 1,
     "nfore": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1543,6 +1603,10 @@
     "FEVD": "<matrix_handle>",
     "digit": 2
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "FEVD",
@@ -1578,6 +1642,10 @@
    "register": null,
    "input_example": {
     "nfore": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1668,6 +1736,10 @@
     "x": "<irregular_series_handle>",
     "nlag": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1709,6 +1781,10 @@
     "fm_restricted": false,
     "center": true,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1797,6 +1873,10 @@
     "n_folds": 1,
     "path_length": 10,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1971,6 +2051,10 @@
     "spillover_table": "<raw_handle>",
     "which": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spillover_table",
@@ -2007,6 +2091,10 @@
    "input_example": {
     "est": "<raw_handle>",
     "n_ahead": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2057,6 +2145,10 @@
    "input_example": {
     "spillover_table": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spillover_table",
@@ -2093,6 +2185,10 @@
    "input_example": {
     "est": "<raw_handle>",
     "n_ahead": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2144,6 +2240,10 @@
     "partition": "<raw_handle>",
     "n_ahead": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "partition",
@@ -2179,6 +2279,10 @@
    "register": null,
    "input_example": {
     "spillover_table": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2216,6 +2320,10 @@
    "input_example": {
     "spillover_table": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spillover_table",
@@ -2251,6 +2359,10 @@
    "register": null,
    "input_example": {
     "spillover_table": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2290,6 +2402,10 @@
    "input_example": {
     "est": "<raw_handle>",
     "n_ahead": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2356,6 +2472,10 @@
     "est": "<raw_handle>",
     "n_ahead": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "est",
@@ -2420,6 +2540,10 @@
    "input_example": {
     "data": "<multiseries_handle>",
     "n_ahead": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2499,6 +2623,10 @@
     "data": "<multiseries_handle>",
     "n_ahead": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2574,6 +2702,10 @@
    "input_example": {
     "spillover_table": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spillover_table",
@@ -2611,6 +2743,10 @@
     "out": "<raw_handle>",
     "sheet": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "out",
@@ -2647,6 +2783,10 @@
    "input_example": {
     "out": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "out",
@@ -2669,6 +2809,10 @@
    "register": null,
    "input_example": {
     "out": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2693,6 +2837,10 @@
    "input_example": {
     "out": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "out",
@@ -2716,6 +2864,10 @@
    "input_example": {
     "out": "<raw_handle>",
     "sheet": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2753,6 +2905,10 @@
    "input_example": {
     "out": "<raw_handle>",
     "sheet": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2794,6 +2950,10 @@
     "weight_matrix": "<matrix_handle>",
     "p": 2,
     "ic": "AIC"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2881,6 +3041,10 @@
     "data": "<df_handle>",
     "weight_matrix": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2917,6 +3081,10 @@
    "input_example": {
     "out": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "out",
@@ -2941,6 +3109,10 @@
     "data": "<df_handle>",
     "weight_matrix": "<matrix_handle>",
     "p": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3027,6 +3199,10 @@
    "input_example": {
     "graph": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "graph",
@@ -3069,6 +3245,10 @@
     "graph": "<raw_handle>",
     "resolution": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "graph",
@@ -3104,6 +3284,10 @@
    "register": null,
    "input_example": {
     "graph": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3158,6 +3342,10 @@
    },
    "input_example": {
     "adjmatrix": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3218,6 +3406,10 @@
    "input_example": {
     "edges": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "edges",
@@ -3257,6 +3449,10 @@
     "Z": "<matrix_handle>",
     "RS_label": "<matrix_handle>",
     "X": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3359,6 +3555,10 @@
    "input_example": {
     "io": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io",
@@ -3396,6 +3596,10 @@
     "io": "<raw_handle>",
     "i": 1,
     "j": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3446,6 +3650,10 @@
    "input_example": {
     "io": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io",
@@ -3468,6 +3676,10 @@
    "register": null,
    "input_example": {
     "Z": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3492,6 +3704,10 @@
    "input_example": {
     "io": "<raw_handle>",
     "crit": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3542,6 +3758,10 @@
    "input_example": {
     "Z": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "Z",
@@ -3564,6 +3784,10 @@
    "register": null,
    "input_example": {
     "io": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3617,6 +3841,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io",
@@ -3655,6 +3883,10 @@
     "w": "<raw_handle>",
     "c": "<raw_handle>",
     "d": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3718,6 +3950,10 @@
    "input_example": {
     "A": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "A",
@@ -3741,6 +3977,10 @@
    "input_example": {
     "L": "<matrix_handle>",
     "e": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3779,6 +4019,10 @@
     "L": "<matrix_handle>",
     "e": "<raw_handle>",
     "c": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3830,6 +4074,10 @@
     "L": "<matrix_handle>",
     "d": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "L",
@@ -3866,6 +4114,10 @@
    "input_example": {
     "A": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "A",
@@ -3889,6 +4141,10 @@
    "input_example": {
     "L": "<matrix_handle>",
     "w": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3927,6 +4183,10 @@
     "X": "<matrix_handle>",
     "d": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "X",
@@ -3963,6 +4223,10 @@
    "input_example": {
     "A": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "A",
@@ -3985,6 +4249,10 @@
    "register": null,
    "input_example": {
     "L": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4009,6 +4277,10 @@
    "input_example": {
     "X": "<matrix_handle>",
     "d": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4046,6 +4318,10 @@
    "input_example": {
     "L": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "L",
@@ -4068,6 +4344,10 @@
    "register": null,
    "input_example": {
     "L": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4092,6 +4372,10 @@
    "input_example": {
     "L": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "L",
@@ -4115,6 +4399,10 @@
    "input_example": {
     "L": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "L",
@@ -4137,6 +4425,10 @@
    "register": null,
    "input_example": {
     "L": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4168,6 +4460,10 @@
     "iter_in": 100,
     "iter_out": 2,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4353,6 +4649,10 @@
     "LYtrans": true,
     "rowstand": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -4529,6 +4829,10 @@
     "NSIM": 200,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -4581,6 +4885,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4670,6 +4978,16 @@
     "style": "W",
     "initial_value": 0.2,
     "q": 2
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "coefficients",
+     "coef_table",
+     "spatial_lag",
+     "vcov",
+     "nonstationary"
+    ]
    },
    "arguments": [
     {
@@ -4800,6 +5118,10 @@
     "W": "<matrix_handle>",
     "threshold": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "W",
@@ -4871,6 +5193,10 @@
     "W": "<matrix_handle>",
     "lag": true,
     "spatial_error": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5034,6 +5360,10 @@
     "W": "<matrix_handle>",
     "model": "pooling"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -5151,6 +5481,10 @@
     "data": "<df_handle>",
     "W": "<matrix_handle>",
     "lag": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5302,6 +5636,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -5367,6 +5705,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -5406,6 +5748,10 @@
     "formula": "y ~ x",
     "data": "<df_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5511,6 +5857,10 @@
     "data": "<df_handle>",
     "spatial_weights": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -5614,6 +5964,10 @@
     "formula": "y ~ x",
     "data": "<df_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5728,6 +6082,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -5763,6 +6121,10 @@
    "register": null,
    "input_example": {
     "obj": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5814,6 +6176,10 @@
     "x": "<raw_handle>",
     "y": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5849,6 +6215,10 @@
    "register": null,
    "input_example": {
     "object": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5914,6 +6284,10 @@
    "input_example": {
     "nrow": 1,
     "ncol": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5984,6 +6358,10 @@
     "d1": 0.5,
     "d2": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "coords",
@@ -6033,6 +6411,10 @@
    "input_example": {
     "x": "<raw_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6100,6 +6482,10 @@
    "input_example": {
     "fx": "<raw_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6173,6 +6559,10 @@
     "coords": "<matrix_handle>",
     "k": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "coords",
@@ -6210,6 +6600,10 @@
    },
    "input_example": {
     "neighbours": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6254,6 +6648,10 @@
    "input_example": {
     "spatial_weights": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spatial_weights",
@@ -6290,6 +6688,10 @@
    "input_example": {
     "x": "<raw_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6358,6 +6760,10 @@
     "x": "<raw_handle>",
     "spatial_weights": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6424,6 +6830,10 @@
    "input_example": {
     "neighbours": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "neighbours",
@@ -6453,6 +6863,15 @@
     "model": "gwr",
     "kernel": "bisquare",
     "adaptive": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "local_params",
+     "bandwidth",
+     "local_r2",
+     "condition_number"
+    ]
    },
    "arguments": [
     {
@@ -6568,6 +6987,15 @@
     "distance": "<series_handle>",
     "constraint": "doubly",
     "family": "poisson"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "fitted_flows",
+     "constraint_type",
+     "distance_decay"
+    ]
    },
    "arguments": [
     {
@@ -6685,6 +7113,15 @@
     "adjust": "fdr",
     "seed": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "global",
+     "local",
+     "significance",
+     "quadrants"
+    ]
    },
    "arguments": [
     {
@@ -6813,6 +7250,15 @@
     "discretisation": "quantile",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "transition_matrix",
+     "spatial_effect",
+     "steady_state",
+     "mobility"
+    ]
+   },
    "arguments": [
     {
      "name": "data",
@@ -6898,6 +7344,15 @@
     ],
     "extensive": true,
     "method": "areal"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "interpolated",
+     "mass_preserved",
+     "method",
+     "source_target_overlap"
+    ]
    },
    "arguments": [
     {
@@ -6993,6 +7448,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/<sha256>.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -7044,6 +7503,10 @@
     "io_table": "<raw_handle>",
     "kind": "output"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io_table",
@@ -7085,6 +7548,10 @@
    "input_example": {
     "adjacency": "<matrix_handle>",
     "method": "ase"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7154,6 +7621,10 @@
    "input_example": {
     "adjacency": "<matrix_handle>",
     "communities": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

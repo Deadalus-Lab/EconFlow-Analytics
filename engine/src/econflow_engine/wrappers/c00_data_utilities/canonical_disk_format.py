@@ -1,3 +1,4 @@
+# --- gen_wrappers: header begin ---
 # SPDX-License-Identifier: AGPL-3.0-only
 """Method wrapper ``canonical_disk_format`` -- method card #98.
 
@@ -6,7 +7,7 @@
 
 Category 00-data-utilities; module ``canonical_disk_format``.
 
-Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+Reference implementation: pyarrow.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
@@ -34,6 +35,8 @@ __all__ = [
     "wire_model",
 ]
 
+# --- gen_wrappers: header end ---
+
 
 def arw_read_parquet(
     *,
@@ -55,6 +58,28 @@ def arw_read_parquet(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read_*: file = an existing FILE (not a directory); a cryptic IOError otherwise
+        - write_parquet: x a data_frame with >=1 column; the parent dir of sink exists;
+          codec_is_available; POST-gate the file was created
+        - open_dataset: sources = an existing DIRECTORY; n_preview >= 0 integer
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "arw_read_parquet: not implemented."
@@ -81,6 +106,28 @@ def arw_read_feather(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read_*: file = an existing FILE (not a directory); a cryptic IOError otherwise
+        - write_parquet: x a data_frame with >=1 column; the parent dir of sink exists;
+          codec_is_available; POST-gate the file was created
+        - open_dataset: sources = an existing DIRECTORY; n_preview >= 0 integer
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "arw_read_feather: not implemented."
@@ -107,6 +154,28 @@ def arw_read_csv(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read_*: file = an existing FILE (not a directory); a cryptic IOError otherwise
+        - write_parquet: x a data_frame with >=1 column; the parent dir of sink exists;
+          codec_is_available; POST-gate the file was created
+        - open_dataset: sources = an existing DIRECTORY; n_preview >= 0 integer
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "arw_read_csv: not implemented."
@@ -132,6 +201,28 @@ def arw_write_parquet(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read_*: file = an existing FILE (not a directory); a cryptic IOError otherwise
+        - write_parquet: x a data_frame with >=1 column; the parent dir of sink exists;
+          codec_is_available; POST-gate the file was created
+        - open_dataset: sources = an existing DIRECTORY; n_preview >= 0 integer
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "arw_write_parquet: not implemented."
@@ -163,6 +254,28 @@ def arw_open_dataset(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read_*: file = an existing FILE (not a directory); a cryptic IOError otherwise
+        - write_parquet: x a data_frame with >=1 column; the parent dir of sink exists;
+          codec_is_available; POST-gate the file was created
+        - open_dataset: sources = an existing DIRECTORY; n_preview >= 0 integer
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "arw_open_dataset: not implemented."

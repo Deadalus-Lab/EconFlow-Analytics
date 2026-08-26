@@ -30,6 +30,7 @@
     "n_negative: periods where the estimate came out negative, which happens often",
     "diagnostics: inputs that were unusable, such as zero-range days"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "these estimators routinely produce NEGATIVE spreads; how negatives are handled -- truncated, averaged, dropped -- changes the level materially and must be reported",
     "overnight price moves contaminate high-low estimators; adjusting for them is not optional for stocks with news",
@@ -42,7 +43,8 @@
     "bidask"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 334,
@@ -74,6 +76,7 @@
     "zero_return_share: proportion of days with no price change",
     "roll_impact: the implied round-trip cost"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Amihud is a RATIO with volume in the denominator; zero-volume days must be excluded explicitly or the measure explodes",
     "the measure is not comparable across assets of very different price levels or currencies without scaling",
@@ -82,11 +85,11 @@
    "sources": [
     "Amihud 2002 (Journal of Financial Markets 5:31-56)",
     "Lesmond, Ogden & Trzcinka 1999 (Review of Financial Studies 12:1113)",
-    "Goyenko, Holden & Trzcinka 2009 (Journal of Financial Economics 92:153)",
-    "frds"
+    "Goyenko, Holden & Trzcinka 2009 (Journal of Financial Economics 92:153)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 335,
@@ -118,6 +121,7 @@
     "permanent_impact, temporary_impact: the decomposition where the method provides one",
     "se: standard error of the impact coefficient"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "lambda depends on the TRADE-SIGNING rule; Lee-Ready, tick and quote rules give materially different estimates on the same data",
     "the permanent component is information and the temporary one is inventory cost -- conflating them misreads the microstructure",
@@ -130,7 +134,8 @@
     "frds"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 336,
@@ -162,6 +167,7 @@
     "unclassified_share: trades the rule could not sign",
     "agreement: agreement rate between rules, where more than one is computed"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "Lee-Ready is sensitive to QUOTE TIMESTAMP ALIGNMENT; the historical five-second offset is wrong for modern data and using it degrades accuracy badly",
     "classification accuracy falls sharply for trades inside the spread and in fast markets",
@@ -170,11 +176,11 @@
    "sources": [
     "Lee & Ready 1991 (Journal of Finance 46:733-746)",
     "Ellis, Michaely & O'Hara 2000 (Journal of Financial and Quantitative Analysis 35:529)",
-    "Chakrabarty, Li, Nguyen & Van Ness 2007 (Journal of Financial Markets 10:277)",
-    "frds"
+    "Chakrabarty, Li, Nguyen & Van Ness 2007 (Journal of Financial Markets 10:277)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 337,
@@ -206,6 +212,7 @@
     "optimal_frequency: the sampling interval the signature plot implies",
     "jump_component: the separated jump contribution where requested"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "naive realised variance at the highest available frequency estimates the NOISE, not the volatility -- it diverges as the interval shrinks",
     "the estimators assume noise is independent of the efficient price, which fails in fast or illiquid markets",
@@ -214,11 +221,11 @@
    "sources": [
     "Zhang, Mykland & Ait-Sahalia 2005 (JASA 100:1394-1411)",
     "Barndorff-Nielsen, Hansen, Lunde & Shephard 2008 (Econometrica 76:1481)",
-    "Jacod, Li, Mykland, Podolskij & Vetter 2009 (Stochastic Processes and their Applications 119:2249)",
-    "arch"
+    "Jacod, Li, Mykland, Podolskij & Vetter 2009 (Stochastic Processes and their Applications 119:2249)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 338,
@@ -250,6 +257,7 @@
     "periodicity: the estimated intraday volatility pattern",
     "deseasonalised: returns with the pattern removed"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the intraday U shape means volatility is NOT stationary within the day; fitting a GARCH to raw intraday returns models the opening and closing auctions",
     "the signature plot's flat region can be ambiguous; the choice of interval within it still moves the estimate",
@@ -258,11 +266,11 @@
    "sources": [
     "Andersen & Bollerslev 1997 (Journal of Empirical Finance 4:115-158)",
     "Ait-Sahalia, Mykland & Zhang 2005 (Review of Financial Studies 18:351)",
-    "Boudt, Croux & Laurent 2011 (Journal of Empirical Finance 18:353)",
-    "arch"
+    "Boudt, Croux & Laurent 2011 (Journal of Empirical Finance 18:353)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 339,
@@ -295,6 +303,7 @@
     "price_impact: effective minus realised, the adverse-selection component",
     "information_share, component_share: cross-venue price-discovery attribution"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the Hasbrouck information share is only identified up to BOUNDS when the venue innovations are correlated; a point estimate presented without its bounds is misleading",
     "the realised spread depends on the horizon chosen for the post-trade midpoint, and the answer moves with it",
@@ -307,7 +316,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -322,6 +332,15 @@
     "close": "<series_handle>",
     "estimator": "edge",
     "negative": "zero"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "spread",
+     "estimator",
+     "n_negative",
+     "diagnostics"
+    ]
    },
    "arguments": [
     {
@@ -436,6 +455,10 @@
     "window": 21,
     "min_observations": 15
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -499,6 +522,10 @@
     "returns": "<series_handle>",
     "volume": "<series_handle>",
     "window": 21
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -564,6 +591,10 @@
     "signed_volume": "<series_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -628,6 +659,10 @@
     "signed_trades": "<series_handle>",
     "lags": 5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -678,6 +713,10 @@
     "price": "<series_handle>",
     "rule": "lee_ready",
     "quote_lag": 0.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -761,6 +800,10 @@
     "signed_volume": "<series_handle>",
     "frequency": "5min"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "signed_volume",
@@ -806,6 +849,10 @@
     "estimator": "kernel",
     "sampling": "calendar",
     "interval": 300
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -880,6 +927,10 @@
    "input_example": {
     "prices": "<irregular_series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "prices",
@@ -911,6 +962,10 @@
      600,
      1800
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -957,6 +1012,10 @@
     "returns": "<irregular_series_handle>",
     "method": "wsd",
     "bins_per_day": 78
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1014,6 +1073,10 @@
     "midpoint": "<series_handle>",
     "direction": "<series_handle>",
     "horizon": 5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1078,6 +1141,10 @@
     "prices": "<multiseries_handle>",
     "lags": 5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "prices",
@@ -1114,6 +1181,10 @@
    "input_example": {
     "prices": "<multiseries_handle>",
     "lags": 5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

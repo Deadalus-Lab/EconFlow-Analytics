@@ -34,6 +34,7 @@
     "class/n/freq: compact metadata + applied arguments",
     "transform: pc=q/q%, pcy=YoY%, pca=annualized pc, diff=plain difference"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "ts_rebase/ts_index: index=1 (NOT 100); base=A DATE (NOT a number); base=100 errors -> for base=100 see macro_rebase #82",
     "ts_aggregate: ONLY towards a lower frequency (hard gate)",
@@ -43,7 +44,8 @@
     "Wickham 2014 JSS 59(10) (Tidy Data — the long/wide layout contract)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 79,
@@ -75,6 +77,7 @@
     "coefficients/se/rho/method/conversion/fr + r_squared/aic/bic/logl/rss (GLS regression stats)",
     "residuals/fitted_low/actual: LOW-frequency (input level, not output)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "SPAN GATE: the indicator MUST cover the low-freq series; otherwise silent truncation/extrapolation -> escalated to stop",
     "the Denton methods leave the regression statistics empty — NOT a 'bad fit'; there is no regression to report",
@@ -87,7 +90,8 @@
     "Santos Silva & Cardoso 2001 (Economic Modelling 18:269, dynamic Chow-Lin)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 80,
@@ -120,6 +124,7 @@
     "n_imputed: the positions that were filled; n_remaining_na: those left unfilled (runs longer than maxgap)",
     "na_report: statsNA as data (length/number/percentage_NAs numeric/gaps/longest/most_weighty)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "n_remaining_na>0 is NOT an error — it is the deliberate maxgap cut-off (long runs stay unfilled)",
     "algorithm='random' is stochastic -> an enforced seed (default 42L) for reproducibility",
@@ -132,7 +137,8 @@
     "Hyndman & Khandakar 2008 JSS 27(3) (automatic time series forecasting)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 81,
@@ -182,6 +188,7 @@
     "desc_cor_test: pair_order = an EXPLICIT deterministic order (upper triangle by COLUMN INDEX (1,2),(1,3),..,(p-1,p) — NOT alphabetical), so that stored workflows reproduce (§5)",
     "desc_cor_test: n_rows_input / n_rows_used / n_missing_cells (n_missing_cells is measured BEFORE the listwise drop); any_ties / any_exact_fallback / warnings = degradation flags"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "non-stationary series: the ACF decays slowly and linearly (an artefact, not structure) — test stationarity first",
     "CCF: with ccf(x, y) (as the wrapper calls it) lag k estimates cor(x[t+k], y[t]) -> NEGATIVE lags = x leads y (x leads, peak at lag<0), POSITIVE lags = x lags behind (y leads); confirm the lag sign in the raw object before concluding lead/lag",
@@ -207,7 +214,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (stationarity before interpreting ACF/PACF)",
     "c00_data_utilities/replacement_missing_values.impute_kalman (fill the gaps first — the input gate rejects gaps and infinities)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 82,
@@ -241,6 +249,7 @@
     "macro_deflate: real=nominal/deflator*base; macro_rebase: index+anchor; macro_per_capita: x/population*scale",
     "macro_contributions: contributions (matrix), contribution_total, additivity_checked/max_abs_residual/checks_passed"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "compound annualization for simple growth: q/q 1% -> (1.01)^4-1 = 4.06% (NOT 4%); log: g*(freq/periods), linear",
     "n_nonfinite_growth/annualized>0 = a silent NaN (zero/negative base) which to_mcp turns into null; check it explicitly",
@@ -254,7 +263,8 @@
    "precondition_tools": [
     "c00_data_utilities/replacement_missing_values.impute_kalman (fill the gaps first — the finite gate rejects gaps, NaN and infinities)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 96,
@@ -284,6 +294,7 @@
     "col_names/column_types/n_rows/n_cols: the detected structure",
     "problems/n_problems/has_problems: parse diagnostics (the file column is dropped)"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "the read is eager internally so that parse problems materialise IMMEDIATELY; a lazy default would leave them empty",
     "a whitespace-only file silently yields a 0x0 frame -> blocked (no column)",
@@ -293,7 +304,8 @@
     "RFC 4180 (the common format and MIME type for comma-separated values)"
    ],
    "precondition_tools": null,
-   "precondition_gates": [
+   "precondition_gates": null,
+   "validation_notes": [
     "path: a non-empty string, NOT a directory, existing, size>0 bytes",
     "POST-gate ncol>0 (a whitespace-only file yields a silent 0x0 frame)",
     "col_types unset, a compact string, or a full column spec; the missing-value markers a non-empty list of strings with no blank entry; and read_delimited takes a delimiter of EXACTLY one character"
@@ -326,6 +338,7 @@
     "xl_sheet_names: sheets (character) + n_sheets",
     "xl_write: file/sheets_written/n_sheets/bytes"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "CRITICAL: writing something that is not a frame (or a list of frames) does NOT error -> a silently empty workbook -> hard gate",
     "reading an empty sheet returns nothing -> normalised to a 0-row frame",
@@ -335,7 +348,8 @@
     "ECMA-376 (Office Open XML file formats) — the workbook layout and the A1 range grammar"
    ],
    "precondition_tools": null,
-   "precondition_gates": [
+   "precondition_gates": null,
+   "validation_notes": [
     "path a non-empty string that must exist; sheet validated against the real list of sheets",
     "the range pre-validated as an A1 cell range; col_types in {skip, guess, logical, numeric, date, text, list}",
     "xl_read_workbook rejects the legacy format; xl_write checks the extension and the overwrite flag"
@@ -369,6 +383,7 @@
     "writer: path/bytes/schema/compression (NOT a producer)",
     "open_dataset: a lazy dataset stub + JSON-safe schema/partitioning/files/preview"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "CRITICAL: a col_select whose variable is empty selects ZERO columns silently -> read everything and subset afterwards",
     "the codec (zstd/gzip) is compile-time optional -> gated with codec_is_available",
@@ -378,7 +393,8 @@
     "the Apache Parquet and Apache Arrow columnar format specifications"
    ],
    "precondition_tools": null,
-   "precondition_gates": [
+   "precondition_gates": null,
+   "validation_notes": [
     "read_*: file = an existing FILE (not a directory); a cryptic IOError otherwise",
     "write_parquet: x a data_frame with >=1 column; the parent dir of sink exists; codec_is_available; POST-gate the file was created",
     "open_dataset: sources = an existing DIRECTORY; n_preview >= 0 integer"
@@ -412,6 +428,7 @@
     "json_stream_parse: data (data_frame -> Parquet) + n/ncol",
     "json_write/json_stream_write: json/ndjson/text strings; json_validate valid/error/offset"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "CRITICAL: the serialiser defaults to 4 significant digits and rounds SILENTLY (pi -> 3.1416) -> the wrapper disables the rounding",
     "auto_unbox=True (the default): length-1 arrays become JSON scalars",
@@ -421,7 +438,8 @@
     "Ooms 2014 (arXiv:1403.2805) — a mapping between JSON data and statistical data types"
    ],
    "precondition_tools": null,
-   "precondition_gates": [
+   "precondition_gates": null,
+   "validation_notes": [
     "json_parse: txt a single non-empty string; validate FIRST, which blocks both malformed input AND any attempt to fetch a URL or a file",
     "json_write: digits unset means full precision; force=False, so a value with no JSON mapping is a hard error",
     "json_stream_parse: text with no blank entry; EVERY line is validated before the stream; json_stream_write requires at least one row"
@@ -455,6 +473,7 @@
     "var_labels/value_labels/labelled_cols/col_types/dataset_label: JSON-safe metadata",
     "writer: path/written/version/n_rows/n_cols/bytes; as_factor: data/input_type/levels/n"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "the column attribute 'label' PARTIAL-matches 'labels' (the value labels) when the variable label is absent -> an exact lookup everywhere",
     "write_dta version=14.5 is accepted SILENTLY; version=c(14,15) gives a cryptic length error -> a whole-number length-1 gate",
@@ -464,7 +483,8 @@
     "the Stata .dta, SPSS .sav and SAS .sas7bdat file-format specifications"
    ],
    "precondition_tools": null,
-   "precondition_gates": [
+   "precondition_gates": null,
+   "validation_notes": [
     "read path: a string of length 1, NOT a directory, existing; write path: the parent dir exists + a POST-gate that it was written",
     "the data to write must be a frame with at least one column; version a single integer in 8-15; and the label either unset or at most 80 bytes",
     "sfile_labels_to_categorical: a non-df input MUST be labelled (otherwise forcats silently turns every vector into a factor)"
@@ -504,6 +524,7 @@
     "tab_group_by: group_keys/group_sizes/n_groups (a terminal info node — it does NOT chain a grouped_df)",
     "tab_aggregate: <stat>_<column>, or n; tab_join: the join type and the keys"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "tab_group_by is an INFO node; the grouped_df attribute is lost at the Parquet boundary -> use tab_aggregate(by=) for per-group aggregation",
     "tab_assign div/log/sqrt -> NaN/Inf cells; the warning is muffled into a message; the numerical validity is your responsibility",
@@ -513,7 +534,8 @@
     "Codd 1970 CACM 13(6) (a relational model of data for large shared data banks) — the select/filter/join/aggregate vocabulary"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 102,
@@ -548,6 +570,7 @@
     "n_dropped (drop_na) / n_added (complete)",
     "pivot_wider: values_fn applied; separate_wider: mode/col"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "shape_pivot with an empty id_cols infers it from the remaining columns; the wrapper omits the argument entirely rather than passing an empty one, which would reduce the result to a single row of nested cells",
     "values_fn: with a unique key -> do not supply an aggregator; with a non-unique key -> you MUST (SILENT list-col gate)",
@@ -557,7 +580,8 @@
     "Wickham 2014 JSS 59(10) (Tidy Data)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 103,
@@ -591,6 +615,7 @@
     "fast_aggregate: the aggregated frame; fast_summary: the summary as a plain frame",
     "class/n + the applied arguments"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "fscale/fwithin on a constant series -> a NaN z-score (honest, not silent)",
     "fast_aggregate weights: only the weighted fast-stat functions (mean/sum/median/sd/prod) use them; first/last/min/max/nobs ignore them (the warning is muffled)",
@@ -600,7 +625,8 @@
     "Krantz 2025 JSS 116(1) (advanced and fast statistical data transformation)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 104,
@@ -634,6 +660,7 @@
     "the augmenters: the resulting frame + new_columns + dimensions",
     "prep_box_cox: lambda ('auto' -> selected & reported)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "Box-Cox/auto_lambda require x>0; log=True requires x>0 (otherwise SILENT NaN); lambda_lower<upper (an inverted interval is accepted silently -> gate)",
     "prep_diff_inverse needs EXACTLY the initial_values & lag/difference of prep_diff for a full inversion",
@@ -643,7 +670,8 @@
     "Box & Cox 1964 JRSS-B 26(2) (an analysis of transformations)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 105,
@@ -672,6 +700,7 @@
     "n/n_na/reducer/na_rm + the applied arguments",
     "empty windows -> NaN/Inf, reported in n_na (they are not hidden)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the reducer is NEVER exposed as a callable — it is a closed enum {mean, sum, sd, min, max, median}, which is a security boundary",
     "win_hop_index returns one value per start (NOT one per observation); in win_slide_period the before/after counts are BLOCKS, not observations",
@@ -681,7 +710,8 @@
     "Hyndman & Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., ch.3 (moving averages and rolling windows)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 106,
@@ -711,6 +741,7 @@
     "class/n/ncol/periodicity + the applied arguments",
     "idx_to_period: ncol=4 OHLC or ncol=1 close; the index is the end of the period"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "idx_to_period on an arbitrary multi-column input SILENTLY builds a misleading OHLC -> a hard gate requiring either a univariate series or a genuine 4-column OHLC",
     "idx_align_time on a date or year-month index is a SILENT no-op -> a hard gate requiring a timestamp index",
@@ -720,7 +751,8 @@
     "ISO 8601 (date and time representations) — the index contract this card enforces"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 107,
@@ -754,6 +786,7 @@
     "n_obs, n_na: an explicit count of blanks (never a silent drop) + the arguments applied",
     "type: continuous=log return, discrete=simple % return (ROC)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "rate-of-change and momentum with n greater than the series length return an all-blank result of the wrong length SILENTLY -> n is gated to [1, length]",
     "the rolling correlation and covariance routines do NOT check that x and y have equal length -> silent garbage -> a hard equal-length gate",
@@ -763,7 +796,8 @@
     "Kaufman 2013, Trading Systems and Methods, 5th ed. (rate of change, momentum, moving-average smoothers)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 108,
@@ -791,6 +825,7 @@
     "n_obs, class + the applied arguments",
     "leading and trailing blanks according to the alignment; the padding comes from fill"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "shift(x,1.5)/frollmean(x,2.5) SILENTLY truncate the fraction -> an integer-n gate (round-based)",
     "a multi-offset fl_shift (n=c(1,2)) -> result is a list, not a flat vector",
@@ -800,7 +835,8 @@
     "Hyndman & Athanasopoulos, Forecasting: Principles and Practice, 3rd ed., ch.3 (lags, leads and rolling aggregates)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 109,
@@ -833,6 +869,7 @@
     "rll_lm: coefficients/r_squared/std_error (matrices, 1 row per observation) + n/width/min_obs/online — NOT a chainable producer",
     "class/shape (n or dim) + width/min_obs/online (+center/scale/p)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "width>nobs or min_obs>width => SILENTLY all-blank; a fractional or text width is silently truncated or coerced -> hard gates",
     "weights of a mismatched length are accepted silently -> a gate on length==width",
@@ -842,7 +879,8 @@
     "Welford 1962 Technometrics 4(3) (a note on a method for calculating corrected sums of squares) — the online update these windows use"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 110,
@@ -873,6 +911,7 @@
     "n: output length (endrule='trim' -> shorter); k/endrule/align + the applied arguments",
     "probs/type/constant/center_supplied: per-method metadata"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "k: a finite integer in [1, nobs] (hard gate); k<=0 => x unchanged, fractional => truncated, k>n => over-run",
     "align='center' requires an ODD k (an even k => a silently asymmetric window); 'right'=trailing (no look-ahead)",
@@ -882,7 +921,8 @@
     "Tukey — running median / MAD robust smoothing"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 111,
@@ -912,6 +952,7 @@
     "values: the numeric calendar field (quarter 1-4, wday 1-7,..) from date_component",
     "applied args: order/orders/tz | unit/boundary | component | months/op"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "silent blanks: the parsers return an empty value with ONLY a warning on unparsable input -> the wrapper hard-stops on every non-blank failure (blocked-by-gate)",
     "%m+%/%m-% rollback: 31 Jan %m+% 1 month = 28/29 Feb (NOT an overflow) — the reason it exists; months is built with period(month=n) because months is NOT exported",
@@ -921,7 +962,8 @@
     "Grolemund & Wickham 2011 JSS 40(3) (dates and times made easy)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 112,
@@ -961,6 +1003,7 @@
     "bday_adjust: result (rolled Date->ISO) + dates + direction + n_out",
     "bday_sequence: sequence (business days, Date->ISO) + n + from/to"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "weekdays: only the 7 LOWER-CASE English tokens; 'Saturday'/'funday' SILENTLY become business days (silently wrong) -> hard gate",
     "bday_offset: a fractional n returns nothing SILENTLY -> a gate on integers",
@@ -973,7 +1016,8 @@
     "2006 ISDA Definitions — business-day/day-count conventions (following/preceding/modified following, NETWORKDAYS)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 113,
@@ -1003,6 +1047,7 @@
     "tt_gaps: result + any_gaps + n_missing (has=keys with gaps; scan=the missing rows; count=the sum of n)",
     "tt_fill_gaps: n_filled (the rows added, left empty)"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "a raw Date index on monthly/quarterly data -> interval=1D (the GCD of the days) -> SPURIOUS gaps; supply yearmonth/yearquarter; the interval is returned explicitly",
     "tt_index_aggregate with a key SILENTLY merges the keys together; by_key=True (the default) aggregates per key instead",
@@ -1013,7 +1058,8 @@
     "Wang, Cook & Hyndman (2020), A New Tidy Data Structure to Support Exploration and Modeling of Temporal Data, JCGS 29(3):466-478, doi:10.1080/10618600.2019.1695624"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 114,
@@ -1042,6 +1088,7 @@
     "rob_trim: values/trimmed_indices/n_trimmed/trimmed_mean; rob_zscore: values/center(median)/scale(MAD)",
     "rob_huber: location/lower/upper/conf_level (blank when no interval was requested)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "Winsorize has no probs argument — the wrapper computes val=quantile(x,probs) first (a convenience layer)",
     "rob_zscore has no gap-dropping option, so a gap silently blanks everything (hard gate); scaling with MAD=0 gives all NaN (hard gate)",
@@ -1051,7 +1098,8 @@
     "Huber (1964), Robust Estimation of a Location Parameter"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 115,
@@ -1081,6 +1129,7 @@
     "model: the fitted twoStepsBenchmark handle (RDS bucket) -> bench_in_sample / coef / se / rho",
     "comparison (bench_in_sample): a two-column frame (benchmark against predicted value), type changes|levels"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "FREQUENCY GATE: the high-frequency series must be STRICTLY faster than the low-frequency one, at an integer ratio; an equal frequency (ratio 1) would be accepted SILENTLY and is degenerate -> hard-blocked",
     "a gap in the low-frequency series silently blanks the coefficients and the benchmark (silently wrong) -> hard-blocked",
@@ -1091,7 +1140,8 @@
     "Denton 1971, Adjustment of Series to Annual Totals (JASA 66(333):99-102); Prais & Winsten 1954; INSEE/Banque de France two-step benchmarking"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 116,
@@ -1120,6 +1170,7 @@
     "quantiles: a matrix n_time x len(probs), columns named by prob (drop=False keeps a matrix for a single prob)",
     "index: the diffusion index of length n_time-1 in [0,1] (0.5=balance, >0.5=broad expansion)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "na_rm=False => a gap PROPAGATES (visible, NOT a silent drop); set it True to ignore gaps",
     "row = per-period cross-sectional; col = per-series over time — do not confuse the axis",
@@ -1130,7 +1181,8 @@
     "diffusion index / breadth as a leading indicator: Stock & Watson 'Diffusion Indexes'; Conference Board business-cycle diffusion methodology"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 117,
@@ -1173,6 +1225,7 @@
     "pca_n_components: k_kaiser + kaiser_threshold + kaiser_basis · k_cum_var + cum_var_threshold · k_broken_stick (sequential) + k_broken_stick_any + broken_stick_expected · k_min/k_max",
     "pca_stationarity_precheck: statistic/p_value/p_at_bound/trunc_lag/nonstationary PER COLUMN · columns_flagged/n_nonstationary/any_nonstationary/small_sample · warning_code/warning_message/recommended_node/recommended_fn/source (a STRUCTURED field, NOT message, NOT stop)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "PC signs are arbitrary (help Note, they differ by build/BLAS) -> an explicit sign normalization: each PC is flipped so that the max-|loading| is positive; interpret the direction from the loadings",
     "scale=True is a hard gate against a constant or zero-variance column (otherwise 'cannot rescale a constant/zero column'); a gap or an infinity gives a cryptic decomposition error",
@@ -1199,7 +1252,8 @@
    "precondition_tools": [
     "pca_stationarity_precheck # ONLY when the input is TIME SERIES (in a cross-section stationarity is undefined)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 118,
@@ -1228,6 +1282,7 @@
     "dist_prob_cdf: cdf (n_dist x n_at) in [0,1]; dist_density_grid: density (n_dist x n_at) >=0",
     "dist_moments: mean/variance/sd per distribution"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "probs must be strictly in (0,1): probs>1 => a silent WARN 'NaNs produced' (silently wrong); 0/1 => ±Inf (hard gate)",
     "Student-t: the variance is infinite for df<=2, the mean is undefined for df<=1 => to_mcp null (NOT 0)",
@@ -1238,7 +1293,8 @@
     "O'Hara-Wild et al., distributional: Vectorised Probability Distributions"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 119,
@@ -1249,7 +1305,7 @@
     "nber_recession_flag"
    ],
    "when": "the official NBER peak->trough recession intervals as numeric data -> recession-shading bands (frontend) or a 0/1 recession-dummy regressor aligned to a series",
-   "when_not": "DRAWING the bands (nberShade/ymdShade/romerLines — frontend); non-US or data-driven turning-point dating (the NBER chronology is fixed); Romer dates (not exposed)",
+   "when_not": "DRAWING the bands (nberShade/ymdShade/romerLines — frontend); DATING turning points from data — these two functions date nothing, they clip and test intervals the caller already has, so a chronology has to exist before either is called; Romer dates (not exposed)",
    "alternatives": [
     {
      "alt": "the reader/data nodes + #78",
@@ -1263,18 +1319,23 @@
    "output_key_fields": [
     "recessions: records df start/end = peak->trough (yyyymmdd int by default, or Date); overlap-clipped to [from,to]",
     "flags: records df date/in_recession 0/1 + n_recession_periods",
-    "metadata: n_recessions/n, from/to (yyyymmdd), as_date"
+    "metadata: n_recessions/n, from/to (yyyymmdd), as_date",
+    "vintage: n_intervals + the first and last date read off the chronology THAT ARRIVED — the engine holds no snapshot to describe, so this echoes the caller's input rather than a publisher, a retrieval date or a digest of anything shipped"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "the window is INCLUSIVE at both ends (Start=peak & End=trough are inside the recession); the day after the trough => 0",
     "a recession-free [from,to] => 0 rows (valid, NOT an error)",
-    "20200101 is a yyyymmdd INTEGER, NOT a year; from=2020 errors (not an 8-digit date)"
+    "20200101 is a yyyymmdd INTEGER, NOT a year; from=2020 errors (not an 8-digit date)",
+    "the committee dates peaks and troughs to a MONTH, and separately to a QUARTER — it publishes no day. Every day-of-month in a redistributed recession dataset was chosen by whoever repackaged it, not by the NBER, so two chronologies claiming the same recession can disagree on its edges by up to a month. These functions take dates at day precision because their windows and their output are day-precision; that is a convention of the argument, never a claim that the underlying date is known to the day",
+    "the answer is only ever as good as the chronology handed in: supply a different one and every interval, flag and count moves with it. Nothing here validates the chronology against the committee's, because nothing here has the committee's to compare against"
    ],
    "sources": [
-    "NBER Business Cycle Dating Committee — US business cycle expansions and contractions (nber.org)"
+    "NBER Business Cycle Dating Committee — US business cycle expansions and contractions (nber.org). Where a caller GETS a chronology, not something this engine ships or retrieves; the committee's own notice grants copying provided the source is attributed, so attribution is the form that use takes"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 120,
@@ -1303,6 +1364,7 @@
     "breaks: numeric axis positions (round numbers, n_breaks~n, NOT exactly n) + n_breaks/type/base",
     "labels: character label strings (percent = x100 + '%') + type/n"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "to/from MUST be numeric of length 2; length 1 => zero_range => mean(to) for EVERY element (silently wrong, gated)",
     "n>=1 integer (n<=0 => extended loops forever); base>1 (base<=1 => breaks_log loops forever); type='log' requires positive values",
@@ -1312,7 +1374,8 @@
     "Talbot, Lin & Hanrahan 2010 IEEE TVCG 16(6) (an extension of Wilkinson's algorithm for optimal axis labeling)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 121,
@@ -1344,6 +1407,7 @@
     "fitted/residuals: numeric vectors; ols_trend adds detrended (=the trend residuals); n/k observations/parameters",
     "model: the fitted lm — a producer handle (RDS bucket) for diagnostics/prediction nodes"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "gaps and infinities: the gates reject them up front — there is NO silent row-dropping that would change the sample (impute with #80 first)",
     "detrend vs difference: ols_trend removes a DETERMINISTIC trend; on a unit-root series the residuals stay non-stationary -> difference instead",
@@ -1353,7 +1417,8 @@
     "Wooldridge Introductory Econometrics (deterministic trend/detrending); Hamilton Time Series Analysis ch.3 (the trend- vs difference-stationary caveat)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 252,
@@ -1399,6 +1464,7 @@
     "cf_filter: data (THE FILTERED DATA, n x n_variables_out — it becomes a handle: the card's SOLE producer/register) + mode ('fit' | 'apply') + keep_names/remove_names + n_variables_in/out + n/cutoff/exact/method/variables",
     "cf_filter in mode='apply': cor and mean_abs_cor are absent, and max_abs_before and max_abs_after blank — DOCUMENTED, and meaning «NO re-estimation»: it is a pure column subselection"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "DETERMINISM #1 (§5): the documented upstream default makes the exact path conditional on having fewer than 100 columns — THE ALGORITHM CHANGES AT 100 COLUMNS. A node that changed path because the user added the hundredth variable would be NON-REPRODUCIBLE ⇒ 'exact' is an EXPLICIT argument with OUR OWN constant default of True, never the upstream one",
     "DETERMINISM #2: the ORDER in which the selector returns its indices depends on the column order (live: the same SET, in a different ORDER, once the columns are reversed) ⇒ CANONICALIZATION, so the indices and names always come back in ascending order. There is no randomness anywhere, and no seed; two identical runs are pinned in the tests, for both the wrapper and the node path",
@@ -1428,7 +1494,8 @@
     "c00_data_utilities/replacement_missing_values.impute_kalman # gaps are a hard gate here, since they would blank the correlation matrix",
     "c01_preparation_prechecks/unit_root_normality.run_adf_test # IF the columns are time series: confirm stationarity FIRST, otherwise the sample correlation is spurious (§3b gate 3)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 253,
@@ -1483,6 +1550,7 @@
     "ply_interactions & ply_model_matrix: rank + rank_deficient + rank_check/rank_check_arg + column_bound (THE UPPER BOUND checked BEFORE construction) + max_columns/max_levels; ply_interactions additionally order/include_main/built_formula",
     "ply_interaction_categorical: levels + codes (1 to n_levels per row) + counts (chart data) + n_levels/n_used_levels + empty_levels/n_empty_levels/has_empty_levels + indicator, an n x n_levels 0/1 matrix when it was requested, + input_levels (fit and apply) + combinations/drop/sep/lex_order/n"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "§3b GATE 6 — THE NODE'S REASON FOR EXISTING: an ORTHOGONAL polynomial is NOT a function of x alone — it depends on the CENTRES and NORMS (alpha, norm2) computed ON THE TRAINING SAMPLE. Re-fitting the basis on new data would give A DIFFERENT BASIS, and the model's coefficients would then mean nothing. That is why the coefficients are returned AS NUMBERS and accepted back (the KNIME Normalizer «Normalize Model» pattern); the simplified basis DISCARDS them — live, only the shape attributes survive — which is why it is NOT exposed",
     "§3b GATE 6 (b) — A SILENTLY WRONG BEHAVIOUR OF model_matrix: newdata with FEWER factor levels produces FEWER COLUMNS WITHOUT ANY ERROR (live-verified: ~a*g with 3 levels -> (Intercept),a,gy,gz,a:gy,a:gz; the same newdata with 2 levels -> (Intercept),a,gy,a:gy) => the coefficients are applied at the WRONG POSITIONS. That is why xlev + expect_columns are returned/accepted, with a hard gate on an UNKNOWN level («factor a has new level..») AND on a different column set",
@@ -1510,7 +1578,8 @@
     "ply_interactions # with order = 1: see FIRST how many columns the MAIN terms produce (column_bound/n_columns) before you raise the order — interactions multiply",
     "c00_data_utilities/discretisation_numeric_column.bn_quantile_bins # IF you want a CATEGORICAL interaction from a CONTINUOUS variable: discretise FIRST (interaction on a numeric column creates ONE LEVEL PER VALUE)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 254,
@@ -1562,6 +1631,7 @@
     "hd_dummies: is_holiday/n_holiday/share_holiday + is_weekday/n_weekday + is_bizday/n_bizday + n_holiday_on_weekday + wday + mode ('fit'|'apply') + dummy_type + empty_holiday_set/n_holiday_dates",
     "hd_dummies: constant_columns and n_constant_columns are THE ALL-ZERO COLUMNS, where the holiday does not fall inside the sample — they are NOT removed, since that would break the fit/apply contract, but they are FLAGGED: a rank-deficient design, on which a least-squares fit returns a blank coefficient silently"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "TRAP #1 (NAMES RESOLVED BY LOOKUP): the holiday routine resolves a CHARACTER STRING to a function in the caller's scope, so without attaching the library the name is NOT found (live: «object 'USNewYearsDay' of mode 'function' was not found»). THE FIX: we pass the FUNCTION OBJECT itself, which the documentation explicitly allows («a list of the unquoted function names») ⇒ nothing has to be attached. AN ADDITIONAL hard gate: EVERY name is checked against the catalogue listing BEFORE the call, with an explicit message and the nearby names",
     "TRAP #2 (a typed object that does not serialise): the holiday routines return a typed date object, which to_mcp STUBS OUT ⇒ THE DATES WOULD BE LOST. EVERY such object is converted HERE into a plain 'YYYY-MM-DD' string before being returned (pinned in the tests: nothing typed leaks)",
@@ -1589,7 +1659,8 @@
     "hd_list # A MANDATORY FIRST STEP: the VALID holiday names, since an unknown name is a hard gate; 120 in total — US 18 · CA 6 · GB 4 · DE 5 · FR 6 · IT 6 · JP 33 · CH 5 (live-verified)",
     "hd_holidays # THE DATES before the dummies: empty_sources/n_on_weekend show whether the holiday really exists in the requested years and how many fall on Sat/Sun"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 255,
@@ -1649,6 +1720,7 @@
     "bn_quantile_bins ADDITIONALLY: probs + quantile_type (ALWAYS 7 — so that two fits are comparable ONLY if they come from the SAME estimator) + n_bins_requested + n_breaks_dropped + dedupe_breaks + data_min/data_max",
     "bn_equal_width ADDITIONALLY: width + range_min/range_max + range_supplied (WHETHER the boundaries are EXOGENOUS or sample-based) + data_min/data_max"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "§3b GATE 6 (fit/apply externalization) — WHY THERE ARE THREE FUNCTIONS: the fit LEARNS the breaks from the sample; a re-fit on new data gives DIFFERENT boundaries => the regime dummies are NOT comparable and the out-of-sample result is «reproducible ONLY BY LUCK». That is why the breaks are returned AS A NUMERIC FIELD and bn_apply accepts them BACK (the KNIME «Auto-Binner» -> PMML model / Normalizer -> «Normalize Model» pattern)",
     "§3b GATE 3 (NON-STATIONARITY, Hamilton-Ma-Xi NBER WP 32068): on an I(1) series the SAMPLE quantiles do NOT converge to a population parameter => the «quartiles» reflect the POSITION IN TIME (the early period = a low bin) and NOT an economic regime. A documented PRECONDITION: discretise DIFFERENCES/rates, or use bn_equal_width with THEORETICAL exogenous boundaries. NEVER a silent correction here (§3b gate 2: no hidden conversion)",
@@ -1678,7 +1750,8 @@
     "c00_data_utilities/replacement_missing_values.impute_kalman # gaps and infinities are a hard gate with na_action='fail' (the default); alternatively na_action='keep' PRESERVES the POSITION with a blank code",
     "c01_preparation_prechecks/unit_root_normality.run_adf_test # IF the column is a time series: non-stationarity => the SAMPLE quantiles do NOT converge (§3b gate 3)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 380,
@@ -1710,6 +1783,7 @@
     "overlap_periods: how many periods the link rested on",
     "breaks: the join dates, retained so the splice is auditable"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "a splice computed on ONE overlapping observation is a rescaling of noise; report the overlap length beside the factor",
     "ratio splicing preserves growth rates and distorts levels; difference splicing does the reverse -- the choice is substantive",
@@ -1720,7 +1794,8 @@
     "IMF 2018, Quarterly National Accounts Manual"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 381,
@@ -1752,6 +1827,7 @@
     "reference_year: the year levels are expressed in",
     "contributions: additive growth contributions, which remain valid"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "CHAIN-LINKED VOLUMES DO NOT ADD UP; the residual is a property of the method, not an error, and suppressing it hides a real feature of the data",
     "the linking convention -- annual overlap, one-quarter overlap, over-the-year -- changes the result and must be stated",
@@ -1762,7 +1838,8 @@
     "IMF 2018, Quarterly National Accounts Manual, ch.8"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 382,
@@ -1794,6 +1871,7 @@
     "weights: the weights used for the aggregate",
     "basis: the conversion applied, echoed for auditability"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "MARKET RATES AND PPPs GIVE VERY DIFFERENT ANSWERS -- often by a factor of two or more for emerging economies -- and which is right depends entirely on the question",
     "converting then aggregating and aggregating then converting are not the same when weights differ; state the order",
@@ -1804,7 +1882,8 @@
     "World Bank International Comparison Program documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 383,
@@ -1835,6 +1914,7 @@
     "leap_year: the February length correction",
     "easter: the moving-holiday proximity variable"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "trading-day regressors are CONTRASTS and must sum to zero, or they are collinear with the mean and the model will not identify them",
     "the Easter regressor depends on an assumed window length before the holiday; the choice changes the estimated effect",
@@ -1846,7 +1926,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 384,
@@ -1878,6 +1959,7 @@
     "convergence: chain diagnostics for the iterative methods",
     "missingness_pattern: the pattern the imputation was fitted against"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "SINGLE imputation understates uncertainty because it treats imputed values as observed; multiple imputation with Rubin's rules is what fixes it",
     "the imputation model must include the analysis model's variables -- including the outcome -- or the imputation biases the relationships you go on to estimate",
@@ -1889,7 +1971,8 @@
     "miceforest"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 385,
@@ -1920,6 +2003,7 @@
     "names: column names, so coefficients remain interpretable",
     "rank: the matrix rank, which reveals collinearity with an intercept"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "seasonal dummies plus an intercept are COLLINEAR unless one season is dropped or the dummies are centred; the generator must state which convention it used",
     "the out-of-sample terms must be generated by the SAME rule as the in-sample ones -- regenerating them independently is a classic source of forecast breaks",
@@ -1930,7 +2014,8 @@
     "statsmodels.tsa.deterministic"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 386,
@@ -1962,6 +2047,7 @@
     "grid: the evaluation points",
     "bandwidth: the smoothing applied"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "kernel density estimates are BIASED AT A HARD BOUNDARY such as zero; reflect or transform first for durations, shares and non-negative variables",
     "the empirical CDF is a step function, so quantiles read off it are not unique between observations",
@@ -1973,7 +2059,8 @@
     "KDEpy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 387,
@@ -2005,6 +2092,7 @@
     "coerced: values changed by type coercion, where it was permitted",
     "schema: the contract that was applied"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "a validator run in permissive mode COERCES rather than refuses, which turns a loud failure into a silent change of data",
     "checks that examine zero rows pass trivially; an empty table must fail validation, not sail through it",
@@ -2015,7 +2103,8 @@
     "Polyzotis, Roy, Whang & Zinkevich 2018 (SIGMOD Record 47:17-28)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 388,
@@ -2047,6 +2136,7 @@
     "threshold: the score cut-off applied",
     "reduction_ratio: how much blocking reduced the comparison space"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "BLOCKING determines what can ever be matched: a pair excluded by the blocking key can never be linked, however similar it is",
     "the threshold trades false links against missed ones and there is no neutral choice; report the score distribution, not just the count",
@@ -2058,7 +2148,8 @@
     "recordlinkage"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 389,
@@ -2090,6 +2181,7 @@
     "contrasts: the coding applied to each factor",
     "dropped: rows dropped for missing values"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "FACTOR CODING is a substantive choice -- treatment, sum and Helmert contrasts give different coefficients from the same data and only the fitted values agree",
     "the design matrix drops rows with missing values silently unless told otherwise, so the estimation sample can differ from the input without warning",
@@ -2100,7 +2192,8 @@
     "formulaic documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 390,
@@ -2132,6 +2225,7 @@
     "zeros_handled: how zeros were treated, which is the main practical issue",
     "inverse: the back-transform to the simplex"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "log-ratio transforms are UNDEFINED AT ZERO; zero replacement is a modelling decision that changes results and must be reported, not hidden in a default",
     "the CLR-transformed data are singular by construction -- their covariance matrix is rank deficient, which breaks methods requiring invertibility; ILR exists for that",
@@ -2143,7 +2237,8 @@
     "composition-stats"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 391,
@@ -2175,6 +2270,7 @@
     "rows_scanned: how much data the plan actually read",
     "peak_memory: the high-water mark of the execution"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "a LAZY plan does nothing until collected; timing the plan construction rather than the collection measures nothing",
     "predicate pushdown only works if the filter is expressible in the plan -- a filter applied after collection reads the whole dataset first",
@@ -2185,7 +2281,8 @@
     "Polars documentation"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -2196,6 +2293,10 @@
    "input_example": {
     "sources": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "n_preview": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2270,6 +2371,10 @@
    "input_example": {
     "file": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "file",
@@ -2307,6 +2412,10 @@
    },
    "input_example": {
     "file": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2346,6 +2455,10 @@
    "input_example": {
     "file": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "file",
@@ -2381,6 +2494,10 @@
    "register": null,
    "input_example": {
     "x": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2433,6 +2550,10 @@
     "financial": true,
     "adjust_from": "none",
     "adjust_to": "none"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2580,6 +2701,10 @@
     "adjust_from": "none",
     "adjust_to": "none"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "from",
@@ -2719,6 +2844,10 @@
     "adjust_from": "none",
     "adjust_to": "none"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "from",
@@ -2856,6 +2985,10 @@
     "adjust_from": "none",
     "adjust_to": "none"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "holidays",
@@ -2973,6 +3106,10 @@
     "financial": true,
     "adjust_from": "none",
     "adjust_to": "none"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3116,6 +3253,10 @@
     "include_lowest": true,
     "dummies": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3240,6 +3381,10 @@
     "right": true,
     "dummies": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3360,6 +3505,10 @@
     "dedupe_breaks": false,
     "dummies": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3477,6 +3626,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3520,6 +3673,10 @@
     "x": "<matrix_handle>",
     "cutoff": 0.9,
     "exact": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3602,6 +3759,10 @@
     "cutoff": 0.9,
     "exact": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "cor_matrix",
@@ -3653,6 +3814,10 @@
     "by": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3742,6 +3907,10 @@
     "na_rm": true,
     "fill": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3807,6 +3976,10 @@
     "diff": 1,
     "log": false,
     "rho": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3926,6 +4099,10 @@
     "logdiff": false,
     "scale": 100,
     "power": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4055,6 +4232,10 @@
     "x": "<series_handle>",
     "n": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4131,6 +4312,10 @@
     "x": "<df_handle>",
     "higher": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4195,6 +4380,10 @@
     "na_rm": true,
     "mean": 0,
     "sd": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4288,6 +4477,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4364,6 +4557,10 @@
     "na_rm": true,
     "mean": 0,
     "theta": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4454,6 +4651,10 @@
     "x": "<series_handle>",
     "demean": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4503,6 +4704,10 @@
    "input_example": {
     "x": "<series_handle>",
     "y": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4554,6 +4759,10 @@
     "data": "<matrix_handle>",
     "conf_level": 0.95,
     "continuity": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4690,6 +4899,10 @@
     "data": "<matrix_handle>",
     "use": "pairwise.complete.obs"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -4743,6 +4956,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4779,6 +4996,10 @@
    "input_example": {
     "x": "<series_handle>",
     "width": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4863,6 +5084,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4949,6 +5174,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "family",
@@ -5034,6 +5263,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "family",
@@ -5109,6 +5342,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5192,6 +5429,10 @@
     ],
     "desc": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5242,6 +5483,10 @@
     "df": "<df_handle>",
     "keep_all": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5291,6 +5536,10 @@
    "input_example": {
     "df": "<df_handle>",
     "column": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5369,6 +5618,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5408,6 +5661,10 @@
     "by": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5479,6 +5736,10 @@
     "columns": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5571,6 +5832,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5639,6 +5904,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5690,6 +5959,10 @@
     "columns": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5743,6 +6016,10 @@
    "input_example": {
     "df": "<df_handle>",
     "n": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5838,6 +6115,10 @@
    "input_example": {
     "df": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5918,6 +6199,10 @@
     "include_differenciation": false,
     "include_rho": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "hfserie",
@@ -5993,6 +6278,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6036,6 +6325,10 @@
     "lfserie": "<series_handle>",
     "include_differenciation": false,
     "include_rho": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6114,6 +6407,10 @@
     "k": 1.345,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6178,6 +6475,10 @@
     "center": true,
     "scale": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6232,6 +6533,10 @@
     ],
     "na_rm": false,
     "adaptive": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6346,6 +6651,10 @@
     "n": 1,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6453,6 +6762,10 @@
      1
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6522,6 +6835,10 @@
     "trim": 0.1,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6571,6 +6888,10 @@
    "input_example": {
     "x": "<series_handle>",
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6642,6 +6963,10 @@
      1,
      1
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6769,6 +7094,10 @@
     "calendar": "none",
     "nyse_type": "all"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "year",
@@ -6841,6 +7170,10 @@
    "input_example": {
     "pattern": ".*"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "pattern",
@@ -6867,6 +7200,10 @@
     "x": "<raw_handle>",
     "ordered": false,
     "only_labelled": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6937,6 +7274,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "skip": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7048,6 +7389,10 @@
     "user_na": false,
     "skip": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -7157,6 +7502,10 @@
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "skip": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -7251,6 +7600,10 @@
     "data": "<df_handle>",
     "version": 14
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -7305,6 +7658,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7358,6 +7715,10 @@
    "input_example": {
     "x": "<series_handle>",
     "smooth": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7425,6 +7786,10 @@
     "x": "<series_handle>",
     "find_frequency": false,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7509,6 +7874,10 @@
     "x": "<series_handle>",
     "bins": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7550,6 +7919,10 @@
     "simplify_vector": true,
     "simplify_dataframe": true,
     "simplify_matrix": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7629,6 +8002,10 @@
     "txt": "...",
     "flatten": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "txt",
@@ -7666,6 +8043,10 @@
     "x": "<df_handle>",
     "pagesize": 500
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7702,6 +8083,10 @@
    "input_example": {
     "txt": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "txt",
@@ -7726,6 +8111,10 @@
     "x": "<raw_handle>",
     "auto_unbox": true,
     "pretty": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7838,6 +8227,10 @@
    "input_example": {
     "x": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7882,6 +8275,10 @@
    "input_example": {
     "x": "<raw_handle>",
     "months": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7939,6 +8336,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7985,6 +8386,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "tz": "UTC"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8036,6 +8441,10 @@
    },
    "input_example": {
     "x": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8097,6 +8506,10 @@
     "components": "<matrix_handle>",
     "weights": "<series_handle>",
     "tol": 1e-06
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8162,6 +8575,10 @@
     "deflator": "<series_handle>",
     "base": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "nominal",
@@ -8213,6 +8630,10 @@
     "periods": 1,
     "annualize": false,
     "log": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8291,6 +8712,10 @@
     "population": "<series_handle>",
     "scale": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8342,6 +8767,10 @@
     "base_period": 1,
     "base_value": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8392,7 +8821,17 @@
     "dates": [
      "PROVIDER/DATASET/SERIES"
     ],
+    "chronology": [
+     {
+      "peak": "2007-12-01",
+      "trough": "2009-06-01"
+     }
+    ],
     "as_date": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8402,6 +8841,19 @@
      "description": "Vector of dates (ISO 'YYYY-MM-DD' strings or yyyymmdd) — e.g. the time index of a series; a per-date 0/1 recession dummy is returned.",
      "pointer_handle": false,
      "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chronology",
+     "kind": "raw",
+     "required": false,
+     "description": "The peak->trough chronology each date is tested against: records carrying a peak and a trough date apiece (ISO 'YYYY-MM-DD' or integer yyyymmdd). The caller supplies it — this engine ships no chronology and reaches no network, so whoever wants the official US dates reads them from the NBER Business Cycle Dating Committee and passes them here. Reaches the body UNTOUCHED: the wire layer validates nothing about a raw argument, so shape, pairing and ordering are the body gate's to check, and an omitted chronology is refused there by name rather than by the adapter.",
+     "pointer_handle": false,
+     "json_type": "string",
      "enum": null,
      "allowed_vars": null,
      "default": null,
@@ -8428,9 +8880,32 @@
    "card_id": 119,
    "register": null,
    "input_example": {
+    "chronology": [
+     {
+      "peak": "2007-12-01",
+      "trough": "2009-06-01"
+     }
+    ],
     "as_date": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
+    {
+     "name": "chronology",
+     "kind": "raw",
+     "required": false,
+     "description": "The peak->trough chronology to clip: records carrying a peak and a trough date apiece (ISO 'YYYY-MM-DD' or integer yyyymmdd). The caller supplies it — this engine ships no chronology and reaches no network, so whoever wants the official US dates reads them from the NBER Business Cycle Dating Committee and passes them here. Reaches the body UNTOUCHED: the wire layer validates nothing about a raw argument, so shape, pairing and ordering are the body gate's to check, and an omitted chronology is refused there by name rather than by the adapter.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
     {
      "name": "from",
      "kind": "string",
@@ -8485,6 +8960,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -8536,6 +9015,10 @@
    "input_example": {
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -8576,6 +9059,10 @@
     "x": "<matrix_handle>",
     "stat": "median",
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8631,6 +9118,10 @@
     "x": "<matrix_handle>",
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8672,6 +9163,10 @@
     ],
     "type": 7,
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8743,6 +9238,10 @@
     "stat": "median",
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8799,6 +9298,10 @@
     "scale": true,
     "biplot_scale": 1,
     "pc_biplot": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8890,6 +9393,10 @@
     "center": true,
     "scale": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8941,6 +9448,10 @@
     "center": true,
     "scale": true,
     "cum_var_threshold": 0.9
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9007,6 +9518,10 @@
     "center": true,
     "scale": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9070,6 +9585,10 @@
     "x": "<matrix_handle>",
     "lshort": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9143,6 +9662,10 @@
     "lex_order": false,
     "indicator": false,
     "max_levels": 200
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9249,6 +9772,10 @@
     "intercept": true,
     "max_levels": 30,
     "max_columns": 200
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9415,6 +9942,10 @@
     "max_levels": 30,
     "max_columns": 200
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -9541,6 +10072,10 @@
     "raw": false,
     "name": "x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9631,6 +10166,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -9682,6 +10221,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "delim": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9747,6 +10290,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -9795,6 +10342,10 @@
    "register": null,
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9864,6 +10415,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -9916,6 +10471,10 @@
     "center": true,
     "scale": true,
     "online": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -10035,6 +10594,10 @@
     "scale": false,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10153,6 +10716,10 @@
     "intercept": true,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10256,6 +10823,10 @@
     "width": 1,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10333,6 +10904,10 @@
     "width": 1,
     "p": 0.5,
     "online": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -10425,6 +11000,10 @@
     "center": true,
     "scale": true,
     "online": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -10530,6 +11109,10 @@
     "center": true,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10621,6 +11204,10 @@
     "center": true,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10710,6 +11297,10 @@
     "x": "<matrix_handle>",
     "k": 1,
     "constant": 1.4826
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -10810,6 +11401,10 @@
     "x": "<matrix_handle>",
     "k": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10883,6 +11478,10 @@
     "x": "<matrix_handle>",
     "k": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10955,6 +11554,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "k": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11033,6 +11636,10 @@
      0.5
     ],
     "type": 7
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11133,6 +11740,10 @@
     "x": "<matrix_handle>",
     "k": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11220,6 +11831,10 @@
     "n": 5,
     "base": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11285,6 +11900,10 @@
    "input_example": {
     "x": "<series_handle>",
     "big_mark": ""
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11355,6 +11974,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11411,6 +12034,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11489,6 +12116,10 @@
      0.5
     ],
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11589,6 +12220,10 @@
     "step": 1,
     "complete": false,
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11706,6 +12341,10 @@
     "complete": false,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11822,6 +12461,10 @@
     "after": 0,
     "complete": false,
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11967,6 +12610,10 @@
     "x": "<series_handle>",
     "to": "annual"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -12022,6 +12669,10 @@
     "formula": "y ~ x",
     "to": "quarterly",
     "h": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12139,6 +12790,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12188,6 +12843,10 @@
    "input_example": {
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12226,6 +12885,10 @@
     "cols": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12298,6 +12961,10 @@
     ],
     "key": "data"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12350,6 +13017,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "values_drop_na": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12473,6 +13144,10 @@
     "names_prefix": "",
     "names_sep": "_",
     "names_sort": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12612,6 +13287,10 @@
     "data": "<df_handle>",
     "replace": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12651,6 +13330,10 @@
     "too_few": "error",
     "too_many": "error",
     "cols_remove": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12816,6 +13499,10 @@
     "remove": true,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12908,6 +13595,10 @@
     ],
     "keep_empty": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12970,6 +13661,10 @@
    "input_example": {
     "x": "<series_handle>",
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13048,6 +13743,10 @@
     "series1": "<series_handle>",
     "series2": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series1",
@@ -13100,6 +13799,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13141,6 +13844,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13178,6 +13885,10 @@
     "x": "<series_handle>",
     "by": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13214,6 +13925,10 @@
    "input_example": {
     "x": "<series_handle>",
     "extend": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13277,6 +13992,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13314,6 +14033,10 @@
     "x": "<series_handle>",
     "center": true,
     "scale": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13365,6 +14088,10 @@
     "x": "<series_handle>",
     "spark": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13400,6 +14127,10 @@
    "register": null,
    "input_example": {
     "x": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13445,6 +14176,10 @@
     "data": "<df_handle>",
     "index": "...",
     "regular": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13511,6 +14246,10 @@
     "x": "<df_handle>",
     "full": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13547,6 +14286,10 @@
    "input_example": {
     "x": "<df_handle>",
     "full": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13606,6 +14349,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "by_key": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13705,6 +14452,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -13803,6 +14554,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -13866,6 +14621,10 @@
     "x": "<series_handle>",
     "lambda_lower": -1,
     "lambda_upper": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13933,6 +14692,10 @@
     "x": "<series_handle>",
     "lambda_lower": -1,
     "lambda_upper": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14015,6 +14778,10 @@
     "difference": 1,
     "log": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14079,6 +14846,10 @@
     "lag": 1,
     "difference": 1,
     "log": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14155,6 +14926,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14179,6 +14954,10 @@
     "data": "<df_handle>",
     "date_col": "...",
     "by": "auto"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14287,6 +15066,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14314,6 +15097,10 @@
     "v": 1,
     "offset": 0.85,
     "sigma": 6
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14451,6 +15238,10 @@
     "x": "<series_handle>",
     "n": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14487,6 +15278,10 @@
    "input_example": {
     "x": "<series_handle>",
     "n": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14540,6 +15335,10 @@
    "input_example": {
     "x": "<series_handle>",
     "n": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14600,6 +15399,10 @@
     "x": "<series_handle>",
     "y": "<series_handle>",
     "n": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14666,6 +15469,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -14692,6 +15499,10 @@
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "col_names": true,
     "skip": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14773,6 +15584,10 @@
     "colNames": true,
     "rowNames": false,
     "detectDates": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14864,6 +15679,10 @@
     "overwrite": true,
     "as_table": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14919,6 +15738,10 @@
     "x": "<irregular_series_handle>",
     "n": 60
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14955,6 +15778,10 @@
    "input_example": {
     "x": "<irregular_series_handle>",
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15014,6 +15841,10 @@
    "input_example": {
     "x": "<irregular_series_handle>",
     "y": "<irregular_series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15083,6 +15914,10 @@
     "x": "<irregular_series_handle>",
     "k": 1,
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15179,6 +16014,10 @@
     "k": 1,
     "OHLC": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -15253,6 +16092,10 @@
     "overlap": 1,
     "anchor": "latest"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series",
@@ -15325,6 +16168,10 @@
     "method": "regression",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "target",
@@ -15392,6 +16239,10 @@
     "components": "<multiseries_handle>",
     "prices": "<multiseries_handle>",
     "method": "annual_overlap"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15461,6 +16312,10 @@
     "components": "<multiseries_handle>",
     "nominal": "<multiseries_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "aggregate",
@@ -15511,6 +16366,10 @@
     "series": "<multiseries_handle>",
     "factors": "<multiseries_handle>",
     "basis": "market"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15579,6 +16438,10 @@
     "series": "<multiseries_handle>",
     "method": "sum"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series",
@@ -15636,6 +16499,15 @@
     "leap_year": true,
     "easter": false,
     "easter_window": 8
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "regressors",
+     "trading_day",
+     "leap_year",
+     "easter"
+    ]
    },
    "arguments": [
     {
@@ -15728,6 +16600,10 @@
     "n_imputations": 5,
     "max_iter": 10,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15826,6 +16702,10 @@
     "variances": "<matrix_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "estimates",
@@ -15879,6 +16759,15 @@
     "trend_order": 0,
     "constant": true,
     "steps": 0
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "terms",
+     "out_of_sample",
+     "names",
+     "rank"
+    ]
    },
    "arguments": [
     {
@@ -15984,6 +16873,10 @@
     "grid_size": 512,
     "bounded": "none"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -16070,6 +16963,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -16121,6 +17018,10 @@
     "schema": "...",
     "coerce": false,
     "lazy": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -16185,6 +17086,10 @@
     "data": "<df_handle>",
     "strict": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -16231,6 +17136,10 @@
     ],
     "method": "jarowinkler",
     "threshold": 0.85
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -16337,6 +17246,10 @@
     "threshold": 0.9,
     "resolution": "first"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -16422,6 +17335,10 @@
     "contrasts": "treatment",
     "na_action": "drop"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -16495,6 +17412,10 @@
     "design": "<raw_handle>",
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "design",
@@ -16533,6 +17454,10 @@
     "transform": "clr",
     "zero_replacement": "multiplicative",
     "delta": 1e-06
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -16619,6 +17544,10 @@
     "data": "<df_handle>",
     "transform": "clr"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -16672,6 +17601,10 @@
    "input_example": {
     "source": "store://<bucket>/uploads/<sha256>.parquet",
     "collect": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -16761,6 +17694,10 @@
    "register": null,
    "input_example": {
     "source": "store://<bucket>/uploads/<sha256>.parquet"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

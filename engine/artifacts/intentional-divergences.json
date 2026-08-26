@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "artifact_version": 1,
   "note": "ENUMERATED DELIBERATE STRICTNESS. Every entry is a case where the typed schema at the integration layer REJECTS an input that the engine's own argument surface would accept. That direction is safe by construction: soundness forbids the opposite, where the engine accepts something the schema refuses. The parity suite requires SET EQUALITY against this file, so a new divergence and a dead entry both fail it. The diff of this file IS the audit trail of the decision to allow one.",
   "key_scheme": "`members` are classes, not fixture ids: `<kind>/<mutation>` for the kind-matrix and mutation families (the same pair appears in hundreds of cases), the id itself for the pointer/formula families, and `<family>/<fn>` for spec-accept/optional-omitted.",
   "oracle": "engine/artifacts/parity-fixtures.json (the frozen argument-contract corpus)",

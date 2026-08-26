@@ -43,11 +43,28 @@
 #             set of system libraries the scientific wheels actually need.
 #             Nothing is compiled from source: manylinux wheels carry their own
 #             native code, which is why this stage is small: manylinux wheels carry their own native code.
-#   builder — `uv sync --locked` as a cache-friendly layer, then the source
-#             tree, then the FULL test suite as a HARD BUILD GATE
-#             (`run_verifications.sh` — image cannot build unless green).
-#   runtime — copies only the validated environment + app (drops tests),
-#             non-root, single-threaded linear algebra.
+#   builder — `uv sync --locked` as a cache-friendly layer, then the source tree,
+#             then the engine itself. It stops there.
+#   test    — `run_verifications.sh` over that tree. Reached only by
+#             `docker build --target test --no-cache .`, and depended on by no
+#             other stage, so the default build path never enters it.
+#   pruned  — drops the test-only content from the builder tree — the test tree
+#             and the gate scripts, and the `dev` group behind them — so the
+#             layer runtime copies never held it.
+#   runtime — copies that pruned tree, non-root, single-threaded linear algebra.
+#
+# THE SUITE IS A PIPELINE GATE, NOT A BUILD GATE, AND THE REASON IS THE CACHE.
+# A `RUN ./run_verifications.sh` on the default path can be satisfied from a
+# cached layer, so it reports success having examined nothing — the exact failure
+# this repository has hit six times, arriving here through the build cache rather
+# than through a bad assertion. Docker's own guidance is to put tests in a
+# separate stage invoked on demand and to run it with `--no-cache`. The guarantee
+# therefore lives in `.github/workflows/engine-suite.yml`, whose `full` path runs
+#
+#   docker build --target test --no-cache .
+#
+# before it builds the runtime image at all. A green run there is a suite that
+# demonstrably executed; a green `RUN` layer here never was.
 # ============================================================
 
 ARG PYTHON_VERSION=3.12
@@ -146,7 +163,7 @@ COPY engine/src/ engine/src/
 COPY engine/scripts/ engine/scripts/
 COPY engine/tests/ engine/tests/
 COPY engine/artifacts/ engine/artifacts/
-# THE CORPUS IS AN INPUT TO A HARD BUILD GATE, not documentation. gen_artifacts.py
+# THE CORPUS IS AN INPUT TO THE SUITE THE `test` STAGE RUNS, not documentation. gen_artifacts.py
 # rebuilds the v2 artifacts from engine/corpus/ and tests/test_gen_artifacts.py
 # rebuilds the v1 pair from it as the roundtrip proof. Without this COPY the suite
 # inside the image fails with FileNotFoundError on corpus/23-real-time-revisions.json
@@ -178,9 +195,9 @@ COPY .github/actions/assert-inventory/assert.sh .github/actions/assert-inventory
 COPY engine/run_verifications.sh engine/ruff.toml engine/.python-version engine/
 COPY engine/METHOD-SOURCES.json engine/
 # Step 8 of run_verifications.sh compares the 913 public wrapper signatures against
-# this committed baseline, and that step is a HARD BUILD GATE. Without the baseline
-# in the context the build fails inside the image with a missing-baseline message,
-# which reads like a broken gate rather than a missing file.
+# this committed baseline. Without it in the context, `--target test` fails inside
+# the image with a missing-baseline message, which reads like a broken gate rather
+# than a missing file.
 COPY engine/api-baseline/ engine/api-baseline/
 
 # 2a) DISTRIBUTION COMPLIANCE — must travel WITH the binaries, not just live in
@@ -200,20 +217,64 @@ COPY engine/sbom.cdx.json engine/
 # Install the engine itself, now that its source is present.
 RUN uv sync --locked --all-extras
 
-# 3) HARD BUILD GATE: the inviolable suite must pass INSIDE the image, under the
-#    exact locked package set and the single-threaded backend above. Build fails
-#    on any failure or error. An image that has not proven itself cannot exist.
+# ---------- test: the suite, under the locked package set, on demand ----------
+# THE AUTHORITATIVE RUN OF THE SUITE, because here the numerical backend is fixed
+# rather than whatever OpenBLAS a runner's NumPy wheel happens to carry. Nothing
+# depends on this stage, so `docker build .` skips it entirely; the pipeline
+# reaches it explicitly:
+#
+#   docker build --target test --no-cache .
+#
+# `--no-cache` is not decoration. Without it this RUN is satisfied from a cached
+# layer whenever the inputs hash the same, and a test that did not execute
+# reports success — which is the one thing this repository refuses everywhere.
+FROM builder AS test
+
+# README.md IS A TEST INPUT AND NOTHING ELSE, WHICH IS WHY IT ARRIVES HERE AND
+# NOT IN THE BUILDER. The published "Methods carrying an implementation" row
+# states the definition of an implemented body as a shell one-liner, and
+# tests/test_stub_definition.py runs that line against the same tree the module
+# walks, so the two spellings cannot drift apart unnoticed. That test needs the
+# file. Measured 2026-08-26: with it absent this stage failed on
+# `FileNotFoundError: '/app/README.md'` while the suite passed outside the image,
+# because the run at the foot of this stage reads a tree assembled by COPY rather
+# than the working tree. Copying it in the builder would carry a published
+# document into the runtime image, which ships an engine and not its prose.
+COPY README.md ./
+
 WORKDIR /app/engine
 RUN ./run_verifications.sh
 
-# 4) drop test-only content HERE (in the builder) so it never enters the layer
-#    runtime COPYs — a post-COPY rm only whiteouts, leaving the bytes in the
-#    shipped image. The two gate scripts go with it: step 3 is the only thing
-#    that runs them and nothing in the runtime image does, so the container ships
-#    exactly what it shipped before they were copied. The manifest stays, as it
-#    always has.
+# ---------- pruned: the builder tree with test-only content removed ----------
+# SEPARATE STAGE, AND IT IS NOT COSMETIC. The removal has to happen in a stage
+# runtime COPYs FROM — a post-COPY rm only whiteouts, leaving the bytes in the
+# shipped image. It cannot sit in `builder` either, because `test` derives from
+# builder and needs the tree this deletes. The two gate scripts go with it:
+# nothing in the runtime image runs them. The manifest stays, as it always has.
+#
+# THE GATE TOOLCHAIN IS TEST-ONLY CONTENT TOO, and it is the larger half of what
+# this stage drops. A member's `dev` group is a DEFAULT group of this workspace
+# (engine/pyproject.toml says so, and uv 0.10.10 was measured doing it), so the
+# syncs above install pyright, mutmut, hypothesis, deptry, griffe and interrogate
+# alongside the seven runtime distributions. `pyright[nodejs]` alone carries a
+# bundled Node runtime: 196699645 bytes, measured with `du -sb` inside the image.
+# None of it is reachable from econflow_engine -- all 768 modules import in the
+# runtime image without it -- so removing it is a deletion rather than a trade.
+#
+# `--no-dev` is an alias of `--no-group dev`, and a bare `uv sync` removes
+# extraneous packages unless `--inexact` is passed, so this re-states the
+# environment WITHOUT that group and uv uninstalls the difference. Same lock and
+# the same `--locked` refusal to re-resolve as the syncs above: it narrows the
+# installed set, it never chooses a different version of anything.
+#
+# IT BELONGS HERE AND NOT ON EITHER SYNC ABOVE. `test` derives from `builder`,
+# and run_verifications.sh needs every one of those tools, so dropping the group
+# earlier would strip the suite of the gates it IS. This stage is the one place
+# the shipped tree may diverge from the tested tree.
+FROM builder AS pruned
 RUN rm -rf /app/engine/tests /app/engine/api-baseline /app/engine/corpus \
-           /app/.github/scripts /app/.github/actions
+           /app/.github/scripts /app/.github/actions \
+    && uv sync --locked --all-extras --no-dev
 
 # ---------- runtime: slim, non-root, one job per container ----------
 FROM base AS runtime
@@ -226,17 +287,28 @@ WORKDIR /app
 ARG NODE_COMPUTE_VERSION=dev
 ENV NODE_COMPUTE_VERSION=${NODE_COMPUTE_VERSION}
 
-# validated environment + app from the builder (already stripped of tests).
-COPY --from=builder /app /app
+# non-root execution (the app owns only its dir; nothing here needs root). The
+# account is created BEFORE the tree arrives so that the COPY below can set
+# ownership as it writes.
+RUN useradd --create-home --uid 10001 appuser
+
+# environment + app from the pruned builder tree (already stripped of tests).
+#
+# `--chown` ON THE COPY, NOT A `chown --recursive` AFTER IT, AND THE REASON IS
+# THE LAYER. Changing the owner of a file rewrites it into the layer being built,
+# so a recursive chown over a freshly copied tree emits a SECOND copy of every
+# byte and the image then ships both. Measured on this tree: the COPY layer and
+# the chown layer were 547 MB each, one whole duplicate of /app, and
+# `docker image inspect --format '{{.Size}}'` counts layers rather than the
+# flattened filesystem -- so the duplicate is charged in full. Setting ownership
+# during the copy leaves one layer holding one copy.
+COPY --from=pruned --chown=appuser:appuser /app /app
 
 # The environment is a plain virtualenv; putting it on PATH is all that is
 # needed to run the engine without activating anything.
 ENV PATH="/app/.venv/bin:${PATH}" \
     VIRTUAL_ENV=/app/.venv
 
-# non-root execution (the app owns only its dir; nothing here needs root).
-RUN useradd --create-home --uid 10001 appuser \
-    && chown --recursive appuser:appuser /app
 USER appuser
 
 WORKDIR /app/engine

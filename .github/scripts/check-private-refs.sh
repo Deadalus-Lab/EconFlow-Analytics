@@ -88,6 +88,7 @@ EXEMPT = {
     ".github/scripts/check-vocabulary.sh",   # its SKIP_DIRS and SKIP_NAMES
     ".github/scripts/check-toolchain-pin.sh",  # its find -not -path exclusions
     ".github/scripts/check-private-refs.sh",  # this gate: the names above
+    ".github/scripts/check-skill-citations.sh",  # the directory it walks
 }
 
 tracked = [

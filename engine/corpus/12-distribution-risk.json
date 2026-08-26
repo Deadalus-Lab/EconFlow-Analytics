@@ -42,6 +42,7 @@
     "gar: row_id/gar/upside (gar=fitted risk_tau, upside=fitted 1-risk_tau); curve = the full curve",
     "n = the complete rows remaining; n_total/n_dropped; h; risk_tau/upside_tau; the fitted-model handle"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "quantile crossing: fitted quantiles are non-monotone in tau — flagged and counted, not hidden; any_crossing=True -> suspect predictions",
     "GaR h-lead: for h>0 the prediction y_{t+h}~x_t uses orig_last (x_T), NOT a stale x_{T-h}; gar = the GaR h steps ahead, not today",
@@ -59,7 +60,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (time-series GaR only: stationarity, +KPSS confirmatory with the opposite polarity)",
     "qr_slope_equality (the across-quantile slope test: do the slopes differ across quantiles? -> it justifies Growth-at-Risk, and needs at least 2 tau)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 65,
@@ -103,6 +105,7 @@
     "risk_component_var: portfolio_var scalar + contributions (series/contribution/pct_contribution)",
     "es_ge_var: |ES|>=|VaR| per series (a check on magnitude, independent of invert)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "sign convention: invert=False => a positive loss magnitude (VaR=0.029 is a 2.9% loss); NEVER assume the sign, read sign_convention",
     "modified / Cornish-Fisher: non-finite, or |ES|<|VaR|, sets cf_valid=False (not silent); a gaussian or historical violation is a hard stop",
@@ -118,7 +121,8 @@
     "Rockafellar & Uryasev 2000 (J. of Risk 2:21, CVaR/Expected Shortfall)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 95,
@@ -157,6 +161,7 @@
     "st_shortfall: {var, es, mean, median} — VaR=quantile, es=Expected Shortfall (ABG downside)",
     "convergence: 0 = converged (hard gate: !=0 -> stop)"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "alpha<0 => negative skewness (a heavy left tail) = the ABG «vulnerable growth» case; alpha>0 = right skew",
     "a small nu (->2) => heavy tails => a much more negative ES; nu<=2 is blocked (infinite variance)",
@@ -174,7 +179,8 @@
     "c12_distribution_risk/quantile_regression.qr_growth_at_risk (produces the conditional quantiles input -> probs/quantiles)",
     "st_fit_quantiles (the fit; st_density/st_shortfall take the fit object)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 191,
@@ -213,6 +219,7 @@
     "evt_return_level: return_periods + estimate + ci_lower/ci_upper (delta method) — chart-data for a return-level plot",
     "evt_threshold_diag: mrl_* (the mean residual life with its band) and stab_* (the transformed scale and shape with their bands) per threshold — the grids for threshold selection, with NO plot"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "npy trap: for GP/PP, time_units sets npy (the default 'days'->365.25). Wrong time_units => the return levels are interpreted on the WRONG base (e.g. 'annual' on monthly data). Set time_units correctly and read npy from the output",
     "the sign of shape = the tail regime: shape>0 (Frechet, a heavy tail, infinite moments of order>1/shape); shape<0 (Weibull, a bounded upper tail); shape≈0 (Gumbel/exponential). Large |shape| with few exceedances is unstable",
@@ -231,7 +238,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (check stationarity/approximate iid behaviour: stationary EVT assumes approximately iid exceedances)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading a loss/return series from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 192,
@@ -268,6 +276,7 @@
     "er_tail_index: hill_gamma (the Hill estimate), hill_ci_lower/upper, hill_bias, eb_gamma (the expectile-based estimate; blank when tau was not supplied)",
     "object: the full raw result (HatQMES, gammaHat, ExpctHat and the rest)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "tau is the INTERMEDIATE level (tau_n->1); tau1 is the EXTREME level; tau1 > tau is required — reversing them -> a silently wrong prediction (the gate blocks it)",
     "MES DIRECTION: MES = E[series1 (data) | series2 (data2) extreme]; data2 is the conditioning/systemic variable (column 2 internally), NOT data",
@@ -288,7 +297,8 @@
     "c01_preparation_prechecks/unit_root_normality.run_adf_test (EVT wants (approximately) stationary data, not trending levels)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading a return series from a file)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 193,
@@ -326,6 +336,7 @@
     "lambda: the smoothing parameters per term (after schall/gcv/.. or fixed)",
     "expectiles (exr_expectile): one unconditional expectile per prob (0.5 = the arithmetic mean)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "an expectile ≠ a quantile: the tau-expectile does NOT satisfy P[Y<=e]=tau; it is asymmetric L2 (sensitive to the magnitude of the tail, NOT robust to outliers the way a quantile is)",
     "the 0.5-expectile EQUALS the (conditional) mean, not the median",
@@ -344,7 +355,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the panel/series data_frame first)",
     "c12_distribution_risk/quantile_regression.qr_growth_at_risk (compare with the GaR quantile before choosing an expectile)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 194,
@@ -381,6 +393,7 @@
     "es_backtest pvalue_twosided_asymptotic: the main p-value; version 3 adds pvalue_onesided_asymptotic; the pvalue_*_bootstrap fields fill only when B>0",
     "es_all_negative (es_backtest): False means the ES forecasts are not all negative — a possible domain violation for the G2 types 1-3, so the p-value is suspect"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the backtest H0 = the forecasts are correct; a SMALL p-value => REJECTION (a bad risk model), not the other way round",
     "a singular design matrix in es_backtest: q/e are nearly constant — you need time-varying risk forecasts",
@@ -398,7 +411,8 @@
     "es_backtest (post: backtest the VaR/ES forecasts; H0 is correct calibration -> you want a LARGE p-value)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load returns + covariates into a data_frame before es_joint_reg)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 195,
@@ -434,6 +448,7 @@
     "qrf_fit: importance (IncNodePurity per predictor; variable-importance chart-data); seed",
     "qrf_predict: predictions (a matrix n_new x length(quantiles); one column per quantile — chart-data); quantiles; n_new; column labels"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "a categorical y is ACCEPTED at fit time but FAILS at the quantiles (a silent trap) — the wrapper blocks it in qrf_fit",
     "the trees do NOT guarantee non-crossing; with a small n/few trees check the monotonicity of the predictions across quantiles empirically",
@@ -452,7 +467,8 @@
     "qrf_predict (conditional quantiles at new x; the mandatory second link after qrf_fit)",
     "c12_distribution_risk/quantile_regression.qr_growth_at_risk (the parametric linear GaR as a benchmark/cross-check)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 196,
@@ -490,6 +506,7 @@
     "fd_cullen_frey: skewness/kurtosis + boot_skewness/boot_kurtosis (the Cullen-Frey cloud as chart-data); min/max/median/mean/sd; n",
     "fd_bootstrap_ci: CI (a matrix Median/2.5%/97.5% per parameter); boot_estimates (the full sample, chart-data); n_converged/conv_rate (degeneracy)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "silently wrong support: nbinom on negative values and pois on non-integers produce SILENTLY false estimates -> explicit gates per distribution (positive>0; beta∈(0,1); counts = non-negative INTEGERS)",
     "AIC/BIC are comparable ONLY across distributions on the SAME data with the same parameter-count penalty; lower = better, not absolute",
@@ -508,7 +525,8 @@
     "fd_goodness_of_fit (after the fit: KS/CvM/AD + AIC/BIC to compare candidate distributions)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the sample from CSV/TSV if needed)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 197,
@@ -554,6 +572,7 @@
     "lower/upper (cop_tail_index): the coefficients of tail dependence in [0,1] (0 means asymptotic independence in that tail)",
     "statistic/p_value (cop_gof): the Cramér-von Mises Sn plus a parametric-bootstrap p (H0 = the family fits, so a SMALL p is a rejection)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "GoF polarity: a LARGE p_value is GOOD (the family is not rejected); a small p means the copula does NOT fit — the classic sign-reversal mistake",
     "tailIndex is DEPRECATED -> the wrapper uses lambda (the same lower/upper; it avoids a future breakage)",
@@ -573,7 +592,8 @@
     "cop_fit (fit FIRST; it produces the fitCopula handle for tail_index/gof)",
     "cop_gof (post: a parametric-bootstrap GoF; a large p means the family is not rejected)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 198,
@@ -613,6 +633,7 @@
     "vine_loglik: loglik (a scalar or per observation), AIC, BIC, npars on NEW data",
     "vine_sim: sim = an NxD matrix of simulated pseudo-observations in [0,1] (chart-data)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the input MUST be pseudo-observations in [0,1] (a PIT or rank transform), NOT raw returns; gaps are blocked explicitly, since the raw routine silently falls back to pairwise-complete data",
     "a family of 0 at a position means an independence copula there; all_independence=True means the vine found no dependence at all",
@@ -631,7 +652,8 @@
     "vine_sim (a posterior-predictive check: simulated vs empirical dependence)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (load the pseudo-observations)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 199,
@@ -664,6 +686,7 @@
     "feller_ok: for the CIR process only, 2*kappa*theta >= sigma^2 — otherwise blank; a degeneracy flag, not a hard stop",
     "esg_martingale_test: {theoretical_price, empirical_mean, diff, mc_se, within_ci, n_paths}"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "within_ci=True means the simulation is consistent with no arbitrage (the deflated bond matches the closed-form P(0,T)); False points to Euler bias, too few paths, or wrong parameters",
     "vasicek and ou are THE SAME SDE (theta*(mu-x)dt+sigma dW); a different label, identical dynamics",
@@ -681,7 +704,8 @@
     "esg_simulate_diffusion (run it FIRST; its object output is the input to esg_martingale_test)",
     "esg_martingale_test (a validation gate: E[exp(-∫r)] ≈ the closed-form P(0,T); vasicek/cir only)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 491,
@@ -712,6 +736,7 @@
     "independence: whether exceedances cluster",
     "traffic_light: the supervisory zone"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "CLUSTERED EXCEEDANCES ARE THE REAL FAILURE: a model can hit its unconditional rate exactly while concentrating every breach in one week, which Kupiec alone cannot detect",
     "expected shortfall is not elicitable on its own, which is why its backtests are constructed differently and are less powerful",
@@ -720,11 +745,11 @@
    "sources": [
     "Kupiec 1995 (Journal of Derivatives 3:73-84)",
     "Christoffersen 1998 (International Economic Review 39:841)",
-    "Acerbi & Szekely 2014 (Risk 27:76)",
-    "arch"
+    "Acerbi & Szekely 2014 (Risk 27:76)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 492,
@@ -756,6 +781,7 @@
     "standardised_residuals: the empirical distribution used by filtered simulation",
     "hit_sequence: exceedance indicators for backtesting"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "FILTERED HISTORICAL SIMULATION CANNOT PRODUCE A LOSS LARGER THAN THE WORST STANDARDISED SHOCK SEEN, scaled by current volatility -- its tail is bounded by history",
     "CAViaR is estimated by non-smooth optimisation with many local optima; multiple starting values are required",
@@ -763,11 +789,11 @@
    ],
    "sources": [
     "Engle & Manganelli 2004 (Journal of Business and Economic Statistics 22:367-381)",
-    "Barone-Adesi, Giannopoulos & Vosper 1999 (Journal of Futures Markets 19:583)",
-    "arch"
+    "Barone-Adesi, Giannopoulos & Vosper 1999 (Journal of Futures Markets 19:583)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 493,
@@ -799,6 +825,7 @@
     "return_levels: levels for the requested return periods, with intervals",
     "shape: the tail index, which determines whether moments exist"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE THRESHOLD CHOICE DOMINATES EVERYTHING: too low breaks the asymptotic justification, too high leaves no data, and the estimates move a great deal between them",
     "a shape parameter above 0.5 means the variance is infinite and above 1 the mean is infinite -- report it, because it changes what statistics are even defined",
@@ -810,7 +837,8 @@
     "pyextremes"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 494,
@@ -842,6 +870,7 @@
     "homogeneity: test that sites can be pooled -- the assumption regionalisation rests on",
     "discordancy: sites inconsistent with the region"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POOLING HETEROGENEOUS SITES IMPORTS BIAS into every site's estimate; the homogeneity test is the precondition, not a formality",
     "L-moments are far more robust than conventional moments to outliers, which is exactly why they are used for tails",
@@ -853,7 +882,8 @@
     "lmoments3"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 495,
@@ -884,6 +914,7 @@
     "quantiles: implied conditional quantiles",
     "diagnostics: randomised quantile residuals, which should be standard normal"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "A COVARIATE CAN SHIFT THE VARIANCE WITHOUT SHIFTING THE MEAN, and a mean regression will report nothing at all -- that is the case this method exists for",
     "the distributional family is an assumption; randomised quantile residuals are how it is checked, and they must be examined",
@@ -891,11 +922,11 @@
    ],
    "sources": [
     "Rigby & Stasinopoulos 2005 (Applied Statistics 54:507-554)",
-    "Klein, Kneib, Lang & Sohn 2015 (Annals of Applied Statistics 9:1024)",
-    "pygam"
+    "Klein, Kneib, Lang & Sohn 2015 (Annals of Applied Statistics 9:1024)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 496,
@@ -927,6 +958,7 @@
     "gof: goodness-of-fit statistic and its bootstrap p-value",
     "dynamic_params: time-varying dependence, where fitted"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE GAUSSIAN COPULA HAS ZERO TAIL DEPENDENCE BY CONSTRUCTION; using it when joint extremes matter understates them systematically, which is the lesson of 2008",
     "goodness-of-fit tests for copulas need a parametric bootstrap because the margins are estimated; asymptotic p-values are wrong",
@@ -939,7 +971,8 @@
     "copulae"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 497,
@@ -971,6 +1004,7 @@
     "loss: portfolio impact per scenario",
     "reverse_scenario: the most plausible scenario producing a stated loss"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "A SCENARIO CAN BE SEVERE AND IMPOSSIBLE at the same time; the plausibility metric is what separates a stress test from an arbitrary number",
     "historical scenarios embed the correlations of that episode, which may not be the current ones",
@@ -981,7 +1015,8 @@
     "Basel Committee 2018, Stress testing principles"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 498,
@@ -1012,6 +1047,7 @@
     "risk_premium_adjustment: the wedge applied, where one is",
     "comparison: implied against historical quantiles"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "OPTION-IMPLIED DENSITIES ARE RISK NEUTRAL, not physical; feeding them into a forecast without adjusting for the risk premium biases the tail systematically",
     "the wedge between risk-neutral and physical densities is itself time varying and largest exactly in stressed periods",
@@ -1020,10 +1056,11 @@
    "sources": [
     "Adrian, Boyarchenko & Giannone 2019 (American Economic Review 109:1263-1289)",
     "Ait-Sahalia & Lo 2000 (Journal of Econometrics 94:9)",
-    "py-vollib"
+    "DOI 10.1086/296025"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -1036,6 +1073,10 @@
    "input_example": {
     "data": "<matrix_handle>",
     "dim": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1113,6 +1154,10 @@
     "data": "<matrix_handle>",
     "N": 200,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1212,6 +1257,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1241,6 +1290,10 @@
     "var": true,
     "bias": false,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1428,6 +1481,10 @@
     "var": true,
     "bias": false,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1624,6 +1681,10 @@
     "bias": false,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1768,6 +1829,10 @@
     "B": 0,
     "misspec": true,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1926,6 +1991,10 @@
     "early_stopping": 10,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -2037,6 +2106,10 @@
     "object": "<raw_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2078,6 +2151,10 @@
     "n_steps": 100,
     "n_paths": 200,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2181,6 +2258,10 @@
     "time_units": "days",
     "period_basis": "year"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2281,6 +2362,10 @@
     "do_ci": true,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2348,6 +2433,10 @@
     "type": "GP",
     "nint": 10,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2432,6 +2521,10 @@
     ],
     "dec": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2483,6 +2576,10 @@
     "data": "<df_handle>",
     "lambda": 1,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2601,6 +2698,10 @@
     "niter": 200,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2671,6 +2772,10 @@
     "discrete": false,
     "boot": 200,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2754,6 +2859,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2866,6 +2975,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2890,6 +3003,10 @@
     "returns": "<matrix_handle>",
     "weights": 0.5,
     "p": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2958,6 +3075,10 @@
     "MAR": 0,
     "p": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -3008,6 +3129,10 @@
     "returns": "<matrix_handle>",
     "p": 0.95,
     "invert": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3096,6 +3221,10 @@
     "period_col": "period",
     "value_col": "value"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3146,6 +3275,10 @@
     "returns": "<matrix_handle>",
     "p": 0.95,
     "invert": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3230,6 +3363,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3272,6 +3409,10 @@
     "h": 0,
     "boot_replications": 200,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3427,6 +3568,10 @@
     "boot_replications": 200,
     "seed": 42
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -3537,6 +3682,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3568,6 +3717,10 @@
     "ntree": 200,
     "nodesize": 5,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3662,6 +3815,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3716,6 +3873,10 @@
     "fit": "<raw_handle>",
     "n": 512
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3755,6 +3916,10 @@
     "probs": 0.5,
     "quantiles": 0.5,
     "maxit": 2000
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3848,6 +4013,10 @@
     "fit": "<raw_handle>",
     "prob": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3902,6 +4071,10 @@
     "data": "<matrix_handle>",
     "separate": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3955,6 +4128,10 @@
     "indeptest": false,
     "level": 0.05,
     "rotations": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4095,6 +4272,10 @@
     "N": 1,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -4146,6 +4327,10 @@
     "var_forecast": "<series_handle>",
     "confidence": 0.99,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4240,6 +4425,10 @@
     "specification": "asymmetric_slope",
     "n_starts": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -4324,6 +4513,10 @@
     "horizon": 1,
     "n_simulations": 10000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4419,6 +4612,10 @@
     "x": "<series_handle>",
     "min_exceedances": 30
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4477,6 +4674,10 @@
     ],
     "interval": "profile",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4592,6 +4793,10 @@
     "distribution": "gev",
     "n_moments": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4656,6 +4861,10 @@
      50.0,
      100.0
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4749,6 +4958,15 @@
     "model_scale": true,
     "model_shape": false,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "fitted_distribution",
+     "quantiles",
+     "diagnostics"
+    ]
    },
    "arguments": [
     {
@@ -4850,6 +5068,10 @@
     "nboot": 999,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "u",
@@ -4927,6 +5149,10 @@
     "method": "nonparametric",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "u",
@@ -4982,6 +5208,10 @@
     "method": "historical",
     "severity": 3.0,
     "n_scenarios": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5065,6 +5295,10 @@
     "exposures": "<series_handle>",
     "target_loss": 1.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "factors",
@@ -5125,6 +5359,15 @@
      0.95
     ],
     "risk_premium": 0.0
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "implied_quantiles",
+     "gar_conditioning",
+     "risk_premium_adjustment",
+     "comparison"
+    ]
    },
    "arguments": [
     {

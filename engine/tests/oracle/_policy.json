@@ -1,0 +1,70 @@
+{
+  "_comment": [
+    "THE TOLERANCE POLICY. Five classes, and a case names exactly one of them.",
+    "",
+    "A CASE WITHOUT A tolerance_class IS AN ERROR, NEVER A FALLBACK. A default",
+    "tolerance is a number nobody chose, applied to a comparison nobody reviewed:",
+    "it turns a closed-form statistic and an optimiser-driven estimate into the",
+    "same claim. The harness refuses the case instead.",
+    "",
+    "THIS FILE IS NOT AN ARTIFACT. It carries no sidecar and artifacts.sidecars",
+    "stays 7. It lives beside the cases it governs because it is authored by hand",
+    "and reviewed as prose, not generated from the corpus and sealed.",
+    "",
+    "WHAT MAKES A CLASS LOAD-BEARING RATHER THAN DECORATIVE. The harness perturbs",
+    "every numeric leaf of a case's `expected` by ten times the class's rtol (or",
+    "by ten times its atol where rtol is zero, or by one representable step where",
+    "both are zero) and requires the comparison to REFUSE the perturbed payload.",
+    "A case whose numbers are so small that the class's atol swallows that",
+    "perturbation is rejected when it is loaded, not when it is run. Without that",
+    "control this file would be a document nobody can fail.",
+    "",
+    "WHY pvalue-1e-3 CARRIES THE LARGEST atol OF THE THREE NUMERIC CLASSES. A",
+    "p-value is reported to three decimals in most published tables and is",
+    "compared near zero, where a relative tolerance means nothing: 1e-3 relative",
+    "to 1e-12 is 1e-15. The absolute floor is what does the work there, and it is",
+    "set at 1e-6 so that two p-values a published table cannot distinguish are not",
+    "held apart by the harness.",
+    "",
+    "simulation-seeded IS exact WITH A PRECONDITION. A seeded draw is reproducible",
+    "to the bit or it is not seeded, so the tolerance is zero. The precondition is",
+    "checked by the harness and NOT stated here: the case must carry `seed` in its",
+    "inputs and the node must declare a `seed` argument in node-specs.json. A case",
+    "that claims this class without both is an error, not a skip.",
+    "",
+    "THE UNSEEDED STOCHASTIC SET IS NOT IN THIS FILE, DELIBERATELY. It lives in",
+    "artifacts/node-specs.json under vocabulary.stochastic_unseeded_fns and the",
+    "harness reads it from there. A copy here would be a second list free to drift",
+    "from the contract, and the drift would be silent: the copy would keep",
+    "answering after the vocabulary moved."
+  ],
+  "policy_version": 1,
+  "classes": {
+    "exact": {
+      "rtol": 0.0,
+      "atol": 0.0,
+      "for": "a value that is transported rather than computed, or a closed form with no rounding step"
+    },
+    "statistic-1e-6": {
+      "rtol": 1e-06,
+      "atol": 1e-12,
+      "for": "a closed-form test statistic, where the only error is floating-point summation order"
+    },
+    "estimate-1e-4": {
+      "rtol": 0.0001,
+      "atol": 1e-10,
+      "for": "an optimiser-driven estimate, where the convergence criterion sets the floor"
+    },
+    "pvalue-1e-3": {
+      "rtol": 0.001,
+      "atol": 1e-06,
+      "for": "a p-value, compared near zero where the absolute floor dominates"
+    },
+    "simulation-seeded": {
+      "rtol": 0.0,
+      "atol": 0.0,
+      "requires_seed": true,
+      "for": "a seeded draw, reproducible to the bit; the harness requires the seed in the inputs and in the node's declared arguments"
+    }
+  }
+}

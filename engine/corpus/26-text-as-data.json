@@ -37,6 +37,7 @@
     "snt_measures: measures (a register raw_handle) + measures_table (date + the measure columns = chart-data) + measure_names/n_measures/n_dates/dates/dimensions(features,lexicons,time)",
     "snt_model: a coefficients frame {term, coefficient}, with a class column in the multinomial case; alpha and the selected lambda; n_predictors; n_selected, the non-zero ones excluding the intercept; a discarded frame; ic_criterion, blank under cross-validation; fit_dates; and the raw fit as a stub"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "a 4-stage CHAIN: each stage REGISTERS the raw object as a handle (a raw_handle) that feeds the next one; snt_model is TERMINAL",
     "the information criteria (type=BIC/AIC/Cp) apply ONLY to model='gaussian'; binomial/multinomial REQUIRE type='cv' (with train_window/test_window)",
@@ -53,7 +54,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c26_text_as_data/textual_sentiment_pipeline)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 579,
@@ -84,6 +86,7 @@
     "keywords: top terms per document by the chosen weighting",
     "preprocessing: the exact steps applied, for reproducibility"
    ],
+   "chart_kind": "none",
    "interpretation_traps": [
     "THE STOP-WORD LIST AND THE PRUNING THRESHOLDS DETERMINE THE RESULT; a generic English stop-word list removes negations and modal verbs that carry the economic meaning in central-bank text",
     "stemming conflates words with different economic meanings, and lemmatisation is usually the better choice for policy text",
@@ -95,7 +98,8 @@
     "nltk"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 580,
@@ -127,6 +131,7 @@
     "coherence: topic quality, which is how the topic count is chosen",
     "n_topics: the number used and how it was selected"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "TOPIC LABELS ARE ASSIGNED BY THE ANALYST, not the model; the model returns term distributions, and naming them is interpretation that should be documented",
     "topic solutions are not stable across random seeds, and reporting one run without checking stability is standard practice and standard error",
@@ -139,7 +144,8 @@
     "tomotopy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 581,
@@ -170,6 +176,7 @@
     "explained_variance: for the SVD-based method",
     "reconstruction_error: fit of the factorisation"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "LATENT SEMANTIC ANALYSIS PRODUCES NEGATIVE LOADINGS that have no interpretation as topic membership; NMF's non-negativity is what makes its components readable",
     "these methods are deterministic given initialisation but sensitive to it; NMF with random initialisation still needs a seed",
@@ -181,7 +188,8 @@
     "scikit-learn"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 582,
@@ -213,6 +221,7 @@
     "vocabulary_coverage: share of tokens represented",
     "training_loss: convergence of the training"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "EMBEDDINGS TRAINED ON A SMALL CORPUS ARE MOSTLY NOISE; the vectors will still produce confident-looking nearest neighbours, which is the trap",
     "embeddings encode the associations of the training corpus, including its biases, and those propagate into every downstream use",
@@ -225,7 +234,8 @@
     "gensim"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 583,
@@ -256,6 +266,7 @@
     "normalisation: how article volume was controlled for",
     "term_contributions: which terms drive the index"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "THE INDEX MUST BE NORMALISED BY TOTAL ARTICLE VOLUME, or it measures how much the newspaper published rather than how uncertain the economy was",
     "keyword lists are hand-built and their coverage of a concept changes as language changes; a fixed list drifts in meaning over decades",
@@ -266,7 +277,8 @@
     "Apel & Blix Grimaldi 2014 (Journal of Money, Credit and Banking 46:783)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 584,
@@ -297,6 +309,7 @@
     "negation_adjusted: scores after negation handling",
     "coverage: share of tokens matched by the lexicon"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "GENERAL-PURPOSE SENTIMENT LEXICONS ARE WRONG FOR FINANCIAL TEXT: words like liability, cost and capital are negative in a general lexicon and neutral in accounting, which is exactly why Loughran-McDonald exists",
     "negation flips meaning and simple counting ignores it -- 'not strong' scores positive without handling",
@@ -308,7 +321,8 @@
     "vaderSentiment"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 585,
@@ -339,6 +353,7 @@
     "syntactic: sentence length and clause depth",
     "n_words: document length, which several indices depend on"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "READABILITY INDICES ARE CALIBRATED ON GENERAL ENGLISH PROSE and are not meaningful for text dense with numbers, tables or technical terms -- a policy statement's Fog index is not a school grade",
     "the type-token ratio falls mechanically with document length, so comparing documents of different lengths without standardisation is invalid",
@@ -348,10 +363,11 @@
     "Flesch 1948 (Journal of Applied Psychology 32:221-233)",
     "Gunning 1952, The Technique of Clear Writing",
     "Loughran & McDonald 2014 (Journal of Finance 69:1643)",
-    "nltk"
+    "textstat"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -364,6 +380,10 @@
    "input_example": {
     "df": "<df_handle>",
     "do_clean": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -404,6 +424,10 @@
     "sentiment": "<raw_handle>",
     "lag": 1,
     "do_ignore_zeros": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -527,6 +551,10 @@
     "h": 0,
     "do_intercept": true,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -679,6 +707,10 @@
    "input_example": {
     "corpus": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "corpus",
@@ -748,6 +780,15 @@
     "min_df": 0.01,
     "max_df": 0.95,
     "weighting": "tfidf"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "dtm",
+     "vocabulary",
+     "keywords",
+     "preprocessing"
+    ]
    },
    "arguments": [
     {
@@ -882,6 +923,10 @@
     "n_seeds": 1,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "dtm",
@@ -998,6 +1043,10 @@
     "measure": "c_v",
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "dtm",
@@ -1074,6 +1123,15 @@
     "method": "nmf",
     "init": "nndsvd",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "components",
+     "document_scores",
+     "explained_variance",
+     "reconstruction_error"
+    ]
    },
    "arguments": [
     {
@@ -1166,6 +1224,10 @@
     "min_count": 5,
     "epochs": 10,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1290,6 +1352,10 @@
     ],
     "top_n": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -1344,6 +1410,15 @@
     "normalise_by": "article_count",
     "frequency": "monthly",
     "standardise": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "index",
+     "raw_counts",
+     "normalisation",
+     "term_contributions"
+    ]
    },
    "arguments": [
     {
@@ -1459,6 +1534,15 @@
     "negation": true,
     "normalise": "word_count"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "sentiment",
+     "components",
+     "negation_adjusted",
+     "coverage"
+    ]
+   },
    "arguments": [
     {
      "name": "documents",
@@ -1557,6 +1641,15 @@
     "documents": "<df_handle>",
     "text": "...",
     "standardise_length": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "indices",
+     "lexical",
+     "syntactic",
+     "n_words"
+    ]
    },
    "arguments": [
     {

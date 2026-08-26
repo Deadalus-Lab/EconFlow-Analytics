@@ -1,3 +1,4 @@
+# --- gen_wrappers: header begin ---
 # SPDX-License-Identifier: AGPL-3.0-only
 """Method wrapper ``import_export_stata`` -- method card #100.
 
@@ -6,7 +7,7 @@
 
 Category 00-data-utilities; module ``import_export_stata``.
 
-Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+Reference implementation: pyreadstat.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
@@ -33,6 +34,8 @@ __all__ = [
     "NODE_META",
     "wire_model",
 ]
+
+# --- gen_wrappers: header end ---
 
 
 def sfile_read_stata(
@@ -63,6 +66,30 @@ def sfile_read_stata(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read path: a string of length 1, NOT a directory, existing; write path: the parent dir
+          exists + a POST-gate that it was written
+        - the data to write must be a frame with at least one column; version a single integer in
+          8-15; and the label either unset or at most 80 bytes
+        - sfile_labels_to_categorical: a non-df input MUST be labelled (otherwise forcats silently
+          turns every vector into a factor)
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "sfile_read_stata: not implemented."
@@ -100,6 +127,30 @@ def sfile_read_spss(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read path: a string of length 1, NOT a directory, existing; write path: the parent dir
+          exists + a POST-gate that it was written
+        - the data to write must be a frame with at least one column; version a single integer in
+          8-15; and the label either unset or at most 80 bytes
+        - sfile_labels_to_categorical: a non-df input MUST be labelled (otherwise forcats silently
+          turns every vector into a factor)
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "sfile_read_spss: not implemented."
@@ -137,6 +188,30 @@ def sfile_read_sas(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read path: a string of length 1, NOT a directory, existing; write path: the parent dir
+          exists + a POST-gate that it was written
+        - the data to write must be a frame with at least one column; version a single integer in
+          8-15; and the label either unset or at most 80 bytes
+        - sfile_labels_to_categorical: a non-df input MUST be labelled (otherwise forcats silently
+          turns every vector into a factor)
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "sfile_read_sas: not implemented."
@@ -164,6 +239,30 @@ def sfile_write_stata(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read path: a string of length 1, NOT a directory, existing; write path: the parent dir
+          exists + a POST-gate that it was written
+        - the data to write must be a frame with at least one column; version a single integer in
+          8-15; and the label either unset or at most 80 bytes
+        - sfile_labels_to_categorical: a non-df input MUST be labelled (otherwise forcats silently
+          turns every vector into a factor)
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "sfile_write_stata: not implemented."
@@ -195,6 +294,30 @@ def sfile_labels_to_categorical(
 
     Returns:
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
+
+    Gates:
+        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
+        body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - read path: a string of length 1, NOT a directory, existing; write path: the parent dir
+          exists + a POST-gate that it was written
+        - the data to write must be a frame with at least one column; version a single integer in
+          8-15; and the label either unset or at most 80 bytes
+        - sfile_labels_to_categorical: a non-df input MUST be labelled (otherwise forcats silently
+          turns every vector into a factor)
+
+    .. gen_wrappers: end of generated docstring
+
+    Examples:
+        None yet. This node raises ``NotImplementedError``; its example is written with its body and
+        belongs to whoever writes it.
+
+    Note:
+        The implementation note is written with the body: the library functions it calls and their
+        versions, what the method leaves out, and every gate added with the source that requires it.
     """
     raise NotImplementedError(
         "sfile_labels_to_categorical: not implemented."

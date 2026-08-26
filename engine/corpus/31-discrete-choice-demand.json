@@ -32,6 +32,7 @@
     "objective, gradient_norm: GMM objective and first-order condition at the optimum",
     "converged: whether BOTH the inner share inversion and the outer search converged"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the inner contraction tolerance must be far tighter than the outer one; a loose inner loop produces a smooth-looking optimum that is not one",
     "sigma is identified by variation in the choice set ACROSS markets -- with few markets it is barely identified and the standard error will not say so",
@@ -44,7 +45,8 @@
     "pyblp"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 267,
@@ -75,6 +77,7 @@
     "first_stage_f: weak-instrument diagnostic per endogenous variable",
     "improvement: change in the GMM objective and in the standard errors"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "optimal instruments require a CONSISTENT first-stage estimate; built from a bad first stage they are optimal for the wrong model",
     "differentiation instruments are functions of characteristics, so they are invalid if characteristics are themselves endogenous",
@@ -87,7 +90,8 @@
     "pyblp"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 268,
@@ -120,6 +124,7 @@
     "aggregate_elasticity: market-level response to a uniform price change",
     "markups: implied Lerner indices under the assumed conduct"
    ],
+   "chart_kind": "heatmap",
    "interpretation_traps": [
     "the elasticity matrix is NOT symmetric -- element (i,j) is the response of i to the price of j, and reading it transposed inverts every conclusion",
     "diversion ratios exclude the outside good by default; rows that do not sum to one are not an error",
@@ -131,7 +136,8 @@
     "pyblp"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 269,
@@ -164,6 +170,7 @@
     "consumer_surplus_change, profit_change: welfare decomposition",
     "converged: whether the price fixed point actually solved"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the result is conditional on conduct AND on demand; a merger simulation inherits every error in the demand estimate and adds none of its own uncertainty to the reported interval",
     "efficiencies enter as a marginal-cost change and are an ASSUMPTION, not an estimate -- the simulation cannot tell you whether they are real",
@@ -176,7 +183,8 @@
     "pyblp"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 270,
@@ -208,6 +216,7 @@
     "elasticities: closed-form own and cross elasticities",
     "loglike, aic"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "rho outside [0,1) means the estimates are NOT consistent with random utility maximisation -- it is a specification failure, not a large parameter",
     "the within-nest share is mechanically correlated with the error, so it must be instrumented; ignoring that biases rho toward one",
@@ -220,7 +229,8 @@
     "pyblp"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 271,
@@ -253,6 +263,7 @@
     "predicted_probabilities: fitted choice probabilities",
     "loglike, aic, pseudo_r2, hausman_iia"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "multinomial logit coefficients are relative to a BASE alternative and change entirely if the base changes; only the marginal effects are invariant",
     "IIA is a substantive restriction, not a technicality -- the Hausman-McFadden test is low power and passing it is weak evidence",
@@ -264,7 +275,8 @@
     "statsmodels.discrete"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 272,
@@ -296,6 +308,7 @@
     "wtp: willingness to pay when a price coefficient is present",
     "loglike, aic, n_draws: the simulation size the estimate rests on"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the estimate is SIMULATED; too few draws produce a likelihood surface with spurious local optima, and the reported standard error does not include simulation noise",
     "a normally distributed price coefficient puts mass on the wrong sign; log-normal or triangular is usually the defensible choice",
@@ -308,7 +321,8 @@
     "xlogit"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 273,
@@ -341,6 +355,7 @@
     "consumer_surplus_change: aggregate change, in the price numeraire",
     "log_sum: the inclusive value before and after"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "WTP is a RATIO of estimates, so its distribution is heavy-tailed and the delta-method interval understates uncertainty when the price coefficient is imprecise",
     "surplus is only defined up to the marginal utility of income; comparisons across specifications with different price coefficients are not comparable",
@@ -353,7 +368,8 @@
     "pyblp"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -368,6 +384,10 @@
     "market_ids": "...",
     "shares": "...",
     "prices": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -475,6 +495,10 @@
     "outer_tol": 1e-08,
     "method": "2s"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "problem",
@@ -553,6 +577,10 @@
    "input_example": {
     "results": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "results",
@@ -590,6 +618,10 @@
     "product_data": "<df_handle>",
     "market_ids": "...",
     "kind": "differentiation"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -659,6 +691,10 @@
     "results": "<raw_handle>",
     "method": "approximate"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "results",
@@ -712,6 +748,10 @@
     "results": "<raw_handle>",
     "variable": "prices"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "results",
@@ -762,6 +802,10 @@
     "results": "<raw_handle>",
     "include_outside": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "results",
@@ -811,6 +855,10 @@
    "input_example": {
     "results": "<raw_handle>",
     "conduct": "bertrand"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -867,6 +915,10 @@
     "ownership_post": "<matrix_handle>",
     "tol": 1e-12,
     "max_iter": 1000
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -948,6 +1000,10 @@
     ],
     "efficiency": 0.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "results",
@@ -998,6 +1054,10 @@
     "results": "<raw_handle>",
     "prices_post": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "results",
@@ -1038,6 +1098,10 @@
     "market_ids": "...",
     "shares": "...",
     "nesting_ids": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1127,6 +1191,10 @@
    "input_example": {
     "results": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "results",
@@ -1165,6 +1233,10 @@
    "input_example": {
     "data": "<df_handle>",
     "choice": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1232,6 +1304,10 @@
     "chooser": "...",
     "chosen": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1298,6 +1374,10 @@
      "b"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1339,6 +1419,10 @@
     "chosen": "...",
     "n_draws": 600,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1467,6 +1551,10 @@
    "input_example": {
     "fit": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1491,6 +1579,10 @@
     "results": "<raw_handle>",
     "price_variable": "prices",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1541,6 +1633,10 @@
    "input_example": {
     "results": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "results",
@@ -1589,6 +1685,10 @@
    "register": null,
    "input_example": {
     "results": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

@@ -26,7 +26,9 @@ import re
 
 __all__ = ["category_package", "python_arg_name", "wrapper_module_name"]
 
-_NON_IDENT = re.compile(r"[^0-9A-Za-z_]+")
+# re.ASCII is load-bearing: on a str pattern a bare ``\W`` is Unicode-aware, and
+# an accented letter would then survive into the identifier instead of folding.
+_NON_IDENT = re.compile(r"\W+", re.ASCII)
 
 
 def python_arg_name(wire_name: str) -> str:

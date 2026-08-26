@@ -32,6 +32,7 @@
     "true_params: the parameters used, so an estimator can be scored against them",
     "seed: the seed, without which nothing here is reproducible"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the burn-in must be long enough for the process to reach stationarity, or the first observations carry the initial condition",
     "a simulated series is only as informative as the process is realistic; a study on a well-behaved ARMA says nothing about a break-ridden real series",
@@ -43,7 +44,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 310,
@@ -75,6 +77,7 @@
     "size_corrected_power: power at the empirical rather than nominal critical value",
     "mc_se: Monte Carlo standard error of each frequency"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "comparing POWER between tests that do not have the same size is meaningless -- size-corrected power is the only fair comparison",
     "every reported frequency has Monte Carlo error; with 1000 replications a 5% rate has a standard error near 0.7 percentage points",
@@ -85,7 +88,8 @@
     "Horowitz 2001, The bootstrap (Handbook of Econometrics 5)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 311,
@@ -117,6 +121,7 @@
     "mean_width: interval width, since coverage alone can be bought with width",
     "pit: probability-integral-transform values, uniform under correct calibration"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "coverage and width must be read TOGETHER; a trivially wide interval covers perfectly and says nothing",
     "an under-covering interval is a bigger problem than a wide one, because it makes false claims rather than weak ones",
@@ -128,7 +133,8 @@
     "scipy.stats"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 312,
@@ -161,6 +167,7 @@
     "interaction: total minus first order, which is where the structure hides",
     "conf_int: bootstrap intervals on each index"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a LOCAL derivative is not a global sensitivity; for a nonlinear model the two routinely disagree about which input matters",
     "first-order indices summing to well below one means interactions dominate -- read the total-order indices, not the first-order ones",
@@ -173,7 +180,8 @@
     "SALib"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 313,
@@ -204,6 +212,7 @@
     "resolution: which effects are confounded with which, for fractional designs",
     "discrepancy: space-filling quality for the sampling designs"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "a fractional factorial CONFOUNDS effects by construction; the resolution says which, and ignoring it means attributing an interaction to a main effect",
     "Plackett-Burman screens main effects only and its interaction aliasing is complex -- it is a screen, not an analysis",
@@ -216,7 +225,8 @@
     "pyDOE3"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 314,
@@ -248,6 +258,7 @@
     "mde: the minimum detectable effect at the design's size",
     "design_effect: the cluster inflation factor, 1 + (m-1)*icc"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "POST-HOC power computed from the observed effect is a monotone function of the p-value and tells you nothing -- do not report it",
     "cluster randomisation inflates the required sample by the design effect; ignoring the intra-cluster correlation understates the needed size by a large multiple",
@@ -259,7 +270,8 @@
     "statsmodels.stats.power"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 315,
@@ -290,6 +302,7 @@
     "discrepancy: how evenly the points fill the space",
     "scrambled: whether randomisation was applied, which is what permits an error estimate"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "an UNSCRAMBLED low-discrepancy sequence gives no error estimate at all, because the points are deterministic",
     "the advantage decays with dimension and is usually gone well before a hundred dimensions",
@@ -301,7 +314,8 @@
     "scipy.stats.qmc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -315,6 +329,10 @@
     "sigma": 1.0,
     "burnin": 500,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -421,6 +439,10 @@
     "burnin": 500,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "n",
@@ -506,6 +528,10 @@
     ],
     "distribution": "normal",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -608,6 +634,10 @@
     "time_sd": 0.5,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "n_units",
@@ -705,6 +735,10 @@
     ],
     "seed": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -807,6 +841,10 @@
     "size_correct": true,
     "seed": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -917,6 +955,10 @@
     "n_replications": 1000,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "dgp",
@@ -998,6 +1040,10 @@
     "predictive_cdf": "<matrix_handle>",
     "test": "ks"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "observed",
@@ -1056,6 +1102,10 @@
     "calc_second_order": false,
     "seed": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1149,6 +1199,10 @@
     "levels": 4,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "problem",
@@ -1227,6 +1281,10 @@
     "n_samples": 1024,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "problem",
@@ -1298,6 +1356,15 @@
     "n_samples": 100,
     "criterion": "maximin",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "design",
+     "n_runs",
+     "resolution",
+     "discrepancy"
+    ]
    },
    "arguments": [
     {
@@ -1402,6 +1469,10 @@
     "ratio": 1.0,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solve_for",
@@ -1497,6 +1568,10 @@
     "power": 0.8,
     "solve_for": "n_clusters",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1607,6 +1682,10 @@
     "scramble": true,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "n_dimensions",
@@ -1687,6 +1766,10 @@
    "input_example": {
     "sample": "<matrix_handle>",
     "method": "cd"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

@@ -515,14 +515,14 @@ NODE_DOCS: dict[str, dict[str, Any]] = {
     'nber_recession_flag': {
         'fn': 'nber_recession_flag',
         'description': 'nber_recession_flag -- category 00-data-utilities, method card #119.',
-        'args': {'dates': "Vector of dates (ISO 'YYYY-MM-DD' strings or yyyymmdd) — e.g. the time index of a series; a per-date 0/1 recession dummy is returned.", 'as_date': 'True => Date column date; False (default) => integer yyyymmdd.'},
-        'input_example': {'dates': ['PROVIDER/DATASET/SERIES'], 'as_date': False},
+        'args': {'dates': "Vector of dates (ISO 'YYYY-MM-DD' strings or yyyymmdd) — e.g. the time index of a series; a per-date 0/1 recession dummy is returned.", 'chronology': "The peak->trough chronology each date is tested against: records carrying a peak and a trough date apiece (ISO 'YYYY-MM-DD' or integer yyyymmdd). The caller supplies it — this engine ships no chronology and reaches no network, so whoever wants the official US dates reads them from the NBER Business Cycle Dating Committee and passes them here. Reaches the body UNTOUCHED: the wire layer validates nothing about a raw argument, so shape, pairing and ordering are the body gate's to check, and an omitted chronology is refused there by name rather than by the adapter.", 'as_date': 'True => Date column date; False (default) => integer yyyymmdd.'},
+        'input_example': {'dates': ['PROVIDER/DATASET/SERIES'], 'chronology': [{'peak': '2007-12-01', 'trough': '2009-06-01'}], 'as_date': False},
     },
     'nber_recessions': {
         'fn': 'nber_recessions',
         'description': 'nber_recessions -- category 00-data-utilities, method card #119.',
-        'args': {'from': "Lower window bound (ISO 'YYYY-MM-DD' or integer yyyymmdd); a recession is kept if end>=from. Empty = no lower bound.", 'to': "Upper window bound (ISO 'YYYY-MM-DD' or yyyymmdd); a recession is kept if start<=to. Requires from<=to.", 'as_date': 'True => Date columns; False (default) => integer yyyymmdd.'},
-        'input_example': {'as_date': False},
+        'args': {'chronology': "The peak->trough chronology to clip: records carrying a peak and a trough date apiece (ISO 'YYYY-MM-DD' or integer yyyymmdd). The caller supplies it — this engine ships no chronology and reaches no network, so whoever wants the official US dates reads them from the NBER Business Cycle Dating Committee and passes them here. Reaches the body UNTOUCHED: the wire layer validates nothing about a raw argument, so shape, pairing and ordering are the body gate's to check, and an omitted chronology is refused there by name rather than by the adapter.", 'from': "Lower window bound (ISO 'YYYY-MM-DD' or integer yyyymmdd); a recession is kept if end>=from. Empty = no lower bound.", 'to': "Upper window bound (ISO 'YYYY-MM-DD' or yyyymmdd); a recession is kept if start<=to. Requires from<=to.", 'as_date': 'True => Date columns; False (default) => integer yyyymmdd.'},
+        'input_example': {'chronology': [{'peak': '2007-12-01', 'trough': '2009-06-01'}], 'as_date': False},
     },
     'ols_regress': {
         'fn': 'ols_regress',

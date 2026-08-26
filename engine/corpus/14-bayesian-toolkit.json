@@ -38,6 +38,7 @@
     "num_divergent in diagnostics: divergent transitions (>0 = a biased posterior)",
     "converged (lgl) + nonconvergence_reasons (chr); object=stanfit (stubbed)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the classic Rhat/n_eff columns UNDERSTATE non-convergence — read max_rhat in diagnostics instead",
     "an empty or whitespace-only model_code compiles SILENTLY -> a pre-gate",
@@ -52,7 +53,8 @@
     "Gelman et al 2013 (BDA3)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 69,
@@ -89,6 +91,7 @@
     "diagnostics: max_rhat/min_neff_ratio/n_divergent/n_max_treedepth + echoed family/config",
     "converged (lgl) + nonconvergence_reasons (chr); prior=prior_summary df; object=brmsfit (stubbed)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the family given AS A STRING: Gamma resolves to an INVERSE link while the canonical choice here is LOG (a silent change of model)",
     "input that is not a frame is SILENTLY coerced to a matrix; missing values in the model columns are SILENTLY dropped listwise",
@@ -101,7 +104,8 @@
     "Vehtari et al 2021 (rank-normalized R-hat/ESS)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 70,
@@ -133,6 +137,7 @@
     "samples: list(chains=matrices, nodes); per_chain_summary; metadata (seed/set_seed/config)",
     "object: compiled model/mcmc/samples (stubbed)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "INJECTION-SAFE: NEVER model code assembled by string concatenation and then evaluated — a brace-break payload = RCE; parse ONLY",
     "a missing value in the data is SILENTLY treated as a node to be imputed (a hidden parameter); clean the data first",
@@ -146,7 +151,8 @@
     "Gelman & Rubin 1992 (R-hat, Stat. Science 7(4))"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 71,
@@ -177,6 +183,7 @@
     "degenerate_variables: variables whose R-hat is undefined on finite draws (zero variance)",
     "draws: draws_array"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the summary measures are passed BY VALUE, never resolved by name: a name lookup can silently bind the wrong function and return nonsense (an R-hat of 999)",
     "a 2D matrix/data_frame input is converted SILENTLY into 1 chain; nchains>=2 is required (a split-R-hat of ~1.0 is silent)",
@@ -188,7 +195,8 @@
     "Vehtari et al 2021 (rank-normalized split-R-hat + Bulk/Tail ESS + MCSE, Bayesian Analysis 16(2))"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 72,
@@ -226,6 +234,7 @@
     "effective_size: a named vector (POOLED = the sum over chains); hpd_interval: a matrix [lower/upper] on the pooled draws",
     "raftery: the resource matrix (M/N/Nmin/I); heidel: stationarity + halfwidth; autocorr: lags x variables; meta"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "mcmc_effective_size SUMS the per-chain ESS across chains — it is pooled, not per chain (pooled=True)",
     "mcmc_raftery with few draws returns a CHARACTER resmatrix c('Error',Nmin) WITHOUT raising an error -> POST-GATE is_numeric + Nmin",
@@ -241,7 +250,8 @@
     "Heidelberger & Welch 1983 (Operations Research 31(6))"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 73,
@@ -280,6 +290,7 @@
     "mcmc_rhat/mcmc_neff: diagnostic/parameter/value/rating/description (rating low/ok/high)",
     "ppc_intervals/ribbon: per-obs ll/l/m/h/hh; ppc_stat: per-draw value"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "the B extractors take a precomputed numeric VECTOR (rhat/ess-ratio), NOT a fitted model",
     "pars is always passed as plain text, never as an unevaluated expression",
@@ -292,7 +303,8 @@
     "Vehtari et al 2021 (R-hat/ESS rating thresholds)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 204,
@@ -332,6 +344,7 @@
     "bsts_predict: mean/median (chart-data); lower/upper predictive bands at the quantiles; step; has_regression",
     "bsts_components: contributions (time x component posterior mean; a stacked decomposition); contributions_lower/upper bands; components; time; burn"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "DETERMINISM: this is MCMC with its own compiled generator — reproducibility requires seeding BOTH the process generator and the sampler itself; the wrapper does both, in the fit AND in the prediction, and the seed is MANDATORY",
     "local_linear_trend vs semilocal: the local linear trend has a random-walk slope that can 'explode' at long horizons; the semilocal one (an AR(1) mean-reverting slope) is safer for forecasting — the two are mutually exclusive (gate)",
@@ -353,7 +366,8 @@
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the data_frame for regression mode: response + regressors)",
     "c10_trend_cycle_statespace/kalman_filter_smoother.kf_local_linear_trend (a frequentist state-space baseline; compare before investing in MCMC)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 205,
@@ -395,6 +409,7 @@
     "param_summary + param_vars: for the Liu-West filter ONLY, the posterior summary of the top-level parameters; absent for the rest",
     "n_particles / n_time / metadata (method/thresh/lookahead/d/seed/saveAll)"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "METHOD HETEROGENEITY (live-verified): ONLY the bootstrap and auxiliary filters return a log-likelihood estimate and a per-time ESS; the Liu-West and ensemble-Kalman filters return neither. The node declares this explicitly through log_likelihood_available and ess_available — do not read a blank log-likelihood as 'a bad model'; it is a structural limit of the method",
     "particle depletion: too few particles, or a model-data mismatch, gives a log-likelihood of minus infinity or NaN samples; the node blocks it with a hard gate. Raise nParticles (default 1000); the log-likelihood estimate carries Monte Carlo variance, so model comparison must use the SAME seed and particle count",
@@ -416,7 +431,8 @@
     "c14_bayesian_toolkit/general_bugs_style.bugs_style_mcmc (the same BUGS DSL; for a full parameter posterior rather than filtering)",
     "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the observations y as a series)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 507,
@@ -448,6 +464,7 @@
     "weights: stacking or pseudo-BMA weights",
     "comparison: models ranked with differences and their standard errors"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "PARETO K ABOVE 0.7 MEANS THE LOO ESTIMATE IS UNRELIABLE for that observation, and reporting elpd without checking k is the standard misuse of this diagnostic",
     "the standard error of a difference in elpd is what decides whether models are distinguishable; a ranking without it is not evidence",
@@ -459,7 +476,8 @@
     "arviz"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 508,
@@ -491,6 +509,7 @@
     "rope_probability: posterior mass inside the region of practical equivalence",
     "decision: accept, reject or undecided"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "BAYES FACTORS ARE ACUTELY SENSITIVE TO THE PRIOR WIDTH on the tested parameter -- widening a vague prior can move the factor by orders of magnitude with no change in the data",
     "the ROPE must be set from substantive knowledge before seeing the posterior; choosing it afterwards makes the decision circular",
@@ -503,7 +522,8 @@
     "arviz"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 509,
@@ -534,6 +554,7 @@
     "psis_k: diagnostic for how good the approximation is",
     "comparison: against a short MCMC run where available"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "MEAN-FIELD VARIATIONAL INFERENCE SYSTEMATICALLY UNDERSTATES POSTERIOR VARIANCE and destroys correlations between parameters -- credible intervals from it are too narrow, often severely",
     "a converged ELBO does not mean a good approximation; it means the optimiser stopped, and the PSIS diagnostic is what actually assesses quality",
@@ -546,7 +567,8 @@
     "pymc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 510,
@@ -578,6 +600,7 @@
     "implied_range: what the prior implies for the data scale",
     "warnings: priors implying impossible or absurd observables"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "A 'VAGUE' PRIOR ON A COEFFICIENT CAN BE WILDLY INFORMATIVE ON THE OUTCOME SCALE, especially with a nonlinear link -- the prior predictive check is how that is caught",
     "priors that put mass on impossible observables (negative prices, probabilities above one) are common and are not harmless",
@@ -589,7 +612,8 @@
     "preliz"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 511,
@@ -620,6 +644,7 @@
     "partial_dependence: marginal effect curves with credible bands",
     "convergence: chain diagnostics on the tree ensemble"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "VARIABLE INCLUSION FREQUENCIES ARE NOT VARIABLE IMPORTANCE and are biased toward covariates with many possible split points",
     "BART's default priors are calibrated for standardised outcomes; on an unstandardised scale they can be strongly informative",
@@ -631,7 +656,8 @@
     "pymc-bart"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 512,
@@ -662,6 +688,7 @@
     "log_marginal_likelihood: for kernel comparison",
     "extrapolation_warning: where the posterior reverts to the prior"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "A GAUSSIAN PROCESS REVERTS TO ITS PRIOR MEAN AWAY FROM THE DATA, so extrapolated forecasts drift to the mean with wide bands -- that is correct behaviour and is frequently mistaken for a bug",
     "the kernel is the model; a squared-exponential kernel assumes infinite differentiability, which is wrong for most economic series -- Matern is usually the better default",
@@ -673,7 +700,8 @@
     "pymc"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -685,6 +713,10 @@
     "x": "<raw_handle>",
     "prob": 0.5,
     "prob_outer": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -767,6 +799,10 @@
     "prob": 0.5,
     "prob_outer": 0.9
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -846,6 +882,10 @@
    "input_example": {
     "ratio": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "ratio",
@@ -869,6 +909,10 @@
    "input_example": {
     "rhat": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "rhat",
@@ -891,6 +935,10 @@
    "register": null,
    "input_example": {
     "x": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -930,6 +978,10 @@
     "yrep": "<matrix_handle>",
     "prob": 0.5,
     "prob_outer": 0.9
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1022,6 +1074,10 @@
     "prob": 0.5,
     "prob_outer": 0.9
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1112,6 +1168,10 @@
     "yrep": "<matrix_handle>",
     "stat": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1180,6 +1240,10 @@
     "rhat_threshold": 1.01,
     "neff_ratio_threshold": 0.1,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1329,6 +1393,10 @@
    "input_example": {
     "formula": "y ~ x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -1354,6 +1422,10 @@
    "input_example": {
     "prior": "...",
     "class": "b"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1392,6 +1464,10 @@
     "object": "<raw_handle>",
     "quantile_lower": 0.025,
     "quantile_upper": 0.975
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1462,6 +1538,10 @@
     "ar_lags": 0,
     "niter": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1651,6 +1731,10 @@
     "quantile_upper": 0.975,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1752,6 +1836,10 @@
    "input_example": {
     "chains": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "chains",
@@ -1776,6 +1864,10 @@
     "chains": "<raw_handle>",
     "confidence": 0.95,
     "prob": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1826,6 +1918,10 @@
    "input_example": {
     "chains": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "chains",
@@ -1849,6 +1945,10 @@
    "input_example": {
     "chains": "<raw_handle>",
     "confidence": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1887,6 +1987,10 @@
     "chains": "<raw_handle>",
     "frac1": 0.1,
     "frac2": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1939,6 +2043,10 @@
     "eps": 0.1,
     "pvalue": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "chain",
@@ -1989,6 +2097,10 @@
     "chains": "<raw_handle>",
     "prob": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "chains",
@@ -2027,6 +2139,10 @@
     "q": 0.025,
     "r": 0.005,
     "s": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2101,6 +2217,10 @@
     "rhat_threshold": 1.1,
     "ess_min": 100,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2282,6 +2402,10 @@
     "x": "<raw_handle>",
     "include_mcse": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2320,6 +2444,10 @@
    "input_example": {
     "model_code": "...",
     "model_name": "anon_model"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2362,6 +2490,10 @@
     "chains": 2,
     "iter": 1000,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2470,6 +2602,10 @@
     "rhat_max": 1.01,
     "ess_min": 400,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2601,6 +2737,10 @@
     "model_code": "...",
     "model_name": "anon_model"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model_code",
@@ -2644,6 +2784,10 @@
     "nParticles": 1000,
     "thresh": 1,
     "d": 0.99
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2837,6 +2981,10 @@
     "pointwise": true,
     "scale": "log"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fits",
@@ -2910,6 +3058,10 @@
     "method": "stacking",
     "nboot": 1000
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fits",
@@ -2978,6 +3130,10 @@
     "parameter": "...",
     "null_value": 0.0,
     "method": "savage_dickey"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3050,6 +3206,10 @@
     ],
     "hdi_prob": 0.94
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3118,6 +3278,15 @@
     "n_iterations": 20000,
     "draws": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "approximation",
+     "elbo",
+     "psis_k",
+     "comparison"
+    ]
    },
    "arguments": [
     {
@@ -3215,6 +3384,10 @@
     "draws": 1000,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -3284,6 +3457,10 @@
      2.0
     ],
     "family": "auto"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3374,6 +3551,15 @@
     "warmup": 1000,
     "response": "continuous",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "posterior_predictive",
+     "variable_inclusion",
+     "partial_dependence",
+     "convergence"
+    ]
    },
    "arguments": [
     {
@@ -3487,6 +3673,10 @@
     "n_inducing": 100,
     "draws": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

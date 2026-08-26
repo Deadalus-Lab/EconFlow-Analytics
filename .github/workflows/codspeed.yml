@@ -1,0 +1,107 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+#
+# Continuous benchmarking of the response path.
+#
+# THIS IS ITS OWN WORKFLOW, AND THAT IS STRUCTURAL RATHER THAN TIDY, for exactly
+# the reason sonar.yml is. `ci-gate` in ci.yml requires EVERY other job in that
+# file -- check-required-contexts.sh asserts it as a set comparison -- so a job
+# placed there would silently become a required check. This one measures wall
+# time on a shared runner and reports to a third-party service; no repository
+# here lets a service it cannot force decide whether a change may merge.
+#
+# WHAT IT MEASURES. engine/tests/test_serialize_benchmarks.py exercises
+# serialize.to_mcp, the function every node reply passes through, on four
+# payload shapes the contract really returns. A regression there is paid once
+# per call and is invisible to the correctness suite, which asserts the answer
+# and never its cost.
+#
+# NO UPLOAD TOKEN, AND THAT IS MEASURED RATHER THAN ASSUMED. The action's own
+# `token` input documents itself as "Only required for private repositories",
+# and this repository is public. `gh secret list` reports CLAUDE_CODE_OAUTH_TOKEN
+# and SONAR_TOKEN and no CodSpeed secret, so naming one here would be a
+# reference that resolves to the empty string and reads as configuration that
+# was never made. The day this repository turns private, the token input is the
+# line to add.
+#
+# WHAT THIS RUN DEPENDS ON THAT THIS REPOSITORY DOES NOT CONTROL. The CodSpeed
+# GitHub App is installed on the Deadalus-Lab organisation with
+# `repository_selection: "selected"`. Whether THIS repository is among the
+# selected ones could not be confirmed when this file was written -- listing an
+# installation's repositories needs a token scope the maintainer's CLI does not
+# carry -- so the first run is also the test of that grant. If the grant is
+# absent the run fails for want of an upload target, which is a red mark on an
+# advisory workflow and blocks nothing.
+#
+# `allow-empty` IS LEFT AT ITS DEFAULT OF false ON PURPOSE. A run that found no
+# benchmarks must not report as a run that found fast ones -- the same
+# anti-vacuity rule every gate in this tree is built on.
+
+name: codspeed
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  # CodSpeed triggers this to backfill the baseline a comparison needs.
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: codspeed-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The same numerical environment every other engine job declares. It is not
+  # decoration here: the thread pins are what stop a BLAS call from choosing a
+  # different width between the base run and the comparison, which would show up
+  # as a performance change nobody made.
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"
+  PYTHONHASHSEED: "0"
+  TZ: "UTC"
+  LC_ALL: "C.UTF-8"
+  LANG: "C.UTF-8"
+
+jobs:
+  benchmarks:
+    name: benchmarks (advisory, never required)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version-file: engine/.python-version
+
+      - name: Install uv at the pinned version
+        env:
+          UV_VERSION: "0.10.10"
+        run: python3 -m pip install --disable-pip-version-check "uv==${UV_VERSION}"
+
+      - name: Restore the locked environment
+        run: uv sync --locked --all-extras
+
+      - name: Measure the response path
+        uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
+        with:
+          # `simulation` and not `walltime`: the action's own documentation warns
+          # that walltime "on traditional VMs/Hosted Runners might lead to
+          # inconsistent data", and this job runs on ubuntu-latest. Simulation
+          # counts instructions, so it does not move with a noisy neighbour.
+          mode: simulation
+          # Set explicitly. The action warns that a defaults.working-directory
+          # does NOT reach it.
+          working-directory: engine
+          run: uv run --project .. pytest tests/test_serialize_benchmarks.py --codspeed

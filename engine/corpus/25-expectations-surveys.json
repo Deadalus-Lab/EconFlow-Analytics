@@ -38,6 +38,7 @@
     "qn_conditional_expectations: y_e (chart data — the quantified expectation, full length and blank outside the window) plus nob/mae/rmse and the exp_horizon_type and distrib_param echo",
     "all of them: the forecast_horizon/first_period/last_period echo of the period window"
    ],
+   "chart_kind": "line",
    "interpretation_traps": [
     "abs vs perc: each of bal/cp/ra gives TWO versions — expectations of the ABSOLUTE change (y_e_mean_abs) vs of the PERCENTAGE change (y_e_mean_perc); choose according to whether the question concerns a level or a rate",
     "y_e is full-length and aligned to the input, blank outside [first_period, last_period]; nob counts only the quantified periods — do not confuse the length of y_e with nob",
@@ -59,7 +60,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c25_expectations_surveys/quantifying_qualitative_survey)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 232,
@@ -102,6 +104,7 @@
     "srv_quantile: an estimates df {variable, quantile, estimate, SE, ci_lower, ci_upper} (newsvyquantile: a matrix per variable, with columns quantile/ci.2.5/ci.97.5/se) + n_quantiles",
     "srv_by_domain: an estimates df (records per domain, with the columns produced by svyby: the grouping + estimate + se) + n_groups + group_levels + statistic"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "the design effect is Var_design/Var_SRS; above 1 it means clustering or unequal weighting INCREASES the variance relative to a simple random sample of the same n; the column appears ONLY when deff=True",
     "weights AND probs are mutually exclusive (probs = 1/weights); with neither => an equally weighted SRS (weight_min==weight_max); non-positive weights -> a hard gate (invalid estimates)",
@@ -119,7 +122,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c25_expectations_surveys/design_complex_survey)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 233,
@@ -153,6 +157,7 @@
     "sae_mse_fh: mse (a numeric vector; Prasad-Rao) + cv = 100*sqrt(mse)/eblup (the CV%); bootstrap = B",
     "sae_eblup_bhf: domain/sampsize/random(u_i)/residuals/loglike (the heavy merMod summary is deliberately removed)"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "vardir is the sampling VARIANCE (SD^2), NOT the SD -> the wrong scale gives silently wrong shrinkage; the wrapper blocks vardir<0 (a hard gate) because eblupFH accepts negative values and returns an apparently valid EBLUP",
     "sae_eblup_bhf: when a target area is missing from the population means or sizes, the routine emits ONLY a warning and silently returns a blank EBLUP -> a hard gate on full coverage",
@@ -170,7 +175,8 @@
     "wrapper footer IMPLEMENTATION NOTE (c25_expectations_surveys/small_area_estimation)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 257,
@@ -213,6 +219,7 @@
     "ca_associations: the nominal block {cramers_v, contingency_coef, tschuprows_t, uncertainty_coef_sym/row/col, gk_tau_row/col}, each as (estimate, lower, upper); phi for a 2x2 table ONLY, and absent otherwise; gamma on the ordinal scale ONLY; plus the full 16-by-3 or 9-by-3 association matrix, with assocs_measures and ordinal_excluded",
     "ALL: x_codes/y_codes + x_labels/y_labels (EXTERNALIZATION OF THE CODING — §3b gate 6) + n/n_input/n_na/na_action + cross_section_gate {lb_statistic, lb_p_value, lb_lag, n, n_na, alpha, tested, decision}"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "NORMATIVE GATE 4 (cross-section only): EVERY function calls the SHARED cross-section gate (the shared gates module) on the ORIGINAL vectors — an explicit rejection of any time-indexed input type, plus a Ljung-Box whiteness precheck at lag = min(10, n/5); autocorrelation INFLATES the Type I error ⇒ a spuriously significant chi-squared. That is why the input is VECTORS OF OBSERVATIONS rather than a ready-made contingency table: the whiteness statistic is not defined on an aggregated table",
     "gate_alpha (default 0.05) — DECOUPLED FROM THE TEST'S alpha: alpha exists ONLY in ca_chisq/ca_fisher (the only ones with a decision); ca_contingency/ca_associations do NOT expose it at all (it would be a silent no-op). The Ljung-Box precheck is a TEST OF SIZE gate_alpha ⇒ by construction it blocks a small share of VALID i.i.d. input; LIVE-MEASURED (the engine, rnorm, 5000 replications): n=200 -> 1.6%/5.7%/10.1%, n=60 -> 2.3%/6.7%/10.8% for 0.01/0.05/0.10",
@@ -243,7 +250,8 @@
     "ca_contingency # FIRST the table: min_expected/cochran_ok/strict_ok decide chi-squared vs Fisher",
     "c00_data_utilities/discretisation_numeric_column.bn_quantile_bins # a CONTINUOUS variable -> INTEGER codes BEFORE the node (bn_apply for the 2nd wave, THE SAME breaks)"
    ],
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 574,
@@ -274,6 +282,7 @@
     "fit_quality: how well the fitted density reproduces the reported bins",
     "n_bins_used: respondents with too few bins to fit"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "RESPONDENTS USING ONE OR TWO BINS CANNOT SUPPORT A TWO-PARAMETER FIT; the convention of assigning a triangular or uniform density to them is an assumption that affects aggregate uncertainty measures",
     "open-ended end bins require an assumption about their extent, and that assumption drives the variance",
@@ -284,7 +293,8 @@
     "Zarnowitz & Lambros 1987 (Journal of Political Economy 95:591)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 575,
@@ -315,6 +325,7 @@
     "aggregate_variance: the sum, which is the variance of the aggregate density",
     "correlation: between the two series over time"
    ],
+   "chart_kind": "multi-line",
    "interpretation_traps": [
     "DISAGREEMENT IS NOT UNCERTAINTY: forecasters can agree precisely while all being very uncertain, and the dispersion of point forecasts measures only the first",
     "the aggregate density's variance is the SUM of the two components, which is why using disagreement alone understates aggregate uncertainty",
@@ -323,10 +334,11 @@
    "sources": [
     "Giordani & Soderlind 2003 (European Economic Review 47:1037-1059)",
     "Lahiri & Sheng 2010 (Journal of Applied Econometrics 25:514)",
-    "scoringrules"
+    "DOI 10.1086/261473"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 576,
@@ -357,6 +369,7 @@
     "implied_rigidity: the implied Kalman gain or attention parameter",
     "individual_vs_consensus: rigidity at both levels, which differ"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "THE COIBION-GORODNICHENKO COEFFICIENT ON CONSENSUS DATA MEASURES INFORMATION RIGIDITY; the same regression on INDIVIDUAL data measures something different and is often negative -- the two must not be conflated",
     "overlapping forecast horizons induce serial correlation, so HAC standard errors are required",
@@ -368,7 +381,8 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 577,
@@ -399,6 +413,7 @@
     "effective_sample_size: n over the design effect",
     "trimmed: weights that hit the bounds"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "WEIGHTING TRADES BIAS FOR VARIANCE: a large design effect means the weights have cost you most of your sample, and the effective sample size is what should be reported",
     "raking to inconsistent margins does not converge, and a truncated run silently returns weights matching nothing",
@@ -411,7 +426,8 @@
     "svy"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   },
   {
    "id": 578,
@@ -443,6 +459,7 @@
     "pairwise: agreement per rater pair",
     "polychoric: the latent correlation matrix for ordinal items"
    ],
+   "chart_kind": "table",
    "interpretation_traps": [
     "CRONBACH'S ALPHA RISES MECHANICALLY WITH THE NUMBER OF ITEMS and is not a measure of unidimensionality; a high alpha on a multidimensional scale is routine and meaningless",
     "kappa is sensitive to the marginal distribution, so it can be low despite high raw agreement when one category dominates",
@@ -455,7 +472,8 @@
     "pingouin"
    ],
    "precondition_tools": null,
-   "precondition_gates": null
+   "precondition_gates": null,
+   "validation_notes": null
   }
  ],
  "nodes": [
@@ -476,6 +494,10 @@
     "conf_level": 0.95,
     "cramer_method": "ncchisq",
     "correct": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -731,6 +753,10 @@
     "simulate_p_value": false,
     "B": 2000,
     "seed": 1234
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1002,6 +1028,10 @@
     "gate_alpha": 0.05,
     "ordered": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1197,6 +1227,10 @@
     "B": 2000,
     "workspace": 200000,
     "seed": 1234
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1477,6 +1511,10 @@
     "forecast_horizon": 1,
     "suppress_warnings": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1568,6 +1606,10 @@
     "correct_zero": true,
     "correct_by": 0.01,
     "suppress_warnings": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1841,6 +1883,10 @@
     "fix_horizon_end": 10,
     "suppress_warnings": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1988,6 +2034,10 @@
     "data": "<df_handle>",
     "forecast_horizon": 1,
     "suppress_warnings": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2179,6 +2229,10 @@
     "meanxpop": "<df_handle>",
     "popnsize": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2288,6 +2342,10 @@
     "PRECISION": 0.0001,
     "B": 0,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2412,6 +2470,10 @@
     "PRECISION": 0.0001,
     "B": 0,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2539,6 +2601,10 @@
     "deff": false,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "design",
@@ -2635,6 +2701,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "nest": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2742,6 +2812,10 @@
     "deff": true,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "design",
@@ -2807,6 +2881,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2875,6 +2953,10 @@
     "deff": true,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "design",
@@ -2939,6 +3021,15 @@
     "family": "generalised_beta",
     "open_ended_width": 1.0,
     "min_bins": 3
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "moments",
+     "fit_quality",
+     "n_bins_used"
+    ]
    },
    "arguments": [
     {
@@ -3011,6 +3102,15 @@
     "period": "...",
     "balanced": false
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "disagreement",
+     "uncertainty",
+     "aggregate_variance",
+     "correlation"
+    ]
+   },
    "arguments": [
     {
      "name": "densities",
@@ -3076,6 +3176,15 @@
     "level": "consensus",
     "horizon": 4,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "mz",
+     "cg_coefficient",
+     "implied_rigidity",
+     "individual_vs_consensus"
+    ]
    },
    "arguments": [
     {
@@ -3174,6 +3283,15 @@
      5.0
     ],
     "max_iter": 100
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "weights",
+     "design_effect",
+     "effective_sample_size",
+     "trimmed"
+    ]
    },
    "arguments": [
     {
@@ -3274,6 +3392,10 @@
     "nboot": 1000,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3355,6 +3477,10 @@
    "input_example": {
     "data": "<df_handle>",
     "method": "two_step"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
