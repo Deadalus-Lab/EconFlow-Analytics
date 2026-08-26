@@ -1,1581 +1,1581 @@
 {
-  "category": "42-fiscal-debt-sustainability",
-  "cards": [
+ "category": "42-fiscal-debt-sustainability",
+ "cards": [
+  {
+   "id": 354,
+   "method": "Debt-dynamics accounting: the r-g snowball, primary balance and stock-flow adjustment",
+   "wrapper_file": "c42_fiscal_debt_sustainability/debt_dynamics.py",
+   "tool_fns": [
+    "fis_debt_decomposition",
+    "fis_snowball"
+   ],
+   "when": "decomposing an observed change in the debt ratio into the interest-growth differential, the primary balance and the residual that reconciles the stock with the flows",
+   "when_not": "you want a forecast rather than an accounting decomposition; the stock-flow adjustment is unavailable and the identity cannot close",
+   "alternatives": [
     {
-      "id": 354,
-      "method": "Debt-dynamics accounting: the r-g snowball, primary balance and stock-flow adjustment",
-      "wrapper_file": "c42_fiscal_debt_sustainability/debt_dynamics.py",
-      "tool_fns": [
-        "fis_debt_decomposition",
-        "fis_snowball"
-      ],
-      "when": "decomposing an observed change in the debt ratio into the interest-growth differential, the primary balance and the residual that reconciles the stock with the flows",
-      "when_not": "you want a forecast rather than an accounting decomposition; the stock-flow adjustment is unavailable and the identity cannot close",
-      "alternatives": [
-        {
-          "alt": "deterministic projections",
-          "criterion": "the question is forward-looking"
-        },
-        {
-          "alt": "stochastic fan charts",
-          "criterion": "you want the distribution rather than a path"
-        },
-        {
-          "alt": "fiscal reaction function",
-          "criterion": "you want behavioural response rather than accounting"
-        }
-      ],
-      "output_key_fields": [
-        "contributions: the change decomposed into snowball, primary balance and stock-flow adjustment",
-        "snowball: the interest-growth differential effect",
-        "sfa: the residual that closes the identity",
-        "debt_ratio: the level series the decomposition explains"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "the STOCK-FLOW ADJUSTMENT is a residual, not an explanation; a large one means the identity does not close and the data need checking before anything is concluded",
-        "the identity is exact only when the interest rate, growth rate and deflator are on consistent bases -- mixing nominal and real is the standard error",
-        "foreign-currency debt adds a valuation effect that appears inside the residual unless it is modelled explicitly"
-      ],
-      "sources": [
-        "Escolano 2010, A practical guide to public debt dynamics (IMF Technical Notes and Manuals 10/02)",
-        "Blanchard 2019 (American Economic Review 109:1197-1229)"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "deterministic projections",
+     "criterion": "the question is forward-looking"
     },
     {
-      "id": 355,
-      "method": "Deterministic debt projections and standardised stress scenarios",
-      "wrapper_file": "c42_fiscal_debt_sustainability/debt_projections.py",
-      "tool_fns": [
-        "fis_project_debt",
-        "fis_stress_scenarios",
-        "fis_debt_stabilising_balance"
-      ],
-      "when": "projecting the debt ratio forward under stated assumptions, and under the standard shocks a sustainability assessment is expected to report",
-      "when_not": "the horizon is long enough that the assumptions dominate entirely and a projection is theatre; you want a probabilistic answer instead",
-      "alternatives": [
-        {
-          "alt": "stochastic fan charts",
-          "criterion": "you want a distribution rather than scenarios"
-        },
-        {
-          "alt": "deterministic scenarios",
-          "criterion": "the standard, transparent presentation"
-        },
-        {
-          "alt": "debt-stabilising balance",
-          "criterion": "you only need the primary balance that holds the ratio flat"
-        }
-      ],
-      "output_key_fields": [
-        "baseline: the projected path under the central assumptions",
-        "scenarios: paths under each standardised shock",
-        "debt_stabilising_balance: the primary balance that holds the ratio constant",
-        "assumptions: the inputs, echoed so the projection is auditable"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "the projection is ENTIRELY driven by the assumed interest-growth differential; a small change in it dominates any plausible fiscal effort",
-        "standardised shocks are calibrated to historical volatility and understate risk when the past was unusually calm",
-        "a debt-stabilising primary balance says nothing about whether that balance is politically or economically attainable"
-      ],
-      "sources": [
-        "IMF 2013, Staff guidance note for public debt sustainability analysis in market-access countries",
-        "European Commission 2023, Debt Sustainability Monitor"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "stochastic fan charts",
+     "criterion": "you want the distribution rather than a path"
     },
     {
-      "id": 356,
-      "method": "Stochastic debt fan charts from a joint shock distribution",
-      "wrapper_file": "c42_fiscal_debt_sustainability/debt_fan_charts.py",
-      "tool_fns": [
-        "fis_debt_fan_chart",
-        "fis_threshold_probability"
-      ],
-      "when": "putting a probability distribution around a debt projection, driven by the joint historical behaviour of growth, rates and the balance",
-      "when_not": "the historical sample is too short or too structurally broken for a joint distribution to mean anything",
-      "alternatives": [
-        {
-          "alt": "deterministic scenarios",
-          "criterion": "you want transparency over probability"
-        },
-        {
-          "alt": "bootstrapped fan chart",
-          "criterion": "you want the joint distribution taken from the data"
-        },
-        {
-          "alt": "VAR-based fan chart",
-          "criterion": "you want the dynamics as well as the contemporaneous correlation"
-        }
-      ],
-      "output_key_fields": [
-        "fan: quantile bands of the debt ratio per horizon",
-        "probability_above: probability the ratio exceeds a threshold at each horizon",
-        "shock_correlation: the joint distribution the fan rests on",
-        "n_simulations: draws behind the bands"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "the bands inherit the CORRELATION between growth, rates and the balance; simulating them independently badly understates the tail",
-        "historical shock distributions embed the policy reactions of the past, so a fan chart is not a counterfactual for a different policy",
-        "fan charts are frequently misread as forecast intervals for a fixed policy; the central path is conditional and should be labelled as such"
-      ],
-      "sources": [
-        "Celasun, Debrun & Ostry 2006 (IMF Staff Papers 53:401-425)",
-        "Berti 2013, Stochastic public debt projections (European Economy Economic Papers 480)",
-        "DOI 10.2307/30035919"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 357,
-      "method": "Fiscal reaction functions with nonlinearity and regime tests",
-      "wrapper_file": "c42_fiscal_debt_sustainability/fiscal_reaction.py",
-      "tool_fns": [
-        "fis_reaction_function",
-        "fis_reaction_nonlinear"
-      ],
-      "when": "testing whether the primary balance responds to debt strongly enough to stabilise it -- the Bohn test of sustainability",
-      "when_not": "the sample spans a structural break in the fiscal regime that a single equation cannot represent",
-      "alternatives": [
-        {
-          "alt": "linear Bohn regression",
-          "criterion": "the baseline test"
-        },
-        {
-          "alt": "threshold or regime-switching reaction",
-          "criterion": "the response weakens at high debt"
-        },
-        {
-          "alt": "panel reaction function",
-          "criterion": "many countries and you want a common response"
-        }
-      ],
-      "output_key_fields": [
-        "response_coefficient: the reaction of the balance to lagged debt; positive is stabilising",
-        "sustainability: whether the coefficient is significantly positive",
-        "threshold: the debt level at which the response changes, where a nonlinear form is fitted",
-        "regimes: identified fiscal regimes and their reaction coefficients"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "a positive response coefficient is SUFFICIENT for sustainability in Bohn's sense but says nothing about the level of debt or its political feasibility",
-        "the response weakens or reverses at high debt in many samples, so a linear estimate averages two regimes and can conclude sustainability where none holds",
-        "the balance responds to the cycle as well as to debt; omitting the output gap biases the debt coefficient"
-      ],
-      "sources": [
-        "Bohn 1998 (Quarterly Journal of Economics 113:949-963)",
-        "Ghosh, Kim, Mendoza, Ostry & Qureshi 2013 (Economic Journal 123:F4-F30)",
-        "statsmodels"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 358,
-      "method": "Fiscal multipliers by local projection and state-dependent local projection",
-      "wrapper_file": "c42_fiscal_debt_sustainability/fiscal_multipliers.py",
-      "tool_fns": [
-        "fis_multiplier_lp",
-        "fis_multiplier_state_dependent"
-      ],
-      "when": "estimating how much output responds to a fiscal impulse, and whether that response differs in recessions and expansions",
-      "when_not": "the fiscal shock is not credibly identified, in which case the multiplier is a correlation",
-      "alternatives": [
-        {
-          "alt": "local projections",
-          "criterion": "flexible horizon-by-horizon response, robust to misspecification"
-        },
-        {
-          "alt": "SVAR multipliers",
-          "criterion": "you want a full system and efficiency"
-        },
-        {
-          "alt": "state-dependent local projections",
-          "criterion": "the multiplier is thought to differ by state"
-        }
-      ],
-      "output_key_fields": [
-        "irf: the output response per horizon",
-        "multiplier: cumulative output response per unit of fiscal impulse",
-        "state_multipliers: the multiplier in each state, where a state variable is supplied",
-        "conf_band: bands, which must be robust to the induced serial correlation"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "local-projection residuals are SERIALLY CORRELATED by construction at horizons beyond one; standard errors must be HAC or the bands are far too narrow",
-        "the cumulative multiplier depends on the normalisation of the shock; reporting it without stating the normalisation makes it uncomparable",
-        "state-dependent estimates split an already short sample and their differences are often not statistically distinguishable"
-      ],
-      "sources": [
-        "Jorda 2005 (American Economic Review 95:161-182)",
-        "Auerbach & Gorodnichenko 2012 (American Economic Journal: Economic Policy 4:1-27)",
-        "Ramey & Zubairy 2018 (Journal of Political Economy 126:850)",
-        "localprojections"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 359,
-      "method": "Structural and cyclically-adjusted balances with output-gap elasticities",
-      "wrapper_file": "c42_fiscal_debt_sustainability/structural_balance.py",
-      "tool_fns": [
-        "fis_cyclically_adjusted",
-        "fis_budget_elasticity"
-      ],
-      "when": "separating the part of the fiscal position that reflects the cycle from the part that reflects policy",
-      "when_not": "the output gap is not credibly estimated, in which case the adjustment is arbitrary; one-offs cannot be identified",
-      "alternatives": [
-        {
-          "alt": "cyclically-adjusted balance",
-          "criterion": "the standard adjustment for the cycle"
-        },
-        {
-          "alt": "structural balance",
-          "criterion": "also removes one-off and temporary measures"
-        },
-        {
-          "alt": "expenditure benchmark",
-          "criterion": "you want a rule that does not depend on the gap at all"
-        }
-      ],
-      "output_key_fields": [
-        "cyclically_adjusted: the balance net of the cycle",
-        "structural: also net of one-offs",
-        "cyclical_component: the part attributed to the cycle",
-        "elasticity_used: the semi-elasticity applied, which drives the whole adjustment"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "the adjustment is only as good as the OUTPUT GAP, which is unobserved, heavily revised, and estimated with wide uncertainty -- real-time structural balances are revised by large amounts",
-        "the aggregate semi-elasticity hides very different revenue and expenditure elasticities; using a single number misstates composition effects",
-        "one-off measures are identified by judgement, and that judgement is where most of the discretion in a structural balance lives"
-      ],
-      "sources": [
-        "Girouard & Andre 2005, Measuring cyclically-adjusted budget balances for OECD countries (OECD Economics Department Working Papers 434)",
-        "Mourre, Astarita & Princen 2014, Adjusting the budget balance for the business cycle (European Economy Economic Papers 536)",
-        "statsmodels"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 360,
-      "method": "Fiscal-rule compliance simulation and adjustment paths",
-      "wrapper_file": "c42_fiscal_debt_sustainability/fiscal_rules.py",
-      "tool_fns": [
-        "fis_rule_compliance",
-        "fis_adjustment_path"
-      ],
-      "when": "checking whether a projected path satisfies a numerical fiscal rule, and computing the adjustment a rule requires",
-      "when_not": "there is no numerical rule to test against; the rule's escape clauses dominate and compliance is not well defined",
-      "alternatives": [
-        {
-          "alt": "debt-rule compliance",
-          "criterion": "the rule is on the debt ratio"
-        },
-        {
-          "alt": "expenditure benchmark",
-          "criterion": "the rule caps expenditure growth"
-        },
-        {
-          "alt": "structural-balance rule",
-          "criterion": "the rule is on the cyclically-adjusted position"
-        }
-      ],
-      "output_key_fields": [
-        "compliant: per-period compliance with each rule",
-        "gap_to_rule: distance from the requirement, in output share",
-        "adjustment_path: the balance path that would restore compliance",
-        "binding_rule: which rule binds first when several apply"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "several rules usually apply at once and they can CONFLICT; reporting compliance with one while another binds is the standard misuse",
-        "escape clauses and transition arrangements are part of the rule; a mechanical compliance calculation that ignores them is not the legal test",
-        "adjustment paths assume the multiplier is zero -- consolidation that lowers output raises the ratio it was meant to lower"
-      ],
-      "sources": [
-        "European Commission 2023, Vade Mecum on the Stability and Growth Pact",
-        "Eyraud, Debrun, Hodge, Lledo & Pattillo 2018, Second-generation fiscal rules (IMF Staff Discussion Note 18/04)"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "fiscal reaction function",
+     "criterion": "you want behavioural response rather than accounting"
     }
-  ],
-  "nodes": [
+   ],
+   "output_key_fields": [
+    "contributions: the change decomposed into snowball, primary balance and stock-flow adjustment",
+    "snowball: the interest-growth differential effect",
+    "sfa: the residual that closes the identity",
+    "debt_ratio: the level series the decomposition explains"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "the STOCK-FLOW ADJUSTMENT is a residual, not an explanation; a large one means the identity does not close and the data need checking before anything is concluded",
+    "the identity is exact only when the interest rate, growth rate and deflator are on consistent bases -- mixing nominal and real is the standard error",
+    "foreign-currency debt adds a valuation effect that appears inside the residual unless it is modelled explicitly"
+   ],
+   "sources": [
+    "Escolano 2010, A practical guide to public debt dynamics (IMF Technical Notes and Manuals 10/02)",
+    "Blanchard 2019 (American Economic Review 109:1197-1229)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 355,
+   "method": "Deterministic debt projections and standardised stress scenarios",
+   "wrapper_file": "c42_fiscal_debt_sustainability/debt_projections.py",
+   "tool_fns": [
+    "fis_project_debt",
+    "fis_stress_scenarios",
+    "fis_debt_stabilising_balance"
+   ],
+   "when": "projecting the debt ratio forward under stated assumptions, and under the standard shocks a sustainability assessment is expected to report",
+   "when_not": "the horizon is long enough that the assumptions dominate entirely and a projection is theatre; you want a probabilistic answer instead",
+   "alternatives": [
     {
-      "fn": "fis_debt_decomposition",
-      "card_id": 354,
-      "register": null,
-      "input_example": {
-        "debt_ratio": "<series_handle>",
-        "primary_balance": "<series_handle>",
-        "interest_rate": "<series_handle>",
-        "growth_rate": "<series_handle>"
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "debt_ratio",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Debt as a share of output.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "primary_balance",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Primary balance as a share of output.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "interest_rate",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Effective nominal interest rate.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "growth_rate",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Nominal output growth rate.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "inflation",
-          "kind": "series_handle",
-          "required": false,
-          "description": "Deflator growth, when a real decomposition is wanted.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
+     "alt": "stochastic fan charts",
+     "criterion": "you want a distribution rather than scenarios"
     },
     {
-      "fn": "fis_snowball",
-      "card_id": 354,
-      "register": null,
-      "input_example": {
-        "debt_ratio": "<series_handle>",
-        "interest_rate": "<series_handle>",
-        "growth_rate": "<series_handle>"
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "debt_ratio",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Debt as a share of output.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "interest_rate",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Effective nominal interest rate.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "growth_rate",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Nominal output growth rate.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
+     "alt": "deterministic scenarios",
+     "criterion": "the standard, transparent presentation"
     },
     {
-      "fn": "fis_project_debt",
-      "card_id": 355,
-      "register": null,
-      "input_example": {
-        "debt_ratio_initial": 1.0,
-        "primary_balance": [
-          1.0,
-          2.0
-        ],
-        "interest_rate": [
-          1.0,
-          2.0
-        ],
-        "growth_rate": [
-          1.0,
-          2.0
-        ],
-        "horizon": 10
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "debt_ratio_initial",
-          "kind": "number",
-          "required": true,
-          "description": "Starting debt ratio.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "primary_balance",
-          "kind": "num_array",
-          "required": true,
-          "description": "Assumed primary balance path.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "interest_rate",
-          "kind": "num_array",
-          "required": true,
-          "description": "Assumed effective interest rate path.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "growth_rate",
-          "kind": "num_array",
-          "required": true,
-          "description": "Assumed nominal growth path.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "horizon",
-          "kind": "integer",
-          "required": false,
-          "description": "Projection horizon in periods.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 10,
-          "has_default": true,
-          "default_json_type": "integer"
-        }
-      ]
-    },
-    {
-      "fn": "fis_stress_scenarios",
-      "card_id": 355,
-      "register": null,
-      "input_example": {
-        "baseline": "<raw_handle>",
-        "shock_size": 1.0
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "baseline",
-          "kind": "raw_handle",
-          "required": true,
-          "description": "Handle to a baseline projection.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "shock_size",
-          "kind": "number",
-          "required": false,
-          "description": "Shock in historical standard deviations.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1.0,
-          "has_default": true,
-          "default_json_type": "number"
-        },
-        {
-          "name": "scenarios",
-          "kind": "series_codes",
-          "required": false,
-          "description": "Scenarios to run; omitted = the standard set.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "fis_debt_stabilising_balance",
-      "card_id": 355,
-      "register": null,
-      "input_example": {
-        "debt_ratio": 1.0,
-        "interest_rate": 1.0,
-        "growth_rate": 1.0
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "debt_ratio",
-          "kind": "number",
-          "required": true,
-          "description": "Current debt ratio.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "interest_rate",
-          "kind": "number",
-          "required": true,
-          "description": "Effective interest rate.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "growth_rate",
-          "kind": "number",
-          "required": true,
-          "description": "Nominal growth rate.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "fis_debt_fan_chart",
-      "card_id": 356,
-      "register": null,
-      "input_example": {
-        "debt_ratio_initial": 1.0,
-        "history": "<df_handle>",
-        "horizon": 10,
-        "n_simulations": 10000,
-        "method": "bootstrap",
-        "quantiles": [
-          0.1,
-          0.25,
-          0.5,
-          0.75,
-          0.9
-        ],
-        "seed": 1
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "debt_ratio_initial",
-          "kind": "number",
-          "required": true,
-          "description": "Starting debt ratio.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "history",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Historical growth, interest rate and primary balance.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "horizon",
-          "kind": "integer",
-          "required": false,
-          "description": "Projection horizon in periods.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 10,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "n_simulations",
-          "kind": "integer",
-          "required": false,
-          "description": "Simulation draws.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 10000,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "method",
-          "kind": "enum",
-          "required": false,
-          "description": "Shock generation.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "bootstrap",
-            "block_bootstrap",
-            "normal",
-            "var"
-          ],
-          "allowed_vars": null,
-          "default": "bootstrap",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "quantiles",
-          "kind": "num_array",
-          "required": false,
-          "description": "Fan quantiles.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": [
-            0.1,
-            0.25,
-            0.5,
-            0.75,
-            0.9
-          ],
-          "has_default": true,
-          "default_json_type": "array"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "fis_threshold_probability",
-      "card_id": 356,
-      "register": null,
-      "input_example": {
-        "fan": "<raw_handle>",
-        "threshold": 1.0
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "fan",
-          "kind": "raw_handle",
-          "required": true,
-          "description": "Handle to a stochastic projection.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "threshold",
-          "kind": "number",
-          "required": true,
-          "description": "Debt ratio threshold.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "fis_reaction_function",
-      "card_id": 357,
-      "register": {
-        "field": "fit"
-      },
-      "input_example": {
-        "primary_balance": "<series_handle>",
-        "debt_ratio": "<series_handle>",
-        "cov_type": "hac",
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "primary_balance",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Primary balance as a share of output.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "debt_ratio",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Lagged debt ratio.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "output_gap",
-          "kind": "series_handle",
-          "required": false,
-          "description": "Output gap.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "controls",
-          "kind": "series_codes",
-          "required": false,
-          "description": "Additional control columns.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "cov_type",
-          "kind": "enum",
-          "required": false,
-          "description": "Covariance estimator.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "nonrobust",
-            "robust",
-            "hac"
-          ],
-          "allowed_vars": null,
-          "default": "hac",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "fis_reaction_nonlinear",
-      "card_id": 357,
-      "register": null,
-      "input_example": {
-        "primary_balance": "<series_handle>",
-        "debt_ratio": "<series_handle>",
-        "model": "threshold",
-        "n_regimes": 2
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "primary_balance",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Primary balance as a share of output.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "debt_ratio",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Lagged debt ratio.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "output_gap",
-          "kind": "series_handle",
-          "required": false,
-          "description": "Output gap.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "model",
-          "kind": "enum",
-          "required": false,
-          "description": "Nonlinear form.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "threshold",
-            "markov_switching",
-            "quadratic",
-            "spline"
-          ],
-          "allowed_vars": null,
-          "default": "threshold",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "n_regimes",
-          "kind": "integer",
-          "required": false,
-          "description": "Regimes for the switching form.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 2,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": false,
-          "description": "Seed for the random number generator.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "fis_multiplier_lp",
-      "card_id": 358,
-      "register": null,
-      "input_example": {
-        "output": "<series_handle>",
-        "fiscal": "<series_handle>",
-        "horizons": 20,
-        "lags": 4,
-        "cumulative": true,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "output",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Output series.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "fiscal",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Fiscal shock or instrument.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "controls",
-          "kind": "series_codes",
-          "required": false,
-          "description": "Control columns.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "horizons",
-          "kind": "integer",
-          "required": false,
-          "description": "Maximum horizon.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 20,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "lags",
-          "kind": "integer",
-          "required": false,
-          "description": "Lags of the controls included.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 4,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "cumulative",
-          "kind": "boolean",
-          "required": false,
-          "description": "Report the cumulative multiplier.",
-          "pointer_handle": false,
-          "json_type": "boolean",
-          "enum": null,
-          "allowed_vars": null,
-          "default": true,
-          "has_default": true,
-          "default_json_type": "boolean"
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "fis_multiplier_state_dependent",
-      "card_id": 358,
-      "register": null,
-      "input_example": {
-        "output": "<series_handle>",
-        "fiscal": "<series_handle>",
-        "state": "<series_handle>",
-        "transition": "smooth",
-        "horizons": 20,
-        "lags": 4,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "output",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Output series.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "fiscal",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Fiscal shock or instrument.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "state",
-          "kind": "series_handle",
-          "required": true,
-          "description": "State variable, such as the output gap.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "transition",
-          "kind": "enum",
-          "required": false,
-          "description": "How the state enters.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "smooth",
-            "indicator"
-          ],
-          "allowed_vars": null,
-          "default": "smooth",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "horizons",
-          "kind": "integer",
-          "required": false,
-          "description": "Maximum horizon.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 20,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "lags",
-          "kind": "integer",
-          "required": false,
-          "description": "Lags of the controls included.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 4,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "fis_cyclically_adjusted",
-      "card_id": 359,
-      "register": null,
-      "input_example": {
-        "balance": "<series_handle>",
-        "output_gap": "<series_handle>",
-        "elasticity": 0.5
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "balance",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Headline balance as a share of output.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "output_gap",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Output gap as a share of potential.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "elasticity",
-          "kind": "number",
-          "required": false,
-          "description": "Budget semi-elasticity to the gap.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.5,
-          "has_default": true,
-          "default_json_type": "number"
-        },
-        {
-          "name": "one_offs",
-          "kind": "series_handle",
-          "required": false,
-          "description": "One-off measures to remove for the structural balance.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "fis_budget_elasticity",
-      "card_id": 359,
-      "register": null,
-      "input_example": {
-        "revenue": "<series_handle>",
-        "expenditure": "<series_handle>",
-        "output_gap": "<series_handle>",
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "revenue",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Revenue as a share of output.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "expenditure",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Expenditure as a share of output.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "output_gap",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Output gap.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "fis_rule_compliance",
-      "card_id": 360,
-      "register": null,
-      "input_example": {
-        "debt_ratio": "<series_handle>",
-        "debt_limit": 0.6,
-        "deficit_limit": 0.03
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "debt_ratio",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Projected debt ratio.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "structural_balance",
-          "kind": "series_handle",
-          "required": false,
-          "description": "Projected structural balance.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "expenditure_growth",
-          "kind": "series_handle",
-          "required": false,
-          "description": "Projected expenditure growth.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "debt_limit",
-          "kind": "number",
-          "required": false,
-          "description": "Debt ratio limit.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.6,
-          "has_default": true,
-          "default_json_type": "number"
-        },
-        {
-          "name": "deficit_limit",
-          "kind": "number",
-          "required": false,
-          "description": "Headline deficit limit.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.03,
-          "has_default": true,
-          "default_json_type": "number"
-        },
-        {
-          "name": "mto",
-          "kind": "number",
-          "required": false,
-          "description": "Medium-term structural balance objective.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "fis_adjustment_path",
-      "card_id": 360,
-      "register": null,
-      "input_example": {
-        "debt_ratio_initial": 1.0,
-        "target": 1.0,
-        "horizon": 10,
-        "interest_rate": 1.0,
-        "growth_rate": 1.0,
-        "multiplier": 0.0
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "debt_ratio_initial",
-          "kind": "number",
-          "required": true,
-          "description": "Starting debt ratio.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "target",
-          "kind": "number",
-          "required": true,
-          "description": "Target debt ratio.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "horizon",
-          "kind": "integer",
-          "required": false,
-          "description": "Years to reach the target.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 10,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "interest_rate",
-          "kind": "number",
-          "required": true,
-          "description": "Effective interest rate.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "growth_rate",
-          "kind": "number",
-          "required": true,
-          "description": "Nominal growth rate.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "multiplier",
-          "kind": "number",
-          "required": false,
-          "description": "Fiscal multiplier applied to the consolidation.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.0,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
+     "alt": "debt-stabilising balance",
+     "criterion": "you only need the primary balance that holds the ratio flat"
     }
-  ]
+   ],
+   "output_key_fields": [
+    "baseline: the projected path under the central assumptions",
+    "scenarios: paths under each standardised shock",
+    "debt_stabilising_balance: the primary balance that holds the ratio constant",
+    "assumptions: the inputs, echoed so the projection is auditable"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "the projection is ENTIRELY driven by the assumed interest-growth differential; a small change in it dominates any plausible fiscal effort",
+    "standardised shocks are calibrated to historical volatility and understate risk when the past was unusually calm",
+    "a debt-stabilising primary balance says nothing about whether that balance is politically or economically attainable"
+   ],
+   "sources": [
+    "IMF 2013, Staff guidance note for public debt sustainability analysis in market-access countries",
+    "European Commission 2023, Debt Sustainability Monitor"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 356,
+   "method": "Stochastic debt fan charts from a joint shock distribution",
+   "wrapper_file": "c42_fiscal_debt_sustainability/debt_fan_charts.py",
+   "tool_fns": [
+    "fis_debt_fan_chart",
+    "fis_threshold_probability"
+   ],
+   "when": "putting a probability distribution around a debt projection, driven by the joint historical behaviour of growth, rates and the balance",
+   "when_not": "the historical sample is too short or too structurally broken for a joint distribution to mean anything",
+   "alternatives": [
+    {
+     "alt": "deterministic scenarios",
+     "criterion": "you want transparency over probability"
+    },
+    {
+     "alt": "bootstrapped fan chart",
+     "criterion": "you want the joint distribution taken from the data"
+    },
+    {
+     "alt": "VAR-based fan chart",
+     "criterion": "you want the dynamics as well as the contemporaneous correlation"
+    }
+   ],
+   "output_key_fields": [
+    "fan: quantile bands of the debt ratio per horizon",
+    "probability_above: probability the ratio exceeds a threshold at each horizon",
+    "shock_correlation: the joint distribution the fan rests on",
+    "n_simulations: draws behind the bands"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "the bands inherit the CORRELATION between growth, rates and the balance; simulating them independently badly understates the tail",
+    "historical shock distributions embed the policy reactions of the past, so a fan chart is not a counterfactual for a different policy",
+    "fan charts are frequently misread as forecast intervals for a fixed policy; the central path is conditional and should be labelled as such"
+   ],
+   "sources": [
+    "Celasun, Debrun & Ostry 2006 (IMF Staff Papers 53:401-425)",
+    "Berti 2013, Stochastic public debt projections (European Economy Economic Papers 480)",
+    "DOI 10.2307/30035919"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 357,
+   "method": "Fiscal reaction functions with nonlinearity and regime tests",
+   "wrapper_file": "c42_fiscal_debt_sustainability/fiscal_reaction.py",
+   "tool_fns": [
+    "fis_reaction_function",
+    "fis_reaction_nonlinear"
+   ],
+   "when": "testing whether the primary balance responds to debt strongly enough to stabilise it -- the Bohn test of sustainability",
+   "when_not": "the sample spans a structural break in the fiscal regime that a single equation cannot represent",
+   "alternatives": [
+    {
+     "alt": "linear Bohn regression",
+     "criterion": "the baseline test"
+    },
+    {
+     "alt": "threshold or regime-switching reaction",
+     "criterion": "the response weakens at high debt"
+    },
+    {
+     "alt": "panel reaction function",
+     "criterion": "many countries and you want a common response"
+    }
+   ],
+   "output_key_fields": [
+    "response_coefficient: the reaction of the balance to lagged debt; positive is stabilising",
+    "sustainability: whether the coefficient is significantly positive",
+    "threshold: the debt level at which the response changes, where a nonlinear form is fitted",
+    "regimes: identified fiscal regimes and their reaction coefficients"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "a positive response coefficient is SUFFICIENT for sustainability in Bohn's sense but says nothing about the level of debt or its political feasibility",
+    "the response weakens or reverses at high debt in many samples, so a linear estimate averages two regimes and can conclude sustainability where none holds",
+    "the balance responds to the cycle as well as to debt; omitting the output gap biases the debt coefficient"
+   ],
+   "sources": [
+    "Bohn 1998 (Quarterly Journal of Economics 113:949-963)",
+    "Ghosh, Kim, Mendoza, Ostry & Qureshi 2013 (Economic Journal 123:F4-F30)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 358,
+   "method": "Fiscal multipliers by local projection and state-dependent local projection",
+   "wrapper_file": "c42_fiscal_debt_sustainability/fiscal_multipliers.py",
+   "tool_fns": [
+    "fis_multiplier_lp",
+    "fis_multiplier_state_dependent"
+   ],
+   "when": "estimating how much output responds to a fiscal impulse, and whether that response differs in recessions and expansions",
+   "when_not": "the fiscal shock is not credibly identified, in which case the multiplier is a correlation",
+   "alternatives": [
+    {
+     "alt": "local projections",
+     "criterion": "flexible horizon-by-horizon response, robust to misspecification"
+    },
+    {
+     "alt": "SVAR multipliers",
+     "criterion": "you want a full system and efficiency"
+    },
+    {
+     "alt": "state-dependent local projections",
+     "criterion": "the multiplier is thought to differ by state"
+    }
+   ],
+   "output_key_fields": [
+    "irf: the output response per horizon",
+    "multiplier: cumulative output response per unit of fiscal impulse",
+    "state_multipliers: the multiplier in each state, where a state variable is supplied",
+    "conf_band: bands, which must be robust to the induced serial correlation"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "local-projection residuals are SERIALLY CORRELATED by construction at horizons beyond one; standard errors must be HAC or the bands are far too narrow",
+    "the cumulative multiplier depends on the normalisation of the shock; reporting it without stating the normalisation makes it uncomparable",
+    "state-dependent estimates split an already short sample and their differences are often not statistically distinguishable"
+   ],
+   "sources": [
+    "Jorda 2005 (American Economic Review 95:161-182)",
+    "Auerbach & Gorodnichenko 2012 (American Economic Journal: Economic Policy 4:1-27)",
+    "Ramey & Zubairy 2018 (Journal of Political Economy 126:850)",
+    "localprojections"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 359,
+   "method": "Structural and cyclically-adjusted balances with output-gap elasticities",
+   "wrapper_file": "c42_fiscal_debt_sustainability/structural_balance.py",
+   "tool_fns": [
+    "fis_cyclically_adjusted",
+    "fis_budget_elasticity"
+   ],
+   "when": "separating the part of the fiscal position that reflects the cycle from the part that reflects policy",
+   "when_not": "the output gap is not credibly estimated, in which case the adjustment is arbitrary; one-offs cannot be identified",
+   "alternatives": [
+    {
+     "alt": "cyclically-adjusted balance",
+     "criterion": "the standard adjustment for the cycle"
+    },
+    {
+     "alt": "structural balance",
+     "criterion": "also removes one-off and temporary measures"
+    },
+    {
+     "alt": "expenditure benchmark",
+     "criterion": "you want a rule that does not depend on the gap at all"
+    }
+   ],
+   "output_key_fields": [
+    "cyclically_adjusted: the balance net of the cycle",
+    "structural: also net of one-offs",
+    "cyclical_component: the part attributed to the cycle",
+    "elasticity_used: the semi-elasticity applied, which drives the whole adjustment"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "the adjustment is only as good as the OUTPUT GAP, which is unobserved, heavily revised, and estimated with wide uncertainty -- real-time structural balances are revised by large amounts",
+    "the aggregate semi-elasticity hides very different revenue and expenditure elasticities; using a single number misstates composition effects",
+    "one-off measures are identified by judgement, and that judgement is where most of the discretion in a structural balance lives"
+   ],
+   "sources": [
+    "Girouard & Andre 2005, Measuring cyclically-adjusted budget balances for OECD countries (OECD Economics Department Working Papers 434)",
+    "Mourre, Astarita & Princen 2014, Adjusting the budget balance for the business cycle (European Economy Economic Papers 536)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 360,
+   "method": "Fiscal-rule compliance simulation and adjustment paths",
+   "wrapper_file": "c42_fiscal_debt_sustainability/fiscal_rules.py",
+   "tool_fns": [
+    "fis_rule_compliance",
+    "fis_adjustment_path"
+   ],
+   "when": "checking whether a projected path satisfies a numerical fiscal rule, and computing the adjustment a rule requires",
+   "when_not": "there is no numerical rule to test against; the rule's escape clauses dominate and compliance is not well defined",
+   "alternatives": [
+    {
+     "alt": "debt-rule compliance",
+     "criterion": "the rule is on the debt ratio"
+    },
+    {
+     "alt": "expenditure benchmark",
+     "criterion": "the rule caps expenditure growth"
+    },
+    {
+     "alt": "structural-balance rule",
+     "criterion": "the rule is on the cyclically-adjusted position"
+    }
+   ],
+   "output_key_fields": [
+    "compliant: per-period compliance with each rule",
+    "gap_to_rule: distance from the requirement, in output share",
+    "adjustment_path: the balance path that would restore compliance",
+    "binding_rule: which rule binds first when several apply"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "several rules usually apply at once and they can CONFLICT; reporting compliance with one while another binds is the standard misuse",
+    "escape clauses and transition arrangements are part of the rule; a mechanical compliance calculation that ignores them is not the legal test",
+    "adjustment paths assume the multiplier is zero -- consolidation that lowers output raises the ratio it was meant to lower"
+   ],
+   "sources": [
+    "European Commission 2023, Vade Mecum on the Stability and Growth Pact",
+    "Eyraud, Debrun, Hodge, Lledo & Pattillo 2018, Second-generation fiscal rules (IMF Staff Discussion Note 18/04)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "fis_debt_decomposition",
+   "card_id": 354,
+   "register": null,
+   "input_example": {
+    "debt_ratio": "<series_handle>",
+    "primary_balance": "<series_handle>",
+    "interest_rate": "<series_handle>",
+    "growth_rate": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "debt_ratio",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Debt as a share of output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "primary_balance",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Primary balance as a share of output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "interest_rate",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Effective nominal interest rate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "growth_rate",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Nominal output growth rate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "inflation",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Deflator growth, when a real decomposition is wanted.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_snowball",
+   "card_id": 354,
+   "register": null,
+   "input_example": {
+    "debt_ratio": "<series_handle>",
+    "interest_rate": "<series_handle>",
+    "growth_rate": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "debt_ratio",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Debt as a share of output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "interest_rate",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Effective nominal interest rate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "growth_rate",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Nominal output growth rate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_project_debt",
+   "card_id": 355,
+   "register": null,
+   "input_example": {
+    "debt_ratio_initial": 1.0,
+    "primary_balance": [
+     1.0,
+     2.0
+    ],
+    "interest_rate": [
+     1.0,
+     2.0
+    ],
+    "growth_rate": [
+     1.0,
+     2.0
+    ],
+    "horizon": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "debt_ratio_initial",
+     "kind": "number",
+     "required": true,
+     "description": "Starting debt ratio.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "primary_balance",
+     "kind": "num_array",
+     "required": true,
+     "description": "Assumed primary balance path.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "interest_rate",
+     "kind": "num_array",
+     "required": true,
+     "description": "Assumed effective interest rate path.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "growth_rate",
+     "kind": "num_array",
+     "required": true,
+     "description": "Assumed nominal growth path.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Projection horizon in periods.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "fis_stress_scenarios",
+   "card_id": 355,
+   "register": null,
+   "input_example": {
+    "baseline": "<raw_handle>",
+    "shock_size": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "baseline",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a baseline projection.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "shock_size",
+     "kind": "number",
+     "required": false,
+     "description": "Shock in historical standard deviations.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1.0,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "scenarios",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Scenarios to run; omitted = the standard set.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_debt_stabilising_balance",
+   "card_id": 355,
+   "register": null,
+   "input_example": {
+    "debt_ratio": 1.0,
+    "interest_rate": 1.0,
+    "growth_rate": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "debt_ratio",
+     "kind": "number",
+     "required": true,
+     "description": "Current debt ratio.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "interest_rate",
+     "kind": "number",
+     "required": true,
+     "description": "Effective interest rate.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "growth_rate",
+     "kind": "number",
+     "required": true,
+     "description": "Nominal growth rate.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_debt_fan_chart",
+   "card_id": 356,
+   "register": null,
+   "input_example": {
+    "debt_ratio_initial": 1.0,
+    "history": "<df_handle>",
+    "horizon": 10,
+    "n_simulations": 10000,
+    "method": "bootstrap",
+    "quantiles": [
+     0.1,
+     0.25,
+     0.5,
+     0.75,
+     0.9
+    ],
+    "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "debt_ratio_initial",
+     "kind": "number",
+     "required": true,
+     "description": "Starting debt ratio.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "history",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Historical growth, interest rate and primary balance.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Projection horizon in periods.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "n_simulations",
+     "kind": "integer",
+     "required": false,
+     "description": "Simulation draws.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Shock generation.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bootstrap",
+      "block_bootstrap",
+      "normal",
+      "var"
+     ],
+     "allowed_vars": null,
+     "default": "bootstrap",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "quantiles",
+     "kind": "num_array",
+     "required": false,
+     "description": "Fan quantiles.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      0.1,
+      0.25,
+      0.5,
+      0.75,
+      0.9
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_threshold_probability",
+   "card_id": 356,
+   "register": null,
+   "input_example": {
+    "fan": "<raw_handle>",
+    "threshold": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "fan",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a stochastic projection.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "threshold",
+     "kind": "number",
+     "required": true,
+     "description": "Debt ratio threshold.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_reaction_function",
+   "card_id": 357,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "primary_balance": "<series_handle>",
+    "debt_ratio": "<series_handle>",
+    "cov_type": "hac",
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "primary_balance",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Primary balance as a share of output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "debt_ratio",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Lagged debt ratio.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "output_gap",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Output gap.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "controls",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Additional control columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cov_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Covariance estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "nonrobust",
+      "robust",
+      "hac"
+     ],
+     "allowed_vars": null,
+     "default": "hac",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "fis_reaction_nonlinear",
+   "card_id": 357,
+   "register": null,
+   "input_example": {
+    "primary_balance": "<series_handle>",
+    "debt_ratio": "<series_handle>",
+    "model": "threshold",
+    "n_regimes": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "primary_balance",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Primary balance as a share of output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "debt_ratio",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Lagged debt ratio.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "output_gap",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Output gap.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "Nonlinear form.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "threshold",
+      "markov_switching",
+      "quadratic",
+      "spline"
+     ],
+     "allowed_vars": null,
+     "default": "threshold",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_regimes",
+     "kind": "integer",
+     "required": false,
+     "description": "Regimes for the switching form.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 2,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_multiplier_lp",
+   "card_id": 358,
+   "register": null,
+   "input_example": {
+    "output": "<series_handle>",
+    "fiscal": "<series_handle>",
+    "horizons": 20,
+    "lags": 4,
+    "cumulative": true,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "output",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Output series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "fiscal",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Fiscal shock or instrument.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "controls",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Control columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizons",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": false,
+     "description": "Lags of the controls included.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 4,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "cumulative",
+     "kind": "boolean",
+     "required": false,
+     "description": "Report the cumulative multiplier.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "fis_multiplier_state_dependent",
+   "card_id": 358,
+   "register": null,
+   "input_example": {
+    "output": "<series_handle>",
+    "fiscal": "<series_handle>",
+    "state": "<series_handle>",
+    "transition": "smooth",
+    "horizons": 20,
+    "lags": 4,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "output",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Output series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "fiscal",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Fiscal shock or instrument.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "state",
+     "kind": "series_handle",
+     "required": true,
+     "description": "State variable, such as the output gap.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "transition",
+     "kind": "enum",
+     "required": false,
+     "description": "How the state enters.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "smooth",
+      "indicator"
+     ],
+     "allowed_vars": null,
+     "default": "smooth",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "horizons",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": false,
+     "description": "Lags of the controls included.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 4,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "fis_cyclically_adjusted",
+   "card_id": 359,
+   "register": null,
+   "input_example": {
+    "balance": "<series_handle>",
+    "output_gap": "<series_handle>",
+    "elasticity": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "balance",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Headline balance as a share of output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "output_gap",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Output gap as a share of potential.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "elasticity",
+     "kind": "number",
+     "required": false,
+     "description": "Budget semi-elasticity to the gap.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.5,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "one_offs",
+     "kind": "series_handle",
+     "required": false,
+     "description": "One-off measures to remove for the structural balance.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_budget_elasticity",
+   "card_id": 359,
+   "register": null,
+   "input_example": {
+    "revenue": "<series_handle>",
+    "expenditure": "<series_handle>",
+    "output_gap": "<series_handle>",
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "revenue",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Revenue as a share of output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "expenditure",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Expenditure as a share of output.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "output_gap",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Output gap.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "fis_rule_compliance",
+   "card_id": 360,
+   "register": null,
+   "input_example": {
+    "debt_ratio": "<series_handle>",
+    "debt_limit": 0.6,
+    "deficit_limit": 0.03
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "debt_ratio",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Projected debt ratio.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "structural_balance",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Projected structural balance.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "expenditure_growth",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Projected expenditure growth.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "debt_limit",
+     "kind": "number",
+     "required": false,
+     "description": "Debt ratio limit.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.6,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "deficit_limit",
+     "kind": "number",
+     "required": false,
+     "description": "Headline deficit limit.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.03,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "mto",
+     "kind": "number",
+     "required": false,
+     "description": "Medium-term structural balance objective.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "fis_adjustment_path",
+   "card_id": 360,
+   "register": null,
+   "input_example": {
+    "debt_ratio_initial": 1.0,
+    "target": 1.0,
+    "horizon": 10,
+    "interest_rate": 1.0,
+    "growth_rate": 1.0,
+    "multiplier": 0.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "debt_ratio_initial",
+     "kind": "number",
+     "required": true,
+     "description": "Starting debt ratio.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "target",
+     "kind": "number",
+     "required": true,
+     "description": "Target debt ratio.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizon",
+     "kind": "integer",
+     "required": false,
+     "description": "Years to reach the target.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "interest_rate",
+     "kind": "number",
+     "required": true,
+     "description": "Effective interest rate.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "growth_rate",
+     "kind": "number",
+     "required": true,
+     "description": "Nominal growth rate.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "multiplier",
+     "kind": "number",
+     "required": false,
+     "description": "Fiscal multiplier applied to the consolidation.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.0,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  }
+ ]
 }

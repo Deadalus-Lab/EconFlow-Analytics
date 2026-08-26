@@ -1,1714 +1,1714 @@
 {
-  "category": "35-resampling-inference",
-  "cards": [
+ "category": "35-resampling-inference",
+ "cards": [
+  {
+   "id": 300,
+   "method": "IID and residual bootstrap with BCa and percentile-t intervals",
+   "wrapper_file": "c35_resampling_inference/bootstrap_iid.py",
+   "tool_fns": [
+    "rs_bootstrap_iid",
+    "rs_bootstrap_residual"
+   ],
+   "when": "the sampling distribution of a statistic is unknown or its asymptotic approximation is poor, and the observations are independent",
+   "when_not": "the data are serially dependent (-> block or sieve bootstrap); the statistic is non-smooth, such as a nearest-neighbour matching estimator, where the bootstrap is known to fail",
+   "alternatives": [
     {
-      "id": 300,
-      "method": "IID and residual bootstrap with BCa and percentile-t intervals",
-      "wrapper_file": "c35_resampling_inference/bootstrap_iid.py",
-      "tool_fns": [
-        "rs_bootstrap_iid",
-        "rs_bootstrap_residual"
-      ],
-      "when": "the sampling distribution of a statistic is unknown or its asymptotic approximation is poor, and the observations are independent",
-      "when_not": "the data are serially dependent (-> block or sieve bootstrap); the statistic is non-smooth, such as a nearest-neighbour matching estimator, where the bootstrap is known to fail",
-      "alternatives": [
-        {
-          "alt": "block bootstrap",
-          "criterion": "serial dependence"
-        },
-        {
-          "alt": "BCa interval",
-          "criterion": "the statistic is biased or skewed"
-        },
-        {
-          "alt": "percentile-t",
-          "criterion": "a variance estimate is available and you want second-order accuracy"
-        }
-      ],
-      "output_key_fields": [
-        "estimate, bias, se: the point estimate, bootstrap bias and standard error",
-        "conf_int: interval by the requested method",
-        "replications: the bootstrap distribution itself",
-        "method: which interval construction produced the answer"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "the plain percentile interval is only first-order accurate and is badly wrong for skewed statistics -- BCa or percentile-t is the default worth having",
-        "the bootstrap FAILS for non-smooth statistics: nearest-neighbour matching, the maximum, parameters on a boundary",
-        "bootstrapping a t-statistic requires a variance estimate at every replication, which is what makes percentile-t expensive and accurate"
-      ],
-      "sources": [
-        "Efron 1979 (Annals of Statistics 7:1-26)",
-        "Efron & Tibshirani 1993, An Introduction to the Bootstrap",
-        "DiCiccio & Efron 1996 (Statistical Science 11:189)",
-        "arch.bootstrap"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "block bootstrap",
+     "criterion": "serial dependence"
     },
     {
-      "id": 301,
-      "method": "Moving-block and circular-block bootstrap",
-      "wrapper_file": "c35_resampling_inference/block_bootstrap.py",
-      "tool_fns": [
-        "rs_block_bootstrap",
-        "rs_optimal_block_length"
-      ],
-      "when": "resampling serially dependent data by taking contiguous blocks, so the short-run dependence survives the resample",
-      "when_not": "the data are independent (-> iid bootstrap); the dependence is long memory, where blocks of any feasible length lose it",
-      "alternatives": [
-        {
-          "alt": "stationary bootstrap",
-          "criterion": "you want to avoid the end effects of fixed blocks"
-        },
-        {
-          "alt": "sieve bootstrap",
-          "criterion": "the dependence is well captured by an autoregression"
-        },
-        {
-          "alt": "circular block",
-          "criterion": "the series is short and end effects would dominate"
-        }
-      ],
-      "output_key_fields": [
-        "estimate, se, conf_int: as for the iid bootstrap",
-        "block_length: the length used and the rule that chose it",
-        "replications: the bootstrap distribution"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "the BLOCK LENGTH is the whole method: too short destroys the dependence, too long leaves too few blocks to resample",
-        "the moving-block bootstrap under-weights observations at the ends of the sample; the circular version fixes that by wrapping",
-        "block bootstraps are inconsistent for statistics depending on long-range dependence"
-      ],
-      "sources": [
-        "Kunsch 1989 (Annals of Statistics 17:1217-1241)",
-        "Politis & White 2004 (Econometric Reviews 23:53)",
-        "arch.bootstrap"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "BCa interval",
+     "criterion": "the statistic is biased or skewed"
     },
     {
-      "id": 302,
-      "method": "Stationary bootstrap (Politis-Romano)",
-      "wrapper_file": "c35_resampling_inference/stationary_bootstrap.py",
-      "tool_fns": [
-        "rs_stationary_bootstrap"
-      ],
-      "when": "block resampling with geometrically random block lengths, so the resampled series is itself stationary",
-      "when_not": "the data are independent; the statistic requires blocks of a fixed known length",
-      "alternatives": [
-        {
-          "alt": "moving-block bootstrap",
-          "criterion": "you want deterministic block lengths"
-        },
-        {
-          "alt": "sieve bootstrap",
-          "criterion": "an autoregressive approximation is credible"
-        },
-        {
-          "alt": "subsampling",
-          "criterion": "the statistic converges at an unknown rate"
-        }
-      ],
-      "output_key_fields": [
-        "estimate, se, conf_int: bootstrap inference",
-        "expected_block_length: 1/p, the mean geometric block length",
-        "replications: the bootstrap distribution"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "the resampled series is stationary, which the moving-block resample is not -- that is the point of the method",
-        "the geometric parameter plays the role of the block length and matters just as much",
-        "with a small expected block length the method degenerates to the iid bootstrap and understates dependence"
-      ],
-      "sources": [
-        "Politis & Romano 1994 (JASA 89:1303-1313)",
-        "Politis & White 2004 (Econometric Reviews 23:53)",
-        "arch.bootstrap"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 303,
-      "method": "Sieve and autoregressive bootstrap",
-      "wrapper_file": "c35_resampling_inference/sieve_bootstrap.py",
-      "tool_fns": [
-        "rs_sieve_bootstrap"
-      ],
-      "when": "the dependence is well described by a linear autoregression, so resampling its residuals reproduces the dynamics without blocking",
-      "when_not": "the dependence is nonlinear or the series has conditional heteroskedasticity the autoregression cannot capture",
-      "alternatives": [
-        {
-          "alt": "block bootstrap",
-          "criterion": "the dependence is not well approximated by an autoregression"
-        },
-        {
-          "alt": "stationary bootstrap",
-          "criterion": "you want no model at all"
-        },
-        {
-          "alt": "parametric bootstrap",
-          "criterion": "you are willing to specify the full data-generating process"
-        }
-      ],
-      "output_key_fields": [
-        "estimate, se, conf_int: bootstrap inference",
-        "ar_order: the order selected and the criterion used",
-        "residual_diagnostics: whiteness checks on the fitted residuals -- the assumption the method rests on"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "if the fitted residuals are NOT white the sieve bootstrap is invalid; the diagnostic is not optional",
-        "the autoregressive order must grow with the sample for consistency; a fixed low order gives a biased resample",
-        "the method assumes linearity, so it misses conditional heteroskedasticity entirely"
-      ],
-      "sources": [
-        "Buhlmann 1997 (Bernoulli 3:123-148)",
-        "Kreiss, Paparoditis & Politis 2011 (Annals of Statistics 39:2103)",
-        "DOI 10.2307/3318584"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 304,
-      "method": "Wild bootstrap with Rademacher, Mammen and Webb weights",
-      "wrapper_file": "c35_resampling_inference/wild_bootstrap.py",
-      "tool_fns": [
-        "rs_wild_bootstrap"
-      ],
-      "when": "regression errors are heteroskedastic of unknown form and you want inference that does not rely on the asymptotic sandwich",
-      "when_not": "the errors are homoskedastic; the design is clustered, where the cluster-level wild bootstrap is required instead",
-      "alternatives": [
-        {
-          "alt": "wild cluster bootstrap",
-          "criterion": "errors are correlated within clusters"
-        },
-        {
-          "alt": "pairs bootstrap",
-          "criterion": "the regressors are stochastic and you want to resample them too"
-        },
-        {
-          "alt": "robust sandwich standard errors",
-          "criterion": "the sample is large and asymptotics are reliable"
-        }
-      ],
-      "output_key_fields": [
-        "estimate, se, conf_int: wild-bootstrap inference",
-        "p_value: bootstrap p-value for the tested restriction",
-        "weights: which auxiliary distribution was used",
-        "replications: the bootstrap distribution of the statistic"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "Rademacher weights take only two values, so with very few clusters or observations the bootstrap distribution has a COARSE support and the p-value cannot fall below a floor",
-        "Webb weights exist precisely to fix that floor when there are six or fewer clusters",
-        "the restriction must be imposed on the null when resampling; the unrestricted version has poor size"
-      ],
-      "sources": [
-        "Wu 1986 (Annals of Statistics 14:1261)",
-        "Mammen 1993 (Annals of Statistics 21:255)",
-        "Webb 2023 (Empirical Economics 64:2999)",
-        "wildboottest"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 305,
-      "method": "Wild cluster bootstrap with few clusters",
-      "wrapper_file": "c35_resampling_inference/wild_cluster_bootstrap.py",
-      "tool_fns": [
-        "rs_wild_cluster_bootstrap"
-      ],
-      "when": "errors are correlated within a small number of clusters, where cluster-robust standard errors over-reject badly and the asymptotics simply do not apply",
-      "when_not": "there are many clusters and the usual cluster-robust inference is adequate",
-      "alternatives": [
-        {
-          "alt": "cluster-robust standard errors",
-          "criterion": "many clusters, so asymptotics hold"
-        },
-        {
-          "alt": "randomisation inference",
-          "criterion": "treatment is assigned at cluster level and you want a design-based test"
-        },
-        {
-          "alt": "aggregation to cluster means",
-          "criterion": "the design is simple enough to collapse"
-        }
-      ],
-      "output_key_fields": [
-        "p_value: the bootstrap p-value, which is the output that matters here",
-        "conf_int: inverted-test interval",
-        "n_clusters: the number of clusters -- the figure that determines whether any of this is reliable",
-        "p_value_floor: the smallest attainable p-value given the weights and cluster count"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "with fewer than about five clusters NO method restores correct size; report the cluster count prominently rather than a p-value that looks precise",
-        "Rademacher weights impose a floor of 2^(1-G) on the p-value; with G=5 nothing below 0.0625 is attainable, so a reported 0.01 is impossible",
-        "the null must be imposed when resampling; the unrestricted variant over-rejects, which is the failure it was meant to cure"
-      ],
-      "sources": [
-        "Cameron, Gelbach & Miller 2008 (Review of Economics and Statistics 90:414-427)",
-        "MacKinnon & Webb 2017 (Journal of Applied Econometrics 32:233)",
-        "wildboottest"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 306,
-      "method": "Randomisation and permutation inference",
-      "wrapper_file": "c35_resampling_inference/randomisation_inference.py",
-      "tool_fns": [
-        "rs_permutation_test",
-        "rs_randomisation_ci"
-      ],
-      "when": "the design assigned treatment by a known randomisation, so inference can rest on that design rather than on a sampling model or an asymptotic approximation",
-      "when_not": "assignment was not random and the permutation distribution has no design justification; the sample is a population and there is nothing to permute",
-      "alternatives": [
-        {
-          "alt": "bootstrap",
-          "criterion": "you want a sampling-based rather than design-based interval"
-        },
-        {
-          "alt": "Fisher exact test",
-          "criterion": "the outcome is binary and the table is small"
-        },
-        {
-          "alt": "asymptotic tests",
-          "criterion": "the sample is large and the design is simple"
-        }
-      ],
-      "output_key_fields": [
-        "p_value: the exact or approximate randomisation p-value",
-        "null_distribution: the permutation distribution of the statistic",
-        "n_permutations: exhaustive or sampled, and how many",
-        "conf_int: interval by test inversion, where requested"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "the permutation must respect the ACTUAL randomisation -- permuting freely when assignment was blocked or clustered gives a p-value for an experiment that was never run",
-        "the sharp null of no effect for any unit is stronger than the null of no average effect; the test is exact only for the former",
-        "with a small number of possible assignments the p-value has a coarse, bounded support"
-      ],
-      "sources": [
-        "Fisher 1935, The Design of Experiments",
-        "Rosenbaum 2002, Observational Studies",
-        "Young 2019 (Quarterly Journal of Economics 134:557)",
-        "scipy.stats"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 307,
-      "method": "Subsampling and jackknife",
-      "wrapper_file": "c35_resampling_inference/subsampling_jackknife.py",
-      "tool_fns": [
-        "rs_subsampling",
-        "rs_jackknife"
-      ],
-      "when": "the bootstrap is invalid or the convergence rate is unknown, and you need a resampling scheme that survives both",
-      "when_not": "the statistic is smooth and the bootstrap works -- it is more efficient here",
-      "alternatives": [
-        {
-          "alt": "bootstrap",
-          "criterion": "the statistic is smooth and regular"
-        },
-        {
-          "alt": "subsampling",
-          "criterion": "the convergence rate is unknown or the bootstrap is inconsistent"
-        },
-        {
-          "alt": "delete-d jackknife",
-          "criterion": "the statistic is non-smooth and delete-1 fails"
-        }
-      ],
-      "output_key_fields": [
-        "estimate, bias, se: resampling summaries",
-        "conf_int: subsampling or jackknife interval",
-        "subsample_size: b, the size used, and the rate assumed",
-        "pseudo_values: jackknife pseudo-values, for influence diagnostics"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "subsampling is consistent under far weaker conditions than the bootstrap, but it needs b to grow more slowly than n and the answer is sensitive to b",
-        "the DELETE-1 jackknife is inconsistent for non-smooth statistics such as the median; delete-d is the fix",
-        "jackknife pseudo-values identify influential observations, which is often more useful than the interval itself"
-      ],
-      "sources": [
-        "Politis, Romano & Wolf 1999, Subsampling",
-        "Efron & Stein 1981 (Annals of Statistics 9:586)",
-        "Shao & Wu 1989 (Annals of Statistics 17:1176)",
-        "DOI 10.1214/aos/1176325770"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 308,
-      "method": "Multiple testing: Holm, Benjamini-Hochberg and Romano-Wolf stepdown",
-      "wrapper_file": "c35_resampling_inference/multiple_testing.py",
-      "tool_fns": [
-        "rs_multiple_testing",
-        "rs_romano_wolf"
-      ],
-      "when": "many hypotheses are tested at once -- multiple outcomes, subgroups or specifications -- and the unadjusted p-values guarantee false discoveries",
-      "when_not": "there is one pre-registered primary hypothesis; the tests are so few that adjustment is not credible either way",
-      "alternatives": [
-        {
-          "alt": "Holm",
-          "criterion": "you must control the family-wise error rate and tests may be dependent"
-        },
-        {
-          "alt": "Benjamini-Hochberg",
-          "criterion": "you can tolerate a proportion of false discoveries among rejections"
-        },
-        {
-          "alt": "Romano-Wolf",
-          "criterion": "the tests are dependent and you want power that exploits that dependence"
-        }
-      ],
-      "output_key_fields": [
-        "p_adjusted: adjusted p-values in the order supplied",
-        "rejected: which hypotheses survive at the requested level",
-        "n_rejected: the count before and after adjustment",
-        "method: the procedure applied"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "FWER and FDR control DIFFERENT things; Holm bounds the probability of any false rejection, Benjamini-Hochberg bounds their expected share, and they are not interchangeable",
-        "Benjamini-Hochberg assumes independence or positive dependence; under arbitrary dependence the Benjamini-Yekutieli correction is needed and is much more conservative",
-        "Romano-Wolf requires resampling the joint distribution -- it cannot be applied to a list of p-values alone"
-      ],
-      "sources": [
-        "Holm 1979 (Scandinavian Journal of Statistics 6:65-70)",
-        "Benjamini & Hochberg 1995 (JRSS-B 57:289-300)",
-        "Romano & Wolf 2005 (Econometrica 73:1237)",
-        "statsmodels.stats.multitest"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "percentile-t",
+     "criterion": "a variance estimate is available and you want second-order accuracy"
     }
-  ],
-  "nodes": [
+   ],
+   "output_key_fields": [
+    "estimate, bias, se: the point estimate, bootstrap bias and standard error",
+    "conf_int: interval by the requested method",
+    "replications: the bootstrap distribution itself",
+    "method: which interval construction produced the answer"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "the plain percentile interval is only first-order accurate and is badly wrong for skewed statistics -- BCa or percentile-t is the default worth having",
+    "the bootstrap FAILS for non-smooth statistics: nearest-neighbour matching, the maximum, parameters on a boundary",
+    "bootstrapping a t-statistic requires a variance estimate at every replication, which is what makes percentile-t expensive and accurate"
+   ],
+   "sources": [
+    "Efron 1979 (Annals of Statistics 7:1-26)",
+    "Efron & Tibshirani 1993, An Introduction to the Bootstrap",
+    "DiCiccio & Efron 1996 (Statistical Science 11:189)",
+    "arch.bootstrap"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 301,
+   "method": "Moving-block and circular-block bootstrap",
+   "wrapper_file": "c35_resampling_inference/block_bootstrap.py",
+   "tool_fns": [
+    "rs_block_bootstrap",
+    "rs_optimal_block_length"
+   ],
+   "when": "resampling serially dependent data by taking contiguous blocks, so the short-run dependence survives the resample",
+   "when_not": "the data are independent (-> iid bootstrap); the dependence is long memory, where blocks of any feasible length lose it",
+   "alternatives": [
     {
-      "fn": "rs_bootstrap_iid",
-      "card_id": 300,
-      "register": null,
-      "input_example": {
-        "data": "<df_handle>",
-        "statistic": "y ~ x",
-        "nboot": 999,
-        "method": "bca",
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Data to resample.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "statistic",
-          "kind": "formula",
-          "required": true,
-          "description": "Statistic to bootstrap.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "nboot",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of bootstrap replications.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 999,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "method",
-          "kind": "enum",
-          "required": false,
-          "description": "Interval construction.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "percentile",
-            "basic",
-            "bca",
-            "percentile_t",
-            "studentized"
-          ],
-          "allowed_vars": null,
-          "default": "bca",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
+     "alt": "stationary bootstrap",
+     "criterion": "you want to avoid the end effects of fixed blocks"
     },
     {
-      "fn": "rs_bootstrap_residual",
-      "card_id": 300,
-      "register": null,
-      "input_example": {
-        "fit": "<raw_handle>",
-        "nboot": 999,
-        "wild": false,
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "fit",
-          "kind": "raw_handle",
-          "required": true,
-          "description": "Handle to a fitted regression.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "nboot",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of bootstrap replications.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 999,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "wild",
-          "kind": "boolean",
-          "required": false,
-          "description": "Use wild rather than iid residual resampling.",
-          "pointer_handle": false,
-          "json_type": "boolean",
-          "enum": null,
-          "allowed_vars": null,
-          "default": false,
-          "has_default": true,
-          "default_json_type": "boolean"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
+     "alt": "sieve bootstrap",
+     "criterion": "the dependence is well captured by an autoregression"
     },
     {
-      "fn": "rs_block_bootstrap",
-      "card_id": 301,
-      "register": null,
-      "input_example": {
-        "data": "<multiseries_handle>",
-        "statistic": "y ~ x",
-        "circular": true,
-        "nboot": 999,
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "multiseries_handle",
-          "required": true,
-          "description": "Serially dependent data.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "statistic",
-          "kind": "formula",
-          "required": true,
-          "description": "Statistic to bootstrap.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "block_length",
-          "kind": "integer",
-          "required": false,
-          "description": "Block length; omitted = automatic.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "circular",
-          "kind": "boolean",
-          "required": false,
-          "description": "Wrap the series to remove end effects.",
-          "pointer_handle": false,
-          "json_type": "boolean",
-          "enum": null,
-          "allowed_vars": null,
-          "default": true,
-          "has_default": true,
-          "default_json_type": "boolean"
-        },
-        {
-          "name": "nboot",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of bootstrap replications.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 999,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_optimal_block_length",
-      "card_id": 301,
-      "register": null,
-      "input_example": {
-        "x": "<series_handle>"
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "x",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Series whose dependence sets the block length.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "rs_stationary_bootstrap",
-      "card_id": 302,
-      "register": null,
-      "input_example": {
-        "data": "<multiseries_handle>",
-        "statistic": "y ~ x",
-        "nboot": 999,
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "multiseries_handle",
-          "required": true,
-          "description": "Serially dependent data.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "statistic",
-          "kind": "formula",
-          "required": true,
-          "description": "Statistic to bootstrap.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "expected_block_length",
-          "kind": "number",
-          "required": false,
-          "description": "Mean block length; omitted = automatic.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "nboot",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of bootstrap replications.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 999,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_sieve_bootstrap",
-      "card_id": 303,
-      "register": null,
-      "input_example": {
-        "x": "<series_handle>",
-        "statistic": "y ~ x",
-        "criterion": "aic",
-        "nboot": 999,
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "x",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Serially dependent series.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "statistic",
-          "kind": "formula",
-          "required": true,
-          "description": "Statistic to bootstrap.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "ar_order",
-          "kind": "integer",
-          "required": false,
-          "description": "Autoregressive order; omitted = selected.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "criterion",
-          "kind": "enum",
-          "required": false,
-          "description": "Order-selection criterion.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "aic",
-            "bic",
-            "hqic"
-          ],
-          "allowed_vars": null,
-          "default": "aic",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "nboot",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of bootstrap replications.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 999,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_wild_bootstrap",
-      "card_id": 304,
-      "register": null,
-      "input_example": {
-        "fit": "<raw_handle>",
-        "restriction": "y ~ x",
-        "weights": "rademacher",
-        "impose_null": true,
-        "nboot": 999,
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "fit",
-          "kind": "raw_handle",
-          "required": true,
-          "description": "Handle to a fitted regression.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "restriction",
-          "kind": "formula",
-          "required": true,
-          "description": "Restriction tested under the null.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "weights",
-          "kind": "enum",
-          "required": false,
-          "description": "Auxiliary weight distribution.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "rademacher",
-            "mammen",
-            "webb",
-            "normal"
-          ],
-          "allowed_vars": null,
-          "default": "rademacher",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "impose_null",
-          "kind": "boolean",
-          "required": false,
-          "description": "Impose the null when resampling.",
-          "pointer_handle": false,
-          "json_type": "boolean",
-          "enum": null,
-          "allowed_vars": null,
-          "default": true,
-          "has_default": true,
-          "default_json_type": "boolean"
-        },
-        {
-          "name": "nboot",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of bootstrap replications.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 999,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_wild_cluster_bootstrap",
-      "card_id": 305,
-      "register": null,
-      "input_example": {
-        "fit": "<raw_handle>",
-        "cluster": "<series_handle>",
-        "restriction": "y ~ x",
-        "weights": "webb",
-        "nboot": 999,
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "declared",
-        "keys": [
-          "p_value",
-          "conf_int",
-          "n_clusters",
-          "p_value_floor"
-        ]
-      },
-      "arguments": [
-        {
-          "name": "fit",
-          "kind": "raw_handle",
-          "required": true,
-          "description": "Handle to a fitted regression.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "cluster",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Cluster identifier.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "restriction",
-          "kind": "formula",
-          "required": true,
-          "description": "Restriction tested under the null.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "weights",
-          "kind": "enum",
-          "required": false,
-          "description": "Auxiliary weight distribution.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "rademacher",
-            "mammen",
-            "webb",
-            "normal"
-          ],
-          "allowed_vars": null,
-          "default": "webb",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "nboot",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of bootstrap replications.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 999,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_permutation_test",
-      "card_id": 306,
-      "register": null,
-      "input_example": {
-        "outcome": "<series_handle>",
-        "treatment": "<series_handle>",
-        "statistic": "mean_difference",
-        "n_permutations": 10000,
-        "seed": 1,
-        "alpha": 0.05
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "outcome",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Outcome per unit.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "treatment",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Treatment assignment.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "block",
-          "kind": "series_handle",
-          "required": false,
-          "description": "Blocking variable the randomisation respected.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "cluster",
-          "kind": "series_handle",
-          "required": false,
-          "description": "Cluster the randomisation was applied at.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "statistic",
-          "kind": "enum",
-          "required": false,
-          "description": "Test statistic.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "mean_difference",
-            "rank_sum",
-            "t",
-            "regression_coef"
-          ],
-          "allowed_vars": null,
-          "default": "mean_difference",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "n_permutations",
-          "kind": "integer",
-          "required": false,
-          "description": "Sampled permutations; 0 = exhaustive.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 10000,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "alpha",
-          "kind": "number",
-          "required": false,
-          "description": "Significance level.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.05,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_randomisation_ci",
-      "card_id": 306,
-      "register": null,
-      "input_example": {
-        "outcome": "<series_handle>",
-        "treatment": "<series_handle>",
-        "n_permutations": 1000,
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "outcome",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Outcome per unit.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "treatment",
-          "kind": "series_handle",
-          "required": true,
-          "description": "Treatment assignment.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "grid",
-          "kind": "num_array",
-          "required": false,
-          "description": "Effect grid to invert over.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_permutations",
-          "kind": "integer",
-          "required": false,
-          "description": "Sampled permutations.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1000,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_subsampling",
-      "card_id": 307,
-      "register": null,
-      "input_example": {
-        "data": "<df_handle>",
-        "statistic": "y ~ x",
-        "n_subsamples": 1000,
-        "seed": 1,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Data to subsample.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "statistic",
-          "kind": "formula",
-          "required": true,
-          "description": "Statistic of interest.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "subsample_size",
-          "kind": "integer",
-          "required": false,
-          "description": "Subsample size b; omitted = n^(2/3).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_subsamples",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of subsamples.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1000,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": true,
-          "description": "Seed for the random number generator; required for reproducibility.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_jackknife",
-      "card_id": 307,
-      "register": null,
-      "input_example": {
-        "data": "<df_handle>",
-        "statistic": "y ~ x",
-        "kind": "delete1",
-        "d": 1
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Data to resample.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "statistic",
-          "kind": "formula",
-          "required": true,
-          "description": "Statistic of interest.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "kind",
-          "kind": "enum",
-          "required": false,
-          "description": "Jackknife variant.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "delete1",
-            "deleted",
-            "cluster"
-          ],
-          "allowed_vars": null,
-          "default": "delete1",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "d",
-          "kind": "integer",
-          "required": false,
-          "description": "Number deleted for the delete-d variant.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "cluster",
-          "kind": "series_handle",
-          "required": false,
-          "description": "Cluster identifier for the cluster variant.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "rs_multiple_testing",
-      "card_id": 308,
-      "register": null,
-      "input_example": {
-        "p_values": [
-          1.0,
-          2.0
-        ],
-        "method": "holm",
-        "alpha": 0.05
-      },
-      "output_keys": {
-        "status": "declared",
-        "keys": [
-          "p_adjusted",
-          "rejected",
-          "n_rejected",
-          "method"
-        ]
-      },
-      "arguments": [
-        {
-          "name": "p_values",
-          "kind": "num_array",
-          "required": true,
-          "description": "Unadjusted p-values.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "method",
-          "kind": "enum",
-          "required": false,
-          "description": "Adjustment procedure.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "bonferroni",
-            "holm",
-            "hochberg",
-            "bh",
-            "by",
-            "sidak"
-          ],
-          "allowed_vars": null,
-          "default": "holm",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "alpha",
-          "kind": "number",
-          "required": false,
-          "description": "Significance level.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.05,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "rs_romano_wolf",
-      "card_id": 308,
-      "register": null,
-      "input_example": {
-        "statistics": [
-          1.0,
-          2.0
-        ],
-        "bootstrap_draws": "<matrix_handle>",
-        "alpha": 0.05
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "statistics",
-          "kind": "num_array",
-          "required": true,
-          "description": "Test statistics.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "bootstrap_draws",
-          "kind": "matrix_handle",
-          "required": true,
-          "description": "Bootstrap draws of the statistics under the null.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "alpha",
-          "kind": "number",
-          "required": false,
-          "description": "Significance level.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.05,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
+     "alt": "circular block",
+     "criterion": "the series is short and end effects would dominate"
     }
-  ]
+   ],
+   "output_key_fields": [
+    "estimate, se, conf_int: as for the iid bootstrap",
+    "block_length: the length used and the rule that chose it",
+    "replications: the bootstrap distribution"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "the BLOCK LENGTH is the whole method: too short destroys the dependence, too long leaves too few blocks to resample",
+    "the moving-block bootstrap under-weights observations at the ends of the sample; the circular version fixes that by wrapping",
+    "block bootstraps are inconsistent for statistics depending on long-range dependence"
+   ],
+   "sources": [
+    "Kunsch 1989 (Annals of Statistics 17:1217-1241)",
+    "Politis & White 2004 (Econometric Reviews 23:53)",
+    "arch.bootstrap"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 302,
+   "method": "Stationary bootstrap (Politis-Romano)",
+   "wrapper_file": "c35_resampling_inference/stationary_bootstrap.py",
+   "tool_fns": [
+    "rs_stationary_bootstrap"
+   ],
+   "when": "block resampling with geometrically random block lengths, so the resampled series is itself stationary",
+   "when_not": "the data are independent; the statistic requires blocks of a fixed known length",
+   "alternatives": [
+    {
+     "alt": "moving-block bootstrap",
+     "criterion": "you want deterministic block lengths"
+    },
+    {
+     "alt": "sieve bootstrap",
+     "criterion": "an autoregressive approximation is credible"
+    },
+    {
+     "alt": "subsampling",
+     "criterion": "the statistic converges at an unknown rate"
+    }
+   ],
+   "output_key_fields": [
+    "estimate, se, conf_int: bootstrap inference",
+    "expected_block_length: 1/p, the mean geometric block length",
+    "replications: the bootstrap distribution"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "the resampled series is stationary, which the moving-block resample is not -- that is the point of the method",
+    "the geometric parameter plays the role of the block length and matters just as much",
+    "with a small expected block length the method degenerates to the iid bootstrap and understates dependence"
+   ],
+   "sources": [
+    "Politis & Romano 1994 (JASA 89:1303-1313)",
+    "Politis & White 2004 (Econometric Reviews 23:53)",
+    "arch.bootstrap"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 303,
+   "method": "Sieve and autoregressive bootstrap",
+   "wrapper_file": "c35_resampling_inference/sieve_bootstrap.py",
+   "tool_fns": [
+    "rs_sieve_bootstrap"
+   ],
+   "when": "the dependence is well described by a linear autoregression, so resampling its residuals reproduces the dynamics without blocking",
+   "when_not": "the dependence is nonlinear or the series has conditional heteroskedasticity the autoregression cannot capture",
+   "alternatives": [
+    {
+     "alt": "block bootstrap",
+     "criterion": "the dependence is not well approximated by an autoregression"
+    },
+    {
+     "alt": "stationary bootstrap",
+     "criterion": "you want no model at all"
+    },
+    {
+     "alt": "parametric bootstrap",
+     "criterion": "you are willing to specify the full data-generating process"
+    }
+   ],
+   "output_key_fields": [
+    "estimate, se, conf_int: bootstrap inference",
+    "ar_order: the order selected and the criterion used",
+    "residual_diagnostics: whiteness checks on the fitted residuals -- the assumption the method rests on"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "if the fitted residuals are NOT white the sieve bootstrap is invalid; the diagnostic is not optional",
+    "the autoregressive order must grow with the sample for consistency; a fixed low order gives a biased resample",
+    "the method assumes linearity, so it misses conditional heteroskedasticity entirely"
+   ],
+   "sources": [
+    "Buhlmann 1997 (Bernoulli 3:123-148)",
+    "Kreiss, Paparoditis & Politis 2011 (Annals of Statistics 39:2103)",
+    "DOI 10.2307/3318584"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 304,
+   "method": "Wild bootstrap with Rademacher, Mammen and Webb weights",
+   "wrapper_file": "c35_resampling_inference/wild_bootstrap.py",
+   "tool_fns": [
+    "rs_wild_bootstrap"
+   ],
+   "when": "regression errors are heteroskedastic of unknown form and you want inference that does not rely on the asymptotic sandwich",
+   "when_not": "the errors are homoskedastic; the design is clustered, where the cluster-level wild bootstrap is required instead",
+   "alternatives": [
+    {
+     "alt": "wild cluster bootstrap",
+     "criterion": "errors are correlated within clusters"
+    },
+    {
+     "alt": "pairs bootstrap",
+     "criterion": "the regressors are stochastic and you want to resample them too"
+    },
+    {
+     "alt": "robust sandwich standard errors",
+     "criterion": "the sample is large and asymptotics are reliable"
+    }
+   ],
+   "output_key_fields": [
+    "estimate, se, conf_int: wild-bootstrap inference",
+    "p_value: bootstrap p-value for the tested restriction",
+    "weights: which auxiliary distribution was used",
+    "replications: the bootstrap distribution of the statistic"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "Rademacher weights take only two values, so with very few clusters or observations the bootstrap distribution has a COARSE support and the p-value cannot fall below a floor",
+    "Webb weights exist precisely to fix that floor when there are six or fewer clusters",
+    "the restriction must be imposed on the null when resampling; the unrestricted version has poor size"
+   ],
+   "sources": [
+    "Wu 1986 (Annals of Statistics 14:1261)",
+    "Mammen 1993 (Annals of Statistics 21:255)",
+    "Webb 2023 (Empirical Economics 64:2999)",
+    "wildboottest"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 305,
+   "method": "Wild cluster bootstrap with few clusters",
+   "wrapper_file": "c35_resampling_inference/wild_cluster_bootstrap.py",
+   "tool_fns": [
+    "rs_wild_cluster_bootstrap"
+   ],
+   "when": "errors are correlated within a small number of clusters, where cluster-robust standard errors over-reject badly and the asymptotics simply do not apply",
+   "when_not": "there are many clusters and the usual cluster-robust inference is adequate",
+   "alternatives": [
+    {
+     "alt": "cluster-robust standard errors",
+     "criterion": "many clusters, so asymptotics hold"
+    },
+    {
+     "alt": "randomisation inference",
+     "criterion": "treatment is assigned at cluster level and you want a design-based test"
+    },
+    {
+     "alt": "aggregation to cluster means",
+     "criterion": "the design is simple enough to collapse"
+    }
+   ],
+   "output_key_fields": [
+    "p_value: the bootstrap p-value, which is the output that matters here",
+    "conf_int: inverted-test interval",
+    "n_clusters: the number of clusters -- the figure that determines whether any of this is reliable",
+    "p_value_floor: the smallest attainable p-value given the weights and cluster count"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "with fewer than about five clusters NO method restores correct size; report the cluster count prominently rather than a p-value that looks precise",
+    "Rademacher weights impose a floor of 2^(1-G) on the p-value; with G=5 nothing below 0.0625 is attainable, so a reported 0.01 is impossible",
+    "the null must be imposed when resampling; the unrestricted variant over-rejects, which is the failure it was meant to cure"
+   ],
+   "sources": [
+    "Cameron, Gelbach & Miller 2008 (Review of Economics and Statistics 90:414-427)",
+    "MacKinnon & Webb 2017 (Journal of Applied Econometrics 32:233)",
+    "wildboottest"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 306,
+   "method": "Randomisation and permutation inference",
+   "wrapper_file": "c35_resampling_inference/randomisation_inference.py",
+   "tool_fns": [
+    "rs_permutation_test",
+    "rs_randomisation_ci"
+   ],
+   "when": "the design assigned treatment by a known randomisation, so inference can rest on that design rather than on a sampling model or an asymptotic approximation",
+   "when_not": "assignment was not random and the permutation distribution has no design justification; the sample is a population and there is nothing to permute",
+   "alternatives": [
+    {
+     "alt": "bootstrap",
+     "criterion": "you want a sampling-based rather than design-based interval"
+    },
+    {
+     "alt": "Fisher exact test",
+     "criterion": "the outcome is binary and the table is small"
+    },
+    {
+     "alt": "asymptotic tests",
+     "criterion": "the sample is large and the design is simple"
+    }
+   ],
+   "output_key_fields": [
+    "p_value: the exact or approximate randomisation p-value",
+    "null_distribution: the permutation distribution of the statistic",
+    "n_permutations: exhaustive or sampled, and how many",
+    "conf_int: interval by test inversion, where requested"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "the permutation must respect the ACTUAL randomisation -- permuting freely when assignment was blocked or clustered gives a p-value for an experiment that was never run",
+    "the sharp null of no effect for any unit is stronger than the null of no average effect; the test is exact only for the former",
+    "with a small number of possible assignments the p-value has a coarse, bounded support"
+   ],
+   "sources": [
+    "Fisher 1935, The Design of Experiments",
+    "Rosenbaum 2002, Observational Studies",
+    "Young 2019 (Quarterly Journal of Economics 134:557)",
+    "scipy.stats"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 307,
+   "method": "Subsampling and jackknife",
+   "wrapper_file": "c35_resampling_inference/subsampling_jackknife.py",
+   "tool_fns": [
+    "rs_subsampling",
+    "rs_jackknife"
+   ],
+   "when": "the bootstrap is invalid or the convergence rate is unknown, and you need a resampling scheme that survives both",
+   "when_not": "the statistic is smooth and the bootstrap works -- it is more efficient here",
+   "alternatives": [
+    {
+     "alt": "bootstrap",
+     "criterion": "the statistic is smooth and regular"
+    },
+    {
+     "alt": "subsampling",
+     "criterion": "the convergence rate is unknown or the bootstrap is inconsistent"
+    },
+    {
+     "alt": "delete-d jackknife",
+     "criterion": "the statistic is non-smooth and delete-1 fails"
+    }
+   ],
+   "output_key_fields": [
+    "estimate, bias, se: resampling summaries",
+    "conf_int: subsampling or jackknife interval",
+    "subsample_size: b, the size used, and the rate assumed",
+    "pseudo_values: jackknife pseudo-values, for influence diagnostics"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "subsampling is consistent under far weaker conditions than the bootstrap, but it needs b to grow more slowly than n and the answer is sensitive to b",
+    "the DELETE-1 jackknife is inconsistent for non-smooth statistics such as the median; delete-d is the fix",
+    "jackknife pseudo-values identify influential observations, which is often more useful than the interval itself"
+   ],
+   "sources": [
+    "Politis, Romano & Wolf 1999, Subsampling",
+    "Efron & Stein 1981 (Annals of Statistics 9:586)",
+    "Shao & Wu 1989 (Annals of Statistics 17:1176)",
+    "DOI 10.1214/aos/1176325770"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 308,
+   "method": "Multiple testing: Holm, Benjamini-Hochberg and Romano-Wolf stepdown",
+   "wrapper_file": "c35_resampling_inference/multiple_testing.py",
+   "tool_fns": [
+    "rs_multiple_testing",
+    "rs_romano_wolf"
+   ],
+   "when": "many hypotheses are tested at once -- multiple outcomes, subgroups or specifications -- and the unadjusted p-values guarantee false discoveries",
+   "when_not": "there is one pre-registered primary hypothesis; the tests are so few that adjustment is not credible either way",
+   "alternatives": [
+    {
+     "alt": "Holm",
+     "criterion": "you must control the family-wise error rate and tests may be dependent"
+    },
+    {
+     "alt": "Benjamini-Hochberg",
+     "criterion": "you can tolerate a proportion of false discoveries among rejections"
+    },
+    {
+     "alt": "Romano-Wolf",
+     "criterion": "the tests are dependent and you want power that exploits that dependence"
+    }
+   ],
+   "output_key_fields": [
+    "p_adjusted: adjusted p-values in the order supplied",
+    "rejected: which hypotheses survive at the requested level",
+    "n_rejected: the count before and after adjustment",
+    "method: the procedure applied"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "FWER and FDR control DIFFERENT things; Holm bounds the probability of any false rejection, Benjamini-Hochberg bounds their expected share, and they are not interchangeable",
+    "Benjamini-Hochberg assumes independence or positive dependence; under arbitrary dependence the Benjamini-Yekutieli correction is needed and is much more conservative",
+    "Romano-Wolf requires resampling the joint distribution -- it cannot be applied to a list of p-values alone"
+   ],
+   "sources": [
+    "Holm 1979 (Scandinavian Journal of Statistics 6:65-70)",
+    "Benjamini & Hochberg 1995 (JRSS-B 57:289-300)",
+    "Romano & Wolf 2005 (Econometrica 73:1237)",
+    "statsmodels.stats.multitest"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "rs_bootstrap_iid",
+   "card_id": 300,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "statistic": "y ~ x",
+    "nboot": 999,
+    "method": "bca",
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data to resample.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "statistic",
+     "kind": "formula",
+     "required": true,
+     "description": "Statistic to bootstrap.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Interval construction.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "percentile",
+      "basic",
+      "bca",
+      "percentile_t",
+      "studentized"
+     ],
+     "allowed_vars": null,
+     "default": "bca",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_bootstrap_residual",
+   "card_id": 300,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "nboot": 999,
+    "wild": false,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted regression.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "wild",
+     "kind": "boolean",
+     "required": false,
+     "description": "Use wild rather than iid residual resampling.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_block_bootstrap",
+   "card_id": 301,
+   "register": null,
+   "input_example": {
+    "data": "<multiseries_handle>",
+    "statistic": "y ~ x",
+    "circular": true,
+    "nboot": 999,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Serially dependent data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "statistic",
+     "kind": "formula",
+     "required": true,
+     "description": "Statistic to bootstrap.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "block_length",
+     "kind": "integer",
+     "required": false,
+     "description": "Block length; omitted = automatic.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "circular",
+     "kind": "boolean",
+     "required": false,
+     "description": "Wrap the series to remove end effects.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_optimal_block_length",
+   "card_id": 301,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Series whose dependence sets the block length.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "rs_stationary_bootstrap",
+   "card_id": 302,
+   "register": null,
+   "input_example": {
+    "data": "<multiseries_handle>",
+    "statistic": "y ~ x",
+    "nboot": 999,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "multiseries_handle",
+     "required": true,
+     "description": "Serially dependent data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "statistic",
+     "kind": "formula",
+     "required": true,
+     "description": "Statistic to bootstrap.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "expected_block_length",
+     "kind": "number",
+     "required": false,
+     "description": "Mean block length; omitted = automatic.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_sieve_bootstrap",
+   "card_id": 303,
+   "register": null,
+   "input_example": {
+    "x": "<series_handle>",
+    "statistic": "y ~ x",
+    "criterion": "aic",
+    "nboot": 999,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "x",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Serially dependent series.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "statistic",
+     "kind": "formula",
+     "required": true,
+     "description": "Statistic to bootstrap.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "ar_order",
+     "kind": "integer",
+     "required": false,
+     "description": "Autoregressive order; omitted = selected.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "criterion",
+     "kind": "enum",
+     "required": false,
+     "description": "Order-selection criterion.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "aic",
+      "bic",
+      "hqic"
+     ],
+     "allowed_vars": null,
+     "default": "aic",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_wild_bootstrap",
+   "card_id": 304,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "restriction": "y ~ x",
+    "weights": "rademacher",
+    "impose_null": true,
+    "nboot": 999,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted regression.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "restriction",
+     "kind": "formula",
+     "required": true,
+     "description": "Restriction tested under the null.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "enum",
+     "required": false,
+     "description": "Auxiliary weight distribution.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "rademacher",
+      "mammen",
+      "webb",
+      "normal"
+     ],
+     "allowed_vars": null,
+     "default": "rademacher",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "impose_null",
+     "kind": "boolean",
+     "required": false,
+     "description": "Impose the null when resampling.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_wild_cluster_bootstrap",
+   "card_id": 305,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "cluster": "<series_handle>",
+    "restriction": "y ~ x",
+    "weights": "webb",
+    "nboot": 999,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "p_value",
+     "conf_int",
+     "n_clusters",
+     "p_value_floor"
+    ]
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to a fitted regression.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cluster",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Cluster identifier.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "restriction",
+     "kind": "formula",
+     "required": true,
+     "description": "Restriction tested under the null.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "enum",
+     "required": false,
+     "description": "Auxiliary weight distribution.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "rademacher",
+      "mammen",
+      "webb",
+      "normal"
+     ],
+     "allowed_vars": null,
+     "default": "webb",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 999,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_permutation_test",
+   "card_id": 306,
+   "register": null,
+   "input_example": {
+    "outcome": "<series_handle>",
+    "treatment": "<series_handle>",
+    "statistic": "mean_difference",
+    "n_permutations": 10000,
+    "seed": 1,
+    "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "outcome",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome per unit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "treatment",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Treatment assignment.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "block",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Blocking variable the randomisation respected.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cluster",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Cluster the randomisation was applied at.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "statistic",
+     "kind": "enum",
+     "required": false,
+     "description": "Test statistic.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "mean_difference",
+      "rank_sum",
+      "t",
+      "regression_coef"
+     ],
+     "allowed_vars": null,
+     "default": "mean_difference",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "n_permutations",
+     "kind": "integer",
+     "required": false,
+     "description": "Sampled permutations; 0 = exhaustive.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_randomisation_ci",
+   "card_id": 306,
+   "register": null,
+   "input_example": {
+    "outcome": "<series_handle>",
+    "treatment": "<series_handle>",
+    "n_permutations": 1000,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "outcome",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Outcome per unit.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "treatment",
+     "kind": "series_handle",
+     "required": true,
+     "description": "Treatment assignment.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "grid",
+     "kind": "num_array",
+     "required": false,
+     "description": "Effect grid to invert over.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_permutations",
+     "kind": "integer",
+     "required": false,
+     "description": "Sampled permutations.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_subsampling",
+   "card_id": 307,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "statistic": "y ~ x",
+    "n_subsamples": 1000,
+    "seed": 1,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data to subsample.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "statistic",
+     "kind": "formula",
+     "required": true,
+     "description": "Statistic of interest.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "subsample_size",
+     "kind": "integer",
+     "required": false,
+     "description": "Subsample size b; omitted = n^(2/3).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_subsamples",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of subsamples.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1000,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": true,
+     "description": "Seed for the random number generator; required for reproducibility.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_jackknife",
+   "card_id": 307,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "statistic": "y ~ x",
+    "kind": "delete1",
+    "d": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Data to resample.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "statistic",
+     "kind": "formula",
+     "required": true,
+     "description": "Statistic of interest.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "kind",
+     "kind": "enum",
+     "required": false,
+     "description": "Jackknife variant.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "delete1",
+      "deleted",
+      "cluster"
+     ],
+     "allowed_vars": null,
+     "default": "delete1",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "d",
+     "kind": "integer",
+     "required": false,
+     "description": "Number deleted for the delete-d variant.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "cluster",
+     "kind": "series_handle",
+     "required": false,
+     "description": "Cluster identifier for the cluster variant.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "rs_multiple_testing",
+   "card_id": 308,
+   "register": null,
+   "input_example": {
+    "p_values": [
+     1.0,
+     2.0
+    ],
+    "method": "holm",
+    "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "p_adjusted",
+     "rejected",
+     "n_rejected",
+     "method"
+    ]
+   },
+   "arguments": [
+    {
+     "name": "p_values",
+     "kind": "num_array",
+     "required": true,
+     "description": "Unadjusted p-values.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Adjustment procedure.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "bonferroni",
+      "holm",
+      "hochberg",
+      "bh",
+      "by",
+      "sidak"
+     ],
+     "allowed_vars": null,
+     "default": "holm",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "rs_romano_wolf",
+   "card_id": 308,
+   "register": null,
+   "input_example": {
+    "statistics": [
+     1.0,
+     2.0
+    ],
+    "bootstrap_draws": "<matrix_handle>",
+    "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "statistics",
+     "kind": "num_array",
+     "required": true,
+     "description": "Test statistics.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "bootstrap_draws",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Bootstrap draws of the statistics under the null.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  }
+ ]
 }

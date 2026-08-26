@@ -1,1535 +1,1535 @@
 {
-  "category": "24-panel-var",
-  "cards": [
+ "category": "24-panel-var",
+ "cards": [
+  {
+   "id": 230,
+   "method": "Heterogeneous-panel VAR/SVAR: (P)MG estimation, panel cointegration rank tests, structural identification (+MG-IRF/MG-FEVD), bootstrap IRF confidence bands",
+   "wrapper_file": "c24_panel_var/heterogeneous_panel_var.py",
+   "tool_fns": [
+    "pv_estimate",
+    "pv_cointegration",
+    "pv_identify",
+    "pv_bootstrap"
+   ],
+   "when": "a panel of N individuals × K macro variables (heterogeneous, a common lag p) -> a (pooled) mean-group panel VAR or a rank-restricted VECM; testing the panel cointegration rank (combining the K×N individual statistics); structural identification (recursive/ICA/proxy/long-run) with an MG-IRF & MG-FEVD; confidence bands through a panel/individual moving-block bootstrap or mean-group inference",
+   "when_not": "a single time series or individual (a single-country VAR or SVAR -> categories 03/04); a micro-panel regression with no VAR dynamics (-> #46/#47); a pure cross-section with no time dimension; data ingestion (a file upload — a frontend route, not a node)",
+   "alternatives": [
     {
-      "id": 230,
-      "method": "Heterogeneous-panel VAR/SVAR: (P)MG estimation, panel cointegration rank tests, structural identification (+MG-IRF/MG-FEVD), bootstrap IRF confidence bands",
-      "wrapper_file": "c24_panel_var/heterogeneous_panel_var.py",
-      "tool_fns": [
-        "pv_estimate",
-        "pv_cointegration",
-        "pv_identify",
-        "pv_bootstrap"
-      ],
-      "when": "a panel of N individuals × K macro variables (heterogeneous, a common lag p) -> a (pooled) mean-group panel VAR or a rank-restricted VECM; testing the panel cointegration rank (combining the K×N individual statistics); structural identification (recursive/ICA/proxy/long-run) with an MG-IRF & MG-FEVD; confidence bands through a panel/individual moving-block bootstrap or mean-group inference",
-      "when_not": "a single time series or individual (a single-country VAR or SVAR -> categories 03/04); a micro-panel regression with no VAR dynamics (-> #46/#47); a pure cross-section with no time dimension; data ingestion (a file upload — a frontend route, not a node)",
-      "alternatives": [
-        {
-          "alt": "pv_estimate (model=VAR)",
-          "criterion": "a stationary/level panel -> a mean-group VAR in levels (Canova-Ciccarelli 2013; Pesaran-Smith 1995 MG)"
-        },
-        {
-          "alt": "pv_estimate (model=VEC, dim_r)",
-          "criterion": "a cointegrated panel of known rank r -> a (pooled) mean-group rank-restricted VECM (Pesaran-Shin-Smith 1999 PMG; Breitung 2005)"
-        },
-        {
-          "alt": "pv_cointegration (test=JO/BR/SL/CAIN)",
-          "criterion": "an unknown cointegration rank -> a panel rank test (JO=the Johansen trace panel test; BR=Breitung pooled; SL=Saikkonen-Luetkepohl; CAIN=Arsova-Oersal); RUN IT BEFORE model=VEC in order to choose r"
-        },
-        {
-          "alt": "pv_identify (method=chol/cvm/dc/iv/grt)",
-          "criterion": "structural shocks: chol=recursive (a known causal ordering); cvm/dc=statistical ICA (non-gaussian shocks); iv=external instruments/a proxy; grt=long/short-run restrictions on an SVEC; -> an MG-IRF (Gambacorta et al. 2014) + an MG-FEVD"
-        },
-        {
-          "alt": "pv_bootstrap (method=pmb/mg/mb)",
-          "criterion": "IRF confidence bands: pmb=a panel moving-block bootstrap (full inference); mg=the mean-group spread over the N individuals (fast, no bootstrap); mb=an individual moving-block bootstrap for one selected individual"
-        }
-      ],
-      "output_key_fields": [
-        "pv_estimate: A (the lined-up MG coefficient matrices), beta (the cointegrating matrix; VEC), dim_K/dim_N/dim_r, individuals, variables, estimator; fit=pvarx (register -> a raw_handle, a to_mcp stub)",
-        "pv_cointegration: panel_stats & panel_pvals (matrices: rows=the combination methods LRbar/Choi_P/Choi_Pm/Choi_Z, columns=r_H0=0.K-1), individual_stats/pvals, ranks_tested, combination_tests, csd_present",
-        "pv_identify: B (the (K×S) structural impact matrix, MG), irf (a data_frame V1=horizon + impulse->response columns), fevd_mg (a named list per response variable; the matrices sum to ~100 per row under full identification), shock_names; fit=pid (register -> a raw_handle)",
-        "pv_bootstrap: irf_point/irf_lower/irf_upper as frames (V1 plus the impulse-to-response columns, at the (1-level)/2 and 1-(1-level)/2 quantiles), n_boot as actually run, level, horizon, impulse_response, and the individual index for the moving-block route"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "the Breitung panel cointegration test FAILS when the type arrives as a vector; the wrapper enforces a scalar through a closed enum; the SL and CAIN variants ignore det_case and use 'SL_trend'",
-        "a panel-level FEVD is NOT defined — it works per individual only; fevd_mg is the mean group of the individual FEVDs; under partial identification (an instrument with fewer shocks than variables) the rows do NOT necessarily sum to 100",
-        "the mean-group IRF (the default) is the average of the INDIVIDUAL IRFs (Gambacorta et al. 2014); it is NOT the IRF of the mean-group VAR, which is a different quantity",
-        "recursive-design bootstrap bands (pmb/mb) do NOT necessarily contain the point estimate (a small-sample bias); mg gives the spread across the N individuals, NOT a genuine bootstrap",
-        "cvm/dc identification is STOCHASTIC (DEoptim/steadyICA); the pmb/mb bootstraps are too; determinism comes from seeding (identical confirmed); chol/mg use no RNG",
-        "chaining: pv_estimate -> pv_identify -> pv_bootstrap; pv_identify requires an UNIDENTIFIED fit and blocks an already-identified one; pv_bootstrap requires an identified fit; the long-run route requires a VEC fit"
-      ],
-      "sources": [
-        "Canova & Ciccarelli 2013 'Panel Vector Autoregressive Models: A Survey' Advances in Econometrics 32, 205-246",
-        "Pesaran & Smith 1995 'Estimating Long-Run Relationships from Dynamic Heterogeneous Panels' J. Econometrics 68, 79-113 (mean group)",
-        "Pesaran, Shin & Smith 1999 'Pooled Mean Group Estimation of Dynamic Heterogeneous Panels' JASA 94, 621-634 (PMG); Breitung 2005 Econometric Reviews 24, 151-173 (two-step panel cointegration)",
-        "Gambacorta, Hofmann & Peersman 2014 JMCB 46, 615-642 (the mean-group IRF); Herwartz & Wang 2024 J. Applied Econometrics 39(4), 620-639 (panel ICA identification)",
-        "Mertens & Ravn 2013 AER 103, 1212-1247 & Jentsch & Lunsford 2021 JBES 40, 1876-1891 (the proxy SVAR); Empting et al. 2025 (the panel proxy SVAR); Kilian 1998 REStat 80, 218-230 (bootstrap-after-bootstrap)",
-        "wrapper footer IMPLEMENTATION NOTE (c24_panel_var/heterogeneous_panel_var)"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "pv_estimate (model=VAR)",
+     "criterion": "a stationary/level panel -> a mean-group VAR in levels (Canova-Ciccarelli 2013; Pesaran-Smith 1995 MG)"
     },
     {
-      "id": 569,
-      "method": "Homogeneous GMM panel vector autoregression",
-      "wrapper_file": "c24_panel_var/gmm_panel_var.py",
-      "tool_fns": [
-        "pv_gmm_panel_var"
-      ],
-      "when": "short-T panels of countries or firms where the dynamics are assumed common and lags provide the instruments",
-      "when_not": "the time dimension is long enough for heterogeneous estimation; the slopes plainly differ across units",
-      "alternatives": [
-        {
-          "alt": "mean-group panel VAR",
-          "criterion": "slopes differ across units"
-        },
-        {
-          "alt": "GMM panel VAR",
-          "criterion": "short T, common dynamics"
-        },
-        {
-          "alt": "system GMM",
-          "criterion": "the series are persistent and difference GMM is weak"
-        }
-      ],
-      "output_key_fields": [
-        "params: the panel VAR coefficients",
-        "hansen_j: overidentification test",
-        "ar_tests: first- and second-order serial correlation in differences",
-        "irf, fevd: impulse responses and variance decompositions"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "INSTRUMENT PROLIFERATION IS THE CENTRAL PROBLEM: with many lags as instruments the Hansen test loses all power and reports a perfect p-value near 1, which is a warning sign rather than a pass",
-        "the AR(2) test in differences is the key diagnostic; a rejection means the lag structure is invalid",
-        "difference GMM is weak with persistent series, which is what system GMM exists to address -- at the cost of an extra assumption"
-      ],
-      "sources": [
-        "Holtz-Eakin, Newey & Rosen 1988 (Econometrica 56:1371-1395)",
-        "Abrigo & Love 2016 (Stata Journal 16:778)",
-        "Roodman 2009 (Oxford Bulletin of Economics and Statistics 71:135)",
-        "DOI 10.2307/1913103"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "pv_estimate (model=VEC, dim_r)",
+     "criterion": "a cointegrated panel of known rank r -> a (pooled) mean-group rank-restricted VECM (Pesaran-Shin-Smith 1999 PMG; Breitung 2005)"
     },
     {
-      "id": 570,
-      "method": "Panel Granger non-causality: Dumitrescu-Hurlin",
-      "wrapper_file": "c24_panel_var/panel_granger.py",
-      "tool_fns": [
-        "pv_panel_granger"
-      ],
-      "when": "testing causality across a panel where the relationship may hold in some units and not others",
-      "when_not": "the panel has strong cross-sectional dependence and no bootstrap is used; there is one unit",
-      "alternatives": [
-        {
-          "alt": "pooled Granger test",
-          "criterion": "homogeneity assumed"
-        },
-        {
-          "alt": "Dumitrescu-Hurlin",
-          "criterion": "heterogeneous causality across units"
-        },
-        {
-          "alt": "bootstrap Dumitrescu-Hurlin",
-          "criterion": "cross-sectional dependence is present"
-        }
-      ],
-      "output_key_fields": [
-        "w_bar, z_bar: the average and standardised statistics",
-        "unit_statistics: the per-unit Wald statistics",
-        "share_causal: the fraction of units showing causality",
-        "bootstrap_p: p-value robust to cross-sectional dependence"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "THE NULL IS NO CAUSALITY IN ANY UNIT and the alternative is causality in SOME; rejection does not mean causality holds on average, and reporting it that way is the standard misreading",
-        "cross-sectional dependence invalidates the asymptotic distribution, and the bootstrap version is required whenever the CD test rejects",
-        "the test needs the time dimension to exceed the lag order comfortably in every unit"
-      ],
-      "sources": [
-        "Dumitrescu & Hurlin 2012 (Economic Modelling 29:1450-1460)",
-        "DOI 10.1016/j.econmod.2012.02.014"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "pv_cointegration (test=JO/BR/SL/CAIN)",
+     "criterion": "an unknown cointegration rank -> a panel rank test (JO=the Johansen trace panel test; BR=Breitung pooled; SL=Saikkonen-Luetkepohl; CAIN=Arsova-Oersal); RUN IT BEFORE model=VEC in order to choose r"
     },
     {
-      "id": 571,
-      "method": "Panel local projections with fixed effects and Driscoll-Kraay errors",
-      "wrapper_file": "c24_panel_var/panel_lp_pvar.py",
-      "tool_fns": [
-        "pv_panel_lp"
-      ],
-      "when": "dynamic responses estimated across a panel without imposing a VAR structure, with inference robust to cross-sectional dependence",
-      "when_not": "there is one unit; the time dimension is too short for Driscoll-Kraay",
-      "alternatives": [
-        {
-          "alt": "panel VAR",
-          "criterion": "you want a full system"
-        },
-        {
-          "alt": "panel local projections",
-          "criterion": "flexible, horizon by horizon"
-        },
-        {
-          "alt": "LP-DiD",
-          "criterion": "the shock is a staggered policy adoption"
-        }
-      ],
-      "output_key_fields": [
-        "irf: the panel response per horizon",
-        "conf_band: bands robust to cross-sectional dependence",
-        "n_units, n_periods: the panel dimensions",
-        "heterogeneity: response variation across groups where estimated"
-      ],
-      "chart_kind": "multi-line",
-      "interpretation_traps": [
-        "LOCAL-PROJECTION RESIDUALS ARE SERIALLY CORRELATED at horizons beyond one, and in a panel they are also cross-sectionally correlated -- both must be handled or the bands are far too narrow",
-        "unit fixed effects in a dynamic panel introduce Nickell bias, which is worse the shorter the time dimension",
-        "pooling imposes a common response, and the pooled estimate may describe no unit"
-      ],
-      "sources": [
-        "Jorda 2005 (American Economic Review 95:161-182)",
-        "Dube, Girardi, Jorda & Taylor 2023, A local projections approach to difference-in-differences (NBER WP 31184)",
-        "localprojections"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "pv_identify (method=chol/cvm/dc/iv/grt)",
+     "criterion": "structural shocks: chol=recursive (a known causal ordering); cvm/dc=statistical ICA (non-gaussian shocks); iv=external instruments/a proxy; grt=long/short-run restrictions on an SVEC; -> an MG-IRF (Gambacorta et al. 2014) + an MG-FEVD"
     },
     {
-      "id": 572,
-      "method": "Cross-section-dependence diagnostics for panel VAR",
-      "wrapper_file": "c24_panel_var/pvar_cd_diagnostics.py",
-      "tool_fns": [
-        "pv_cd_diagnostics"
-      ],
-      "when": "panel VAR inference assumes units are independent, and that assumption is almost always false for country panels",
-      "when_not": "the panel has one unit; the residuals are unavailable",
-      "alternatives": [
-        {
-          "alt": "Pesaran CD test",
-          "criterion": "large N, small T"
-        },
-        {
-          "alt": "bias-corrected LM",
-          "criterion": "moderate dimensions"
-        },
-        {
-          "alt": "common-factor augmentation",
-          "criterion": "you want to remove the dependence rather than test it"
-        }
-      ],
-      "output_key_fields": [
-        "cd_statistic, p_value: the dependence test",
-        "average_correlation: mean absolute residual correlation",
-        "factor_structure: leading factors in the residuals",
-        "recommendation: whether robust inference or factor augmentation is needed"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "A REJECTED CD TEST INVALIDATES THE STANDARD PANEL VAR STANDARD ERRORS, and continuing to report them is the most common error in applied panel VAR work",
-        "the average absolute correlation is the informative number; the test statistic conflates strength with panel size",
-        "removing dependence by cross-sectional demeaning assumes a single common factor with equal loadings, which is restrictive"
-      ],
-      "sources": [
-        "Pesaran 2021 (Empirical Economics 60:13-50)",
-        "Pesaran 2006 (Econometrica 74:967-1012)",
-        "statsmodels"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
-    },
-    {
-      "id": 573,
-      "method": "Trade-weighted foreign variables for a global VAR",
-      "wrapper_file": "c24_panel_var/gvar_weights.py",
-      "tool_fns": [
-        "pv_gvar_weights"
-      ],
-      "when": "a global VAR needs each country's foreign variables built from trade or financial weights, and those weights determine the whole transmission structure",
-      "when_not": "there is a single country; no weight matrix is available",
-      "alternatives": [
-        {
-          "alt": "fixed trade weights",
-          "criterion": "simple, transparent"
-        },
-        {
-          "alt": "time-varying weights",
-          "criterion": "trade patterns changed materially over the sample"
-        },
-        {
-          "alt": "financial weights",
-          "criterion": "the transmission channel is financial rather than trade"
-        }
-      ],
-      "output_key_fields": [
-        "foreign_variables: the constructed star variables per country",
-        "weights: the weight matrix used, row-normalised",
-        "weight_source: trade, financial or custom",
-        "concentration: how concentrated each country's weights are"
-      ],
-      "chart_kind": "table",
-      "interpretation_traps": [
-        "THE WEIGHT MATRIX IS THE MODEL'S TRANSMISSION STRUCTURE: results are driven by it at least as much as by the estimated coefficients, and it is usually treated as an innocuous input",
-        "weights must be row-normalised and have a zero diagonal, or a country enters its own foreign variable",
-        "fixed weights from one year impose that year's trade structure on the whole sample, which matters for long panels"
-      ],
-      "sources": [
-        "Pesaran, Schuermann & Weiner 2004 (Journal of Business and Economic Statistics 22:129-162)",
-        "Dees, di Mauro, Pesaran & Smith 2007 (Journal of Applied Econometrics 22:1)"
-      ],
-      "precondition_tools": null,
-      "precondition_gates": null,
-      "validation_notes": null
+     "alt": "pv_bootstrap (method=pmb/mg/mb)",
+     "criterion": "IRF confidence bands: pmb=a panel moving-block bootstrap (full inference); mg=the mean-group spread over the N individuals (fast, no bootstrap); mb=an individual moving-block bootstrap for one selected individual"
     }
-  ],
-  "nodes": [
+   ],
+   "output_key_fields": [
+    "pv_estimate: A (the lined-up MG coefficient matrices), beta (the cointegrating matrix; VEC), dim_K/dim_N/dim_r, individuals, variables, estimator; fit=pvarx (register -> a raw_handle, a to_mcp stub)",
+    "pv_cointegration: panel_stats & panel_pvals (matrices: rows=the combination methods LRbar/Choi_P/Choi_Pm/Choi_Z, columns=r_H0=0.K-1), individual_stats/pvals, ranks_tested, combination_tests, csd_present",
+    "pv_identify: B (the (K×S) structural impact matrix, MG), irf (a data_frame V1=horizon + impulse->response columns), fevd_mg (a named list per response variable; the matrices sum to ~100 per row under full identification), shock_names; fit=pid (register -> a raw_handle)",
+    "pv_bootstrap: irf_point/irf_lower/irf_upper as frames (V1 plus the impulse-to-response columns, at the (1-level)/2 and 1-(1-level)/2 quantiles), n_boot as actually run, level, horizon, impulse_response, and the individual index for the moving-block route"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "the Breitung panel cointegration test FAILS when the type arrives as a vector; the wrapper enforces a scalar through a closed enum; the SL and CAIN variants ignore det_case and use 'SL_trend'",
+    "a panel-level FEVD is NOT defined — it works per individual only; fevd_mg is the mean group of the individual FEVDs; under partial identification (an instrument with fewer shocks than variables) the rows do NOT necessarily sum to 100",
+    "the mean-group IRF (the default) is the average of the INDIVIDUAL IRFs (Gambacorta et al. 2014); it is NOT the IRF of the mean-group VAR, which is a different quantity",
+    "recursive-design bootstrap bands (pmb/mb) do NOT necessarily contain the point estimate (a small-sample bias); mg gives the spread across the N individuals, NOT a genuine bootstrap",
+    "cvm/dc identification is STOCHASTIC (DEoptim/steadyICA); the pmb/mb bootstraps are too; determinism comes from seeding (identical confirmed); chol/mg use no RNG",
+    "chaining: pv_estimate -> pv_identify -> pv_bootstrap; pv_identify requires an UNIDENTIFIED fit and blocks an already-identified one; pv_bootstrap requires an identified fit; the long-run route requires a VEC fit"
+   ],
+   "sources": [
+    "Canova & Ciccarelli 2013 'Panel Vector Autoregressive Models: A Survey' Advances in Econometrics 32, 205-246",
+    "Pesaran & Smith 1995 'Estimating Long-Run Relationships from Dynamic Heterogeneous Panels' J. Econometrics 68, 79-113 (mean group)",
+    "Pesaran, Shin & Smith 1999 'Pooled Mean Group Estimation of Dynamic Heterogeneous Panels' JASA 94, 621-634 (PMG); Breitung 2005 Econometric Reviews 24, 151-173 (two-step panel cointegration)",
+    "Gambacorta, Hofmann & Peersman 2014 JMCB 46, 615-642 (the mean-group IRF); Herwartz & Wang 2024 J. Applied Econometrics 39(4), 620-639 (panel ICA identification)",
+    "Mertens & Ravn 2013 AER 103, 1212-1247 & Jentsch & Lunsford 2021 JBES 40, 1876-1891 (the proxy SVAR); Empting et al. 2025 (the panel proxy SVAR); Kilian 1998 REStat 80, 218-230 (bootstrap-after-bootstrap)",
+    "wrapper footer IMPLEMENTATION NOTE (c24_panel_var/heterogeneous_panel_var)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 569,
+   "method": "Homogeneous GMM panel vector autoregression",
+   "wrapper_file": "c24_panel_var/gmm_panel_var.py",
+   "tool_fns": [
+    "pv_gmm_panel_var"
+   ],
+   "when": "short-T panels of countries or firms where the dynamics are assumed common and lags provide the instruments",
+   "when_not": "the time dimension is long enough for heterogeneous estimation; the slopes plainly differ across units",
+   "alternatives": [
     {
-      "fn": "pv_bootstrap",
-      "card_id": 230,
-      "register": null,
-      "input_example": {
-        "fit": "<raw_handle>",
-        "n_ahead": 20,
-        "n_boot": 100,
-        "b_length": 1,
-        "b_dim": [
-          1,
-          1
-        ],
-        "level": 0.9,
-        "seed": 1
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "fit",
-          "kind": "raw_handle",
-          "required": true,
-          "description": "Handle to an IDENTIFIED panel SVAR (pv_identify.fit).",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "method",
-          "kind": "enum",
-          "required": false,
-          "description": "Bands (default pmb): pmb=panel moving-block bootstrap· mg=mean-group inference (spread of N individuals); mb=individual moving-block bootstrap of one individual.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "pmb",
-            "mg",
-            "mb"
-          ],
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_ahead",
-          "kind": "integer",
-          "required": false,
-          "description": "IRF horizon (positive integer; default 20).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 20,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "n_boot",
-          "kind": "integer",
-          "required": false,
-          "description": "Bootstrap iterations for pmb/mb (positive integer; default 100).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 100,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "b_length",
-          "kind": "integer",
-          "required": false,
-          "description": "method='mb': residual block length (positive integer; default 1; ~T/10).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "b_dim",
-          "kind": "int_array",
-          "required": false,
-          "description": "method='pmb': block dimensions (temporal, cross-sectional); default [1,1] i.i.d.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": [
-            1,
-            1
-          ],
-          "has_default": true,
-          "default_json_type": "array"
-        },
-        {
-          "name": "individual",
-          "kind": "string",
-          "required": false,
-          "description": "method='mb': individual to bootstrap (name or position 1..N).",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level of the bands ∈ (0,1) (default 0.90).",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.9,
-          "has_default": true,
-          "default_json_type": "number"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": false,
-          "description": "Seed for pmb/mb (determinism; default 1).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1,
-          "has_default": true,
-          "default_json_type": "integer"
-        }
-      ]
+     "alt": "mean-group panel VAR",
+     "criterion": "slopes differ across units"
     },
     {
-      "fn": "pv_cointegration",
-      "card_id": 230,
-      "register": null,
-      "input_example": {
-        "df": "<df_handle>",
-        "variables": [
-          "PROVIDER/DATASET/SERIES"
-        ],
-        "lags": 1,
-        "id_col": "id"
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "df",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Handle to a long panel DataFrame {id_col + K variables}, as in pv_estimate.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "variables",
-          "kind": "series_codes",
-          "required": true,
-          "description": "Names of the K (>=2) endogenous columns in system order.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "lags",
-          "kind": "integer",
-          "required": true,
-          "description": "Common lag order p (positive integer) of the VAR in levels.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "test",
-          "kind": "enum",
-          "required": false,
-          "description": "Procedure (default JO): JO=Johansen trace (panel); BR=Breitung two-step pooled· SL=Saikkonen-Luetkepohl· CAIN=Arsova-Oersal.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "JO",
-            "SL",
-            "BR",
-            "CAIN"
-          ],
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "id_col",
-          "kind": "string",
-          "required": false,
-          "description": "Individual identity column name (default 'id').",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": "id",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "det_case",
-          "kind": "enum",
-          "required": false,
-          "description": "Deterministic term for JO/BR (default Case1); SL/CAIN ignore it and use 'SL_trend'.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "Case1",
-            "Case2",
-            "Case3",
-            "Case4"
-          ],
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_factors",
-          "kind": "integer",
-          "required": false,
-          "description": "PANIC common factors (Arsova-Oersal) for JO/SL (default inactive).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
+     "alt": "GMM panel VAR",
+     "criterion": "short T, common dynamics"
     },
     {
-      "fn": "pv_estimate",
-      "card_id": 230,
-      "register": {
-        "field": "fit"
-      },
-      "input_example": {
-        "df": "<df_handle>",
-        "variables": [
-          "PROVIDER/DATASET/SERIES"
-        ],
-        "lags": 1,
-        "id_col": "id"
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "df",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Handle to a long panel DataFrame: identity column `id_col` + K numeric variable columns (same order k=1..K in each individual); >= 2 individuals, without NA.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "variables",
-          "kind": "series_codes",
-          "required": true,
-          "description": "Names of the K (>=2) endogenous columns in system order.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "lags",
-          "kind": "integer",
-          "required": true,
-          "description": "Common lag order p (positive integer) of the VAR in levels.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "id_col",
-          "kind": "string",
-          "required": false,
-          "description": "Individual identity column name (default 'id').",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": "id",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "model",
-          "kind": "enum",
-          "required": false,
-          "description": "VAR = mean-group VAR in levels (default); VEC = (pooled) mean-group rank-restricted VECM.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "VAR",
-            "VEC"
-          ],
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "type",
-          "kind": "string",
-          "required": false,
-          "description": "Deterministic term. VAR: const/trend/both/none (default const)· VEC: Case1..Case5 (default Case4).",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "dim_r",
-          "kind": "integer",
-          "required": false,
-          "description": "model='VEC': common cointegration rank r (1..K-1); required for VEC.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_factors",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of common factors for SUR (default inactive).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_iterations",
-          "kind": "integer",
-          "required": false,
-          "description": "Maximum iterations of SUR/pooled cointegrating vectors (default inactive).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        }
-      ]
-    },
-    {
-      "fn": "pv_identify",
-      "card_id": 230,
-      "register": {
-        "field": "fit"
-      },
-      "input_example": {
-        "fit": "<raw_handle>",
-        "n_ahead": 20,
-        "fevd_ahead": 10,
-        "seed": 1
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "fit",
-          "kind": "raw_handle",
-          "required": true,
-          "description": "Handle to an UNIDENTIFIED panel VAR/VEC (pv_estimate.fit).",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "method",
-          "kind": "enum",
-          "required": false,
-          "description": "Identification (default chol): chol=recursive/Cholesky; cvm=Cramer-von Mises ICA· dc=distance-covariance ICA· iv=proxy/IV; grt=SVEC long/short-run (REQUIRES a VEC fit).",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "chol",
-            "cvm",
-            "dc",
-            "iv",
-            "grt"
-          ],
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_ahead",
-          "kind": "integer",
-          "required": false,
-          "description": "IRF horizon (positive integer; default 20).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 20,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "fevd_ahead",
-          "kind": "integer",
-          "required": false,
-          "description": "FEVD horizon (positive integer; default 10).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 10,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "order_k",
-          "kind": "raw",
-          "required": false,
-          "description": "method='chol': causal ordering (variable names or integer positions).",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "combine",
-          "kind": "string",
-          "required": false,
-          "description": "cvm/dc: group/pool/indiv (default indiv)· iv: pool/indiv (default pool); combination of individuals.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "iv",
-          "kind": "df_handle",
-          "required": false,
-          "description": "method='iv': handle to a proxy DataFrame (L columns, T-lags rows).",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "S2",
-          "kind": "enum",
-          "required": false,
-          "description": "method='iv' with multiple proxies: MR/JL/NQ (default MR; pool=>NQ).",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "MR",
-            "JL",
-            "NQ"
-          ],
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "cov_u",
-          "kind": "enum",
-          "required": false,
-          "description": "method='iv': residual covariance OMEGA (÷T) or SIGMA (÷T-n) (default OMEGA).",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "OMEGA",
-            "SIGMA"
-          ],
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "LR",
-          "kind": "raw",
-          "required": false,
-          "description": "method='grt': K×K long-run restriction matrix (NA=free, 0=zero).",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "SR",
-          "kind": "raw",
-          "required": false,
-          "description": "method='grt': K×K short-run restriction matrix (NA=free).",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_factors",
-          "kind": "integer",
-          "required": false,
-          "description": "cvm/dc combine='group': number of common structural shocks (default inactive).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": false,
-          "description": "Seed for cvm/dc (DEoptim/steadyICA; determinism; default 1).",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1,
-          "has_default": true,
-          "default_json_type": "integer"
-        }
-      ]
-    },
-    {
-      "fn": "pv_gmm_panel_var",
-      "card_id": 569,
-      "register": {
-        "field": "fit"
-      },
-      "input_example": {
-        "data": "<df_handle>",
-        "variables": [
-          "a",
-          "b"
-        ],
-        "unit": "...",
-        "time": "...",
-        "lags": 1,
-        "estimator": "system",
-        "max_instrument_lags": 3,
-        "collapse": true,
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Panel data.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "variables",
-          "kind": "series_codes",
-          "required": true,
-          "description": "Endogenous variables.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "unit",
-          "kind": "string",
-          "required": true,
-          "description": "Unit identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "time",
-          "kind": "string",
-          "required": true,
-          "description": "Time identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "lags",
-          "kind": "integer",
-          "required": false,
-          "description": "Lag order.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "estimator",
-          "kind": "enum",
-          "required": false,
-          "description": "GMM variant.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "difference",
-            "system"
-          ],
-          "allowed_vars": null,
-          "default": "system",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "max_instrument_lags",
-          "kind": "integer",
-          "required": false,
-          "description": "Maximum lag depth used as instruments.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 3,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "collapse",
-          "kind": "boolean",
-          "required": false,
-          "description": "Collapse the instrument matrix.",
-          "pointer_handle": false,
-          "json_type": "boolean",
-          "enum": null,
-          "allowed_vars": null,
-          "default": true,
-          "has_default": true,
-          "default_json_type": "boolean"
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "pv_panel_granger",
-      "card_id": 570,
-      "register": null,
-      "input_example": {
-        "data": "<df_handle>",
-        "y": "...",
-        "x": "...",
-        "unit": "...",
-        "time": "...",
-        "lags": 1,
-        "nboot": 0,
-        "alpha": 0.05
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Panel data.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "y",
-          "kind": "string",
-          "required": true,
-          "description": "Dependent variable.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "x",
-          "kind": "string",
-          "required": true,
-          "description": "Potential causal variable.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "unit",
-          "kind": "string",
-          "required": true,
-          "description": "Unit identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "time",
-          "kind": "string",
-          "required": true,
-          "description": "Time identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "lags",
-          "kind": "integer",
-          "required": false,
-          "description": "Lag order.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 1,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "nboot",
-          "kind": "integer",
-          "required": false,
-          "description": "Number of bootstrap replications.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "seed",
-          "kind": "integer",
-          "required": false,
-          "description": "Seed for the random number generator.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "alpha",
-          "kind": "number",
-          "required": false,
-          "description": "Significance level.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.05,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "pv_panel_lp",
-      "card_id": 571,
-      "register": null,
-      "input_example": {
-        "data": "<df_handle>",
-        "y": "...",
-        "shock": "...",
-        "unit": "...",
-        "time": "...",
-        "horizons": 20,
-        "lags": 4,
-        "cov_type": "driscoll_kraay",
-        "conf_level": 0.95
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Panel data.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "y",
-          "kind": "string",
-          "required": true,
-          "description": "Response variable.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "shock",
-          "kind": "string",
-          "required": true,
-          "description": "Shock variable.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "unit",
-          "kind": "string",
-          "required": true,
-          "description": "Unit identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "time",
-          "kind": "string",
-          "required": true,
-          "description": "Time identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "controls",
-          "kind": "series_codes",
-          "required": false,
-          "description": "Control columns.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "horizons",
-          "kind": "integer",
-          "required": false,
-          "description": "Maximum horizon.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 20,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "lags",
-          "kind": "integer",
-          "required": false,
-          "description": "Lags included.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 4,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "cov_type",
-          "kind": "enum",
-          "required": false,
-          "description": "Covariance estimator.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": [
-            "driscoll_kraay",
-            "cluster",
-            "robust"
-          ],
-          "allowed_vars": null,
-          "default": "driscoll_kraay",
-          "has_default": true,
-          "default_json_type": "string"
-        },
-        {
-          "name": "conf_level",
-          "kind": "number",
-          "required": false,
-          "description": "Confidence level for intervals.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.95,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "pv_cd_diagnostics",
-      "card_id": 572,
-      "register": null,
-      "input_example": {
-        "residuals": "<df_handle>",
-        "unit": "...",
-        "time": "...",
-        "n_factors": 3,
-        "alpha": 0.05
-      },
-      "output_keys": {
-        "status": "undeclared",
-        "keys": null
-      },
-      "arguments": [
-        {
-          "name": "residuals",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Panel VAR residuals.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "unit",
-          "kind": "string",
-          "required": true,
-          "description": "Unit identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "time",
-          "kind": "string",
-          "required": true,
-          "description": "Time identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "n_factors",
-          "kind": "integer",
-          "required": false,
-          "description": "Factors to extract from the residuals.",
-          "pointer_handle": false,
-          "json_type": "integer",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 3,
-          "has_default": true,
-          "default_json_type": "integer"
-        },
-        {
-          "name": "alpha",
-          "kind": "number",
-          "required": false,
-          "description": "Significance level.",
-          "pointer_handle": false,
-          "json_type": "number",
-          "enum": null,
-          "allowed_vars": null,
-          "default": 0.05,
-          "has_default": true,
-          "default_json_type": "number"
-        }
-      ]
-    },
-    {
-      "fn": "pv_gvar_weights",
-      "card_id": 573,
-      "register": null,
-      "input_example": {
-        "data": "<df_handle>",
-        "weights": "<matrix_handle>",
-        "country": "...",
-        "time": "...",
-        "time_varying": false,
-        "normalise": true
-      },
-      "output_keys": {
-        "status": "declared",
-        "keys": [
-          "foreign_variables",
-          "weights",
-          "weight_source",
-          "concentration"
-        ]
-      },
-      "arguments": [
-        {
-          "name": "data",
-          "kind": "df_handle",
-          "required": true,
-          "description": "Country panel of variables.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "weights",
-          "kind": "matrix_handle",
-          "required": true,
-          "description": "Bilateral weight matrix.",
-          "pointer_handle": true,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "country",
-          "kind": "string",
-          "required": true,
-          "description": "Country identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "time",
-          "kind": "string",
-          "required": true,
-          "description": "Time identifier.",
-          "pointer_handle": false,
-          "json_type": "string",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "variables",
-          "kind": "series_codes",
-          "required": false,
-          "description": "Variables to build foreign counterparts for.",
-          "pointer_handle": false,
-          "json_type": "array",
-          "enum": null,
-          "allowed_vars": null,
-          "default": null,
-          "has_default": false,
-          "default_json_type": null
-        },
-        {
-          "name": "time_varying",
-          "kind": "boolean",
-          "required": false,
-          "description": "Use period-specific weights.",
-          "pointer_handle": false,
-          "json_type": "boolean",
-          "enum": null,
-          "allowed_vars": null,
-          "default": false,
-          "has_default": true,
-          "default_json_type": "boolean"
-        },
-        {
-          "name": "normalise",
-          "kind": "boolean",
-          "required": false,
-          "description": "Row-normalise with a zero diagonal.",
-          "pointer_handle": false,
-          "json_type": "boolean",
-          "enum": null,
-          "allowed_vars": null,
-          "default": true,
-          "has_default": true,
-          "default_json_type": "boolean"
-        }
-      ]
+     "alt": "system GMM",
+     "criterion": "the series are persistent and difference GMM is weak"
     }
-  ]
+   ],
+   "output_key_fields": [
+    "params: the panel VAR coefficients",
+    "hansen_j: overidentification test",
+    "ar_tests: first- and second-order serial correlation in differences",
+    "irf, fevd: impulse responses and variance decompositions"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "INSTRUMENT PROLIFERATION IS THE CENTRAL PROBLEM: with many lags as instruments the Hansen test loses all power and reports a perfect p-value near 1, which is a warning sign rather than a pass",
+    "the AR(2) test in differences is the key diagnostic; a rejection means the lag structure is invalid",
+    "difference GMM is weak with persistent series, which is what system GMM exists to address -- at the cost of an extra assumption"
+   ],
+   "sources": [
+    "Holtz-Eakin, Newey & Rosen 1988 (Econometrica 56:1371-1395)",
+    "Abrigo & Love 2016 (Stata Journal 16:778)",
+    "Roodman 2009 (Oxford Bulletin of Economics and Statistics 71:135)",
+    "DOI 10.2307/1913103"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 570,
+   "method": "Panel Granger non-causality: Dumitrescu-Hurlin",
+   "wrapper_file": "c24_panel_var/panel_granger.py",
+   "tool_fns": [
+    "pv_panel_granger"
+   ],
+   "when": "testing causality across a panel where the relationship may hold in some units and not others",
+   "when_not": "the panel has strong cross-sectional dependence and no bootstrap is used; there is one unit",
+   "alternatives": [
+    {
+     "alt": "pooled Granger test",
+     "criterion": "homogeneity assumed"
+    },
+    {
+     "alt": "Dumitrescu-Hurlin",
+     "criterion": "heterogeneous causality across units"
+    },
+    {
+     "alt": "bootstrap Dumitrescu-Hurlin",
+     "criterion": "cross-sectional dependence is present"
+    }
+   ],
+   "output_key_fields": [
+    "w_bar, z_bar: the average and standardised statistics",
+    "unit_statistics: the per-unit Wald statistics",
+    "share_causal: the fraction of units showing causality",
+    "bootstrap_p: p-value robust to cross-sectional dependence"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "THE NULL IS NO CAUSALITY IN ANY UNIT and the alternative is causality in SOME; rejection does not mean causality holds on average, and reporting it that way is the standard misreading",
+    "cross-sectional dependence invalidates the asymptotic distribution, and the bootstrap version is required whenever the CD test rejects",
+    "the test needs the time dimension to exceed the lag order comfortably in every unit"
+   ],
+   "sources": [
+    "Dumitrescu & Hurlin 2012 (Economic Modelling 29:1450-1460)",
+    "DOI 10.1016/j.econmod.2012.02.014"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 571,
+   "method": "Panel local projections with fixed effects and Driscoll-Kraay errors",
+   "wrapper_file": "c24_panel_var/panel_lp_pvar.py",
+   "tool_fns": [
+    "pv_panel_lp"
+   ],
+   "when": "dynamic responses estimated across a panel without imposing a VAR structure, with inference robust to cross-sectional dependence",
+   "when_not": "there is one unit; the time dimension is too short for Driscoll-Kraay",
+   "alternatives": [
+    {
+     "alt": "panel VAR",
+     "criterion": "you want a full system"
+    },
+    {
+     "alt": "panel local projections",
+     "criterion": "flexible, horizon by horizon"
+    },
+    {
+     "alt": "LP-DiD",
+     "criterion": "the shock is a staggered policy adoption"
+    }
+   ],
+   "output_key_fields": [
+    "irf: the panel response per horizon",
+    "conf_band: bands robust to cross-sectional dependence",
+    "n_units, n_periods: the panel dimensions",
+    "heterogeneity: response variation across groups where estimated"
+   ],
+   "chart_kind": "multi-line",
+   "interpretation_traps": [
+    "LOCAL-PROJECTION RESIDUALS ARE SERIALLY CORRELATED at horizons beyond one, and in a panel they are also cross-sectionally correlated -- both must be handled or the bands are far too narrow",
+    "unit fixed effects in a dynamic panel introduce Nickell bias, which is worse the shorter the time dimension",
+    "pooling imposes a common response, and the pooled estimate may describe no unit"
+   ],
+   "sources": [
+    "Jorda 2005 (American Economic Review 95:161-182)",
+    "Dube, Girardi, Jorda & Taylor 2023, A local projections approach to difference-in-differences (NBER WP 31184)",
+    "localprojections"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 572,
+   "method": "Cross-section-dependence diagnostics for panel VAR",
+   "wrapper_file": "c24_panel_var/pvar_cd_diagnostics.py",
+   "tool_fns": [
+    "pv_cd_diagnostics"
+   ],
+   "when": "panel VAR inference assumes units are independent, and that assumption is almost always false for country panels",
+   "when_not": "the panel has one unit; the residuals are unavailable",
+   "alternatives": [
+    {
+     "alt": "Pesaran CD test",
+     "criterion": "large N, small T"
+    },
+    {
+     "alt": "bias-corrected LM",
+     "criterion": "moderate dimensions"
+    },
+    {
+     "alt": "common-factor augmentation",
+     "criterion": "you want to remove the dependence rather than test it"
+    }
+   ],
+   "output_key_fields": [
+    "cd_statistic, p_value: the dependence test",
+    "average_correlation: mean absolute residual correlation",
+    "factor_structure: leading factors in the residuals",
+    "recommendation: whether robust inference or factor augmentation is needed"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "A REJECTED CD TEST INVALIDATES THE STANDARD PANEL VAR STANDARD ERRORS, and continuing to report them is the most common error in applied panel VAR work",
+    "the average absolute correlation is the informative number; the test statistic conflates strength with panel size",
+    "removing dependence by cross-sectional demeaning assumes a single common factor with equal loadings, which is restrictive"
+   ],
+   "sources": [
+    "Pesaran 2021 (Empirical Economics 60:13-50)",
+    "Pesaran 2006 (Econometrica 74:967-1012)",
+    "statsmodels"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  },
+  {
+   "id": 573,
+   "method": "Trade-weighted foreign variables for a global VAR",
+   "wrapper_file": "c24_panel_var/gvar_weights.py",
+   "tool_fns": [
+    "pv_gvar_weights"
+   ],
+   "when": "a global VAR needs each country's foreign variables built from trade or financial weights, and those weights determine the whole transmission structure",
+   "when_not": "there is a single country; no weight matrix is available",
+   "alternatives": [
+    {
+     "alt": "fixed trade weights",
+     "criterion": "simple, transparent"
+    },
+    {
+     "alt": "time-varying weights",
+     "criterion": "trade patterns changed materially over the sample"
+    },
+    {
+     "alt": "financial weights",
+     "criterion": "the transmission channel is financial rather than trade"
+    }
+   ],
+   "output_key_fields": [
+    "foreign_variables: the constructed star variables per country",
+    "weights: the weight matrix used, row-normalised",
+    "weight_source: trade, financial or custom",
+    "concentration: how concentrated each country's weights are"
+   ],
+   "chart_kind": "table",
+   "interpretation_traps": [
+    "THE WEIGHT MATRIX IS THE MODEL'S TRANSMISSION STRUCTURE: results are driven by it at least as much as by the estimated coefficients, and it is usually treated as an innocuous input",
+    "weights must be row-normalised and have a zero diagonal, or a country enters its own foreign variable",
+    "fixed weights from one year impose that year's trade structure on the whole sample, which matters for long panels"
+   ],
+   "sources": [
+    "Pesaran, Schuermann & Weiner 2004 (Journal of Business and Economic Statistics 22:129-162)",
+    "Dees, di Mauro, Pesaran & Smith 2007 (Journal of Applied Econometrics 22:1)"
+   ],
+   "precondition_tools": null,
+   "precondition_gates": null,
+   "validation_notes": null
+  }
+ ],
+ "nodes": [
+  {
+   "fn": "pv_bootstrap",
+   "card_id": 230,
+   "register": null,
+   "input_example": {
+    "fit": "<raw_handle>",
+    "n_ahead": 20,
+    "n_boot": 100,
+    "b_length": 1,
+    "b_dim": [
+     1,
+     1
+    ],
+    "level": 0.9,
+    "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an IDENTIFIED panel SVAR (pv_identify.fit).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Bands (default pmb): pmb=panel moving-block bootstrap· mg=mean-group inference (spread of N individuals); mb=individual moving-block bootstrap of one individual.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "pmb",
+      "mg",
+      "mb"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_ahead",
+     "kind": "integer",
+     "required": false,
+     "description": "IRF horizon (positive integer; default 20).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "n_boot",
+     "kind": "integer",
+     "required": false,
+     "description": "Bootstrap iterations for pmb/mb (positive integer; default 100).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 100,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "b_length",
+     "kind": "integer",
+     "required": false,
+     "description": "method='mb': residual block length (positive integer; default 1; ~T/10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "b_dim",
+     "kind": "int_array",
+     "required": false,
+     "description": "method='pmb': block dimensions (temporal, cross-sectional); default [1,1] i.i.d.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": [
+      1,
+      1
+     ],
+     "has_default": true,
+     "default_json_type": "array"
+    },
+    {
+     "name": "individual",
+     "kind": "string",
+     "required": false,
+     "description": "method='mb': individual to bootstrap (name or position 1..N).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level of the bands ∈ (0,1) (default 0.90).",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.9,
+     "has_default": true,
+     "default_json_type": "number"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for pmb/mb (determinism; default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "pv_cointegration",
+   "card_id": 230,
+   "register": null,
+   "input_example": {
+    "df": "<df_handle>",
+    "variables": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "lags": 1,
+    "id_col": "id"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long panel DataFrame {id_col + K variables}, as in pv_estimate.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variables",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Names of the K (>=2) endogenous columns in system order.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": true,
+     "description": "Common lag order p (positive integer) of the VAR in levels.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "test",
+     "kind": "enum",
+     "required": false,
+     "description": "Procedure (default JO): JO=Johansen trace (panel); BR=Breitung two-step pooled· SL=Saikkonen-Luetkepohl· CAIN=Arsova-Oersal.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "JO",
+      "SL",
+      "BR",
+      "CAIN"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "id_col",
+     "kind": "string",
+     "required": false,
+     "description": "Individual identity column name (default 'id').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": "id",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "det_case",
+     "kind": "enum",
+     "required": false,
+     "description": "Deterministic term for JO/BR (default Case1); SL/CAIN ignore it and use 'SL_trend'.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "Case1",
+      "Case2",
+      "Case3",
+      "Case4"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "PANIC common factors (Arsova-Oersal) for JO/SL (default inactive).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "pv_estimate",
+   "card_id": 230,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "df": "<df_handle>",
+    "variables": [
+     "PROVIDER/DATASET/SERIES"
+    ],
+    "lags": 1,
+    "id_col": "id"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "df",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Handle to a long panel DataFrame: identity column `id_col` + K numeric variable columns (same order k=1..K in each individual); >= 2 individuals, without NA.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variables",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Names of the K (>=2) endogenous columns in system order.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": true,
+     "description": "Common lag order p (positive integer) of the VAR in levels.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "id_col",
+     "kind": "string",
+     "required": false,
+     "description": "Individual identity column name (default 'id').",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": "id",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "model",
+     "kind": "enum",
+     "required": false,
+     "description": "VAR = mean-group VAR in levels (default); VEC = (pooled) mean-group rank-restricted VECM.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "VAR",
+      "VEC"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "type",
+     "kind": "string",
+     "required": false,
+     "description": "Deterministic term. VAR: const/trend/both/none (default const)· VEC: Case1..Case5 (default Case4).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "dim_r",
+     "kind": "integer",
+     "required": false,
+     "description": "model='VEC': common cointegration rank r (1..K-1); required for VEC.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of common factors for SUR (default inactive).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_iterations",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum iterations of SUR/pooled cointegrating vectors (default inactive).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    }
+   ]
+  },
+  {
+   "fn": "pv_identify",
+   "card_id": 230,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "fit": "<raw_handle>",
+    "n_ahead": 20,
+    "fevd_ahead": 10,
+    "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "fit",
+     "kind": "raw_handle",
+     "required": true,
+     "description": "Handle to an UNIDENTIFIED panel VAR/VEC (pv_estimate.fit).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "method",
+     "kind": "enum",
+     "required": false,
+     "description": "Identification (default chol): chol=recursive/Cholesky; cvm=Cramer-von Mises ICA· dc=distance-covariance ICA· iv=proxy/IV; grt=SVEC long/short-run (REQUIRES a VEC fit).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "chol",
+      "cvm",
+      "dc",
+      "iv",
+      "grt"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_ahead",
+     "kind": "integer",
+     "required": false,
+     "description": "IRF horizon (positive integer; default 20).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "fevd_ahead",
+     "kind": "integer",
+     "required": false,
+     "description": "FEVD horizon (positive integer; default 10).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 10,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "order_k",
+     "kind": "raw",
+     "required": false,
+     "description": "method='chol': causal ordering (variable names or integer positions).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "combine",
+     "kind": "string",
+     "required": false,
+     "description": "cvm/dc: group/pool/indiv (default indiv)· iv: pool/indiv (default pool); combination of individuals.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "iv",
+     "kind": "df_handle",
+     "required": false,
+     "description": "method='iv': handle to a proxy DataFrame (L columns, T-lags rows).",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "S2",
+     "kind": "enum",
+     "required": false,
+     "description": "method='iv' with multiple proxies: MR/JL/NQ (default MR; pool=>NQ).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "MR",
+      "JL",
+      "NQ"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "cov_u",
+     "kind": "enum",
+     "required": false,
+     "description": "method='iv': residual covariance OMEGA (÷T) or SIGMA (÷T-n) (default OMEGA).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "OMEGA",
+      "SIGMA"
+     ],
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "LR",
+     "kind": "raw",
+     "required": false,
+     "description": "method='grt': K×K long-run restriction matrix (NA=free, 0=zero).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "SR",
+     "kind": "raw",
+     "required": false,
+     "description": "method='grt': K×K short-run restriction matrix (NA=free).",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "cvm/dc combine='group': number of common structural shocks (default inactive).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for cvm/dc (DEoptim/steadyICA; determinism; default 1).",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    }
+   ]
+  },
+  {
+   "fn": "pv_gmm_panel_var",
+   "card_id": 569,
+   "register": {
+    "field": "fit"
+   },
+   "input_example": {
+    "data": "<df_handle>",
+    "variables": [
+     "a",
+     "b"
+    ],
+    "unit": "...",
+    "time": "...",
+    "lags": 1,
+    "estimator": "system",
+    "max_instrument_lags": 3,
+    "collapse": true,
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variables",
+     "kind": "series_codes",
+     "required": true,
+     "description": "Endogenous variables.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "unit",
+     "kind": "string",
+     "required": true,
+     "description": "Unit identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Time identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": false,
+     "description": "Lag order.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "estimator",
+     "kind": "enum",
+     "required": false,
+     "description": "GMM variant.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "difference",
+      "system"
+     ],
+     "allowed_vars": null,
+     "default": "system",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "max_instrument_lags",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum lag depth used as instruments.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "collapse",
+     "kind": "boolean",
+     "required": false,
+     "description": "Collapse the instrument matrix.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "pv_panel_granger",
+   "card_id": 570,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "y": "...",
+    "x": "...",
+    "unit": "...",
+    "time": "...",
+    "lags": 1,
+    "nboot": 0,
+    "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "string",
+     "required": true,
+     "description": "Dependent variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "x",
+     "kind": "string",
+     "required": true,
+     "description": "Potential causal variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "unit",
+     "kind": "string",
+     "required": true,
+     "description": "Unit identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Time identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": false,
+     "description": "Lag order.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 1,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "nboot",
+     "kind": "integer",
+     "required": false,
+     "description": "Number of bootstrap replications.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "seed",
+     "kind": "integer",
+     "required": false,
+     "description": "Seed for the random number generator.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "pv_panel_lp",
+   "card_id": 571,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "y": "...",
+    "shock": "...",
+    "unit": "...",
+    "time": "...",
+    "horizons": 20,
+    "lags": 4,
+    "cov_type": "driscoll_kraay",
+    "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel data.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "y",
+     "kind": "string",
+     "required": true,
+     "description": "Response variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "shock",
+     "kind": "string",
+     "required": true,
+     "description": "Shock variable.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "unit",
+     "kind": "string",
+     "required": true,
+     "description": "Unit identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Time identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "controls",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Control columns.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "horizons",
+     "kind": "integer",
+     "required": false,
+     "description": "Maximum horizon.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 20,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "lags",
+     "kind": "integer",
+     "required": false,
+     "description": "Lags included.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 4,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "cov_type",
+     "kind": "enum",
+     "required": false,
+     "description": "Covariance estimator.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": [
+      "driscoll_kraay",
+      "cluster",
+      "robust"
+     ],
+     "allowed_vars": null,
+     "default": "driscoll_kraay",
+     "has_default": true,
+     "default_json_type": "string"
+    },
+    {
+     "name": "conf_level",
+     "kind": "number",
+     "required": false,
+     "description": "Confidence level for intervals.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.95,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "pv_cd_diagnostics",
+   "card_id": 572,
+   "register": null,
+   "input_example": {
+    "residuals": "<df_handle>",
+    "unit": "...",
+    "time": "...",
+    "n_factors": 3,
+    "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
+   "arguments": [
+    {
+     "name": "residuals",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Panel VAR residuals.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "unit",
+     "kind": "string",
+     "required": true,
+     "description": "Unit identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Time identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "n_factors",
+     "kind": "integer",
+     "required": false,
+     "description": "Factors to extract from the residuals.",
+     "pointer_handle": false,
+     "json_type": "integer",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 3,
+     "has_default": true,
+     "default_json_type": "integer"
+    },
+    {
+     "name": "alpha",
+     "kind": "number",
+     "required": false,
+     "description": "Significance level.",
+     "pointer_handle": false,
+     "json_type": "number",
+     "enum": null,
+     "allowed_vars": null,
+     "default": 0.05,
+     "has_default": true,
+     "default_json_type": "number"
+    }
+   ]
+  },
+  {
+   "fn": "pv_gvar_weights",
+   "card_id": 573,
+   "register": null,
+   "input_example": {
+    "data": "<df_handle>",
+    "weights": "<matrix_handle>",
+    "country": "...",
+    "time": "...",
+    "time_varying": false,
+    "normalise": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "foreign_variables",
+     "weights",
+     "weight_source",
+     "concentration"
+    ]
+   },
+   "arguments": [
+    {
+     "name": "data",
+     "kind": "df_handle",
+     "required": true,
+     "description": "Country panel of variables.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "weights",
+     "kind": "matrix_handle",
+     "required": true,
+     "description": "Bilateral weight matrix.",
+     "pointer_handle": true,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "country",
+     "kind": "string",
+     "required": true,
+     "description": "Country identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time",
+     "kind": "string",
+     "required": true,
+     "description": "Time identifier.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "variables",
+     "kind": "series_codes",
+     "required": false,
+     "description": "Variables to build foreign counterparts for.",
+     "pointer_handle": false,
+     "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "time_varying",
+     "kind": "boolean",
+     "required": false,
+     "description": "Use period-specific weights.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": false,
+     "has_default": true,
+     "default_json_type": "boolean"
+    },
+    {
+     "name": "normalise",
+     "kind": "boolean",
+     "required": false,
+     "description": "Row-normalise with a zero diagonal.",
+     "pointer_handle": false,
+     "json_type": "boolean",
+     "enum": null,
+     "allowed_vars": null,
+     "default": true,
+     "has_default": true,
+     "default_json_type": "boolean"
+    }
+   ]
+  }
+ ]
 }
