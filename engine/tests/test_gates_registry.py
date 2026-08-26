@@ -39,10 +39,11 @@ from econflow_engine.gates.registry import (
     card_gate_names,
     resolve_gates,
 )
+from econflow_engine.metrics import find_manifest
 
 ENGINE_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ENGINE_ROOT / "artifacts"
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 #: Raise this when phase 2.2 starts populating ``precondition_gates`` with the
 #: structured vocabulary. It is 0 today because the field is empty on all 600

@@ -20,9 +20,10 @@ import pytest
 
 from econflow_engine import __version__
 from econflow_engine.mcp.server import list_methods
+from econflow_engine.metrics import find_manifest
 
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 
 def run_cli(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:

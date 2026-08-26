@@ -44,8 +44,10 @@ import pathlib
 import subprocess
 import sys
 
+from econflow_engine.metrics import find_manifest
+
 ENGINE_ROOT = pathlib.Path(__file__).resolve().parents[2]
-MANIFEST = ENGINE_ROOT.parent / ".github" / "inventory.json"
+MANIFEST = find_manifest(pathlib.Path(__file__))
 WRAPPERS = "src/econflow_engine/wrappers"
 CONTROLS = "tests/controls"
 

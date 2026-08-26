@@ -36,7 +36,8 @@ import pytest
 
 from econflow_engine.mcp.allowlists import STOCHASTIC_UNSEEDED_FNS
 from econflow_engine.mcp.gateway import run_method
-from tests.support import ENGINE_ROOT, inventory, is_stub, wrapper_modules
+from econflow_engine.metrics import is_stub
+from tests.support import ENGINE_ROOT, inventory, wrapper_modules
 
 # The modern numpy API. Everything ELSE under ``np.random`` is the legacy
 # RandomState surface, which reads and writes a process-global stream: two calls

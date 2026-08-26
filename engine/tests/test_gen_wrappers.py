@@ -37,6 +37,7 @@ from typing import Any
 
 import pytest
 
+from econflow_engine.metrics import find_manifest
 from econflow_engine.naming import category_package, wrapper_module_name
 
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
@@ -46,7 +47,7 @@ import gen_wrappers as G  # noqa: E402  (after sys.path)
 
 WRAPPERS = ENGINE_ROOT / "src" / "econflow_engine" / "wrappers"
 WRAPPER_TESTS = ENGINE_ROOT / "tests" / "wrappers"
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 HEADER_BEGIN = "# --- gen_wrappers: header begin ---"
 HEADER_END = "# --- gen_wrappers: header end ---"

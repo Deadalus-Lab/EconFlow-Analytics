@@ -81,6 +81,7 @@ from typing import Any
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ENGINE_ROOT / "src"))
 
+from econflow_engine.metrics import find_manifest, is_stub  # noqa: E402  (after sys.path)
 from econflow_engine.naming import (  # noqa: E402  (after sys.path)
     category_package,
     python_arg_name,
@@ -90,7 +91,7 @@ from econflow_engine.naming import (  # noqa: E402  (after sys.path)
 ARTIFACTS = ENGINE_ROOT / "artifacts"
 OUT_ROOT = ENGINE_ROOT / "src" / "econflow_engine" / "wrappers"
 METHOD_SOURCES = ENGINE_ROOT / "METHOD-SOURCES.json"
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 # THE THREE MARKERS. Changing any of these strings is a tree-wide migration and
 # not an edit: every committed module carries them, and tests/test_gen_wrappers.py
@@ -734,8 +735,10 @@ def holds_only_generated_stubs(tree: ast.Module, fns: list[str]) -> str | None:
     one can only be rewritten whole, which is free while every body raises
     NotImplementedError and destructive the moment one does not. So this was
     demoted from the gate on every write to the gate on that path alone. The
-    check is structural rather than textual: a stub is a docstring followed by a
-    single `raise NotImplementedError(...)`, and anything else is somebody's work.
+    check is structural rather than textual, and it is `econflow_engine.metrics`
+    that decides what the structure is: this generator's answer and the figure
+    the manifest publishes have to be the same answer, because `--write` rewrites
+    a module whole on the strength of it.
     """
     for fn in fns:
         node = next(
@@ -745,14 +748,7 @@ def holds_only_generated_stubs(tree: ast.Module, fns: list[str]) -> str | None:
         )
         if node is None:
             continue
-        body = [s for s in node.body
-                if not (isinstance(s, ast.Expr) and isinstance(s.value, ast.Constant)
-                        and isinstance(s.value.value, str))]
-        if len(body) != 1 or not isinstance(body[0], ast.Raise):
-            return fn
-        exc = body[0].exc
-        name = exc.func if isinstance(exc, ast.Call) else exc
-        if not (isinstance(name, ast.Name) and name.id == "NotImplementedError"):
+        if not is_stub(node):
             return fn
     return None
 

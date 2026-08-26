@@ -55,6 +55,8 @@ from typing import Any
 
 import pytest
 
+from econflow_engine.metrics import find_manifest
+
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ENGINE_ROOT / "scripts"))
 
@@ -65,7 +67,7 @@ from gen_third_party import (  # noqa: E402  (after sys.path)
 
 REGISTER = ENGINE_ROOT / "METHOD-SOURCES.json"
 LOCK = ENGINE_ROOT.parent / "uv.lock"
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 #: Where a committed dataset snapshot lives: inside the package, because a node
 #: that ships its data has to carry it into the wheel that ships the node.

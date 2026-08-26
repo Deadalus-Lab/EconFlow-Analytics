@@ -121,12 +121,13 @@ import sys
 from collections.abc import Callable, Iterator
 from typing import Any
 
+from econflow_engine.metrics import find_manifest, is_stub
 from econflow_engine.serialize import to_json
 from tests.controls.determinism import CONTROLS
 
 ENGINE_ROOT = pathlib.Path(__file__).resolve().parents[2]
 WRAPPERS = ENGINE_ROOT / "src" / "econflow_engine" / "wrappers"
-MANIFEST = ENGINE_ROOT.parent / ".github" / "inventory.json"
+MANIFEST = find_manifest(pathlib.Path(__file__))
 
 
 def _say(message: str) -> None:
@@ -150,32 +151,15 @@ def is_nondeterministic(fn: Callable[[], Any]) -> tuple[bool, str, str]:
     return first != second, first, second
 
 
-def _is_stub(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
-    """The generated body, exactly as ``assert-inventory`` defines it.
-
-    Deliberately the SAME predicate as the ``n_implemented`` walk in
-    ``.github/actions/assert-inventory/assert.sh``. Two walks that answer "is this
-    a stub?" differently would let a method be implemented by one measure and not
-    by the other, and this harness compares its own count against that one.
-    """
-    body = [
-        s
-        for s in node.body
-        if not (
-            isinstance(s, ast.Expr)
-            and isinstance(s.value, ast.Constant)
-            and isinstance(s.value.value, str)
-        )
-    ]
-    if len(body) != 1 or not isinstance(body[0], ast.Raise):
-        return False
-    exc = body[0].exc
-    name = getattr(exc, "func", exc)
-    return isinstance(name, ast.Name) and name.id == "NotImplementedError"
-
-
 def implemented_methods() -> Iterator[str]:
-    """Every wrapper function whose body is NOT the emitted raise."""
+    """Every wrapper function whose body is NOT the emitted raise.
+
+    ``is_stub`` is ``econflow_engine.metrics``', which is also what the
+    ``n_implemented`` walk in ``.github/actions/assert-inventory/assert.sh``
+    is held to. Two predicates answering "is this a stub?" differently would let
+    a method be implemented by one measure and not by the other, and this
+    harness compares its own count against that one.
+    """
     for path in sorted(WRAPPERS.rglob("*.py")):
         if path.name == "__init__.py":
             continue
@@ -183,7 +167,7 @@ def implemented_methods() -> Iterator[str]:
         for node in ast.walk(tree):
             if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
                 continue
-            if node.name.startswith("_") or _is_stub(node):
+            if node.name.startswith("_") or is_stub(node):
                 continue
             yield f"{path.relative_to(ENGINE_ROOT)}::{node.name}"
 

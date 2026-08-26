@@ -33,6 +33,8 @@ from typing import Any
 
 import pytest
 
+from econflow_engine.metrics import find_manifest
+
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ENGINE_ROOT / "scripts"))
 
@@ -485,7 +487,7 @@ def test_the_register_admits_exactly_one_source_kind_per_row() -> None:
 # output_keys: what a node's payload contains, and the debt of not saying
 # --------------------------------------------------------------------------
 
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 
 def _inventory(section: str, key: str) -> int:

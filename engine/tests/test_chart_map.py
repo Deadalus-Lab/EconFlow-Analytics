@@ -49,9 +49,11 @@ from typing import Any
 
 import pytest
 
+from econflow_engine.metrics import find_manifest
+
 ENGINE_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ENGINE_ROOT / "artifacts"
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 
 def read(name: str) -> Any:

@@ -39,10 +39,12 @@ from typing import Any
 
 import griffe
 
+from econflow_engine.metrics import find_manifest
+
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
 SRC = ENGINE_ROOT / "src"
 BASELINE = Path(__file__).resolve().parent / "wrappers.json"
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 PACKAGE = "econflow_engine.wrappers"
 
 # How many differences to print before stopping. A rename applied by a careless

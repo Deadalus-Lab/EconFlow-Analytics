@@ -4,6 +4,10 @@
 Three things live here because two or more test modules need them and a second
 copy of any of them would be a second answer to the same question: the floor
 reader, the wrapper-tree walk, and the beartype unwrapper.
+
+The stub predicate used to be a fourth, and is now
+``econflow_engine.metrics.is_stub`` -- the one home ``scripts/``, ``tests/`` and
+the runtime can all reach.
 """
 
 from __future__ import annotations
@@ -15,9 +19,11 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
+from econflow_engine.metrics import find_manifest
+
 ENGINE_ROOT = Path(__file__).resolve().parents[1]
 WRAPPERS = ENGINE_ROOT / "src" / "econflow_engine" / "wrappers"
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 
 def as_shipped[F: Callable[..., Any]](function: F) -> F:
@@ -96,34 +102,3 @@ def wrapper_modules() -> tuple[tuple[Path, ast.Module], ...]:
             raise AssertionError(f"{path} does not parse ({exc}); refusing to guess.") from exc
         parsed.append((path, tree))
     return tuple(parsed)
-
-
-def is_stub(function: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
-    """A generated stub: a docstring and nothing but ``raise NotImplementedError``.
-
-    THIS IS THE THIRD COPY OF ONE PREDICATE, AND THAT IS A KNOWN DEBT. The other
-    two are ``.github/inventory.json`` ``commands.n_implemented`` and
-    ``engine/scripts/gen_wrappers.py`` ``holds_only_generated_stubs`` -- same body
-    filter, same ``len(body) != 1``, same ``getattr(exc, "func", exc)``, same name
-    check. The drift risk is asymmetric and destructive: ``gen_wrappers.py
-    --write`` REWRITES a wrapper module when its predicate says "still a stub",
-    while R2 in ``test_seed_enforcement.py`` uses this one to decide which bodies
-    it polices, so a divergence means ``--write`` overwriting a body R2 was
-    watching. They cannot be shared today -- ``scripts/`` is deliberately not a
-    package and ``tests/`` is not importable from it -- so consolidating means
-    promoting the predicate into the engine package. Recorded, not done here.
-    """
-    body = [
-        statement
-        for statement in function.body
-        if not (
-            isinstance(statement, ast.Expr)
-            and isinstance(statement.value, ast.Constant)
-            and isinstance(statement.value.value, str)
-        )
-    ]
-    if len(body) != 1 or not isinstance(body[0], ast.Raise):
-        return False
-    raised = body[0].exc
-    name = getattr(raised, "func", raised)
-    return isinstance(name, ast.Name) and name.id == "NotImplementedError"

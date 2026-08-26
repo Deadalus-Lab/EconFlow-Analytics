@@ -44,8 +44,10 @@ import pathlib
 import sys
 from typing import Any
 
+from econflow_engine.metrics import find_manifest
+
 ENGINE_ROOT = pathlib.Path(__file__).resolve().parents[2]
-MANIFEST = ENGINE_ROOT.parent / ".github" / "inventory.json"
+MANIFEST = find_manifest(pathlib.Path(__file__))
 DEFAULT_STATS = ENGINE_ROOT / "mutants" / "mutmut-cicd-stats.json"
 
 

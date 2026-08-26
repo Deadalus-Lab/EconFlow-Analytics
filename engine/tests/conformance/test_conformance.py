@@ -94,6 +94,7 @@ from typing import Any
 
 import pytest
 
+from econflow_engine.metrics import find_manifest, is_stub
 from tests.conformance.fixtures import (
     FIXTURE_SIGIL,
     PRODUCE_SIGIL,
@@ -108,7 +109,7 @@ ENGINE_ROOT = Path(__file__).resolve().parent.parent.parent
 ORACLE = ENGINE_ROOT / "tests" / "oracle"
 POLICY_FILE = ORACLE / "_policy.json"
 ARTIFACTS = ENGINE_ROOT / "artifacts"
-INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+INVENTORY = find_manifest(Path(__file__))
 
 #: The reserved first path segment for cases against the engine's own helpers.
 #: A wrapper package is always ``c`` + two digits, so this cannot shadow one.
@@ -292,9 +293,10 @@ def _implemented_node_functions() -> frozenset[str]:
     """The wrapper functions whose body is NOT the emitted stub.
 
     The same walk ``.github/actions/assert-inventory/assert.sh`` runs for
-    ``engine.n_implemented``. It is repeated here rather than shared because that
-    one is embedded in a shell heredoc; the accounting test below asserts the two
-    agree, so a divergence is a red test rather than a quiet one.
+    ``engine.n_implemented``, and it now asks the same predicate:
+    ``econflow_engine.metrics.is_stub``. The shell copy stays a copy because a
+    heredoc cannot import the package, and the agreement test in
+    ``tests/test_stub_definition.py`` runs it and compares the answers.
     """
     written: set[str] = set()
     for path in sorted((ENGINE_ROOT / "src" / "econflow_engine" / "wrappers").rglob("*.py")):
@@ -305,18 +307,7 @@ def _implemented_node_functions() -> frozenset[str]:
                 continue
             if node.name.startswith("_"):
                 continue
-            body = [
-                s
-                for s in node.body
-                if not (
-                    isinstance(s, ast.Expr)
-                    and isinstance(s.value, ast.Constant)
-                    and isinstance(s.value.value, str)
-                )
-            ]
-            exc = body[0].exc if (len(body) == 1 and isinstance(body[0], ast.Raise)) else None
-            name = getattr(exc, "func", exc)
-            if not (isinstance(name, ast.Name) and name.id == "NotImplementedError"):
+            if not is_stub(node):
                 written.add(node.name)
     return frozenset(written)
 
