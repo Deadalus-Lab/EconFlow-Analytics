@@ -1347,6 +1347,11 @@ _NO_LOCATOR = (
     "Green (2001), the table a reader can open",
     "Green (2001), the rows are unlabelled",
     # An ISBN is its digits. Ten characters drawn from [0-9X-] is not an ISBN.
+    # WHAT THIS DOES NOT REACH: `ISBN 0000000000` is admitted, and no local rule
+    # refuses it -- it satisfies the ISBN-10 checksum exactly (sum of i*d_i is 0,
+    # and 0 mod 11 is 0), as all-zeros satisfies the ISBN-13 one. Separating it
+    # from a real ISBN needs a registry lookup, not a pattern or an arithmetic
+    # check, so it is recorded here rather than half-solved.
     "Some Book, ISBN ----------",
     "Some Book, ISBN -- -- -- --",
 )
@@ -1377,6 +1382,39 @@ _HAS_LOCATOR = (
     "Author (Year), pp. xii-xiv",
     "Author (Year), pp. II-IV",
 )
+
+
+#: EVERY FORM THE PATTERN WAS WIDENED TO ADMIT, PAIRED WITH ITS NEAREST MISS.
+#: The two flat lists above prove each polarity somewhere; a pair proves the
+#: pattern discriminates HERE, on two strings that differ by as little as
+#: possible. A widened rule watched only being generous is half a control -- the
+#: half that cannot tell "wider" from "matches anything".
+#:
+#: WHAT NO PATTERN CAN SEPARATE, recorded so the gap is known rather than
+#: rediscovered: `Table XL` is table 40 and "the table XL sizes" is prose, and
+#: they are the same string to any rule that reads roman numerals. The pairs
+#: below are the ones a pattern CAN decide.
+_NEAR_MISS = (
+    ("Author (Year), Table A.1", "Author (Year), the table Anderson built"),
+    ("Author (Year), Table A", "Author (Year), table Aardvark"),
+    ("Author (Year), p. iv", "Author (Year), p. ivory"),
+    ("Author (Year), Table III", "Author (Year), the table Illinois keeps"),
+    ("Author (Year), pp. xii-xiv", "Author (Year), pp. mixed together"),
+    ("Bloggs (1990), ISBN 0-8044-2957-X", "Bloggs (1990), ISBN ----------"),
+)
+
+
+@pytest.mark.parametrize(("admitted", "refused"), _NEAR_MISS)
+def test_rule_two_discriminates_between_a_locator_and_its_nearest_miss(
+    admitted: str, refused: str
+) -> None:
+    """BOTH POLARITIES ON ONE WIDENED FORM, in one case, so neither can drift
+    without the other noticing. The block half alone is satisfied by a pattern
+    that refuses everything, and the pass half alone by one that admits
+    everything; only the pair says the rule discriminates."""
+    _require_a_published_locator(admitted)
+    with pytest.raises(Inadmissible, match="carries no locator"):
+        _require_a_published_locator(refused)
 
 
 @pytest.mark.parametrize("citation", _NO_LOCATOR)
