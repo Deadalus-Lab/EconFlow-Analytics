@@ -67,8 +67,10 @@ the case is LOADED rather than when it is run:
 
 1. ``expected`` carries at least one finite number outside {0, 1, -1}. A payload
    of ``{"ok": true}`` proves nothing.
-2. ``citation`` carries a locator -- a DOI, an ISBN, or a table/page/row -- and
-   names a published source rather than this engine's own output.
+2. ``citation`` carries a locator -- a DOI, an ISBN, or a NUMBERED table, page or
+   row -- and names a published source rather than this engine's own output. The
+   number is the locator: ``Table 3`` and ``p. 295`` say where to look, and the
+   bare words ``table`` and ``page`` say only that one exists somewhere.
 3. The tolerance BITES: every numeric leaf is perturbed by ten times the class's
    rtol (or ten times its atol where rtol is zero, or one representable step
    where both are zero) and the comparison must REFUSE the result. A class so
@@ -127,7 +129,27 @@ _UNWRITEABLE_KINDS = frozenset({"path"})
 #: A citation that describes this engine's own output is not an oracle.
 _CITATION_REFUSED = ("computed by", "r printed", "statsmodels returned", "our output")
 _DOI = re.compile(r"\b10\.\d{4,9}/\S+")
-_LOCATOR = re.compile(r"\b(table|page|row|isbn|p\.|pp\.)", re.IGNORECASE)
+
+#: A LOCATOR NAMES A POSITION, SO IT CARRIES THE POSITION. Every alternative below
+#: requires the token to be followed by the thing that says WHICH table, page or
+#: row -- because the word on its own sends a reader to a work rather than to a
+#: place inside it, and a rule that accepts the word alone accepts prose.
+#:
+#: The first shape of this pattern was ``\b(table|page|row|isbn|p\.|pp\.)`` with a
+#: leading word boundary and none trailing, so any word BEGINNING with those
+#: letters cleared it. Measured before this change: 'see notes, row by row' and
+#: 'arrows and pages of nothing' both passed, and only a citation containing none
+#: of the letters at all could fail. RULE 2 exists to refuse a citation nobody can
+#: check, and it was refusing almost nothing.
+#:
+#: The token set is unchanged -- table, page, row, ISBN, p., pp. -- because
+#: widening it is a separate decision from making it bite.
+_LOCATOR = re.compile(
+    r"\b(?:tables?|pages?|rows?)\s+\d"  # Table 3 · Table 26.1 · pages 12-14 · row 2
+    r"|\bpp?\.\s*\d"  # p. 295 · p.966 · pp. 12-14
+    r"|\bisbn\b[\s:]*[\dX-]{10,}",  # ISBN 978-0-521-81099-3
+    re.IGNORECASE,
+)
 
 pytestmark = pytest.mark.conformance
 
@@ -341,8 +363,9 @@ def _require_a_published_locator(citation: str) -> None:
     if not (_DOI.search(citation) or _LOCATOR.search(citation)):
         raise Inadmissible(
             "RULE 2: the citation carries no locator. Name a DOI, an ISBN, or the "
-            "table, page or row the number is printed in -- an author and a year "
-            "alone cannot be checked."
+            "NUMBERED table, page or row the number is printed in -- `Table 3`, "
+            "`p. 295`, `pp. 12-14`, `row 2`. An author and a year alone cannot be "
+            "checked, and neither can the word `table` without the table."
         )
 
 
@@ -1278,6 +1301,63 @@ def test_a_produce_chain_naming_no_real_node_is_refused() -> None:
         _scan_inputs(
             {"fit": {PRODUCE_SIGIL: {"fn": "no_such_node_exists", "inputs": {}}}}
         )
+
+
+#: WHAT RULE 2 MUST REFUSE, and every one of these PASSED until this pair of
+#: controls was written. The old pattern anchored on the left only, so a word
+#: merely BEGINNING with the letters cleared it and the rule admitted prose.
+_NO_LOCATOR = (
+    "Smith (2020), see notes, row by row",
+    "Jones (1999) -- arrows and pages of nothing",
+    "Brown (2011), tabled at the meeting, paged through by hand",
+    "Anonymous, no locator at all",
+)
+
+#: WHAT IT MUST STILL ADMIT. The first two are the forms the committed cases use
+#: -- ``Table 26.1`` carries the Abramowitz and Stegun case entirely, since that
+#: citation has no DOI to fall back on -- and the rest are the other four shapes a
+#: position in a work is written in.
+_HAS_LOCATOR = (
+    "Author (Year), Table 3, row 2",
+    "Abramowitz and Stegun (1964) -- Table 26.1, p. 966",
+    "Author (Year), pp. 12-14",
+    "Author (Year), p.966",
+    "Author (Year), pages 12-14",
+    "Author (Year), ISBN 978-0-521-81099-3",
+)
+
+
+@pytest.mark.parametrize("citation", _NO_LOCATOR)
+def test_rule_two_refuses_a_citation_naming_no_position_in_a_work(citation: str) -> None:
+    """THE BLOCK HALF, and it is what the gate was missing.
+
+    RULE 2 had no control of either polarity, so the pattern could decay to
+    "matches almost everything" without a single test moving -- which is what it
+    had done. A locator names WHICH table or page; the bare word names none.
+    """
+    with pytest.raises(Inadmissible, match="carries no locator"):
+        _require_a_published_locator(citation)
+
+
+@pytest.mark.parametrize("citation", _HAS_LOCATOR)
+def test_rule_two_admits_a_citation_naming_a_position_in_a_work(citation: str) -> None:
+    """THE PASS HALF. A rule tightened until it refuses everything is not tighter,
+    it is broken, and the block half above cannot tell the two apart."""
+    _require_a_published_locator(citation)
+
+
+def test_rule_two_judges_a_dataset_citation_by_the_same_pattern() -> None:
+    """The fixture form reuses this function verbatim (fixtures.py), so the hole
+    reached every dataset citation too. Proved through ``validate`` rather than
+    asserted about it, so the reuse is what is measured."""
+    from tests.conformance.fixtures import FixtureError, validate
+
+    sound = json.loads(
+        (ENGINE_ROOT / "tests/fixtures/anscombe_1973_data_set_i.json").read_bytes()
+    )
+    assert validate(dict(sound)) is not None
+    with pytest.raises(FixtureError, match="carries no locator"):
+        validate({**sound, "citation": "Anscombe (1973), see the table, row by row"})
 
 
 def test_every_dataset_in_the_tree_loads_and_builds() -> None:
