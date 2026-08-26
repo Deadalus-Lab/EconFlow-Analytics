@@ -1,1913 +1,1913 @@
 {
- "category": "27-frequency-domain",
- "cards": [
-  {
-   "id": 235,
-   "method": "Wavelet time-frequency analysis (the Morlet CWT: power spectrum, cross-wavelet, wavelet coherence, phase difference — numeric grids)",
-   "wrapper_file": "c27_frequency_domain/wavelet_time_frequency.py",
-   "tool_fns": [
-    "wv_transform",
-    "wv_coherency"
-   ],
-   "when": "you want to see HOW the spectral power of a macro series changes OVER TIME (non-stationary/evolving cycles) — a CWT power spectrum (period x time) with a ridge & simulation-based significance; or the DYNAMIC relation of TWO series by frequency/time (cross-wavelet power, wavelet coherence in [0,1], the phase difference for lead/lag)",
-   "when_not": "a stationary series with a fixed spectrum -> classical spectral analysis (the stats spectrum/AR spectrum, #234); a time-invariant band decomposition -> band-pass/HP/Baxter-King filters (#56-61); a plain correlation/lead-lag with no frequency dimension -> ccf (cross-correlation); pure forecasting (this is a time-frequency diagnostic)",
-   "alternatives": [
+  "category": "27-frequency-domain",
+  "cards": [
     {
-     "alt": "wv_transform",
-     "criterion": "ONE series -> a wavelet power spectrum (period x time), the amplitude, the phase, the ridge, the global/average power + surrogate p-values; identifying evolving cycles"
+      "id": 235,
+      "method": "Wavelet time-frequency analysis (the Morlet CWT: power spectrum, cross-wavelet, wavelet coherence, phase difference — numeric grids)",
+      "wrapper_file": "c27_frequency_domain/wavelet_time_frequency.py",
+      "tool_fns": [
+        "wv_transform",
+        "wv_coherency"
+      ],
+      "when": "you want to see HOW the spectral power of a macro series changes OVER TIME (non-stationary/evolving cycles) — a CWT power spectrum (period x time) with a ridge & simulation-based significance; or the DYNAMIC relation of TWO series by frequency/time (cross-wavelet power, wavelet coherence in [0,1], the phase difference for lead/lag)",
+      "when_not": "a stationary series with a fixed spectrum -> classical spectral analysis (the stats spectrum/AR spectrum, #234); a time-invariant band decomposition -> band-pass/HP/Baxter-King filters (#56-61); a plain correlation/lead-lag with no frequency dimension -> ccf (cross-correlation); pure forecasting (this is a time-frequency diagnostic)",
+      "alternatives": [
+        {
+          "alt": "wv_transform",
+          "criterion": "ONE series -> a wavelet power spectrum (period x time), the amplitude, the phase, the ridge, the global/average power + surrogate p-values; identifying evolving cycles"
+        },
+        {
+          "alt": "wv_coherency",
+          "criterion": "TWO aligned series -> the cross-wavelet power, the wavelet coherence in [0,1] (a localized correlation per period/time), the phase difference (an angle -> lead/lag) + p-values"
+        }
+      ],
+      "output_key_fields": [
+        "wv_transform: power (a period-by-time matrix), phase, amplitude, ridge (0/1), power_avg (the global spectrum) + power_pval/power_avg_pval (absent when make_pval=False), period/scale, axis_time/axis_period, coi_time/coi_period (the cone of influence), n_time and n_period",
+        "wv_coherency: cross_power (a matrix), coherence (a matrix in [0,1]), angle (the phase-difference matrix), power_x/power_y, ridge_xy/ridge_co (0/1), *_avg + *_pval, period/scale/axes/coi, n_time/n_period",
+        "everything is numeric chart-data (charts are the frontend's job ONLY, §5); the raw fit sits in the 'fit' field (to_mcp -> a stub; it contains the complex Wave)"
+      ],
+      "chart_kind": "heatmap",
+      "interpretation_traps": [
+        "the period is EXPRESSED in units of dt; power/coherence INSIDE the cone of influence (coi_time/coi_period) are edge-affected -> interpret only outside the COI",
+        "an upper_period above n*dt gives a spectrum lying ENTIRELY inside the cone of influence — no complete cycle — which is plausible but nonsense; the raw routine does NOT error, so a hard gate blocks it",
+        "significance = a surrogate simulation (method + n_sim) -> DETERMINISM ONLY with a seed; the CWT power/phase/period themselves are seed-invariant (only the p-values depend on the seed)",
+        "coherence lies in [0,1] (a localized squared-correlation analogue); HIGH coherence does NOT mean causality; the angle (the phase difference) gives lead/lag ONLY where the coherence is significant",
+        "loess_span detrends BEFORE the transform (0 means no detrending); an incomplete series is silently wrong, so the gate requires a complete one",
+        "the white-noise null (the default), against the AR, ARIMA, Fourier-randomisation and shuffle alternatives -> a different strictness of significance; the AR and ARIMA surrogates suit series with autocorrelation"
+      ],
+      "sources": [
+        "Torrence & Compo 1998 Bulletin of the American Meteorological Society 79(1) (a practical guide to wavelet analysis — the Morlet CWT, the cross-wavelet, coherence, phase and surrogate significance)",
+        "Torrence & Compo 1998 'A Practical Guide to Wavelet Analysis' BAMS 79(1) 61-78 (the CWT, the cone of influence, Monte Carlo significance)",
+        "Aguiar-Conraria & Soares 2014 'The Continuous Wavelet Transform: Moving Beyond Uni- and Bivariate Analysis' Journal of Economic Surveys 28(2) 344-375 (macro time-frequency use, the interpretation of coherence & phase)",
+        "wrapper footer IMPLEMENTATION NOTE (c27_frequency_domain/wavelet_time_frequency)"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "wv_coherency",
-     "criterion": "TWO aligned series -> the cross-wavelet power, the wavelet coherence in [0,1] (a localized correlation per period/time), the phase difference (an angle -> lead/lag) + p-values"
+      "id": 236,
+      "method": "Spectral / periodogram quick look (a smoothed periodogram, the high-level spectrum pgram|AR, a numeric cumulative periodogram + KS white-noise bands)",
+      "wrapper_file": "c27_frequency_domain/spectral_periodogram_quick.py",
+      "tool_fns": [
+        "spec_periodogram",
+        "spec_spectrum",
+        "spec_cumulative_periodogram"
+      ],
+      "when": "a frequency-domain quick look at ONE univariate macro series -> which periodicities/cycles (seasonality, the business cycle) dominate; a smoothed periodogram (modified Daniell), a smooth AR spectral estimate, or a numeric cumulative periodogram + Kolmogorov-Smirnov bands for a white-noise test",
+      "when_not": "multivariate coherency or phase between series (this node handles ONE series); a wavelet or time-varying spectrum (-> #235); spectral causality or connectedness (-> #52); plain ARIMA or seasonal modelling (categories 02/03); it requires at least 4 observations with no gaps",
+      "alternatives": [
+        {
+          "alt": "spec_periodogram (spans = odd Daniell smoothers)",
+          "criterion": "you want the (smoothed) raw periodogram with full control of taper/detrend/demean/pad/fast plus the dominant frequency+period"
+        },
+        {
+          "alt": "spec_spectrum (method='pgram')",
+          "criterion": "a high-level quick look, identical to the smoothed periodogram but reached through the spectrum dispatcher (spans, taper)"
+        },
+        {
+          "alt": "spec_spectrum (method='ar')",
+          "criterion": "you want a SMOOTH autoregressive (Yule-Walker) spectral estimate — a cleaner identification of the dominant cycle when the raw periodogram is noisy; the order is automatic (AIC) or supplied"
+        },
+        {
+          "alt": "spec_cumulative_periodogram (a numeric cpgram + KS bands)",
+          "criterion": "you want a white-noise test (Bartlett's Tp): the cumulative normalized periodogram vs frequency + KS bands; leaving the bands => white noise is rejected"
+        }
+      ],
+      "output_key_fields": [
+        "spec_periodogram: freq + spec (numeric vectors, chart-ready); peak_frequency + peak_period (=1/peak_frequency); df/bandwidth/taper/pad/detrend/demean/n_used/orig_n; smoothed(bool)+spans; method='pgram'; spec_object (the raw 'spec' list -> a to_mcp stub)",
+        "spec_spectrum: freq + spec; method ('pgram' or 'ar'); method_label; ar_order (blank on the periodogram route); peak_frequency and peak_period; df/bandwidth/taper/n_used; plus the spectrum object as a stub",
+        "spec_cumulative_periodogram: frequency + cumulative (monotone from 0 to 1); band_upper/band_lower (the KS bands clamped to [0,1]); crit (the KS critical value); nyquist; mp; n_exceedances + white_noise_rejected (bool)"
+      ],
+      "chart_kind": "line",
+      "interpretation_traps": [
+        "spans MUST be odd positive integers: the routine SILENTLY accepts even spans and returns the WRONG modified-Daniell smoother -> a hard gate blocks them",
+        "the reference cumulative periodogram is PLOT-ONLY — it draws and returns nothing numeric — so it is NOT called; spec_cumulative_periodogram reproduces THE SAME algorithm numerically (centre, taper, |FFT|²/n, zero the first term, then a running sum over the total; the bands have slope 1/xm and an offset of plus or minus the critical value)",
+        "the autoregressive spectrum of a trending or persistent series peaks at frequency 0, so the period would be 1/0 -> it is left blank rather than infinite",
+        "the periodogram omits frequency 0, so the frequency is always positive and the peak is always a real cycle",
+        "detrend=True (the default) removes BOTH the linear trend AND the mean; demean removes only the mean; the taper defaults to 0.1, a split-cosine bell, as documented",
+        "the node handles ONE series: multivariate input is blocked, since there is no coherency or phase surface; a gap trips an explicit gate",
+        "the FFT + Yule-Walker are DETERMINISTIC (no RNG; identical across two runs) -> no seed is needed"
+      ],
+      "sources": [
+        "Bloomfield 2000, Fourier Analysis of Time Series: An Introduction, 2nd ed. (the smoothed periodogram, the modified Daniell smoothers, the split-cosine-bell taper)",
+        "Percival & Walden 1993, Spectral Analysis for Physical Applications (the periodogram and the Yule-Walker autoregressive spectrum)",
+        "Venables & Ripley 2002, Modern Applied Statistics with S, pp. 392-397 (spectral analysis; the cumulative periodogram and Bartlett's white-noise test)",
+        "Bloomfield 1976 'Fourier Analysis of Time Series: An Introduction' Wiley (the equivalent bandwidth, tapering)",
+        "Brockwell & Davis 1991 'Time Series: Theory and Methods' 2nd ed Springer (periodogram consistency, smoothing)",
+        "Priestley 1981 'Spectral Analysis and Time Series' Academic Press (AR spectral estimation)",
+        "wrapper footer IMPLEMENTATION NOTE (c27_frequency_domain/spectral_periodogram_quick)"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 586,
+      "method": "Cross-spectral analysis: coherence, phase and gain",
+      "wrapper_file": "c27_frequency_domain/cross_spectral.py",
+      "tool_fns": [
+        "fd_cross_spectrum"
+      ],
+      "when": "how two series co-move frequency by frequency, and whether one leads the other at business-cycle frequencies",
+      "when_not": "the series are non-stationary and no transformation makes them so; the sample is too short for frequency resolution",
+      "alternatives": [
+        {
+          "alt": "cross-correlation function",
+          "criterion": "you want lead-lag in the time domain"
+        },
+        {
+          "alt": "cross-spectrum",
+          "criterion": "co-movement by frequency band"
+        },
+        {
+          "alt": "wavelet coherence",
+          "criterion": "the relationship changes over time"
+        }
+      ],
+      "output_key_fields": [
+        "coherence: squared coherence by frequency",
+        "phase: phase difference, convertible to a lead in periods",
+        "gain: the frequency-dependent amplitude ratio",
+        "conf_band: significance band for coherence"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "THE PHASE SPECTRUM IS ONLY INTERPRETABLE WHERE COHERENCE IS SIGNIFICANT; phase estimates at incoherent frequencies are uniformly distributed noise and reading a lead off them is meaningless",
+        "phase is identified modulo 2 pi, so a lead of k periods and one of k plus a full cycle are indistinguishable",
+        "smoothing the periodogram trades bias against variance and directly controls how much coherence you see"
+      ],
+      "sources": [
+        "Priestley 1981, Spectral Analysis and Time Series",
+        "Koopmans 1974, The Spectral Analysis of Time Series",
+        "scipy"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 587,
+      "method": "Discrete wavelet multi-resolution analysis",
+      "wrapper_file": "c27_frequency_domain/wavelet_mra.py",
+      "tool_fns": [
+        "fd_wavelet_mra",
+        "fd_wavelet_variance"
+      ],
+      "when": "decomposing a series by timescale, where each component can be interpreted as short-, medium- or long-run variation",
+      "when_not": "the series is short relative to the number of levels; you need frequency resolution rather than scale bands",
+      "alternatives": [
+        {
+          "alt": "DWT",
+          "criterion": "orthogonal, decimated, requires a dyadic length"
+        },
+        {
+          "alt": "MODWT",
+          "criterion": "shift invariant, any length, the usual choice for economics"
+        },
+        {
+          "alt": "continuous wavelet transform",
+          "criterion": "you want a fine time-frequency picture"
+        }
+      ],
+      "output_key_fields": [
+        "details, smooth: the multi-resolution components",
+        "variance_by_scale: wavelet variance per scale",
+        "correlation_by_scale: cross-correlation per scale between two series",
+        "boundary_affected: coefficients contaminated by the boundary"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "THE DWT REQUIRES A DYADIC-LENGTH SERIES AND IS NOT SHIFT INVARIANT -- shifting the sample by one observation changes the decomposition, which is why MODWT is preferred for economic data",
+        "boundary coefficients are contaminated by the periodic or reflective extension and must be excluded from any statistic",
+        "the wavelet filter choice affects the scale bands; a longer filter gives better frequency separation and more boundary contamination"
+      ],
+      "sources": [
+        "Percival & Walden 2000, Wavelet Methods for Time Series Analysis",
+        "Gencay, Selcuk & Whitcher 2002, An Introduction to Wavelets and Other Filtering Methods",
+        "PyWavelets"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 588,
+      "method": "Multitaper and Welch spectral estimation with confidence intervals",
+      "wrapper_file": "c27_frequency_domain/spectral_estimation.py",
+      "tool_fns": [
+        "fd_spectral_estimate"
+      ],
+      "when": "the raw periodogram is inconsistent, and a usable spectrum needs smoothing or tapering with honest uncertainty",
+      "when_not": "you need the exact periodogram ordinates; the series is too short for any segmentation",
+      "alternatives": [
+        {
+          "alt": "Welch averaged periodogram",
+          "criterion": "simple, widely used"
+        },
+        {
+          "alt": "multitaper",
+          "criterion": "the best bias-variance trade-off, with proper degrees of freedom"
+        },
+        {
+          "alt": "parametric (autoregressive) spectrum",
+          "criterion": "you want a smooth spectrum from a fitted model"
+        }
+      ],
+      "output_key_fields": [
+        "spectrum: the estimated spectral density",
+        "frequencies: the frequency grid",
+        "conf_int: confidence band, from the chi-squared degrees of freedom",
+        "resolution: the frequency resolution actually achieved"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "THE RAW PERIODOGRAM IS NOT CONSISTENT: its variance does not fall as the sample grows, so an unsmoothed spectral plot is noise however long the series",
+        "there is a hard trade-off between frequency resolution and variance; more smoothing means a smoother spectrum and blurred peaks",
+        "the number of tapers sets the degrees of freedom and therefore the confidence band, and it must be reported"
+      ],
+      "sources": [
+        "Thomson 1982 (Proceedings of the IEEE 70:1055-1096)",
+        "Welch 1967 (IEEE Transactions on Audio and Electroacoustics 15:70)",
+        "Percival & Walden 1993, Spectral Analysis for Physical Applications",
+        "spectrum"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 589,
+      "method": "Frequency-domain Granger causality",
+      "wrapper_file": "c27_frequency_domain/frequency_granger.py",
+      "tool_fns": [
+        "fd_frequency_granger"
+      ],
+      "when": "causality can run at business-cycle frequencies and not at high frequencies, which a single time-domain statistic averages away",
+      "when_not": "the series are non-stationary; the VAR the decomposition rests on is misspecified",
+      "alternatives": [
+        {
+          "alt": "time-domain Granger causality",
+          "criterion": "one summary statistic"
+        },
+        {
+          "alt": "Breitung-Candelon decomposition",
+          "criterion": "causality by frequency"
+        },
+        {
+          "alt": "Geweke measures",
+          "criterion": "linear feedback decomposed by frequency"
+        }
+      ],
+      "output_key_fields": [
+        "causality_spectrum: the measure by frequency",
+        "band_statistics: aggregated over named frequency bands",
+        "critical_values: which are frequency dependent",
+        "significant_bands: where causality is detected"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "THE FREQUENCY-DOMAIN MEASURE INTEGRATES TO THE TIME-DOMAIN STATISTIC, so a zero overall statistic is consistent with strong causality at some frequencies offset by none at others",
+        "the decomposition inherits every misspecification of the underlying VAR, particularly the lag order",
+        "critical values vary with frequency and using a single threshold across the spectrum is wrong"
+      ],
+      "sources": [
+        "Geweke 1982 (JASA 77:304-313)",
+        "Breitung & Candelon 2006 (Journal of Econometrics 132:363)",
+        "statsmodels"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 590,
+      "method": "Empirical mode decomposition and the Hilbert-Huang transform",
+      "wrapper_file": "c27_frequency_domain/emd_hilbert.py",
+      "tool_fns": [
+        "fd_emd"
+      ],
+      "when": "decomposing a nonlinear, non-stationary series into oscillatory modes defined by the data rather than by a fixed basis",
+      "when_not": "the series is stationary and a Fourier or wavelet basis is appropriate and better understood",
+      "alternatives": [
+        {
+          "alt": "wavelet decomposition",
+          "criterion": "a fixed basis with known properties"
+        },
+        {
+          "alt": "empirical mode decomposition",
+          "criterion": "data-driven modes, handles non-stationarity"
+        },
+        {
+          "alt": "ensemble EMD or CEEMDAN",
+          "criterion": "mode mixing is a problem"
+        }
+      ],
+      "output_key_fields": [
+        "imfs: the intrinsic mode functions",
+        "residual: the trend left after extraction",
+        "instantaneous_frequency: from the Hilbert transform",
+        "n_modes: how many were extracted"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "MODE MIXING IS THE CENTRAL WEAKNESS: a single mode can contain oscillations of very different scales, which is what the ensemble variants exist to reduce",
+        "EMD has no theoretical foundation comparable to wavelets -- it is an algorithm, and its output depends on the stopping criterion and interpolation",
+        "the ensemble variants add noise deliberately and therefore need a seed to be reproducible"
+      ],
+      "sources": [
+        "Huang et al. 1998 (Proceedings of the Royal Society A 454:903-995)",
+        "Torres, Colominas, Schlotthauer & Flandrin 2011, CEEMDAN (ICASSP 2011:4144)",
+        "EMD-signal"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 591,
+      "method": "Synchrosqueezing and reassigned time-frequency transforms",
+      "wrapper_file": "c27_frequency_domain/synchrosqueezing.py",
+      "tool_fns": [
+        "fd_synchrosqueeze"
+      ],
+      "when": "a sharper time-frequency picture than a spectrogram, which smears energy across frequencies",
+      "when_not": "you only need a global spectrum; the series is too short for any time-frequency localisation",
+      "alternatives": [
+        {
+          "alt": "spectrogram",
+          "criterion": "the standard, smeared but simple"
+        },
+        {
+          "alt": "synchrosqueezing",
+          "criterion": "sharpened and invertible"
+        },
+        {
+          "alt": "reassignment",
+          "criterion": "sharpened but not invertible"
+        }
+      ],
+      "output_key_fields": [
+        "transform: the time-frequency representation",
+        "ridges: extracted instantaneous-frequency curves",
+        "components: reconstructed modes from the ridges",
+        "invertible: whether the transform supports reconstruction"
+      ],
+      "chart_kind": "heatmap",
+      "interpretation_traps": [
+        "REASSIGNMENT SHARPENS BUT DESTROYS INVERTIBILITY; synchrosqueezing sharpens and remains invertible, which is the reason to prefer it when components must be reconstructed",
+        "sharpening does not create resolution that the data lack -- it redistributes energy, and closely spaced components remain unresolvable",
+        "ridge extraction is a curve-tracking problem and its parameters materially affect the extracted components"
+      ],
+      "sources": [
+        "Daubechies, Lu & Wu 2011 (Applied and Computational Harmonic Analysis 30:243-261)",
+        "Auger & Flandrin 1995 (IEEE Transactions on Signal Processing 43:1068)",
+        "ssqueezepy"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 592,
+      "method": "Lomb-Scargle periodogram and band-variance shares",
+      "wrapper_file": "c27_frequency_domain/lomb_scargle.py",
+      "tool_fns": [
+        "fd_lomb_scargle",
+        "fd_band_variance"
+      ],
+      "when": "the series is irregularly sampled or has gaps, where the ordinary periodogram is not defined",
+      "when_not": "the sampling is regular, where standard spectral methods are better understood and faster",
+      "alternatives": [
+        {
+          "alt": "Lomb-Scargle",
+          "criterion": "irregular sampling"
+        },
+        {
+          "alt": "interpolate then use a standard periodogram",
+          "criterion": "gaps are few and short"
+        },
+        {
+          "alt": "band-variance decomposition",
+          "criterion": "you want variance shares rather than a spectrum"
+        }
+      ],
+      "output_key_fields": [
+        "power: the Lomb-Scargle periodogram",
+        "frequencies: the evaluated grid",
+        "false_alarm_probability: significance of the peaks",
+        "band_shares: variance share by frequency band"
+      ],
+      "chart_kind": "line",
+      "interpretation_traps": [
+        "IRREGULAR SAMPLING CREATES ALIASES AND SPURIOUS PEAKS at frequencies related to the sampling pattern; the window function must be examined before any peak is believed",
+        "the false-alarm probability assumes independent frequencies, which they are not, so it understates the chance of a spurious peak",
+        "interpolating to a regular grid and using a standard periodogram introduces its own artefacts and is not a neutral alternative"
+      ],
+      "sources": [
+        "Lomb 1976 (Astrophysics and Space Science 39:447-462)",
+        "Scargle 1982 (Astrophysical Journal 263:835)",
+        "VanderPlas 2018 (Astrophysical Journal Supplement 236:16)",
+        "scipy"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     }
-   ],
-   "output_key_fields": [
-    "wv_transform: power (a period-by-time matrix), phase, amplitude, ridge (0/1), power_avg (the global spectrum) + power_pval/power_avg_pval (absent when make_pval=False), period/scale, axis_time/axis_period, coi_time/coi_period (the cone of influence), n_time and n_period",
-    "wv_coherency: cross_power (a matrix), coherence (a matrix in [0,1]), angle (the phase-difference matrix), power_x/power_y, ridge_xy/ridge_co (0/1), *_avg + *_pval, period/scale/axes/coi, n_time/n_period",
-    "everything is numeric chart-data (charts are the frontend's job ONLY, §5); the raw fit sits in the 'fit' field (to_mcp -> a stub; it contains the complex Wave)"
-   ],
-   "chart_kind": "heatmap",
-   "interpretation_traps": [
-    "the period is EXPRESSED in units of dt; power/coherence INSIDE the cone of influence (coi_time/coi_period) are edge-affected -> interpret only outside the COI",
-    "an upper_period above n*dt gives a spectrum lying ENTIRELY inside the cone of influence — no complete cycle — which is plausible but nonsense; the raw routine does NOT error, so a hard gate blocks it",
-    "significance = a surrogate simulation (method + n_sim) -> DETERMINISM ONLY with a seed; the CWT power/phase/period themselves are seed-invariant (only the p-values depend on the seed)",
-    "coherence lies in [0,1] (a localized squared-correlation analogue); HIGH coherence does NOT mean causality; the angle (the phase difference) gives lead/lag ONLY where the coherence is significant",
-    "loess_span detrends BEFORE the transform (0 means no detrending); an incomplete series is silently wrong, so the gate requires a complete one",
-    "the white-noise null (the default), against the AR, ARIMA, Fourier-randomisation and shuffle alternatives -> a different strictness of significance; the AR and ARIMA surrogates suit series with autocorrelation"
-   ],
-   "sources": [
-    "Torrence & Compo 1998 Bulletin of the American Meteorological Society 79(1) (a practical guide to wavelet analysis — the Morlet CWT, the cross-wavelet, coherence, phase and surrogate significance)",
-    "Torrence & Compo 1998 'A Practical Guide to Wavelet Analysis' BAMS 79(1) 61-78 (the CWT, the cone of influence, Monte Carlo significance)",
-    "Aguiar-Conraria & Soares 2014 'The Continuous Wavelet Transform: Moving Beyond Uni- and Bivariate Analysis' Journal of Economic Surveys 28(2) 344-375 (macro time-frequency use, the interpretation of coherence & phase)",
-    "wrapper footer IMPLEMENTATION NOTE (c27_frequency_domain/wavelet_time_frequency)"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 236,
-   "method": "Spectral / periodogram quick look (a smoothed periodogram, the high-level spectrum pgram|AR, a numeric cumulative periodogram + KS white-noise bands)",
-   "wrapper_file": "c27_frequency_domain/spectral_periodogram_quick.py",
-   "tool_fns": [
-    "spec_periodogram",
-    "spec_spectrum",
-    "spec_cumulative_periodogram"
-   ],
-   "when": "a frequency-domain quick look at ONE univariate macro series -> which periodicities/cycles (seasonality, the business cycle) dominate; a smoothed periodogram (modified Daniell), a smooth AR spectral estimate, or a numeric cumulative periodogram + Kolmogorov-Smirnov bands for a white-noise test",
-   "when_not": "multivariate coherency or phase between series (this node handles ONE series); a wavelet or time-varying spectrum (-> #235); spectral causality or connectedness (-> #52); plain ARIMA or seasonal modelling (categories 02/03); it requires at least 4 observations with no gaps",
-   "alternatives": [
+  ],
+  "nodes": [
     {
-     "alt": "spec_periodogram (spans = odd Daniell smoothers)",
-     "criterion": "you want the (smoothed) raw periodogram with full control of taper/detrend/demean/pad/fast plus the dominant frequency+period"
+      "fn": "spec_cumulative_periodogram",
+      "card_id": 236,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "taper": 0.1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to A SINGLE univariate series (ts or single-series df); >= 4 observations, without NA.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "taper",
+          "kind": "number",
+          "required": false,
+          "description": "Split-cosine-bell taper in [0, 0.5] (default 0.1, as in the cumulative-periodogram routine).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.1,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
     },
     {
-     "alt": "spec_spectrum (method='pgram')",
-     "criterion": "a high-level quick look, identical to the smoothed periodogram but reached through the spectrum dispatcher (spans, taper)"
+      "fn": "spec_periodogram",
+      "card_id": 236,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "taper": 0.1,
+        "pad": 0,
+        "fast": true,
+        "demean": false,
+        "detrend": true
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to A SINGLE univariate series (a stored ts or single-series DataFrame); >= 4 observations, without NA.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "spans",
+          "kind": "int_array",
+          "required": false,
+          "description": "Widths of modified Daniell smoothers — vector of ODD positive integers (e.g. [3,5]); None = raw (unsmoothed) periodogram. CAUTION: even spans are blocked (silent-wrong smoother).",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "taper",
+          "kind": "number",
+          "required": false,
+          "description": "Percentage of split-cosine-bell taper at each end, in [0, 0.5] (default 0.1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "pad",
+          "kind": "number",
+          "required": false,
+          "description": "Zero-padding as a percentage of the length (>= 0; default 0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "fast",
+          "kind": "boolean",
+          "required": false,
+          "description": "Padding to a highly-composite length for a fast FFT (default True).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "demean",
+          "kind": "boolean",
+          "required": false,
+          "description": "Removal of the mean before the FFT (default False).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": false,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "detrend",
+          "kind": "boolean",
+          "required": false,
+          "description": "Removal of a linear trend before the FFT (default True).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        }
+      ]
     },
     {
-     "alt": "spec_spectrum (method='ar')",
-     "criterion": "you want a SMOOTH autoregressive (Yule-Walker) spectral estimate — a cleaner identification of the dominant cycle when the raw periodogram is noisy; the order is automatic (AIC) or supplied"
+      "fn": "spec_spectrum",
+      "card_id": 236,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "taper": 0.1,
+        "n_freq": 500
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to A SINGLE univariate series (ts or single-series df); >= 4 observations, without NA.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Spectrum estimator (default pgram): pgram=(smoothed) periodogram; ar=autoregressive (Yule-Walker) smooth spectral density.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "pgram",
+            "ar"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "spans",
+          "kind": "int_array",
+          "required": false,
+          "description": "method='pgram': modified Daniell smoothers (odd positive integers); otherwise None.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "taper",
+          "kind": "number",
+          "required": false,
+          "description": "method='pgram': split-cosine-bell taper in [0, 0.5] (default 0.1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "order",
+          "kind": "integer",
+          "required": false,
+          "description": "method='ar': AR order (non-negative integer); None = auto selection via AIC.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "n_freq",
+          "kind": "integer",
+          "required": false,
+          "description": "method='ar': number of frequency points of the estimate (positive integer; default 500).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 500,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
     },
     {
-     "alt": "spec_cumulative_periodogram (a numeric cpgram + KS bands)",
-     "criterion": "you want a white-noise test (Bartlett's Tp): the cumulative normalized periodogram vs frequency + KS bands; leaving the bands => white noise is rejected"
+      "fn": "wv_coherency",
+      "card_id": 235,
+      "register": null,
+      "input_example": {
+        "df": "<df_handle>",
+        "dt": 1,
+        "dj": 0.05,
+        "loess_span": 0.75,
+        "window_size_t": 5,
+        "window_size_s": 0.25,
+        "make_pval": true,
+        "n_sim": 10,
+        "seed": 1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "df",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Handle to a DataFrame with >= 2 numeric, ALIGNED series (complete, same length, equally spaced samples).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "x",
+          "kind": "string",
+          "required": false,
+          "description": "Column name of the 1st series (default: 1st numeric column).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "y",
+          "kind": "string",
+          "required": false,
+          "description": "Column name of the 2nd series, x != y (default: 2nd numeric column).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "dt",
+          "kind": "number",
+          "required": false,
+          "description": "Sampling time step (default 1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "dj",
+          "kind": "number",
+          "required": false,
+          "description": "Scale voice spacing (default 1/20).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "lower_period",
+          "kind": "number",
+          "required": false,
+          "description": "Lower period (>= 2*dt)· default 2*dt.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "upper_period",
+          "kind": "number",
+          "required": false,
+          "description": "Upper period (<= n*dt)· default floor(n/3)*dt.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "loess_span",
+          "kind": "number",
+          "required": false,
+          "description": "Loess span for detrending in [0,1] (default 0.75).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.75,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "window_size_t",
+          "kind": "number",
+          "required": false,
+          "description": "Smoothing window size in time for coherence (default 5).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "window_size_s",
+          "kind": "number",
+          "required": false,
+          "description": "Smoothing window size in scale for coherence (default 1/4).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.25,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "make_pval",
+          "kind": "boolean",
+          "required": false,
+          "description": "Surrogate p-values for cross-power & coherence (default True).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Null model surrogate (default white.noise· see wv_transform).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "white.noise",
+            "shuffle",
+            "Fourier.rand",
+            "AR",
+            "ARIMA"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "n_sim",
+          "kind": "integer",
+          "required": false,
+          "description": "Number of surrogate simulations (>= 1 if make_pval=True· default 10).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 10,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed before the surrogate simulation (default 1).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "wv_transform",
+      "card_id": 235,
+      "register": null,
+      "input_example": {
+        "df": "<df_handle>",
+        "dt": 1,
+        "dj": 0.05,
+        "loess_span": 0.75,
+        "make_pval": true,
+        "n_sim": 10,
+        "seed": 1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "df",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Handle to a DataFrame with >= 1 numeric series column (complete, without NA/Inf, >= 8 values, equally spaced samples).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "series",
+          "kind": "string",
+          "required": false,
+          "description": "Column name of the series to analyse (default: 1st numeric column).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "dt",
+          "kind": "number",
+          "required": false,
+          "description": "Sampling time step (default 1· period is expressed in units of dt).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "dj",
+          "kind": "number",
+          "required": false,
+          "description": "Voice spacing (scale resolution)· smaller = denser scales (default 1/20).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "lower_period",
+          "kind": "number",
+          "required": false,
+          "description": "Lower period (>= 2*dt, Nyquist)· default 2*dt (if omitted).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "upper_period",
+          "kind": "number",
+          "required": false,
+          "description": "Upper period (<= n*dt, otherwise inside the COI = silent-wrong)· default floor(n/3)*dt.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "loess_span",
+          "kind": "number",
+          "required": false,
+          "description": "Loess span for detrending before the CWT in [0,1] (0 = no detrending· default 0.75).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.75,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "make_pval",
+          "kind": "boolean",
+          "required": false,
+          "description": "Computation of significance p-values via surrogate simulation (default True).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Null model surrogate (default white.noise): white.noise· shuffle· Fourier.rand· AR· ARIMA.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "white.noise",
+            "shuffle",
+            "Fourier.rand",
+            "AR",
+            "ARIMA"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "n_sim",
+          "kind": "integer",
+          "required": false,
+          "description": "Number of surrogate simulations (>= 1 if make_pval=True· default 10).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 10,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed before the surrogate simulation (determinism of p-values· default 1).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "fd_cross_spectrum",
+      "card_id": 586,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "y": "<series_handle>",
+        "method": "welch",
+        "detrend": "linear",
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "coherence",
+          "phase",
+          "gain",
+          "conf_band"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "First series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "y",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Second series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Spectral estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "welch",
+            "multitaper",
+            "bartlett",
+            "periodogram"
+          ],
+          "allowed_vars": null,
+          "default": "welch",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "nperseg",
+          "kind": "integer",
+          "required": false,
+          "description": "Segment length.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "detrend",
+          "kind": "enum",
+          "required": false,
+          "description": "Detrending applied per segment.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "none",
+            "constant",
+            "linear"
+          ],
+          "allowed_vars": null,
+          "default": "linear",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "fd_wavelet_mra",
+      "card_id": 587,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "wavelet": "la8",
+        "transform": "modwt",
+        "boundary": "reflection"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "wavelet",
+          "kind": "enum",
+          "required": false,
+          "description": "Wavelet filter.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "haar",
+            "d4",
+            "la8",
+            "la16",
+            "c6",
+            "sym8"
+          ],
+          "allowed_vars": null,
+          "default": "la8",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "transform",
+          "kind": "enum",
+          "required": false,
+          "description": "Transform.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "dwt",
+            "modwt",
+            "swt"
+          ],
+          "allowed_vars": null,
+          "default": "modwt",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "levels",
+          "kind": "integer",
+          "required": false,
+          "description": "Decomposition levels; omitted = maximum admissible.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "boundary",
+          "kind": "enum",
+          "required": false,
+          "description": "Boundary handling.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "periodic",
+            "reflection",
+            "zero"
+          ],
+          "allowed_vars": null,
+          "default": "reflection",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "fd_wavelet_variance",
+      "card_id": 587,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "wavelet": "la8",
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "First series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "y",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Second series for cross-correlation.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "wavelet",
+          "kind": "enum",
+          "required": false,
+          "description": "Wavelet filter.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "haar",
+            "d4",
+            "la8",
+            "la16",
+            "c6",
+            "sym8"
+          ],
+          "allowed_vars": null,
+          "default": "la8",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "levels",
+          "kind": "integer",
+          "required": false,
+          "description": "Scales computed.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "fd_spectral_estimate",
+      "card_id": 588,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "method": "multitaper",
+        "n_tapers": 5,
+        "time_bandwidth": 4.0,
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "spectrum",
+          "frequencies",
+          "conf_int",
+          "resolution"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "multitaper",
+            "welch",
+            "bartlett",
+            "periodogram",
+            "ar"
+          ],
+          "allowed_vars": null,
+          "default": "multitaper",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "n_tapers",
+          "kind": "integer",
+          "required": false,
+          "description": "Tapers for the multitaper estimator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "time_bandwidth",
+          "kind": "number",
+          "required": false,
+          "description": "Time-bandwidth product.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 4.0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "nperseg",
+          "kind": "integer",
+          "required": false,
+          "description": "Segment length for Welch.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "ar_order",
+          "kind": "integer",
+          "required": false,
+          "description": "Order for the parametric estimator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "fd_frequency_granger",
+      "card_id": 589,
+      "register": null,
+      "input_example": {
+        "y": "<multiseries_handle>",
+        "cause": "...",
+        "effect": "...",
+        "lags": 4,
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "causality_spectrum",
+          "band_statistics",
+          "critical_values",
+          "significant_bands"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "multiseries_handle",
+          "required": true,
+          "description": "Two or more series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "cause",
+          "kind": "string",
+          "required": true,
+          "description": "Candidate causal variable.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "effect",
+          "kind": "string",
+          "required": true,
+          "description": "Affected variable.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "lags",
+          "kind": "integer",
+          "required": false,
+          "description": "VAR lag order.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 4,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "bands",
+          "kind": "num_array",
+          "required": false,
+          "description": "Frequency bands to aggregate over.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "fd_emd",
+      "card_id": 590,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "method": "ceemdan",
+        "max_imfs": 10,
+        "n_ensemble": 100,
+        "noise_strength": 0.2,
+        "hilbert": true,
+        "seed": 1
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "imfs",
+          "residual",
+          "instantaneous_frequency",
+          "n_modes"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Variant.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "emd",
+            "eemd",
+            "ceemdan"
+          ],
+          "allowed_vars": null,
+          "default": "ceemdan",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "max_imfs",
+          "kind": "integer",
+          "required": false,
+          "description": "Maximum modes extracted.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 10,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "n_ensemble",
+          "kind": "integer",
+          "required": false,
+          "description": "Ensemble size for the noise-assisted variants.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 100,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "noise_strength",
+          "kind": "number",
+          "required": false,
+          "description": "Added noise standard deviation.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.2,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "hilbert",
+          "kind": "boolean",
+          "required": false,
+          "description": "Compute the Hilbert spectrum.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": true,
+          "description": "Seed for the random number generator; required for reproducibility.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "fd_synchrosqueeze",
+      "card_id": 591,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "transform": "cwt",
+        "squeeze": true,
+        "wavelet": "morlet",
+        "extract_ridges": 0
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "transform",
+          "ridges",
+          "components",
+          "invertible"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "transform",
+          "kind": "enum",
+          "required": false,
+          "description": "Transform.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "cwt",
+            "stft"
+          ],
+          "allowed_vars": null,
+          "default": "cwt",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "squeeze",
+          "kind": "boolean",
+          "required": false,
+          "description": "Apply synchrosqueezing.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "wavelet",
+          "kind": "enum",
+          "required": false,
+          "description": "Analysing wavelet.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "morlet",
+            "bump",
+            "gmw"
+          ],
+          "allowed_vars": null,
+          "default": "morlet",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "extract_ridges",
+          "kind": "integer",
+          "required": false,
+          "description": "Ridges to extract; 0 = none.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "fd_lomb_scargle",
+      "card_id": 592,
+      "register": null,
+      "input_example": {
+        "x": "<irregular_series_handle>",
+        "normalisation": "standard",
+        "false_alarm": true
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "irregular_series_handle",
+          "required": true,
+          "description": "Irregularly sampled series with timestamps.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "frequencies",
+          "kind": "num_array",
+          "required": false,
+          "description": "Frequency grid; omitted = automatic.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "normalisation",
+          "kind": "enum",
+          "required": false,
+          "description": "Power normalisation.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "standard",
+            "model",
+            "log",
+            "psd"
+          ],
+          "allowed_vars": null,
+          "default": "standard",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "false_alarm",
+          "kind": "boolean",
+          "required": false,
+          "description": "Compute false-alarm probabilities.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        }
+      ]
+    },
+    {
+      "fn": "fd_band_variance",
+      "card_id": 592,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "bands": [
+          1.0,
+          2.0
+        ],
+        "method": "welch"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "bands",
+          "kind": "num_array",
+          "required": true,
+          "description": "Band edges in cycles per period.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Spectral estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "welch",
+            "multitaper",
+            "periodogram"
+          ],
+          "allowed_vars": null,
+          "default": "welch",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
     }
-   ],
-   "output_key_fields": [
-    "spec_periodogram: freq + spec (numeric vectors, chart-ready); peak_frequency + peak_period (=1/peak_frequency); df/bandwidth/taper/pad/detrend/demean/n_used/orig_n; smoothed(bool)+spans; method='pgram'; spec_object (the raw 'spec' list -> a to_mcp stub)",
-    "spec_spectrum: freq + spec; method ('pgram' or 'ar'); method_label; ar_order (blank on the periodogram route); peak_frequency and peak_period; df/bandwidth/taper/n_used; plus the spectrum object as a stub",
-    "spec_cumulative_periodogram: frequency + cumulative (monotone from 0 to 1); band_upper/band_lower (the KS bands clamped to [0,1]); crit (the KS critical value); nyquist; mp; n_exceedances + white_noise_rejected (bool)"
-   ],
-   "chart_kind": "line",
-   "interpretation_traps": [
-    "spans MUST be odd positive integers: the routine SILENTLY accepts even spans and returns the WRONG modified-Daniell smoother -> a hard gate blocks them",
-    "the reference cumulative periodogram is PLOT-ONLY — it draws and returns nothing numeric — so it is NOT called; spec_cumulative_periodogram reproduces THE SAME algorithm numerically (centre, taper, |FFT|²/n, zero the first term, then a running sum over the total; the bands have slope 1/xm and an offset of plus or minus the critical value)",
-    "the autoregressive spectrum of a trending or persistent series peaks at frequency 0, so the period would be 1/0 -> it is left blank rather than infinite",
-    "the periodogram omits frequency 0, so the frequency is always positive and the peak is always a real cycle",
-    "detrend=True (the default) removes BOTH the linear trend AND the mean; demean removes only the mean; the taper defaults to 0.1, a split-cosine bell, as documented",
-    "the node handles ONE series: multivariate input is blocked, since there is no coherency or phase surface; a gap trips an explicit gate",
-    "the FFT + Yule-Walker are DETERMINISTIC (no RNG; identical across two runs) -> no seed is needed"
-   ],
-   "sources": [
-    "Bloomfield 2000, Fourier Analysis of Time Series: An Introduction, 2nd ed. (the smoothed periodogram, the modified Daniell smoothers, the split-cosine-bell taper)",
-    "Percival & Walden 1993, Spectral Analysis for Physical Applications (the periodogram and the Yule-Walker autoregressive spectrum)",
-    "Venables & Ripley 2002, Modern Applied Statistics with S, pp. 392-397 (spectral analysis; the cumulative periodogram and Bartlett's white-noise test)",
-    "Bloomfield 1976 'Fourier Analysis of Time Series: An Introduction' Wiley (the equivalent bandwidth, tapering)",
-    "Brockwell & Davis 1991 'Time Series: Theory and Methods' 2nd ed Springer (periodogram consistency, smoothing)",
-    "Priestley 1981 'Spectral Analysis and Time Series' Academic Press (AR spectral estimation)",
-    "wrapper footer IMPLEMENTATION NOTE (c27_frequency_domain/spectral_periodogram_quick)"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 586,
-   "method": "Cross-spectral analysis: coherence, phase and gain",
-   "wrapper_file": "c27_frequency_domain/cross_spectral.py",
-   "tool_fns": [
-    "fd_cross_spectrum"
-   ],
-   "when": "how two series co-move frequency by frequency, and whether one leads the other at business-cycle frequencies",
-   "when_not": "the series are non-stationary and no transformation makes them so; the sample is too short for frequency resolution",
-   "alternatives": [
-    {
-     "alt": "cross-correlation function",
-     "criterion": "you want lead-lag in the time domain"
-    },
-    {
-     "alt": "cross-spectrum",
-     "criterion": "co-movement by frequency band"
-    },
-    {
-     "alt": "wavelet coherence",
-     "criterion": "the relationship changes over time"
-    }
-   ],
-   "output_key_fields": [
-    "coherence: squared coherence by frequency",
-    "phase: phase difference, convertible to a lead in periods",
-    "gain: the frequency-dependent amplitude ratio",
-    "conf_band: significance band for coherence"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "THE PHASE SPECTRUM IS ONLY INTERPRETABLE WHERE COHERENCE IS SIGNIFICANT; phase estimates at incoherent frequencies are uniformly distributed noise and reading a lead off them is meaningless",
-    "phase is identified modulo 2 pi, so a lead of k periods and one of k plus a full cycle are indistinguishable",
-    "smoothing the periodogram trades bias against variance and directly controls how much coherence you see"
-   ],
-   "sources": [
-    "Priestley 1981, Spectral Analysis and Time Series",
-    "Koopmans 1974, The Spectral Analysis of Time Series",
-    "spectrum"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 587,
-   "method": "Discrete wavelet multi-resolution analysis",
-   "wrapper_file": "c27_frequency_domain/wavelet_mra.py",
-   "tool_fns": [
-    "fd_wavelet_mra",
-    "fd_wavelet_variance"
-   ],
-   "when": "decomposing a series by timescale, where each component can be interpreted as short-, medium- or long-run variation",
-   "when_not": "the series is short relative to the number of levels; you need frequency resolution rather than scale bands",
-   "alternatives": [
-    {
-     "alt": "DWT",
-     "criterion": "orthogonal, decimated, requires a dyadic length"
-    },
-    {
-     "alt": "MODWT",
-     "criterion": "shift invariant, any length, the usual choice for economics"
-    },
-    {
-     "alt": "continuous wavelet transform",
-     "criterion": "you want a fine time-frequency picture"
-    }
-   ],
-   "output_key_fields": [
-    "details, smooth: the multi-resolution components",
-    "variance_by_scale: wavelet variance per scale",
-    "correlation_by_scale: cross-correlation per scale between two series",
-    "boundary_affected: coefficients contaminated by the boundary"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "THE DWT REQUIRES A DYADIC-LENGTH SERIES AND IS NOT SHIFT INVARIANT -- shifting the sample by one observation changes the decomposition, which is why MODWT is preferred for economic data",
-    "boundary coefficients are contaminated by the periodic or reflective extension and must be excluded from any statistic",
-    "the wavelet filter choice affects the scale bands; a longer filter gives better frequency separation and more boundary contamination"
-   ],
-   "sources": [
-    "Percival & Walden 2000, Wavelet Methods for Time Series Analysis",
-    "Gencay, Selcuk & Whitcher 2002, An Introduction to Wavelets and Other Filtering Methods",
-    "PyWavelets"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 588,
-   "method": "Multitaper and Welch spectral estimation with confidence intervals",
-   "wrapper_file": "c27_frequency_domain/spectral_estimation.py",
-   "tool_fns": [
-    "fd_spectral_estimate"
-   ],
-   "when": "the raw periodogram is inconsistent, and a usable spectrum needs smoothing or tapering with honest uncertainty",
-   "when_not": "you need the exact periodogram ordinates; the series is too short for any segmentation",
-   "alternatives": [
-    {
-     "alt": "Welch averaged periodogram",
-     "criterion": "simple, widely used"
-    },
-    {
-     "alt": "multitaper",
-     "criterion": "the best bias-variance trade-off, with proper degrees of freedom"
-    },
-    {
-     "alt": "parametric (autoregressive) spectrum",
-     "criterion": "you want a smooth spectrum from a fitted model"
-    }
-   ],
-   "output_key_fields": [
-    "spectrum: the estimated spectral density",
-    "frequencies: the frequency grid",
-    "conf_int: confidence band, from the chi-squared degrees of freedom",
-    "resolution: the frequency resolution actually achieved"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "THE RAW PERIODOGRAM IS NOT CONSISTENT: its variance does not fall as the sample grows, so an unsmoothed spectral plot is noise however long the series",
-    "there is a hard trade-off between frequency resolution and variance; more smoothing means a smoother spectrum and blurred peaks",
-    "the number of tapers sets the degrees of freedom and therefore the confidence band, and it must be reported"
-   ],
-   "sources": [
-    "Thomson 1982 (Proceedings of the IEEE 70:1055-1096)",
-    "Welch 1967 (IEEE Transactions on Audio and Electroacoustics 15:70)",
-    "Percival & Walden 1993, Spectral Analysis for Physical Applications",
-    "spectrum"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 589,
-   "method": "Frequency-domain Granger causality",
-   "wrapper_file": "c27_frequency_domain/frequency_granger.py",
-   "tool_fns": [
-    "fd_frequency_granger"
-   ],
-   "when": "causality can run at business-cycle frequencies and not at high frequencies, which a single time-domain statistic averages away",
-   "when_not": "the series are non-stationary; the VAR the decomposition rests on is misspecified",
-   "alternatives": [
-    {
-     "alt": "time-domain Granger causality",
-     "criterion": "one summary statistic"
-    },
-    {
-     "alt": "Breitung-Candelon decomposition",
-     "criterion": "causality by frequency"
-    },
-    {
-     "alt": "Geweke measures",
-     "criterion": "linear feedback decomposed by frequency"
-    }
-   ],
-   "output_key_fields": [
-    "causality_spectrum: the measure by frequency",
-    "band_statistics: aggregated over named frequency bands",
-    "critical_values: which are frequency dependent",
-    "significant_bands: where causality is detected"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "THE FREQUENCY-DOMAIN MEASURE INTEGRATES TO THE TIME-DOMAIN STATISTIC, so a zero overall statistic is consistent with strong causality at some frequencies offset by none at others",
-    "the decomposition inherits every misspecification of the underlying VAR, particularly the lag order",
-    "critical values vary with frequency and using a single threshold across the spectrum is wrong"
-   ],
-   "sources": [
-    "Geweke 1982 (JASA 77:304-313)",
-    "Breitung & Candelon 2006 (Journal of Econometrics 132:363)",
-    "statsmodels"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 590,
-   "method": "Empirical mode decomposition and the Hilbert-Huang transform",
-   "wrapper_file": "c27_frequency_domain/emd_hilbert.py",
-   "tool_fns": [
-    "fd_emd"
-   ],
-   "when": "decomposing a nonlinear, non-stationary series into oscillatory modes defined by the data rather than by a fixed basis",
-   "when_not": "the series is stationary and a Fourier or wavelet basis is appropriate and better understood",
-   "alternatives": [
-    {
-     "alt": "wavelet decomposition",
-     "criterion": "a fixed basis with known properties"
-    },
-    {
-     "alt": "empirical mode decomposition",
-     "criterion": "data-driven modes, handles non-stationarity"
-    },
-    {
-     "alt": "ensemble EMD or CEEMDAN",
-     "criterion": "mode mixing is a problem"
-    }
-   ],
-   "output_key_fields": [
-    "imfs: the intrinsic mode functions",
-    "residual: the trend left after extraction",
-    "instantaneous_frequency: from the Hilbert transform",
-    "n_modes: how many were extracted"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "MODE MIXING IS THE CENTRAL WEAKNESS: a single mode can contain oscillations of very different scales, which is what the ensemble variants exist to reduce",
-    "EMD has no theoretical foundation comparable to wavelets -- it is an algorithm, and its output depends on the stopping criterion and interpolation",
-    "the ensemble variants add noise deliberately and therefore need a seed to be reproducible"
-   ],
-   "sources": [
-    "Huang et al. 1998 (Proceedings of the Royal Society A 454:903-995)",
-    "Torres, Colominas, Schlotthauer & Flandrin 2011, CEEMDAN (ICASSP 2011:4144)",
-    "EMD-signal"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 591,
-   "method": "Synchrosqueezing and reassigned time-frequency transforms",
-   "wrapper_file": "c27_frequency_domain/synchrosqueezing.py",
-   "tool_fns": [
-    "fd_synchrosqueeze"
-   ],
-   "when": "a sharper time-frequency picture than a spectrogram, which smears energy across frequencies",
-   "when_not": "you only need a global spectrum; the series is too short for any time-frequency localisation",
-   "alternatives": [
-    {
-     "alt": "spectrogram",
-     "criterion": "the standard, smeared but simple"
-    },
-    {
-     "alt": "synchrosqueezing",
-     "criterion": "sharpened and invertible"
-    },
-    {
-     "alt": "reassignment",
-     "criterion": "sharpened but not invertible"
-    }
-   ],
-   "output_key_fields": [
-    "transform: the time-frequency representation",
-    "ridges: extracted instantaneous-frequency curves",
-    "components: reconstructed modes from the ridges",
-    "invertible: whether the transform supports reconstruction"
-   ],
-   "chart_kind": "heatmap",
-   "interpretation_traps": [
-    "REASSIGNMENT SHARPENS BUT DESTROYS INVERTIBILITY; synchrosqueezing sharpens and remains invertible, which is the reason to prefer it when components must be reconstructed",
-    "sharpening does not create resolution that the data lack -- it redistributes energy, and closely spaced components remain unresolvable",
-    "ridge extraction is a curve-tracking problem and its parameters materially affect the extracted components"
-   ],
-   "sources": [
-    "Daubechies, Lu & Wu 2011 (Applied and Computational Harmonic Analysis 30:243-261)",
-    "Auger & Flandrin 1995 (IEEE Transactions on Signal Processing 43:1068)",
-    "ssqueezepy"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 592,
-   "method": "Lomb-Scargle periodogram and band-variance shares",
-   "wrapper_file": "c27_frequency_domain/lomb_scargle.py",
-   "tool_fns": [
-    "fd_lomb_scargle",
-    "fd_band_variance"
-   ],
-   "when": "the series is irregularly sampled or has gaps, where the ordinary periodogram is not defined",
-   "when_not": "the sampling is regular, where standard spectral methods are better understood and faster",
-   "alternatives": [
-    {
-     "alt": "Lomb-Scargle",
-     "criterion": "irregular sampling"
-    },
-    {
-     "alt": "interpolate then use a standard periodogram",
-     "criterion": "gaps are few and short"
-    },
-    {
-     "alt": "band-variance decomposition",
-     "criterion": "you want variance shares rather than a spectrum"
-    }
-   ],
-   "output_key_fields": [
-    "power: the Lomb-Scargle periodogram",
-    "frequencies: the evaluated grid",
-    "false_alarm_probability: significance of the peaks",
-    "band_shares: variance share by frequency band"
-   ],
-   "chart_kind": "line",
-   "interpretation_traps": [
-    "IRREGULAR SAMPLING CREATES ALIASES AND SPURIOUS PEAKS at frequencies related to the sampling pattern; the window function must be examined before any peak is believed",
-    "the false-alarm probability assumes independent frequencies, which they are not, so it understates the chance of a spurious peak",
-    "interpolating to a regular grid and using a standard periodogram introduces its own artefacts and is not a neutral alternative"
-   ],
-   "sources": [
-    "Lomb 1976 (Astrophysics and Space Science 39:447-462)",
-    "Scargle 1982 (Astrophysical Journal 263:835)",
-    "VanderPlas 2018 (Astrophysical Journal Supplement 236:16)",
-    "scipy"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  }
- ],
- "nodes": [
-  {
-   "fn": "spec_cumulative_periodogram",
-   "card_id": 236,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "taper": 0.1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to A SINGLE univariate series (ts or single-series df); >= 4 observations, without NA.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "taper",
-     "kind": "number",
-     "required": false,
-     "description": "Split-cosine-bell taper in [0, 0.5] (default 0.1, as in the cumulative-periodogram routine).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.1,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "spec_periodogram",
-   "card_id": 236,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "taper": 0.1,
-    "pad": 0,
-    "fast": true,
-    "demean": false,
-    "detrend": true
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to A SINGLE univariate series (a stored ts or single-series DataFrame); >= 4 observations, without NA.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "spans",
-     "kind": "int_array",
-     "required": false,
-     "description": "Widths of modified Daniell smoothers — vector of ODD positive integers (e.g. [3,5]); None = raw (unsmoothed) periodogram. CAUTION: even spans are blocked (silent-wrong smoother).",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "taper",
-     "kind": "number",
-     "required": false,
-     "description": "Percentage of split-cosine-bell taper at each end, in [0, 0.5] (default 0.1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "pad",
-     "kind": "number",
-     "required": false,
-     "description": "Zero-padding as a percentage of the length (>= 0; default 0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "fast",
-     "kind": "boolean",
-     "required": false,
-     "description": "Padding to a highly-composite length for a fast FFT (default True).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "demean",
-     "kind": "boolean",
-     "required": false,
-     "description": "Removal of the mean before the FFT (default False).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": false,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "detrend",
-     "kind": "boolean",
-     "required": false,
-     "description": "Removal of a linear trend before the FFT (default True).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    }
-   ]
-  },
-  {
-   "fn": "spec_spectrum",
-   "card_id": 236,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "taper": 0.1,
-    "n_freq": 500
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to A SINGLE univariate series (ts or single-series df); >= 4 observations, without NA.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Spectrum estimator (default pgram): pgram=(smoothed) periodogram; ar=autoregressive (Yule-Walker) smooth spectral density.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "pgram",
-      "ar"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "spans",
-     "kind": "int_array",
-     "required": false,
-     "description": "method='pgram': modified Daniell smoothers (odd positive integers); otherwise None.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "taper",
-     "kind": "number",
-     "required": false,
-     "description": "method='pgram': split-cosine-bell taper in [0, 0.5] (default 0.1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "order",
-     "kind": "integer",
-     "required": false,
-     "description": "method='ar': AR order (non-negative integer); None = auto selection via AIC.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "n_freq",
-     "kind": "integer",
-     "required": false,
-     "description": "method='ar': number of frequency points of the estimate (positive integer; default 500).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 500,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "wv_coherency",
-   "card_id": 235,
-   "register": null,
-   "input_example": {
-    "df": "<df_handle>",
-    "dt": 1,
-    "dj": 0.05,
-    "loess_span": 0.75,
-    "window_size_t": 5,
-    "window_size_s": 0.25,
-    "make_pval": true,
-    "n_sim": 10,
-    "seed": 1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "df",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Handle to a DataFrame with >= 2 numeric, ALIGNED series (complete, same length, equally spaced samples).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "x",
-     "kind": "string",
-     "required": false,
-     "description": "Column name of the 1st series (default: 1st numeric column).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "y",
-     "kind": "string",
-     "required": false,
-     "description": "Column name of the 2nd series, x != y (default: 2nd numeric column).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "dt",
-     "kind": "number",
-     "required": false,
-     "description": "Sampling time step (default 1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "dj",
-     "kind": "number",
-     "required": false,
-     "description": "Scale voice spacing (default 1/20).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "lower_period",
-     "kind": "number",
-     "required": false,
-     "description": "Lower period (>= 2*dt)· default 2*dt.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "upper_period",
-     "kind": "number",
-     "required": false,
-     "description": "Upper period (<= n*dt)· default floor(n/3)*dt.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "loess_span",
-     "kind": "number",
-     "required": false,
-     "description": "Loess span for detrending in [0,1] (default 0.75).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.75,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "window_size_t",
-     "kind": "number",
-     "required": false,
-     "description": "Smoothing window size in time for coherence (default 5).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "window_size_s",
-     "kind": "number",
-     "required": false,
-     "description": "Smoothing window size in scale for coherence (default 1/4).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.25,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "make_pval",
-     "kind": "boolean",
-     "required": false,
-     "description": "Surrogate p-values for cross-power & coherence (default True).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Null model surrogate (default white.noise· see wv_transform).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "white.noise",
-      "shuffle",
-      "Fourier.rand",
-      "AR",
-      "ARIMA"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "n_sim",
-     "kind": "integer",
-     "required": false,
-     "description": "Number of surrogate simulations (>= 1 if make_pval=True· default 10).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 10,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed before the surrogate simulation (default 1).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "wv_transform",
-   "card_id": 235,
-   "register": null,
-   "input_example": {
-    "df": "<df_handle>",
-    "dt": 1,
-    "dj": 0.05,
-    "loess_span": 0.75,
-    "make_pval": true,
-    "n_sim": 10,
-    "seed": 1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "df",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Handle to a DataFrame with >= 1 numeric series column (complete, without NA/Inf, >= 8 values, equally spaced samples).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "series",
-     "kind": "string",
-     "required": false,
-     "description": "Column name of the series to analyse (default: 1st numeric column).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "dt",
-     "kind": "number",
-     "required": false,
-     "description": "Sampling time step (default 1· period is expressed in units of dt).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "dj",
-     "kind": "number",
-     "required": false,
-     "description": "Voice spacing (scale resolution)· smaller = denser scales (default 1/20).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "lower_period",
-     "kind": "number",
-     "required": false,
-     "description": "Lower period (>= 2*dt, Nyquist)· default 2*dt (if omitted).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "upper_period",
-     "kind": "number",
-     "required": false,
-     "description": "Upper period (<= n*dt, otherwise inside the COI = silent-wrong)· default floor(n/3)*dt.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "loess_span",
-     "kind": "number",
-     "required": false,
-     "description": "Loess span for detrending before the CWT in [0,1] (0 = no detrending· default 0.75).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.75,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "make_pval",
-     "kind": "boolean",
-     "required": false,
-     "description": "Computation of significance p-values via surrogate simulation (default True).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Null model surrogate (default white.noise): white.noise· shuffle· Fourier.rand· AR· ARIMA.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "white.noise",
-      "shuffle",
-      "Fourier.rand",
-      "AR",
-      "ARIMA"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "n_sim",
-     "kind": "integer",
-     "required": false,
-     "description": "Number of surrogate simulations (>= 1 if make_pval=True· default 10).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 10,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed before the surrogate simulation (determinism of p-values· default 1).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "fd_cross_spectrum",
-   "card_id": 586,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "y": "<series_handle>",
-    "method": "welch",
-    "detrend": "linear",
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "coherence",
-     "phase",
-     "gain",
-     "conf_band"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "First series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "y",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Second series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Spectral estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "welch",
-      "multitaper",
-      "bartlett",
-      "periodogram"
-     ],
-     "allowed_vars": null,
-     "default": "welch",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "nperseg",
-     "kind": "integer",
-     "required": false,
-     "description": "Segment length.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "detrend",
-     "kind": "enum",
-     "required": false,
-     "description": "Detrending applied per segment.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "none",
-      "constant",
-      "linear"
-     ],
-     "allowed_vars": null,
-     "default": "linear",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "fd_wavelet_mra",
-   "card_id": 587,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "wavelet": "la8",
-    "transform": "modwt",
-    "boundary": "reflection"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "wavelet",
-     "kind": "enum",
-     "required": false,
-     "description": "Wavelet filter.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "haar",
-      "d4",
-      "la8",
-      "la16",
-      "c6",
-      "sym8"
-     ],
-     "allowed_vars": null,
-     "default": "la8",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "transform",
-     "kind": "enum",
-     "required": false,
-     "description": "Transform.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "dwt",
-      "modwt",
-      "swt"
-     ],
-     "allowed_vars": null,
-     "default": "modwt",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "levels",
-     "kind": "integer",
-     "required": false,
-     "description": "Decomposition levels; omitted = maximum admissible.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "boundary",
-     "kind": "enum",
-     "required": false,
-     "description": "Boundary handling.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "periodic",
-      "reflection",
-      "zero"
-     ],
-     "allowed_vars": null,
-     "default": "reflection",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "fd_wavelet_variance",
-   "card_id": 587,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "wavelet": "la8",
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "First series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "y",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Second series for cross-correlation.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "wavelet",
-     "kind": "enum",
-     "required": false,
-     "description": "Wavelet filter.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "haar",
-      "d4",
-      "la8",
-      "la16",
-      "c6",
-      "sym8"
-     ],
-     "allowed_vars": null,
-     "default": "la8",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "levels",
-     "kind": "integer",
-     "required": false,
-     "description": "Scales computed.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "fd_spectral_estimate",
-   "card_id": 588,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "method": "multitaper",
-    "n_tapers": 5,
-    "time_bandwidth": 4.0,
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "spectrum",
-     "frequencies",
-     "conf_int",
-     "resolution"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "multitaper",
-      "welch",
-      "bartlett",
-      "periodogram",
-      "ar"
-     ],
-     "allowed_vars": null,
-     "default": "multitaper",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "n_tapers",
-     "kind": "integer",
-     "required": false,
-     "description": "Tapers for the multitaper estimator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "time_bandwidth",
-     "kind": "number",
-     "required": false,
-     "description": "Time-bandwidth product.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 4.0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "nperseg",
-     "kind": "integer",
-     "required": false,
-     "description": "Segment length for Welch.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "ar_order",
-     "kind": "integer",
-     "required": false,
-     "description": "Order for the parametric estimator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "fd_frequency_granger",
-   "card_id": 589,
-   "register": null,
-   "input_example": {
-    "y": "<multiseries_handle>",
-    "cause": "...",
-    "effect": "...",
-    "lags": 4,
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "causality_spectrum",
-     "band_statistics",
-     "critical_values",
-     "significant_bands"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "multiseries_handle",
-     "required": true,
-     "description": "Two or more series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "cause",
-     "kind": "string",
-     "required": true,
-     "description": "Candidate causal variable.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "effect",
-     "kind": "string",
-     "required": true,
-     "description": "Affected variable.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "lags",
-     "kind": "integer",
-     "required": false,
-     "description": "VAR lag order.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 4,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "bands",
-     "kind": "num_array",
-     "required": false,
-     "description": "Frequency bands to aggregate over.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "fd_emd",
-   "card_id": 590,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "method": "ceemdan",
-    "max_imfs": 10,
-    "n_ensemble": 100,
-    "noise_strength": 0.2,
-    "hilbert": true,
-    "seed": 1
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "imfs",
-     "residual",
-     "instantaneous_frequency",
-     "n_modes"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Variant.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "emd",
-      "eemd",
-      "ceemdan"
-     ],
-     "allowed_vars": null,
-     "default": "ceemdan",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "max_imfs",
-     "kind": "integer",
-     "required": false,
-     "description": "Maximum modes extracted.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 10,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "n_ensemble",
-     "kind": "integer",
-     "required": false,
-     "description": "Ensemble size for the noise-assisted variants.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 100,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "noise_strength",
-     "kind": "number",
-     "required": false,
-     "description": "Added noise standard deviation.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.2,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "hilbert",
-     "kind": "boolean",
-     "required": false,
-     "description": "Compute the Hilbert spectrum.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": true,
-     "description": "Seed for the random number generator; required for reproducibility.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "fd_synchrosqueeze",
-   "card_id": 591,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "transform": "cwt",
-    "squeeze": true,
-    "wavelet": "morlet",
-    "extract_ridges": 0
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "transform",
-     "ridges",
-     "components",
-     "invertible"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "transform",
-     "kind": "enum",
-     "required": false,
-     "description": "Transform.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "cwt",
-      "stft"
-     ],
-     "allowed_vars": null,
-     "default": "cwt",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "squeeze",
-     "kind": "boolean",
-     "required": false,
-     "description": "Apply synchrosqueezing.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "wavelet",
-     "kind": "enum",
-     "required": false,
-     "description": "Analysing wavelet.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "morlet",
-      "bump",
-      "gmw"
-     ],
-     "allowed_vars": null,
-     "default": "morlet",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "extract_ridges",
-     "kind": "integer",
-     "required": false,
-     "description": "Ridges to extract; 0 = none.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "fd_lomb_scargle",
-   "card_id": 592,
-   "register": null,
-   "input_example": {
-    "x": "<irregular_series_handle>",
-    "normalisation": "standard",
-    "false_alarm": true
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "irregular_series_handle",
-     "required": true,
-     "description": "Irregularly sampled series with timestamps.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "frequencies",
-     "kind": "num_array",
-     "required": false,
-     "description": "Frequency grid; omitted = automatic.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "normalisation",
-     "kind": "enum",
-     "required": false,
-     "description": "Power normalisation.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "standard",
-      "model",
-      "log",
-      "psd"
-     ],
-     "allowed_vars": null,
-     "default": "standard",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "false_alarm",
-     "kind": "boolean",
-     "required": false,
-     "description": "Compute false-alarm probabilities.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    }
-   ]
-  },
-  {
-   "fn": "fd_band_variance",
-   "card_id": 592,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "bands": [
-     1.0,
-     2.0
-    ],
-    "method": "welch"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "bands",
-     "kind": "num_array",
-     "required": true,
-     "description": "Band edges in cycles per period.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Spectral estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "welch",
-      "multitaper",
-      "periodogram"
-     ],
-     "allowed_vars": null,
-     "default": "welch",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  }
- ]
+  ]
 }

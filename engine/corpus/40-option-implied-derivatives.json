@@ -1,1530 +1,1530 @@
 {
- "category": "40-option-implied-derivatives",
- "cards": [
-  {
-   "id": 340,
-   "method": "Black-Scholes and Bachelier pricing, Greeks and implied-volatility inversion",
-   "wrapper_file": "c40_option_implied_derivatives/bs_pricing_iv.py",
-   "tool_fns": [
-    "opt_price",
-    "opt_implied_volatility"
-   ],
-   "when": "pricing a vanilla option, computing its sensitivities, or backing out the volatility the market price implies",
-   "when_not": "the option is path dependent or American with early exercise that matters (-> a lattice or Monte Carlo); the underlying can go negative and the model is lognormal",
-   "alternatives": [
+  "category": "40-option-implied-derivatives",
+  "cards": [
     {
-     "alt": "Bachelier (normal) model",
-     "criterion": "the underlying can be negative, as with spreads and some rates"
+      "id": 340,
+      "method": "Black-Scholes and Bachelier pricing, Greeks and implied-volatility inversion",
+      "wrapper_file": "c40_option_implied_derivatives/bs_pricing_iv.py",
+      "tool_fns": [
+        "opt_price",
+        "opt_implied_volatility"
+      ],
+      "when": "pricing a vanilla option, computing its sensitivities, or backing out the volatility the market price implies",
+      "when_not": "the option is path dependent or American with early exercise that matters (-> a lattice or Monte Carlo); the underlying can go negative and the model is lognormal",
+      "alternatives": [
+        {
+          "alt": "Bachelier (normal) model",
+          "criterion": "the underlying can be negative, as with spreads and some rates"
+        },
+        {
+          "alt": "binomial or trinomial lattice",
+          "criterion": "early exercise matters"
+        },
+        {
+          "alt": "stochastic volatility",
+          "criterion": "the smile must be fitted, not assumed away"
+        }
+      ],
+      "output_key_fields": [
+        "price: the model value",
+        "delta, gamma, vega, theta, rho: the Greeks",
+        "implied_volatility: the inverted volatility, None where no solution exists",
+        "moneyness, time_to_expiry: the inputs, echoed for auditability"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "implied volatility DOES NOT EXIST when the price violates the no-arbitrage bounds; returning None is correct and a returned number in that case is a solver artefact",
+        "deep in- and out-of-the-money inversions are numerically ill-conditioned because vega goes to zero -- small price errors become large volatility errors",
+        "Black-Scholes and Bachelier volatilities are in different units and are not comparable"
+      ],
+      "sources": [
+        "Black & Scholes 1973 (Journal of Political Economy 81:637-654)",
+        "Bachelier 1900, Theorie de la speculation",
+        "Jaeckel 2015, Let's be rational (Wilmott 2015:40)",
+        "vollib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "binomial or trinomial lattice",
-     "criterion": "early exercise matters"
+      "id": 341,
+      "method": "Implied-volatility surface fitting with SVI and SABR, and arbitrage checks",
+      "wrapper_file": "c40_option_implied_derivatives/iv_surface.py",
+      "tool_fns": [
+        "opt_fit_surface",
+        "opt_surface_evaluate",
+        "opt_arbitrage_check"
+      ],
+      "when": "building a smooth, arbitrage-free volatility surface from discrete quoted options, so any strike and maturity can be priced consistently",
+      "when_not": "you only need one option's implied volatility; the quote set is too sparse for a surface to be identified",
+      "alternatives": [
+        {
+          "alt": "SVI",
+          "criterion": "a slice-wise parameterisation with known arbitrage conditions"
+        },
+        {
+          "alt": "SABR",
+          "criterion": "you want a dynamic model consistent with smile movement"
+        },
+        {
+          "alt": "interpolation",
+          "criterion": "you only need to fill gaps and do not need a model"
+        }
+      ],
+      "output_key_fields": [
+        "params: the fitted surface parameters per slice",
+        "fitted_iv: implied volatility on the requested grid",
+        "butterfly_arbitrage, calendar_arbitrage: violation flags and where they occur",
+        "rmse: fit quality against the quotes"
+      ],
+      "chart_kind": "heatmap",
+      "interpretation_traps": [
+        "a surface that fits well can still admit ARBITRAGE; the butterfly and calendar checks are not diagnostics of fit, they are constraints on validity",
+        "SVI in raw parameterisation has parameter combinations that guarantee butterfly arbitrage -- fitting without the constraint routinely lands there",
+        "extrapolating the surface beyond the quoted strike range is unconstrained by data and is where most pricing errors originate"
+      ],
+      "sources": [
+        "Gatheral & Jacquier 2014 (Quantitative Finance 14:59-71)",
+        "Hagan, Kumar, Lesniewski & Woodward 2002, Managing smile risk (Wilmott 1:84)",
+        "Gatheral 2006, The Volatility Surface",
+        "QuantLib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "stochastic volatility",
-     "criterion": "the smile must be fitted, not assumed away"
+      "id": 342,
+      "method": "Risk-neutral density extraction by Breeden-Litzenberger",
+      "wrapper_file": "c40_option_implied_derivatives/risk_neutral_density.py",
+      "tool_fns": [
+        "opt_risk_neutral_density"
+      ],
+      "when": "recovering the market's implied distribution of the underlying from a cross-section of option prices -- the density behind every option-implied uncertainty measure",
+      "when_not": "the strike grid is too coarse or too noisy for a second derivative to be estimated; you need the physical rather than risk-neutral measure",
+      "alternatives": [
+        {
+          "alt": "parametric density fitting",
+          "criterion": "you want a smooth family rather than a nonparametric density"
+        },
+        {
+          "alt": "Breeden-Litzenberger on a fitted surface",
+          "criterion": "the standard route: smooth first, differentiate second"
+        },
+        {
+          "alt": "mixture of lognormals",
+          "criterion": "you want an interpretable multi-modal fit"
+        }
+      ],
+      "output_key_fields": [
+        "density: the risk-neutral density on the strike grid",
+        "cdf: the implied distribution function",
+        "quantiles: implied quantiles, which are the usable summary",
+        "negative_mass: where the density came out negative, which signals arbitrage or over-fitting"
+      ],
+      "chart_kind": "line",
+      "interpretation_traps": [
+        "the density is a SECOND DERIVATIVE of price in strike, so it amplifies quote noise enormously -- differentiating raw quotes is never acceptable",
+        "negative density values mean the fitted price function is not convex, i.e. butterfly arbitrage; they are a validity failure, not a rounding issue",
+        "the recovered density is RISK-NEUTRAL and is not the market's physical forecast; the difference is the risk premium"
+      ],
+      "sources": [
+        "Breeden & Litzenberger 1978 (Journal of Business 51:621-651)",
+        "Ait-Sahalia & Lo 1998 (Journal of Finance 53:499)",
+        "Figlewski 2010, Estimating the implied risk-neutral density (Volatility and Time Series Econometrics)"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 343,
+      "method": "Model-free implied variance and variance swaps",
+      "wrapper_file": "c40_option_implied_derivatives/model_free_variance.py",
+      "tool_fns": [
+        "opt_model_free_variance",
+        "opt_variance_risk_premium"
+      ],
+      "when": "computing the VIX-style expected variance from an option strip without assuming any pricing model",
+      "when_not": "the strike range is too narrow for the integral to converge; you want a model-based volatility instead",
+      "alternatives": [
+        {
+          "alt": "Black-Scholes at-the-money implied volatility",
+          "criterion": "a single quick proxy"
+        },
+        {
+          "alt": "model-free implied variance",
+          "criterion": "the model-free expectation under the risk-neutral measure"
+        },
+        {
+          "alt": "realised variance",
+          "criterion": "the physical rather than risk-neutral quantity"
+        }
+      ],
+      "output_key_fields": [
+        "implied_variance: the model-free variance for the maturity",
+        "implied_volatility: its annualised square root",
+        "truncation_error: the contribution the missing strike wings would have made",
+        "variance_risk_premium: implied minus realised, where realised is supplied"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "the integral requires strikes over the WHOLE positive axis; a finite strike range truncates it and systematically understates variance, especially in stressed markets",
+        "the VIX construction interpolates two maturities to a constant horizon; comparing a raw single-maturity figure with VIX is not like for like",
+        "implied variance is risk-neutral and exceeds expected realised variance by the variance risk premium -- it is not a forecast"
+      ],
+      "sources": [
+        "Britten-Jones & Neuberger 2000 (Journal of Finance 55:839-866)",
+        "Carr & Wu 2009 (Review of Financial Studies 22:1311)",
+        "CBOE 2019, VIX White Paper",
+        "DOI 10.1111/0022-1082.00228"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 344,
+      "method": "Risk-neutral moments as uncertainty proxies",
+      "wrapper_file": "c40_option_implied_derivatives/risk_neutral_moments.py",
+      "tool_fns": [
+        "opt_risk_neutral_moments"
+      ],
+      "when": "summarising the option-implied distribution in variance, skewness and kurtosis -- the standard market-based measures of uncertainty and crash fear",
+      "when_not": "the option cross-section is too thin for higher moments, which need the wings most of all",
+      "alternatives": [
+        {
+          "alt": "implied variance alone",
+          "criterion": "only the second moment is needed"
+        },
+        {
+          "alt": "risk-neutral skewness",
+          "criterion": "asymmetry and crash risk are the question"
+        },
+        {
+          "alt": "full density extraction",
+          "criterion": "you want the whole distribution rather than moments"
+        }
+      ],
+      "output_key_fields": [
+        "variance, skewness, kurtosis: the risk-neutral moments",
+        "skew_measure: the strike-based skew slope, an alternative summary",
+        "wing_contribution: how much of each moment comes from the extrapolated wings"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "higher moments are dominated by the WINGS, which is exactly where quotes are sparsest and extrapolation is least reliable -- report the wing contribution",
+        "risk-neutral skewness is not physical skewness; it embeds the price of crash risk",
+        "the moments require a strike grid dense enough for numerical integration; a handful of quotes gives numbers without content"
+      ],
+      "sources": [
+        "Bakshi, Kapadia & Madan 2003 (Review of Financial Studies 16:101-143)",
+        "Carr & Madan 2001, Optimal positioning in derivative securities (Quantitative Finance 1:19)"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 345,
+      "method": "Term structure of option-implied uncertainty and density fan charts",
+      "wrapper_file": "c40_option_implied_derivatives/implied_term_structure.py",
+      "tool_fns": [
+        "opt_implied_term_structure",
+        "opt_density_fan"
+      ],
+      "when": "reading how market uncertainty is priced across horizons, and turning the implied densities into a fan chart",
+      "when_not": "options exist at one maturity only; you want a model-based rather than market-implied forecast",
+      "alternatives": [
+        {
+          "alt": "implied variance term structure",
+          "criterion": "the horizon shape of uncertainty"
+        },
+        {
+          "alt": "forward variance",
+          "criterion": "the variance priced between two future dates"
+        },
+        {
+          "alt": "density fan chart",
+          "criterion": "you want quantile bands rather than a single number"
+        }
+      ],
+      "output_key_fields": [
+        "term_structure: implied variance or volatility per maturity",
+        "forward_variance: variance between successive maturities",
+        "fan: implied quantile bands per horizon",
+        "slope, curvature: summary shape statistics"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "FORWARD variance computed from two maturities can come out negative when the term structure is non-monotonic and the quotes are noisy -- that is a data problem surfacing, not a calculation error",
+        "the fan chart is risk-neutral and is systematically wider than a physical forecast interval",
+        "maturities must be aligned to a common convention before differencing; mixing calendar and trading-day conventions distorts the whole curve"
+      ],
+      "sources": [
+        "Carr & Wu 2009 (Review of Financial Studies 22:1311-1341)",
+        "Andersen, Bondarenko & Gonzalez-Perez 2015 (Review of Financial Studies 28:3437)",
+        "QuantLib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 346,
+      "method": "Stochastic-volatility models: Heston, log-normal SV and rough volatility, with calibration",
+      "wrapper_file": "c40_option_implied_derivatives/stochastic_volatility_models.py",
+      "tool_fns": [
+        "opt_sv_calibrate",
+        "opt_sv_price",
+        "opt_sv_simulate"
+      ],
+      "when": "the smile and its dynamics matter, so volatility must be a process rather than a number",
+      "when_not": "a single vanilla price is all you need (-> Black-Scholes); the option data is too sparse to identify several parameters",
+      "alternatives": [
+        {
+          "alt": "Heston",
+          "criterion": "closed-form characteristic function and fast calibration"
+        },
+        {
+          "alt": "log-normal stochastic volatility",
+          "criterion": "you want volatility to stay positive by construction"
+        },
+        {
+          "alt": "rough volatility",
+          "criterion": "the short-maturity smile is steeper than any classical model can fit"
+        }
+      ],
+      "output_key_fields": [
+        "params: the calibrated parameters",
+        "fit_rmse: calibration error against the quoted surface",
+        "feller_satisfied: whether the Heston variance can reach zero",
+        "implied_surface: the model surface, for comparison with the market"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "the Heston FELLER CONDITION is routinely violated by calibrated parameters, which lets variance hit zero and makes simulation schemes fail silently",
+        "calibration is a non-convex problem with many local optima; a good fit from one starting point is not the global fit",
+        "rough volatility fits the short end far better and costs a great deal more to simulate; the trade-off is real"
+      ],
+      "sources": [
+        "Heston 1993 (Review of Financial Studies 6:327-343)",
+        "Gatheral, Jaisson & Rosenbaum 2018 (Quantitative Finance 18:933)",
+        "Bergomi 2016, Stochastic Volatility Modeling",
+        "stochvolmodels"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     }
-   ],
-   "output_key_fields": [
-    "price: the model value",
-    "delta, gamma, vega, theta, rho: the Greeks",
-    "implied_volatility: the inverted volatility, None where no solution exists",
-    "moneyness, time_to_expiry: the inputs, echoed for auditability"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "implied volatility DOES NOT EXIST when the price violates the no-arbitrage bounds; returning None is correct and a returned number in that case is a solver artefact",
-    "deep in- and out-of-the-money inversions are numerically ill-conditioned because vega goes to zero -- small price errors become large volatility errors",
-    "Black-Scholes and Bachelier volatilities are in different units and are not comparable"
-   ],
-   "sources": [
-    "Black & Scholes 1973 (Journal of Political Economy 81:637-654)",
-    "Bachelier 1900, Theorie de la speculation",
-    "Jaeckel 2015, Let's be rational (Wilmott 2015:40)",
-    "py-vollib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 341,
-   "method": "Implied-volatility surface fitting with SVI and SABR, and arbitrage checks",
-   "wrapper_file": "c40_option_implied_derivatives/iv_surface.py",
-   "tool_fns": [
-    "opt_fit_surface",
-    "opt_surface_evaluate",
-    "opt_arbitrage_check"
-   ],
-   "when": "building a smooth, arbitrage-free volatility surface from discrete quoted options, so any strike and maturity can be priced consistently",
-   "when_not": "you only need one option's implied volatility; the quote set is too sparse for a surface to be identified",
-   "alternatives": [
+  ],
+  "nodes": [
     {
-     "alt": "SVI",
-     "criterion": "a slice-wise parameterisation with known arbitrage conditions"
+      "fn": "opt_price",
+      "card_id": 340,
+      "register": null,
+      "input_example": {
+        "spot": 1.0,
+        "strike": 1.0,
+        "time_to_expiry": 1.0,
+        "rate": 1.0,
+        "volatility": 1.0,
+        "option_type": "call",
+        "model": "black_scholes",
+        "dividend": 0.0
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "spot",
+          "kind": "number",
+          "required": true,
+          "description": "Spot price of the underlying.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "strike",
+          "kind": "number",
+          "required": true,
+          "description": "Strike price.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "time_to_expiry",
+          "kind": "number",
+          "required": true,
+          "description": "Time to expiry in years.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rate",
+          "kind": "number",
+          "required": true,
+          "description": "Risk-free rate.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "volatility",
+          "kind": "number",
+          "required": true,
+          "description": "Volatility input.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "option_type",
+          "kind": "enum",
+          "required": true,
+          "description": "Option type.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "call",
+            "put"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "model",
+          "kind": "enum",
+          "required": false,
+          "description": "Pricing model.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "black_scholes",
+            "bachelier",
+            "black76"
+          ],
+          "allowed_vars": null,
+          "default": "black_scholes",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "dividend",
+          "kind": "number",
+          "required": false,
+          "description": "Continuous dividend yield.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.0,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
     },
     {
-     "alt": "SABR",
-     "criterion": "you want a dynamic model consistent with smile movement"
+      "fn": "opt_implied_volatility",
+      "card_id": 340,
+      "register": null,
+      "input_example": {
+        "price": "<series_handle>",
+        "spot": "<series_handle>",
+        "strike": "<series_handle>",
+        "time_to_expiry": "<series_handle>",
+        "rate": "<series_handle>",
+        "option_type": "<series_handle>",
+        "model": "black_scholes"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "price",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Observed option prices.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "spot",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Spot prices.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "strike",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Strikes.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "time_to_expiry",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Times to expiry in years.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rate",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Risk-free rates.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "option_type",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Option types.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "model",
+          "kind": "enum",
+          "required": false,
+          "description": "Pricing model.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "black_scholes",
+            "bachelier",
+            "black76"
+          ],
+          "allowed_vars": null,
+          "default": "black_scholes",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
     },
     {
-     "alt": "interpolation",
-     "criterion": "you only need to fill gaps and do not need a model"
+      "fn": "opt_fit_surface",
+      "card_id": 341,
+      "register": {
+        "field": "surface"
+      },
+      "input_example": {
+        "strikes": "<series_handle>",
+        "expiries": "<series_handle>",
+        "implied_vols": "<series_handle>",
+        "forward": "<series_handle>",
+        "model": "svi",
+        "enforce_no_arbitrage": true
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "strikes",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Quoted strikes.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "expiries",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Times to expiry in years.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "implied_vols",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Quoted implied volatilities.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forward",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Forward price per expiry.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "model",
+          "kind": "enum",
+          "required": false,
+          "description": "Surface parameterisation.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "svi",
+            "ssvi",
+            "sabr",
+            "cubic_spline"
+          ],
+          "allowed_vars": null,
+          "default": "svi",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "enforce_no_arbitrage",
+          "kind": "boolean",
+          "required": false,
+          "description": "Constrain the fit to be arbitrage free.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        }
+      ]
+    },
+    {
+      "fn": "opt_surface_evaluate",
+      "card_id": 341,
+      "register": null,
+      "input_example": {
+        "surface": "<raw_handle>",
+        "strikes": [
+          1.0,
+          2.0
+        ],
+        "expiries": [
+          1.0,
+          2.0
+        ]
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "surface",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a fitted surface.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "strikes",
+          "kind": "num_array",
+          "required": true,
+          "description": "Strikes to evaluate.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "expiries",
+          "kind": "num_array",
+          "required": true,
+          "description": "Expiries to evaluate.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "opt_arbitrage_check",
+      "card_id": 341,
+      "register": null,
+      "input_example": {
+        "surface": "<raw_handle>",
+        "grid_size": 100
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "surface",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a fitted surface.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "grid_size",
+          "kind": "integer",
+          "required": false,
+          "description": "Grid density for the check.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 100,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "opt_risk_neutral_density",
+      "card_id": 342,
+      "register": null,
+      "input_example": {
+        "strikes": "<series_handle>",
+        "prices": "<series_handle>",
+        "forward": 1.0,
+        "time_to_expiry": 1.0,
+        "rate": 1.0,
+        "smoothing": "svi",
+        "grid_size": 500
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "density",
+          "cdf",
+          "quantiles",
+          "negative_mass"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "strikes",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Strikes.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "prices",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Option prices or implied volatilities.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forward",
+          "kind": "number",
+          "required": true,
+          "description": "Forward price.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "time_to_expiry",
+          "kind": "number",
+          "required": true,
+          "description": "Time to expiry in years.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rate",
+          "kind": "number",
+          "required": true,
+          "description": "Risk-free rate.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "smoothing",
+          "kind": "enum",
+          "required": false,
+          "description": "Smoothing applied before differentiation.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "none",
+            "spline",
+            "svi",
+            "kernel"
+          ],
+          "allowed_vars": null,
+          "default": "svi",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "grid_size",
+          "kind": "integer",
+          "required": false,
+          "description": "Density grid points.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 500,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "opt_model_free_variance",
+      "card_id": 343,
+      "register": null,
+      "input_example": {
+        "strikes": "<series_handle>",
+        "prices": "<series_handle>",
+        "option_type": "<series_handle>",
+        "forward": 1.0,
+        "time_to_expiry": 1.0,
+        "rate": 1.0
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "strikes",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Strikes.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "prices",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Option prices.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "option_type",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Option types.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forward",
+          "kind": "number",
+          "required": true,
+          "description": "Forward price.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "time_to_expiry",
+          "kind": "number",
+          "required": true,
+          "description": "Time to expiry in years.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rate",
+          "kind": "number",
+          "required": true,
+          "description": "Risk-free rate.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "opt_variance_risk_premium",
+      "card_id": 343,
+      "register": null,
+      "input_example": {
+        "implied_variance": "<series_handle>",
+        "realised_variance": "<series_handle>",
+        "horizon": 21
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "implied_variance",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Model-free implied variance series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "realised_variance",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised variance series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "horizon",
+          "kind": "integer",
+          "required": false,
+          "description": "Horizon in days the two are aligned over.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 21,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "opt_risk_neutral_moments",
+      "card_id": 344,
+      "register": null,
+      "input_example": {
+        "strikes": "<series_handle>",
+        "prices": "<series_handle>",
+        "option_type": "<series_handle>",
+        "forward": 1.0,
+        "time_to_expiry": 1.0,
+        "rate": 1.0
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "strikes",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Strikes.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "prices",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Option prices.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "option_type",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Option types.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forward",
+          "kind": "number",
+          "required": true,
+          "description": "Forward price.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "time_to_expiry",
+          "kind": "number",
+          "required": true,
+          "description": "Time to expiry in years.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rate",
+          "kind": "number",
+          "required": true,
+          "description": "Risk-free rate.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "opt_implied_term_structure",
+      "card_id": 345,
+      "register": null,
+      "input_example": {
+        "maturities": [
+          1.0,
+          2.0
+        ],
+        "implied_variance": [
+          1.0,
+          2.0
+        ]
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "maturities",
+          "kind": "num_array",
+          "required": true,
+          "description": "Times to expiry in years.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "implied_variance",
+          "kind": "num_array",
+          "required": true,
+          "description": "Model-free implied variance per maturity.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "opt_density_fan",
+      "card_id": 345,
+      "register": null,
+      "input_example": {
+        "densities": "<matrix_handle>",
+        "grid": [
+          1.0,
+          2.0
+        ],
+        "quantiles": [
+          0.05,
+          0.25,
+          0.5,
+          0.75,
+          0.95
+        ]
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "densities",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Implied density per horizon.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "grid",
+          "kind": "num_array",
+          "required": true,
+          "description": "Value grid the densities are defined on.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "quantiles",
+          "kind": "num_array",
+          "required": false,
+          "description": "Quantile bands to report.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": [
+            0.05,
+            0.25,
+            0.5,
+            0.75,
+            0.95
+          ],
+          "has_default": true,
+          "default_json_type": "array"
+        }
+      ]
+    },
+    {
+      "fn": "opt_sv_calibrate",
+      "card_id": 346,
+      "register": {
+        "field": "model"
+      },
+      "input_example": {
+        "strikes": "<series_handle>",
+        "expiries": "<series_handle>",
+        "implied_vols": "<series_handle>",
+        "forward": "<series_handle>",
+        "model": "heston",
+        "n_starts": 5
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "strikes",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Strikes.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "expiries",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Times to expiry in years.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "implied_vols",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Quoted implied volatilities.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forward",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Forward price per expiry.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "model",
+          "kind": "enum",
+          "required": false,
+          "description": "Model family.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "heston",
+            "lognormal_sv",
+            "rough_bergomi",
+            "sabr"
+          ],
+          "allowed_vars": null,
+          "default": "heston",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "n_starts",
+          "kind": "integer",
+          "required": false,
+          "description": "Multi-start restarts for the calibration.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed for the random number generator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "opt_sv_price",
+      "card_id": 346,
+      "register": null,
+      "input_example": {
+        "model": "<raw_handle>",
+        "strikes": [
+          1.0,
+          2.0
+        ],
+        "expiries": [
+          1.0,
+          2.0
+        ]
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "model",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a calibrated model.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "strikes",
+          "kind": "num_array",
+          "required": true,
+          "description": "Strikes to price.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "expiries",
+          "kind": "num_array",
+          "required": true,
+          "description": "Expiries to price.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "opt_sv_simulate",
+      "card_id": 346,
+      "register": null,
+      "input_example": {
+        "model": "<raw_handle>",
+        "n_paths": 10000,
+        "n_steps": 252,
+        "scheme": "qe",
+        "seed": 1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "model",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a calibrated model.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "n_paths",
+          "kind": "integer",
+          "required": false,
+          "description": "Number of paths.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 10000,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "n_steps",
+          "kind": "integer",
+          "required": false,
+          "description": "Time steps per path.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 252,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "scheme",
+          "kind": "enum",
+          "required": false,
+          "description": "Discretisation scheme.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "euler",
+            "milstein",
+            "qe",
+            "exact"
+          ],
+          "allowed_vars": null,
+          "default": "qe",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": true,
+          "description": "Seed for the random number generator; required for reproducibility.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
     }
-   ],
-   "output_key_fields": [
-    "params: the fitted surface parameters per slice",
-    "fitted_iv: implied volatility on the requested grid",
-    "butterfly_arbitrage, calendar_arbitrage: violation flags and where they occur",
-    "rmse: fit quality against the quotes"
-   ],
-   "chart_kind": "heatmap",
-   "interpretation_traps": [
-    "a surface that fits well can still admit ARBITRAGE; the butterfly and calendar checks are not diagnostics of fit, they are constraints on validity",
-    "SVI in raw parameterisation has parameter combinations that guarantee butterfly arbitrage -- fitting without the constraint routinely lands there",
-    "extrapolating the surface beyond the quoted strike range is unconstrained by data and is where most pricing errors originate"
-   ],
-   "sources": [
-    "Gatheral & Jacquier 2014 (Quantitative Finance 14:59-71)",
-    "Hagan, Kumar, Lesniewski & Woodward 2002, Managing smile risk (Wilmott 1:84)",
-    "Gatheral 2006, The Volatility Surface",
-    "QuantLib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 342,
-   "method": "Risk-neutral density extraction by Breeden-Litzenberger",
-   "wrapper_file": "c40_option_implied_derivatives/risk_neutral_density.py",
-   "tool_fns": [
-    "opt_risk_neutral_density"
-   ],
-   "when": "recovering the market's implied distribution of the underlying from a cross-section of option prices -- the density behind every option-implied uncertainty measure",
-   "when_not": "the strike grid is too coarse or too noisy for a second derivative to be estimated; you need the physical rather than risk-neutral measure",
-   "alternatives": [
-    {
-     "alt": "parametric density fitting",
-     "criterion": "you want a smooth family rather than a nonparametric density"
-    },
-    {
-     "alt": "Breeden-Litzenberger on a fitted surface",
-     "criterion": "the standard route: smooth first, differentiate second"
-    },
-    {
-     "alt": "mixture of lognormals",
-     "criterion": "you want an interpretable multi-modal fit"
-    }
-   ],
-   "output_key_fields": [
-    "density: the risk-neutral density on the strike grid",
-    "cdf: the implied distribution function",
-    "quantiles: implied quantiles, which are the usable summary",
-    "negative_mass: where the density came out negative, which signals arbitrage or over-fitting"
-   ],
-   "chart_kind": "line",
-   "interpretation_traps": [
-    "the density is a SECOND DERIVATIVE of price in strike, so it amplifies quote noise enormously -- differentiating raw quotes is never acceptable",
-    "negative density values mean the fitted price function is not convex, i.e. butterfly arbitrage; they are a validity failure, not a rounding issue",
-    "the recovered density is RISK-NEUTRAL and is not the market's physical forecast; the difference is the risk premium"
-   ],
-   "sources": [
-    "Breeden & Litzenberger 1978 (Journal of Business 51:621-651)",
-    "Ait-Sahalia & Lo 1998 (Journal of Finance 53:499)",
-    "Figlewski 2010, Estimating the implied risk-neutral density (Volatility and Time Series Econometrics)"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 343,
-   "method": "Model-free implied variance and variance swaps",
-   "wrapper_file": "c40_option_implied_derivatives/model_free_variance.py",
-   "tool_fns": [
-    "opt_model_free_variance",
-    "opt_variance_risk_premium"
-   ],
-   "when": "computing the VIX-style expected variance from an option strip without assuming any pricing model",
-   "when_not": "the strike range is too narrow for the integral to converge; you want a model-based volatility instead",
-   "alternatives": [
-    {
-     "alt": "Black-Scholes at-the-money implied volatility",
-     "criterion": "a single quick proxy"
-    },
-    {
-     "alt": "model-free implied variance",
-     "criterion": "the model-free expectation under the risk-neutral measure"
-    },
-    {
-     "alt": "realised variance",
-     "criterion": "the physical rather than risk-neutral quantity"
-    }
-   ],
-   "output_key_fields": [
-    "implied_variance: the model-free variance for the maturity",
-    "implied_volatility: its annualised square root",
-    "truncation_error: the contribution the missing strike wings would have made",
-    "variance_risk_premium: implied minus realised, where realised is supplied"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "the integral requires strikes over the WHOLE positive axis; a finite strike range truncates it and systematically understates variance, especially in stressed markets",
-    "the VIX construction interpolates two maturities to a constant horizon; comparing a raw single-maturity figure with VIX is not like for like",
-    "implied variance is risk-neutral and exceeds expected realised variance by the variance risk premium -- it is not a forecast"
-   ],
-   "sources": [
-    "Britten-Jones & Neuberger 2000 (Journal of Finance 55:839-866)",
-    "Carr & Wu 2009 (Review of Financial Studies 22:1311)",
-    "CBOE 2019, VIX White Paper",
-    "QuantLib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 344,
-   "method": "Risk-neutral moments as uncertainty proxies",
-   "wrapper_file": "c40_option_implied_derivatives/risk_neutral_moments.py",
-   "tool_fns": [
-    "opt_risk_neutral_moments"
-   ],
-   "when": "summarising the option-implied distribution in variance, skewness and kurtosis -- the standard market-based measures of uncertainty and crash fear",
-   "when_not": "the option cross-section is too thin for higher moments, which need the wings most of all",
-   "alternatives": [
-    {
-     "alt": "implied variance alone",
-     "criterion": "only the second moment is needed"
-    },
-    {
-     "alt": "risk-neutral skewness",
-     "criterion": "asymmetry and crash risk are the question"
-    },
-    {
-     "alt": "full density extraction",
-     "criterion": "you want the whole distribution rather than moments"
-    }
-   ],
-   "output_key_fields": [
-    "variance, skewness, kurtosis: the risk-neutral moments",
-    "skew_measure: the strike-based skew slope, an alternative summary",
-    "wing_contribution: how much of each moment comes from the extrapolated wings"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "higher moments are dominated by the WINGS, which is exactly where quotes are sparsest and extrapolation is least reliable -- report the wing contribution",
-    "risk-neutral skewness is not physical skewness; it embeds the price of crash risk",
-    "the moments require a strike grid dense enough for numerical integration; a handful of quotes gives numbers without content"
-   ],
-   "sources": [
-    "Bakshi, Kapadia & Madan 2003 (Review of Financial Studies 16:101-143)",
-    "Carr & Madan 2001, Optimal positioning in derivative securities (Quantitative Finance 1:19)"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 345,
-   "method": "Term structure of option-implied uncertainty and density fan charts",
-   "wrapper_file": "c40_option_implied_derivatives/implied_term_structure.py",
-   "tool_fns": [
-    "opt_implied_term_structure",
-    "opt_density_fan"
-   ],
-   "when": "reading how market uncertainty is priced across horizons, and turning the implied densities into a fan chart",
-   "when_not": "options exist at one maturity only; you want a model-based rather than market-implied forecast",
-   "alternatives": [
-    {
-     "alt": "implied variance term structure",
-     "criterion": "the horizon shape of uncertainty"
-    },
-    {
-     "alt": "forward variance",
-     "criterion": "the variance priced between two future dates"
-    },
-    {
-     "alt": "density fan chart",
-     "criterion": "you want quantile bands rather than a single number"
-    }
-   ],
-   "output_key_fields": [
-    "term_structure: implied variance or volatility per maturity",
-    "forward_variance: variance between successive maturities",
-    "fan: implied quantile bands per horizon",
-    "slope, curvature: summary shape statistics"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "FORWARD variance computed from two maturities can come out negative when the term structure is non-monotonic and the quotes are noisy -- that is a data problem surfacing, not a calculation error",
-    "the fan chart is risk-neutral and is systematically wider than a physical forecast interval",
-    "maturities must be aligned to a common convention before differencing; mixing calendar and trading-day conventions distorts the whole curve"
-   ],
-   "sources": [
-    "Carr & Wu 2009 (Review of Financial Studies 22:1311-1341)",
-    "Andersen, Bondarenko & Gonzalez-Perez 2015 (Review of Financial Studies 28:3437)",
-    "QuantLib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 346,
-   "method": "Stochastic-volatility models: Heston, log-normal SV and rough volatility, with calibration",
-   "wrapper_file": "c40_option_implied_derivatives/stochastic_volatility_models.py",
-   "tool_fns": [
-    "opt_sv_calibrate",
-    "opt_sv_price",
-    "opt_sv_simulate"
-   ],
-   "when": "the smile and its dynamics matter, so volatility must be a process rather than a number",
-   "when_not": "a single vanilla price is all you need (-> Black-Scholes); the option data is too sparse to identify several parameters",
-   "alternatives": [
-    {
-     "alt": "Heston",
-     "criterion": "closed-form characteristic function and fast calibration"
-    },
-    {
-     "alt": "log-normal stochastic volatility",
-     "criterion": "you want volatility to stay positive by construction"
-    },
-    {
-     "alt": "rough volatility",
-     "criterion": "the short-maturity smile is steeper than any classical model can fit"
-    }
-   ],
-   "output_key_fields": [
-    "params: the calibrated parameters",
-    "fit_rmse: calibration error against the quoted surface",
-    "feller_satisfied: whether the Heston variance can reach zero",
-    "implied_surface: the model surface, for comparison with the market"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "the Heston FELLER CONDITION is routinely violated by calibrated parameters, which lets variance hit zero and makes simulation schemes fail silently",
-    "calibration is a non-convex problem with many local optima; a good fit from one starting point is not the global fit",
-    "rough volatility fits the short end far better and costs a great deal more to simulate; the trade-off is real"
-   ],
-   "sources": [
-    "Heston 1993 (Review of Financial Studies 6:327-343)",
-    "Gatheral, Jaisson & Rosenbaum 2018 (Quantitative Finance 18:933)",
-    "Bergomi 2016, Stochastic Volatility Modeling",
-    "stochvolmodels"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  }
- ],
- "nodes": [
-  {
-   "fn": "opt_price",
-   "card_id": 340,
-   "register": null,
-   "input_example": {
-    "spot": 1.0,
-    "strike": 1.0,
-    "time_to_expiry": 1.0,
-    "rate": 1.0,
-    "volatility": 1.0,
-    "option_type": "call",
-    "model": "black_scholes",
-    "dividend": 0.0
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "spot",
-     "kind": "number",
-     "required": true,
-     "description": "Spot price of the underlying.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "strike",
-     "kind": "number",
-     "required": true,
-     "description": "Strike price.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "time_to_expiry",
-     "kind": "number",
-     "required": true,
-     "description": "Time to expiry in years.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rate",
-     "kind": "number",
-     "required": true,
-     "description": "Risk-free rate.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "volatility",
-     "kind": "number",
-     "required": true,
-     "description": "Volatility input.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "option_type",
-     "kind": "enum",
-     "required": true,
-     "description": "Option type.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "call",
-      "put"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "model",
-     "kind": "enum",
-     "required": false,
-     "description": "Pricing model.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "black_scholes",
-      "bachelier",
-      "black76"
-     ],
-     "allowed_vars": null,
-     "default": "black_scholes",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "dividend",
-     "kind": "number",
-     "required": false,
-     "description": "Continuous dividend yield.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.0,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "opt_implied_volatility",
-   "card_id": 340,
-   "register": null,
-   "input_example": {
-    "price": "<series_handle>",
-    "spot": "<series_handle>",
-    "strike": "<series_handle>",
-    "time_to_expiry": "<series_handle>",
-    "rate": "<series_handle>",
-    "option_type": "<series_handle>",
-    "model": "black_scholes"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "price",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Observed option prices.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "spot",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Spot prices.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "strike",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Strikes.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "time_to_expiry",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Times to expiry in years.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rate",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Risk-free rates.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "option_type",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Option types.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "model",
-     "kind": "enum",
-     "required": false,
-     "description": "Pricing model.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "black_scholes",
-      "bachelier",
-      "black76"
-     ],
-     "allowed_vars": null,
-     "default": "black_scholes",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "opt_fit_surface",
-   "card_id": 341,
-   "register": {
-    "field": "surface"
-   },
-   "input_example": {
-    "strikes": "<series_handle>",
-    "expiries": "<series_handle>",
-    "implied_vols": "<series_handle>",
-    "forward": "<series_handle>",
-    "model": "svi",
-    "enforce_no_arbitrage": true
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "strikes",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Quoted strikes.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "expiries",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Times to expiry in years.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "implied_vols",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Quoted implied volatilities.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forward",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Forward price per expiry.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "model",
-     "kind": "enum",
-     "required": false,
-     "description": "Surface parameterisation.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "svi",
-      "ssvi",
-      "sabr",
-      "cubic_spline"
-     ],
-     "allowed_vars": null,
-     "default": "svi",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "enforce_no_arbitrage",
-     "kind": "boolean",
-     "required": false,
-     "description": "Constrain the fit to be arbitrage free.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    }
-   ]
-  },
-  {
-   "fn": "opt_surface_evaluate",
-   "card_id": 341,
-   "register": null,
-   "input_example": {
-    "surface": "<raw_handle>",
-    "strikes": [
-     1.0,
-     2.0
-    ],
-    "expiries": [
-     1.0,
-     2.0
-    ]
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "surface",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a fitted surface.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "strikes",
-     "kind": "num_array",
-     "required": true,
-     "description": "Strikes to evaluate.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "expiries",
-     "kind": "num_array",
-     "required": true,
-     "description": "Expiries to evaluate.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "opt_arbitrage_check",
-   "card_id": 341,
-   "register": null,
-   "input_example": {
-    "surface": "<raw_handle>",
-    "grid_size": 100
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "surface",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a fitted surface.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "grid_size",
-     "kind": "integer",
-     "required": false,
-     "description": "Grid density for the check.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 100,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "opt_risk_neutral_density",
-   "card_id": 342,
-   "register": null,
-   "input_example": {
-    "strikes": "<series_handle>",
-    "prices": "<series_handle>",
-    "forward": 1.0,
-    "time_to_expiry": 1.0,
-    "rate": 1.0,
-    "smoothing": "svi",
-    "grid_size": 500
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "density",
-     "cdf",
-     "quantiles",
-     "negative_mass"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "strikes",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Strikes.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "prices",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Option prices or implied volatilities.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forward",
-     "kind": "number",
-     "required": true,
-     "description": "Forward price.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "time_to_expiry",
-     "kind": "number",
-     "required": true,
-     "description": "Time to expiry in years.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rate",
-     "kind": "number",
-     "required": true,
-     "description": "Risk-free rate.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "smoothing",
-     "kind": "enum",
-     "required": false,
-     "description": "Smoothing applied before differentiation.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "none",
-      "spline",
-      "svi",
-      "kernel"
-     ],
-     "allowed_vars": null,
-     "default": "svi",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "grid_size",
-     "kind": "integer",
-     "required": false,
-     "description": "Density grid points.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 500,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "opt_model_free_variance",
-   "card_id": 343,
-   "register": null,
-   "input_example": {
-    "strikes": "<series_handle>",
-    "prices": "<series_handle>",
-    "option_type": "<series_handle>",
-    "forward": 1.0,
-    "time_to_expiry": 1.0,
-    "rate": 1.0
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "strikes",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Strikes.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "prices",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Option prices.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "option_type",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Option types.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forward",
-     "kind": "number",
-     "required": true,
-     "description": "Forward price.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "time_to_expiry",
-     "kind": "number",
-     "required": true,
-     "description": "Time to expiry in years.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rate",
-     "kind": "number",
-     "required": true,
-     "description": "Risk-free rate.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "opt_variance_risk_premium",
-   "card_id": 343,
-   "register": null,
-   "input_example": {
-    "implied_variance": "<series_handle>",
-    "realised_variance": "<series_handle>",
-    "horizon": 21
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "implied_variance",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Model-free implied variance series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "realised_variance",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised variance series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "horizon",
-     "kind": "integer",
-     "required": false,
-     "description": "Horizon in days the two are aligned over.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 21,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "opt_risk_neutral_moments",
-   "card_id": 344,
-   "register": null,
-   "input_example": {
-    "strikes": "<series_handle>",
-    "prices": "<series_handle>",
-    "option_type": "<series_handle>",
-    "forward": 1.0,
-    "time_to_expiry": 1.0,
-    "rate": 1.0
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "strikes",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Strikes.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "prices",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Option prices.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "option_type",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Option types.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forward",
-     "kind": "number",
-     "required": true,
-     "description": "Forward price.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "time_to_expiry",
-     "kind": "number",
-     "required": true,
-     "description": "Time to expiry in years.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rate",
-     "kind": "number",
-     "required": true,
-     "description": "Risk-free rate.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "opt_implied_term_structure",
-   "card_id": 345,
-   "register": null,
-   "input_example": {
-    "maturities": [
-     1.0,
-     2.0
-    ],
-    "implied_variance": [
-     1.0,
-     2.0
-    ]
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "maturities",
-     "kind": "num_array",
-     "required": true,
-     "description": "Times to expiry in years.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "implied_variance",
-     "kind": "num_array",
-     "required": true,
-     "description": "Model-free implied variance per maturity.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "opt_density_fan",
-   "card_id": 345,
-   "register": null,
-   "input_example": {
-    "densities": "<matrix_handle>",
-    "grid": [
-     1.0,
-     2.0
-    ],
-    "quantiles": [
-     0.05,
-     0.25,
-     0.5,
-     0.75,
-     0.95
-    ]
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "densities",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Implied density per horizon.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "grid",
-     "kind": "num_array",
-     "required": true,
-     "description": "Value grid the densities are defined on.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "quantiles",
-     "kind": "num_array",
-     "required": false,
-     "description": "Quantile bands to report.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": [
-      0.05,
-      0.25,
-      0.5,
-      0.75,
-      0.95
-     ],
-     "has_default": true,
-     "default_json_type": "array"
-    }
-   ]
-  },
-  {
-   "fn": "opt_sv_calibrate",
-   "card_id": 346,
-   "register": {
-    "field": "model"
-   },
-   "input_example": {
-    "strikes": "<series_handle>",
-    "expiries": "<series_handle>",
-    "implied_vols": "<series_handle>",
-    "forward": "<series_handle>",
-    "model": "heston",
-    "n_starts": 5
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "strikes",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Strikes.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "expiries",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Times to expiry in years.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "implied_vols",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Quoted implied volatilities.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forward",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Forward price per expiry.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "model",
-     "kind": "enum",
-     "required": false,
-     "description": "Model family.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "heston",
-      "lognormal_sv",
-      "rough_bergomi",
-      "sabr"
-     ],
-     "allowed_vars": null,
-     "default": "heston",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "n_starts",
-     "kind": "integer",
-     "required": false,
-     "description": "Multi-start restarts for the calibration.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed for the random number generator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "opt_sv_price",
-   "card_id": 346,
-   "register": null,
-   "input_example": {
-    "model": "<raw_handle>",
-    "strikes": [
-     1.0,
-     2.0
-    ],
-    "expiries": [
-     1.0,
-     2.0
-    ]
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "model",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a calibrated model.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "strikes",
-     "kind": "num_array",
-     "required": true,
-     "description": "Strikes to price.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "expiries",
-     "kind": "num_array",
-     "required": true,
-     "description": "Expiries to price.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "opt_sv_simulate",
-   "card_id": 346,
-   "register": null,
-   "input_example": {
-    "model": "<raw_handle>",
-    "n_paths": 10000,
-    "n_steps": 252,
-    "scheme": "qe",
-    "seed": 1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "model",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a calibrated model.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "n_paths",
-     "kind": "integer",
-     "required": false,
-     "description": "Number of paths.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 10000,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "n_steps",
-     "kind": "integer",
-     "required": false,
-     "description": "Time steps per path.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 252,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "scheme",
-     "kind": "enum",
-     "required": false,
-     "description": "Discretisation scheme.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "euler",
-      "milstein",
-      "qe",
-      "exact"
-     ],
-     "allowed_vars": null,
-     "default": "qe",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": true,
-     "description": "Seed for the random number generator; required for reproducibility.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  }
- ]
+  ]
 }

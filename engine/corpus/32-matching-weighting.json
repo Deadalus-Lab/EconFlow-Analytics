@@ -1,2159 +1,2159 @@
 {
- "category": "32-matching-weighting",
- "cards": [
-  {
-   "id": 274,
-   "method": "Propensity-score estimation with common-support trimming",
-   "wrapper_file": "c32_matching_weighting/propensity_score.py",
-   "tool_fns": [
-    "mw_pscore_fit",
-    "mw_common_support",
-    "mw_overlap_diagnostics"
-   ],
-   "when": "reducing a many-dimensional covariate vector to one score so treated and control units can be compared, under selection on observables",
-   "when_not": "treatment is randomised (no score needed); selection is on unobservables (-> IV or DiD); there is no overlap to trim to",
-   "alternatives": [
+  "category": "32-matching-weighting",
+  "cards": [
     {
-     "alt": "direct covariate matching",
-     "criterion": "few covariates and you want exact comparability"
+      "id": 274,
+      "method": "Propensity-score estimation with common-support trimming",
+      "wrapper_file": "c32_matching_weighting/propensity_score.py",
+      "tool_fns": [
+        "mw_pscore_fit",
+        "mw_common_support",
+        "mw_overlap_diagnostics"
+      ],
+      "when": "reducing a many-dimensional covariate vector to one score so treated and control units can be compared, under selection on observables",
+      "when_not": "treatment is randomised (no score needed); selection is on unobservables (-> IV or DiD); there is no overlap to trim to",
+      "alternatives": [
+        {
+          "alt": "direct covariate matching",
+          "criterion": "few covariates and you want exact comparability"
+        },
+        {
+          "alt": "doubly-robust AIPW",
+          "criterion": "you want protection against a misspecified score"
+        },
+        {
+          "alt": "inverse probability weighting",
+          "criterion": "you want to keep the whole sample rather than match"
+        }
+      ],
+      "output_key_fields": [
+        "pscore: the fitted propensity per unit",
+        "common_support: the retained overlap region and how many units each arm lost",
+        "overlap_diagnostics: score distributions by arm and the minimum/maximum of the common range",
+        "auc: discrimination, which should be moderate -- not high"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "a HIGH propensity-score AUC is bad news, not good: near-perfect prediction of treatment means no overlap and nothing to compare",
+        "trimming changes the estimand -- the effect is now for the retained overlap population, not the original one, and that must be reported",
+        "the score is only as good as the covariates in it; balancing the score does not balance anything omitted from it"
+      ],
+      "sources": [
+        "Rosenbaum & Rubin 1983 (Biometrika 70:41-55)",
+        "Crump, Hotz, Imbens & Mitnik 2009 (Biometrika 96:187)",
+        "causallib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "doubly-robust AIPW",
-     "criterion": "you want protection against a misspecified score"
+      "id": 275,
+      "method": "Nearest-neighbour, caliper, kernel and radius matching",
+      "wrapper_file": "c32_matching_weighting/matching_estimators.py",
+      "tool_fns": [
+        "mw_match",
+        "mw_match_effect"
+      ],
+      "when": "constructing a comparison group by pairing treated units with similar controls, when you want a transparent design rather than a regression adjustment",
+      "when_not": "overlap is poor and matching would discard most of the sample; the covariate set is high dimensional (-> weighting or double ML)",
+      "alternatives": [
+        {
+          "alt": "inverse probability weighting",
+          "criterion": "you want to retain the full sample"
+        },
+        {
+          "alt": "caliper matching",
+          "criterion": "poor matches must be refused rather than accepted at any distance"
+        },
+        {
+          "alt": "kernel or radius matching",
+          "criterion": "you want to use many controls per treated unit for efficiency"
+        }
+      ],
+      "output_key_fields": [
+        "att/atc/ate: the matched effect for the requested estimand",
+        "matched_pairs: the pairing, so the design is auditable",
+        "n_unmatched: treated units dropped for want of a match inside the caliper",
+        "se: standard error, which must account for the matching, not the naive one"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "the naive standard error over matched pairs is WRONG -- matching is not sampling and the estimated score adds variance (-> the bias-corrected estimator)",
+        "matching with replacement reuses good controls, which lowers bias and raises variance; without replacement the answer depends on the ORDER units are processed",
+        "unmatched treated units silently change the estimand from ATT to ATT-on-the-matchable"
+      ],
+      "sources": [
+        "Rosenbaum & Rubin 1985 (American Statistician 39:33)",
+        "Dehejia & Wahba 2002 (Review of Economics and Statistics 84:151)",
+        "Imbens & Rubin 2015, Causal Inference for Statistics, Social and Biomedical Sciences"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "inverse probability weighting",
-     "criterion": "you want to keep the whole sample rather than match"
+      "id": 276,
+      "method": "Abadie-Imbens bias-corrected matching with valid standard errors",
+      "wrapper_file": "c32_matching_weighting/bias_corrected_matching.py",
+      "tool_fns": [
+        "mw_bias_corrected_att"
+      ],
+      "when": "you need matching estimates whose standard errors are actually valid, and a correction for the bias that matching on a continuous score leaves behind",
+      "when_not": "matching is exact so there is no bias to correct; the design is weighting rather than matching",
+      "alternatives": [
+        {
+          "alt": "plain nearest-neighbour matching",
+          "criterion": "you accept the bias and do not need valid inference"
+        },
+        {
+          "alt": "AIPW",
+          "criterion": "you would rather have double robustness than a bias correction"
+        },
+        {
+          "alt": "regression adjustment",
+          "criterion": "the outcome model is credible on its own"
+        }
+      ],
+      "output_key_fields": [
+        "att/ate: the bias-corrected estimate",
+        "bias_correction: the size of the adjustment, which reveals how poor the matches were",
+        "se: the Abadie-Imbens variance, which accounts for matching and for the estimated score",
+        "n_matches_used: match multiplicity per treated unit"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "the bootstrap is INVALID for nearest-neighbour matching -- Abadie and Imbens proved it fails, so a bootstrapped standard error here is simply wrong",
+        "a large bias correction is a warning that the matches were poor, not a sign the correction worked",
+        "matching on an ESTIMATED score adds variance that the naive formula omits entirely"
+      ],
+      "sources": [
+        "Abadie & Imbens 2006 (Econometrica 74:235-267)",
+        "Abadie & Imbens 2008 (Econometrica 76:1537) -- failure of the bootstrap",
+        "Abadie & Imbens 2011 (Journal of Business and Economic Statistics 29:1)"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 277,
+      "method": "Coarsened exact matching and stratified matching",
+      "wrapper_file": "c32_matching_weighting/coarsened_exact_matching.py",
+      "tool_fns": [
+        "mw_cem",
+        "mw_imbalance_l1"
+      ],
+      "when": "you want the balance guarantee of exact matching without its emptiness in continuous covariates, by coarsening first and matching exactly on the bins",
+      "when_not": "the covariate set is large enough that coarsening leaves every stratum empty; you need a continuous score (-> propensity matching)",
+      "alternatives": [
+        {
+          "alt": "propensity-score matching",
+          "criterion": "many covariates, so exact strata would be empty"
+        },
+        {
+          "alt": "exact matching",
+          "criterion": "all covariates are already discrete and plentiful"
+        },
+        {
+          "alt": "subclassification on the score",
+          "criterion": "you want strata but on one dimension"
+        }
+      ],
+      "output_key_fields": [
+        "weights: CEM weights per unit, zero for unmatched units",
+        "strata: the retained strata and their treated/control counts",
+        "imbalance_l1: the multivariate L1 imbalance before and after",
+        "n_dropped: units in strata lacking both arms"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "coarsening is a bias-variance dial you set BEFORE seeing the outcome; tuning it against the estimate is specification search",
+        "the L1 imbalance measure is bounded above by the coarsening itself -- a small value on a coarse grid does not mean the underlying covariates balance",
+        "unmatched strata change the estimand, and with many covariates most strata are empty"
+      ],
+      "sources": [
+        "Iacus, King & Porro 2012 (Political Analysis 20:1-24)",
+        "Blackwell, Iacus, King & Porro 2009 (Stata Journal 9:524)",
+        "DOI 10.1093/pan/mpr013"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 278,
+      "method": "Inverse probability weighting, stabilised weights and doubly-robust AIPW",
+      "wrapper_file": "c32_matching_weighting/ipw_aipw.py",
+      "tool_fns": [
+        "mw_ipw",
+        "mw_aipw",
+        "mw_weight_diagnostics"
+      ],
+      "when": "estimating an average effect by reweighting rather than matching, and buying insurance against misspecification by combining the weight model with an outcome model",
+      "when_not": "overlap is so poor that weights explode; treatment is continuous without a dose-response model",
+      "alternatives": [
+        {
+          "alt": "matching",
+          "criterion": "you prefer an explicit paired design"
+        },
+        {
+          "alt": "plain IPW",
+          "criterion": "the treatment model is credible and you want simplicity"
+        },
+        {
+          "alt": "TMLE",
+          "criterion": "you want a substitution estimator with the same double robustness"
+        }
+      ],
+      "output_key_fields": [
+        "ate/att: the point estimate for the requested estimand",
+        "weights: per-unit weights, stabilised where asked",
+        "max_weight, ess: the largest weight and the effective sample size -- the diagnostics that matter",
+        "se, conf_int: influence-function based inference"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "a handful of extreme weights can drive the entire estimate; ALWAYS read the effective sample size, which is often a small fraction of n",
+        "doubly robust means consistent if EITHER model is right -- it does not mean consistent if both are wrong, and it does not fix poor overlap",
+        "stabilised weights fix the variance, not the bias; if the treatment model is wrong, stabilising hides the symptom"
+      ],
+      "sources": [
+        "Robins, Rotnitzky & Zhao 1994 (JASA 89:846-866)",
+        "Hernan & Robins 2020, Causal Inference: What If",
+        "Chernozhukov et al. 2018 (Econometrics Journal 21:C1)",
+        "doubleml"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 279,
+      "method": "Balance diagnostics: standardised differences, variance ratios and love plots",
+      "wrapper_file": "c32_matching_weighting/balance_diagnostics.py",
+      "tool_fns": [
+        "mw_balance",
+        "mw_balance_distribution"
+      ],
+      "when": "checking whether a matching or weighting design actually achieved comparability, which is the only thing that licenses the causal reading",
+      "when_not": "the design is randomisation with a large sample, where balance is guaranteed in expectation",
+      "alternatives": [
+        {
+          "alt": "standardised mean differences",
+          "criterion": "the standard, sample-size-free summary"
+        },
+        {
+          "alt": "variance ratios",
+          "criterion": "means balance but spread may not"
+        },
+        {
+          "alt": "KS or empirical CDF distances",
+          "criterion": "the whole distribution matters, not the first two moments"
+        }
+      ],
+      "output_key_fields": [
+        "smd_before/smd_after: standardised difference per covariate",
+        "variance_ratio: treated-to-control variance per covariate",
+        "love_plot_data: covariates ordered by post-adjustment imbalance, ready to plot",
+        "worst_covariate: the covariate that remains least balanced"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "a t-test of balance is the WRONG instrument -- it conflates imbalance with sample size, so trimming makes it 'pass' by losing power",
+        "balancing means says nothing about higher moments or interactions; a design can balance every mean and still compare different populations",
+        "balance can only be checked on OBSERVED covariates; it is silent about the ones that drive selection"
+      ],
+      "sources": [
+        "Austin 2009 (Statistics in Medicine 28:3083)",
+        "Imai, King & Stuart 2008 (JRSS-A 171:481)",
+        "Stuart 2010 (Statistical Science 25:1)",
+        "causallib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 280,
+      "method": "Propensity stratification and subclassification",
+      "wrapper_file": "c32_matching_weighting/subclassification.py",
+      "tool_fns": [
+        "mw_subclassify"
+      ],
+      "when": "you want a transparent design that uses the whole sample: split on the score into strata, estimate within each, and aggregate",
+      "when_not": "the score has poor overlap so some strata contain one arm only; you need unit-level pairing",
+      "alternatives": [
+        {
+          "alt": "matching",
+          "criterion": "you want explicit pairs rather than blocks"
+        },
+        {
+          "alt": "IPW",
+          "criterion": "you want a continuous weight rather than blocks"
+        },
+        {
+          "alt": "coarsened exact matching",
+          "criterion": "you want exact strata on covariates rather than on the score"
+        }
+      ],
+      "output_key_fields": [
+        "stratum_effects: the effect and count within each stratum",
+        "ate/att: the aggregate, weighted by stratum size or by treated count",
+        "balance_by_stratum: standardised differences within each stratum",
+        "n_strata_dropped: strata lacking one arm"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "five strata is a convention, not a result; the number of strata is a bias-variance choice and the estimate moves with it",
+        "a stratum containing only one arm contributes nothing and silently changes the estimand",
+        "within-stratum balance must be checked separately -- overall balance can hold while individual strata are badly imbalanced"
+      ],
+      "sources": [
+        "Rosenbaum & Rubin 1984 (JASA 79:516-524)",
+        "Cochran 1968 (Biometrics 24:295)",
+        "Imbens & Rubin 2015, ch.17",
+        "DOI 10.1080/01621459.1984.10478078"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 281,
+      "method": "Sensitivity to hidden bias: Rosenbaum bounds and the E-value",
+      "wrapper_file": "c32_matching_weighting/hidden_bias.py",
+      "tool_fns": [
+        "mw_rosenbaum_bounds",
+        "mw_e_value"
+      ],
+      "when": "asking how strong an unmeasured confounder would have to be to overturn the finding -- the only honest answer to 'but what about omitted variables'",
+      "when_not": "the design is randomised; the effect is already null, in which case there is nothing to overturn",
+      "alternatives": [
+        {
+          "alt": "Rosenbaum bounds",
+          "criterion": "the design is matched and you want a p-value under bias"
+        },
+        {
+          "alt": "E-value",
+          "criterion": "you want a single transportable number on the risk-ratio scale"
+        },
+        {
+          "alt": "Oster's delta",
+          "criterion": "the design is regression with observable selection"
+        }
+      ],
+      "output_key_fields": [
+        "gamma_critical: the odds of differential assignment at which significance is lost",
+        "bounds: p-value bounds across the gamma grid",
+        "e_value: the minimum confounder association that would explain away the estimate",
+        "e_value_ci: the same for the confidence limit, which is the more conservative reading"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "these bound the effect of an unmeasured confounder; they do NOT test whether one exists and cannot",
+        "a gamma near 1 means the finding is fragile to very mild hidden bias -- report it, do not bury it",
+        "the E-value is on the risk-ratio scale; applying it to a coefficient without converting is meaningless"
+      ],
+      "sources": [
+        "Rosenbaum 2002, Observational Studies, 2nd ed.",
+        "VanderWeele & Ding 2017 (Annals of Internal Medicine 167:268-274)",
+        "DOI 10.7326/M16-2607"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 282,
+      "method": "G-computation, standardisation and targeted maximum likelihood",
+      "wrapper_file": "c32_matching_weighting/gcomputation_tmle.py",
+      "tool_fns": [
+        "mw_gcomputation",
+        "mw_tmle"
+      ],
+      "when": "estimating a causal effect by modelling the outcome and averaging predictions over the covariate distribution, with a targeting step that restores valid inference",
+      "when_not": "there is no overlap; the outcome model cannot be fitted credibly and no machine learner helps",
+      "alternatives": [
+        {
+          "alt": "AIPW",
+          "criterion": "you want the same double robustness in an estimating-equation form"
+        },
+        {
+          "alt": "plain g-computation",
+          "criterion": "the outcome model is credible and you accept model-based inference"
+        },
+        {
+          "alt": "IPW",
+          "criterion": "the treatment model is the one you trust"
+        }
+      ],
+      "output_key_fields": [
+        "ate/att: the standardised effect",
+        "potential_outcomes: mean outcome under each arm, averaged over the covariate distribution",
+        "influence_curve_se: inference from the influence function, valid after targeting",
+        "initial_vs_targeted: how far the targeting step moved the estimate"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "plain g-computation with a machine-learned outcome model has NO valid standard error -- that is exactly the gap the targeting step exists to close",
+        "a large gap between the initial and targeted estimate signals a poorly specified initial model, not a successful correction",
+        "the estimand is defined by the covariate distribution you average over; averaging over the treated gives ATT, over everyone gives ATE, and the difference is not cosmetic"
+      ],
+      "sources": [
+        "Robins 1986 (Mathematical Modelling 7:1393)",
+        "van der Laan & Rubin 2006 (International Journal of Biostatistics 2:11)",
+        "van der Laan & Rose 2011, Targeted Learning",
+        "zepid"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     }
-   ],
-   "output_key_fields": [
-    "pscore: the fitted propensity per unit",
-    "common_support: the retained overlap region and how many units each arm lost",
-    "overlap_diagnostics: score distributions by arm and the minimum/maximum of the common range",
-    "auc: discrimination, which should be moderate -- not high"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "a HIGH propensity-score AUC is bad news, not good: near-perfect prediction of treatment means no overlap and nothing to compare",
-    "trimming changes the estimand -- the effect is now for the retained overlap population, not the original one, and that must be reported",
-    "the score is only as good as the covariates in it; balancing the score does not balance anything omitted from it"
-   ],
-   "sources": [
-    "Rosenbaum & Rubin 1983 (Biometrika 70:41-55)",
-    "Crump, Hotz, Imbens & Mitnik 2009 (Biometrika 96:187)",
-    "causallib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 275,
-   "method": "Nearest-neighbour, caliper, kernel and radius matching",
-   "wrapper_file": "c32_matching_weighting/matching_estimators.py",
-   "tool_fns": [
-    "mw_match",
-    "mw_match_effect"
-   ],
-   "when": "constructing a comparison group by pairing treated units with similar controls, when you want a transparent design rather than a regression adjustment",
-   "when_not": "overlap is poor and matching would discard most of the sample; the covariate set is high dimensional (-> weighting or double ML)",
-   "alternatives": [
+  ],
+  "nodes": [
     {
-     "alt": "inverse probability weighting",
-     "criterion": "you want to retain the full sample"
+      "fn": "mw_pscore_fit",
+      "card_id": 274,
+      "register": {
+        "field": "fit"
+      },
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "model": "logit"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariate columns entering the score.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "model",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimator for the score.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "logit",
+            "probit",
+            "gradient_boosting",
+            "random_forest"
+          ],
+          "allowed_vars": null,
+          "default": "logit",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed for the random number generator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
     },
     {
-     "alt": "caliper matching",
-     "criterion": "poor matches must be refused rather than accepted at any distance"
+      "fn": "mw_common_support",
+      "card_id": 274,
+      "register": null,
+      "input_example": {
+        "pscore": "<series_handle>",
+        "treatment": "<series_handle>",
+        "rule": "minmax",
+        "threshold": 0.1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "pscore",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Fitted propensity per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Binary treatment indicator.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rule",
+          "kind": "enum",
+          "required": false,
+          "description": "Trimming rule.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "minmax",
+            "quantile",
+            "fixed",
+            "crump"
+          ],
+          "allowed_vars": null,
+          "default": "minmax",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "threshold",
+          "kind": "number",
+          "required": false,
+          "description": "Cut-off for the fixed and quantile rules.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.1,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
     },
     {
-     "alt": "kernel or radius matching",
-     "criterion": "you want to use many controls per treated unit for efficiency"
+      "fn": "mw_overlap_diagnostics",
+      "card_id": 274,
+      "register": null,
+      "input_example": {
+        "pscore": "<series_handle>",
+        "treatment": "<series_handle>",
+        "n_bins": 20
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "pscore",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Fitted propensity per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Binary treatment indicator.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "n_bins",
+          "kind": "integer",
+          "required": false,
+          "description": "Histogram bins for the by-arm score distribution.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 20,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "mw_match",
+      "card_id": 275,
+      "register": {
+        "field": "matched"
+      },
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "method": "nearest",
+        "n_neighbors": 1,
+        "replace": true
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "pscore",
+          "kind": "string",
+          "required": false,
+          "description": "Column holding a pre-computed propensity score.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates used when matching directly.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Matching rule.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "nearest",
+            "caliper",
+            "kernel",
+            "radius",
+            "mahalanobis"
+          ],
+          "allowed_vars": null,
+          "default": "nearest",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "n_neighbors",
+          "kind": "integer",
+          "required": false,
+          "description": "Controls matched per treated unit.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "caliper",
+          "kind": "number",
+          "required": false,
+          "description": "Maximum admissible distance.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "replace",
+          "kind": "boolean",
+          "required": false,
+          "description": "Match with replacement.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed for the random number generator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "mw_match_effect",
+      "card_id": 275,
+      "register": null,
+      "input_example": {
+        "matched": "<raw_handle>",
+        "outcome": "<series_handle>",
+        "estimand": "att",
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "matched",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a completed matching.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Outcome per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "estimand",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimand to report.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "att",
+            "atc",
+            "ate"
+          ],
+          "allowed_vars": null,
+          "default": "att",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "mw_bias_corrected_att",
+      "card_id": 276,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "outcome": "...",
+        "n_neighbors": 1,
+        "estimand": "att",
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome",
+          "kind": "string",
+          "required": true,
+          "description": "Outcome column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates used for matching and for the bias correction.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "n_neighbors",
+          "kind": "integer",
+          "required": false,
+          "description": "Controls matched per treated unit.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "estimand",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimand to report.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "att",
+            "ate"
+          ],
+          "allowed_vars": null,
+          "default": "att",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "mw_cem",
+      "card_id": 277,
+      "register": {
+        "field": "matched"
+      },
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "coarsening": "sturges",
+        "n_bins": 5
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates to coarsen and match on.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "coarsening",
+          "kind": "enum",
+          "required": false,
+          "description": "Binning rule for continuous covariates.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "sturges",
+            "scott",
+            "fd",
+            "quantile",
+            "manual"
+          ],
+          "allowed_vars": null,
+          "default": "sturges",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "n_bins",
+          "kind": "integer",
+          "required": false,
+          "description": "Bins per covariate when the rule is manual.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "mw_imbalance_l1",
+      "card_id": 277,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "..."
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates to measure imbalance over.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "weights",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Matching weights; omitted = unweighted.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "mw_ipw",
+      "card_id": 278,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "outcome": "...",
+        "stabilised": true,
+        "trim": 0.01,
+        "estimand": "ate",
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome",
+          "kind": "string",
+          "required": true,
+          "description": "Outcome column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "pscore",
+          "kind": "string",
+          "required": false,
+          "description": "Pre-computed propensity column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates for the treatment model when no score is supplied.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "stabilised",
+          "kind": "boolean",
+          "required": false,
+          "description": "Use stabilised weights.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "trim",
+          "kind": "number",
+          "required": false,
+          "description": "Trim propensities to [trim, 1-trim].",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.01,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "estimand",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimand to report.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "ate",
+            "att",
+            "atc"
+          ],
+          "allowed_vars": null,
+          "default": "ate",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "mw_aipw",
+      "card_id": 278,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "outcome": "...",
+        "outcome_model": "linear",
+        "treatment_model": "logit",
+        "n_folds": 5,
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome",
+          "kind": "string",
+          "required": true,
+          "description": "Outcome column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates for both the treatment and outcome models.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome_model",
+          "kind": "enum",
+          "required": false,
+          "description": "Learner for the outcome regression.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "linear",
+            "gradient_boosting",
+            "random_forest"
+          ],
+          "allowed_vars": null,
+          "default": "linear",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "treatment_model",
+          "kind": "enum",
+          "required": false,
+          "description": "Learner for the propensity.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "logit",
+            "gradient_boosting",
+            "random_forest"
+          ],
+          "allowed_vars": null,
+          "default": "logit",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "n_folds",
+          "kind": "integer",
+          "required": false,
+          "description": "Cross-fitting folds; 1 disables cross-fitting.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed for the random number generator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "mw_weight_diagnostics",
+      "card_id": 278,
+      "register": null,
+      "input_example": {
+        "weights": "<series_handle>",
+        "treatment": "<series_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "weights",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Estimated weights per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Binary treatment indicator.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "mw_balance",
+      "card_id": 279,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "threshold": 0.1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates to assess.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "weights",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Design weights; omitted = unadjusted.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "threshold",
+          "kind": "number",
+          "required": false,
+          "description": "Standardised difference regarded as balanced.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.1,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "mw_balance_distribution",
+      "card_id": 279,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "statistic": "ks"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates to assess.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "weights",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Design weights.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "statistic",
+          "kind": "enum",
+          "required": false,
+          "description": "Distance measure.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "ks",
+            "cvm",
+            "wasserstein"
+          ],
+          "allowed_vars": null,
+          "default": "ks",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "mw_subclassify",
+      "card_id": 280,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "outcome": "...",
+        "pscore": "...",
+        "n_strata": 5,
+        "estimand": "ate",
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome",
+          "kind": "string",
+          "required": true,
+          "description": "Outcome column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "pscore",
+          "kind": "string",
+          "required": true,
+          "description": "Column holding the propensity score.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "n_strata",
+          "kind": "integer",
+          "required": false,
+          "description": "Number of score strata.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "estimand",
+          "kind": "enum",
+          "required": false,
+          "description": "Aggregation weighting.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "ate",
+            "att"
+          ],
+          "allowed_vars": null,
+          "default": "ate",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "mw_rosenbaum_bounds",
+      "card_id": 281,
+      "register": null,
+      "input_example": {
+        "matched": "<raw_handle>",
+        "outcome": "<series_handle>",
+        "gamma_max": 3.0,
+        "gamma_step": 0.1,
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "matched",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a completed matching.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Outcome per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "gamma_max",
+          "kind": "number",
+          "required": false,
+          "description": "Largest hidden-bias odds ratio to scan.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 3.0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "gamma_step",
+          "kind": "number",
+          "required": false,
+          "description": "Step of the gamma grid.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "mw_e_value",
+      "card_id": 281,
+      "register": null,
+      "input_example": {
+        "estimate": 1.0,
+        "scale": "risk_ratio"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "estimate",
+          "kind": "number",
+          "required": true,
+          "description": "The effect estimate, on the ratio scale.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "lower",
+          "kind": "number",
+          "required": false,
+          "description": "Lower confidence limit.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "upper",
+          "kind": "number",
+          "required": false,
+          "description": "Upper confidence limit.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "scale",
+          "kind": "enum",
+          "required": false,
+          "description": "Scale the estimate is reported on.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "risk_ratio",
+            "odds_ratio",
+            "hazard_ratio",
+            "standardised_mean"
+          ],
+          "allowed_vars": null,
+          "default": "risk_ratio",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "mw_gcomputation",
+      "card_id": 282,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "outcome": "...",
+        "outcome_model": "linear",
+        "estimand": "ate",
+        "nboot": 999
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome",
+          "kind": "string",
+          "required": true,
+          "description": "Outcome column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates in the outcome model.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome_model",
+          "kind": "enum",
+          "required": false,
+          "description": "Learner for the outcome regression.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "linear",
+            "logit",
+            "gradient_boosting",
+            "random_forest"
+          ],
+          "allowed_vars": null,
+          "default": "linear",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "estimand",
+          "kind": "enum",
+          "required": false,
+          "description": "Population to standardise over.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "ate",
+            "att",
+            "atc"
+          ],
+          "allowed_vars": null,
+          "default": "ate",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "nboot",
+          "kind": "integer",
+          "required": false,
+          "description": "Number of bootstrap replications.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 999,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed for the random number generator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "mw_tmle",
+      "card_id": 282,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "treatment": "...",
+        "outcome": "...",
+        "outcome_model": "gradient_boosting",
+        "treatment_model": "logit",
+        "trim": 0.01,
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "One row per unit.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "treatment",
+          "kind": "string",
+          "required": true,
+          "description": "Binary treatment column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome",
+          "kind": "string",
+          "required": true,
+          "description": "Outcome column.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariates",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Covariates for both models.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "outcome_model",
+          "kind": "enum",
+          "required": false,
+          "description": "Learner for the outcome regression.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "linear",
+            "logit",
+            "gradient_boosting",
+            "random_forest"
+          ],
+          "allowed_vars": null,
+          "default": "gradient_boosting",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "treatment_model",
+          "kind": "enum",
+          "required": false,
+          "description": "Learner for the propensity.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "logit",
+            "gradient_boosting",
+            "random_forest"
+          ],
+          "allowed_vars": null,
+          "default": "logit",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "trim",
+          "kind": "number",
+          "required": false,
+          "description": "Trim propensities to [trim, 1-trim].",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.01,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed for the random number generator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
     }
-   ],
-   "output_key_fields": [
-    "att/atc/ate: the matched effect for the requested estimand",
-    "matched_pairs: the pairing, so the design is auditable",
-    "n_unmatched: treated units dropped for want of a match inside the caliper",
-    "se: standard error, which must account for the matching, not the naive one"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "the naive standard error over matched pairs is WRONG -- matching is not sampling and the estimated score adds variance (-> the bias-corrected estimator)",
-    "matching with replacement reuses good controls, which lowers bias and raises variance; without replacement the answer depends on the ORDER units are processed",
-    "unmatched treated units silently change the estimand from ATT to ATT-on-the-matchable"
-   ],
-   "sources": [
-    "Rosenbaum & Rubin 1985 (American Statistician 39:33)",
-    "Dehejia & Wahba 2002 (Review of Economics and Statistics 84:151)",
-    "Imbens & Rubin 2015, Causal Inference for Statistics, Social and Biomedical Sciences"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 276,
-   "method": "Abadie-Imbens bias-corrected matching with valid standard errors",
-   "wrapper_file": "c32_matching_weighting/bias_corrected_matching.py",
-   "tool_fns": [
-    "mw_bias_corrected_att"
-   ],
-   "when": "you need matching estimates whose standard errors are actually valid, and a correction for the bias that matching on a continuous score leaves behind",
-   "when_not": "matching is exact so there is no bias to correct; the design is weighting rather than matching",
-   "alternatives": [
-    {
-     "alt": "plain nearest-neighbour matching",
-     "criterion": "you accept the bias and do not need valid inference"
-    },
-    {
-     "alt": "AIPW",
-     "criterion": "you would rather have double robustness than a bias correction"
-    },
-    {
-     "alt": "regression adjustment",
-     "criterion": "the outcome model is credible on its own"
-    }
-   ],
-   "output_key_fields": [
-    "att/ate: the bias-corrected estimate",
-    "bias_correction: the size of the adjustment, which reveals how poor the matches were",
-    "se: the Abadie-Imbens variance, which accounts for matching and for the estimated score",
-    "n_matches_used: match multiplicity per treated unit"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "the bootstrap is INVALID for nearest-neighbour matching -- Abadie and Imbens proved it fails, so a bootstrapped standard error here is simply wrong",
-    "a large bias correction is a warning that the matches were poor, not a sign the correction worked",
-    "matching on an ESTIMATED score adds variance that the naive formula omits entirely"
-   ],
-   "sources": [
-    "Abadie & Imbens 2006 (Econometrica 74:235-267)",
-    "Abadie & Imbens 2008 (Econometrica 76:1537) -- failure of the bootstrap",
-    "Abadie & Imbens 2011 (Journal of Business and Economic Statistics 29:1)"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 277,
-   "method": "Coarsened exact matching and stratified matching",
-   "wrapper_file": "c32_matching_weighting/coarsened_exact_matching.py",
-   "tool_fns": [
-    "mw_cem",
-    "mw_imbalance_l1"
-   ],
-   "when": "you want the balance guarantee of exact matching without its emptiness in continuous covariates, by coarsening first and matching exactly on the bins",
-   "when_not": "the covariate set is large enough that coarsening leaves every stratum empty; you need a continuous score (-> propensity matching)",
-   "alternatives": [
-    {
-     "alt": "propensity-score matching",
-     "criterion": "many covariates, so exact strata would be empty"
-    },
-    {
-     "alt": "exact matching",
-     "criterion": "all covariates are already discrete and plentiful"
-    },
-    {
-     "alt": "subclassification on the score",
-     "criterion": "you want strata but on one dimension"
-    }
-   ],
-   "output_key_fields": [
-    "weights: CEM weights per unit, zero for unmatched units",
-    "strata: the retained strata and their treated/control counts",
-    "imbalance_l1: the multivariate L1 imbalance before and after",
-    "n_dropped: units in strata lacking both arms"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "coarsening is a bias-variance dial you set BEFORE seeing the outcome; tuning it against the estimate is specification search",
-    "the L1 imbalance measure is bounded above by the coarsening itself -- a small value on a coarse grid does not mean the underlying covariates balance",
-    "unmatched strata change the estimand, and with many covariates most strata are empty"
-   ],
-   "sources": [
-    "Iacus, King & Porro 2012 (Political Analysis 20:1-24)",
-    "Blackwell, Iacus, King & Porro 2009 (Stata Journal 9:524)",
-    "causallib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 278,
-   "method": "Inverse probability weighting, stabilised weights and doubly-robust AIPW",
-   "wrapper_file": "c32_matching_weighting/ipw_aipw.py",
-   "tool_fns": [
-    "mw_ipw",
-    "mw_aipw",
-    "mw_weight_diagnostics"
-   ],
-   "when": "estimating an average effect by reweighting rather than matching, and buying insurance against misspecification by combining the weight model with an outcome model",
-   "when_not": "overlap is so poor that weights explode; treatment is continuous without a dose-response model",
-   "alternatives": [
-    {
-     "alt": "matching",
-     "criterion": "you prefer an explicit paired design"
-    },
-    {
-     "alt": "plain IPW",
-     "criterion": "the treatment model is credible and you want simplicity"
-    },
-    {
-     "alt": "TMLE",
-     "criterion": "you want a substitution estimator with the same double robustness"
-    }
-   ],
-   "output_key_fields": [
-    "ate/att: the point estimate for the requested estimand",
-    "weights: per-unit weights, stabilised where asked",
-    "max_weight, ess: the largest weight and the effective sample size -- the diagnostics that matter",
-    "se, conf_int: influence-function based inference"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "a handful of extreme weights can drive the entire estimate; ALWAYS read the effective sample size, which is often a small fraction of n",
-    "doubly robust means consistent if EITHER model is right -- it does not mean consistent if both are wrong, and it does not fix poor overlap",
-    "stabilised weights fix the variance, not the bias; if the treatment model is wrong, stabilising hides the symptom"
-   ],
-   "sources": [
-    "Robins, Rotnitzky & Zhao 1994 (JASA 89:846-866)",
-    "Hernan & Robins 2020, Causal Inference: What If",
-    "Chernozhukov et al. 2018 (Econometrics Journal 21:C1)",
-    "doubleml"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 279,
-   "method": "Balance diagnostics: standardised differences, variance ratios and love plots",
-   "wrapper_file": "c32_matching_weighting/balance_diagnostics.py",
-   "tool_fns": [
-    "mw_balance",
-    "mw_balance_distribution"
-   ],
-   "when": "checking whether a matching or weighting design actually achieved comparability, which is the only thing that licenses the causal reading",
-   "when_not": "the design is randomisation with a large sample, where balance is guaranteed in expectation",
-   "alternatives": [
-    {
-     "alt": "standardised mean differences",
-     "criterion": "the standard, sample-size-free summary"
-    },
-    {
-     "alt": "variance ratios",
-     "criterion": "means balance but spread may not"
-    },
-    {
-     "alt": "KS or empirical CDF distances",
-     "criterion": "the whole distribution matters, not the first two moments"
-    }
-   ],
-   "output_key_fields": [
-    "smd_before/smd_after: standardised difference per covariate",
-    "variance_ratio: treated-to-control variance per covariate",
-    "love_plot_data: covariates ordered by post-adjustment imbalance, ready to plot",
-    "worst_covariate: the covariate that remains least balanced"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "a t-test of balance is the WRONG instrument -- it conflates imbalance with sample size, so trimming makes it 'pass' by losing power",
-    "balancing means says nothing about higher moments or interactions; a design can balance every mean and still compare different populations",
-    "balance can only be checked on OBSERVED covariates; it is silent about the ones that drive selection"
-   ],
-   "sources": [
-    "Austin 2009 (Statistics in Medicine 28:3083)",
-    "Imai, King & Stuart 2008 (JRSS-A 171:481)",
-    "Stuart 2010 (Statistical Science 25:1)",
-    "causallib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 280,
-   "method": "Propensity stratification and subclassification",
-   "wrapper_file": "c32_matching_weighting/subclassification.py",
-   "tool_fns": [
-    "mw_subclassify"
-   ],
-   "when": "you want a transparent design that uses the whole sample: split on the score into strata, estimate within each, and aggregate",
-   "when_not": "the score has poor overlap so some strata contain one arm only; you need unit-level pairing",
-   "alternatives": [
-    {
-     "alt": "matching",
-     "criterion": "you want explicit pairs rather than blocks"
-    },
-    {
-     "alt": "IPW",
-     "criterion": "you want a continuous weight rather than blocks"
-    },
-    {
-     "alt": "coarsened exact matching",
-     "criterion": "you want exact strata on covariates rather than on the score"
-    }
-   ],
-   "output_key_fields": [
-    "stratum_effects: the effect and count within each stratum",
-    "ate/att: the aggregate, weighted by stratum size or by treated count",
-    "balance_by_stratum: standardised differences within each stratum",
-    "n_strata_dropped: strata lacking one arm"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "five strata is a convention, not a result; the number of strata is a bias-variance choice and the estimate moves with it",
-    "a stratum containing only one arm contributes nothing and silently changes the estimand",
-    "within-stratum balance must be checked separately -- overall balance can hold while individual strata are badly imbalanced"
-   ],
-   "sources": [
-    "Rosenbaum & Rubin 1984 (JASA 79:516-524)",
-    "Cochran 1968 (Biometrics 24:295)",
-    "Imbens & Rubin 2015, ch.17",
-    "causallib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 281,
-   "method": "Sensitivity to hidden bias: Rosenbaum bounds and the E-value",
-   "wrapper_file": "c32_matching_weighting/hidden_bias.py",
-   "tool_fns": [
-    "mw_rosenbaum_bounds",
-    "mw_e_value"
-   ],
-   "when": "asking how strong an unmeasured confounder would have to be to overturn the finding -- the only honest answer to 'but what about omitted variables'",
-   "when_not": "the design is randomised; the effect is already null, in which case there is nothing to overturn",
-   "alternatives": [
-    {
-     "alt": "Rosenbaum bounds",
-     "criterion": "the design is matched and you want a p-value under bias"
-    },
-    {
-     "alt": "E-value",
-     "criterion": "you want a single transportable number on the risk-ratio scale"
-    },
-    {
-     "alt": "Oster's delta",
-     "criterion": "the design is regression with observable selection"
-    }
-   ],
-   "output_key_fields": [
-    "gamma_critical: the odds of differential assignment at which significance is lost",
-    "bounds: p-value bounds across the gamma grid",
-    "e_value: the minimum confounder association that would explain away the estimate",
-    "e_value_ci: the same for the confidence limit, which is the more conservative reading"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "these bound the effect of an unmeasured confounder; they do NOT test whether one exists and cannot",
-    "a gamma near 1 means the finding is fragile to very mild hidden bias -- report it, do not bury it",
-    "the E-value is on the risk-ratio scale; applying it to a coefficient without converting is meaningless"
-   ],
-   "sources": [
-    "Rosenbaum 2002, Observational Studies, 2nd ed.",
-    "VanderWeele & Ding 2017 (Annals of Internal Medicine 167:268-274)",
-    "zepid"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 282,
-   "method": "G-computation, standardisation and targeted maximum likelihood",
-   "wrapper_file": "c32_matching_weighting/gcomputation_tmle.py",
-   "tool_fns": [
-    "mw_gcomputation",
-    "mw_tmle"
-   ],
-   "when": "estimating a causal effect by modelling the outcome and averaging predictions over the covariate distribution, with a targeting step that restores valid inference",
-   "when_not": "there is no overlap; the outcome model cannot be fitted credibly and no machine learner helps",
-   "alternatives": [
-    {
-     "alt": "AIPW",
-     "criterion": "you want the same double robustness in an estimating-equation form"
-    },
-    {
-     "alt": "plain g-computation",
-     "criterion": "the outcome model is credible and you accept model-based inference"
-    },
-    {
-     "alt": "IPW",
-     "criterion": "the treatment model is the one you trust"
-    }
-   ],
-   "output_key_fields": [
-    "ate/att: the standardised effect",
-    "potential_outcomes: mean outcome under each arm, averaged over the covariate distribution",
-    "influence_curve_se: inference from the influence function, valid after targeting",
-    "initial_vs_targeted: how far the targeting step moved the estimate"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "plain g-computation with a machine-learned outcome model has NO valid standard error -- that is exactly the gap the targeting step exists to close",
-    "a large gap between the initial and targeted estimate signals a poorly specified initial model, not a successful correction",
-    "the estimand is defined by the covariate distribution you average over; averaging over the treated gives ATT, over everyone gives ATE, and the difference is not cosmetic"
-   ],
-   "sources": [
-    "Robins 1986 (Mathematical Modelling 7:1393)",
-    "van der Laan & Rubin 2006 (International Journal of Biostatistics 2:11)",
-    "van der Laan & Rose 2011, Targeted Learning",
-    "zepid"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  }
- ],
- "nodes": [
-  {
-   "fn": "mw_pscore_fit",
-   "card_id": 274,
-   "register": {
-    "field": "fit"
-   },
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "model": "logit"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariate columns entering the score.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "model",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimator for the score.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "logit",
-      "probit",
-      "gradient_boosting",
-      "random_forest"
-     ],
-     "allowed_vars": null,
-     "default": "logit",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed for the random number generator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "mw_common_support",
-   "card_id": 274,
-   "register": null,
-   "input_example": {
-    "pscore": "<series_handle>",
-    "treatment": "<series_handle>",
-    "rule": "minmax",
-    "threshold": 0.1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "pscore",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Fitted propensity per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Binary treatment indicator.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rule",
-     "kind": "enum",
-     "required": false,
-     "description": "Trimming rule.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "minmax",
-      "quantile",
-      "fixed",
-      "crump"
-     ],
-     "allowed_vars": null,
-     "default": "minmax",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "threshold",
-     "kind": "number",
-     "required": false,
-     "description": "Cut-off for the fixed and quantile rules.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.1,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "mw_overlap_diagnostics",
-   "card_id": 274,
-   "register": null,
-   "input_example": {
-    "pscore": "<series_handle>",
-    "treatment": "<series_handle>",
-    "n_bins": 20
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "pscore",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Fitted propensity per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Binary treatment indicator.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "n_bins",
-     "kind": "integer",
-     "required": false,
-     "description": "Histogram bins for the by-arm score distribution.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 20,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "mw_match",
-   "card_id": 275,
-   "register": {
-    "field": "matched"
-   },
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "method": "nearest",
-    "n_neighbors": 1,
-    "replace": true
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "pscore",
-     "kind": "string",
-     "required": false,
-     "description": "Column holding a pre-computed propensity score.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates used when matching directly.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Matching rule.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "nearest",
-      "caliper",
-      "kernel",
-      "radius",
-      "mahalanobis"
-     ],
-     "allowed_vars": null,
-     "default": "nearest",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "n_neighbors",
-     "kind": "integer",
-     "required": false,
-     "description": "Controls matched per treated unit.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "caliper",
-     "kind": "number",
-     "required": false,
-     "description": "Maximum admissible distance.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "replace",
-     "kind": "boolean",
-     "required": false,
-     "description": "Match with replacement.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed for the random number generator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "mw_match_effect",
-   "card_id": 275,
-   "register": null,
-   "input_example": {
-    "matched": "<raw_handle>",
-    "outcome": "<series_handle>",
-    "estimand": "att",
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "matched",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a completed matching.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Outcome per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "estimand",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimand to report.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "att",
-      "atc",
-      "ate"
-     ],
-     "allowed_vars": null,
-     "default": "att",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "mw_bias_corrected_att",
-   "card_id": 276,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "outcome": "...",
-    "n_neighbors": 1,
-    "estimand": "att",
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome",
-     "kind": "string",
-     "required": true,
-     "description": "Outcome column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates used for matching and for the bias correction.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "n_neighbors",
-     "kind": "integer",
-     "required": false,
-     "description": "Controls matched per treated unit.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "estimand",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimand to report.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "att",
-      "ate"
-     ],
-     "allowed_vars": null,
-     "default": "att",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "mw_cem",
-   "card_id": 277,
-   "register": {
-    "field": "matched"
-   },
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "coarsening": "sturges",
-    "n_bins": 5
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates to coarsen and match on.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "coarsening",
-     "kind": "enum",
-     "required": false,
-     "description": "Binning rule for continuous covariates.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "sturges",
-      "scott",
-      "fd",
-      "quantile",
-      "manual"
-     ],
-     "allowed_vars": null,
-     "default": "sturges",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "n_bins",
-     "kind": "integer",
-     "required": false,
-     "description": "Bins per covariate when the rule is manual.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "mw_imbalance_l1",
-   "card_id": 277,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "..."
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates to measure imbalance over.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "weights",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Matching weights; omitted = unweighted.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "mw_ipw",
-   "card_id": 278,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "outcome": "...",
-    "stabilised": true,
-    "trim": 0.01,
-    "estimand": "ate",
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome",
-     "kind": "string",
-     "required": true,
-     "description": "Outcome column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "pscore",
-     "kind": "string",
-     "required": false,
-     "description": "Pre-computed propensity column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates for the treatment model when no score is supplied.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "stabilised",
-     "kind": "boolean",
-     "required": false,
-     "description": "Use stabilised weights.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "trim",
-     "kind": "number",
-     "required": false,
-     "description": "Trim propensities to [trim, 1-trim].",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.01,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "estimand",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimand to report.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "ate",
-      "att",
-      "atc"
-     ],
-     "allowed_vars": null,
-     "default": "ate",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "mw_aipw",
-   "card_id": 278,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "outcome": "...",
-    "outcome_model": "linear",
-    "treatment_model": "logit",
-    "n_folds": 5,
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome",
-     "kind": "string",
-     "required": true,
-     "description": "Outcome column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates for both the treatment and outcome models.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome_model",
-     "kind": "enum",
-     "required": false,
-     "description": "Learner for the outcome regression.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "linear",
-      "gradient_boosting",
-      "random_forest"
-     ],
-     "allowed_vars": null,
-     "default": "linear",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "treatment_model",
-     "kind": "enum",
-     "required": false,
-     "description": "Learner for the propensity.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "logit",
-      "gradient_boosting",
-      "random_forest"
-     ],
-     "allowed_vars": null,
-     "default": "logit",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "n_folds",
-     "kind": "integer",
-     "required": false,
-     "description": "Cross-fitting folds; 1 disables cross-fitting.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed for the random number generator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "mw_weight_diagnostics",
-   "card_id": 278,
-   "register": null,
-   "input_example": {
-    "weights": "<series_handle>",
-    "treatment": "<series_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "weights",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Estimated weights per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Binary treatment indicator.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "mw_balance",
-   "card_id": 279,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "threshold": 0.1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates to assess.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "weights",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Design weights; omitted = unadjusted.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "threshold",
-     "kind": "number",
-     "required": false,
-     "description": "Standardised difference regarded as balanced.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.1,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "mw_balance_distribution",
-   "card_id": 279,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "statistic": "ks"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates to assess.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "weights",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Design weights.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "statistic",
-     "kind": "enum",
-     "required": false,
-     "description": "Distance measure.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "ks",
-      "cvm",
-      "wasserstein"
-     ],
-     "allowed_vars": null,
-     "default": "ks",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "mw_subclassify",
-   "card_id": 280,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "outcome": "...",
-    "pscore": "...",
-    "n_strata": 5,
-    "estimand": "ate",
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome",
-     "kind": "string",
-     "required": true,
-     "description": "Outcome column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "pscore",
-     "kind": "string",
-     "required": true,
-     "description": "Column holding the propensity score.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "n_strata",
-     "kind": "integer",
-     "required": false,
-     "description": "Number of score strata.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "estimand",
-     "kind": "enum",
-     "required": false,
-     "description": "Aggregation weighting.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "ate",
-      "att"
-     ],
-     "allowed_vars": null,
-     "default": "ate",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "mw_rosenbaum_bounds",
-   "card_id": 281,
-   "register": null,
-   "input_example": {
-    "matched": "<raw_handle>",
-    "outcome": "<series_handle>",
-    "gamma_max": 3.0,
-    "gamma_step": 0.1,
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "matched",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a completed matching.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Outcome per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "gamma_max",
-     "kind": "number",
-     "required": false,
-     "description": "Largest hidden-bias odds ratio to scan.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 3.0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "gamma_step",
-     "kind": "number",
-     "required": false,
-     "description": "Step of the gamma grid.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "mw_e_value",
-   "card_id": 281,
-   "register": null,
-   "input_example": {
-    "estimate": 1.0,
-    "scale": "risk_ratio"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "estimate",
-     "kind": "number",
-     "required": true,
-     "description": "The effect estimate, on the ratio scale.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "lower",
-     "kind": "number",
-     "required": false,
-     "description": "Lower confidence limit.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "upper",
-     "kind": "number",
-     "required": false,
-     "description": "Upper confidence limit.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "scale",
-     "kind": "enum",
-     "required": false,
-     "description": "Scale the estimate is reported on.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "risk_ratio",
-      "odds_ratio",
-      "hazard_ratio",
-      "standardised_mean"
-     ],
-     "allowed_vars": null,
-     "default": "risk_ratio",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "mw_gcomputation",
-   "card_id": 282,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "outcome": "...",
-    "outcome_model": "linear",
-    "estimand": "ate",
-    "nboot": 999
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome",
-     "kind": "string",
-     "required": true,
-     "description": "Outcome column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates in the outcome model.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome_model",
-     "kind": "enum",
-     "required": false,
-     "description": "Learner for the outcome regression.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "linear",
-      "logit",
-      "gradient_boosting",
-      "random_forest"
-     ],
-     "allowed_vars": null,
-     "default": "linear",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "estimand",
-     "kind": "enum",
-     "required": false,
-     "description": "Population to standardise over.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "ate",
-      "att",
-      "atc"
-     ],
-     "allowed_vars": null,
-     "default": "ate",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "nboot",
-     "kind": "integer",
-     "required": false,
-     "description": "Number of bootstrap replications.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 999,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed for the random number generator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "mw_tmle",
-   "card_id": 282,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "treatment": "...",
-    "outcome": "...",
-    "outcome_model": "gradient_boosting",
-    "treatment_model": "logit",
-    "trim": 0.01,
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "One row per unit.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "treatment",
-     "kind": "string",
-     "required": true,
-     "description": "Binary treatment column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome",
-     "kind": "string",
-     "required": true,
-     "description": "Outcome column.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariates",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Covariates for both models.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "outcome_model",
-     "kind": "enum",
-     "required": false,
-     "description": "Learner for the outcome regression.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "linear",
-      "logit",
-      "gradient_boosting",
-      "random_forest"
-     ],
-     "allowed_vars": null,
-     "default": "gradient_boosting",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "treatment_model",
-     "kind": "enum",
-     "required": false,
-     "description": "Learner for the propensity.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "logit",
-      "gradient_boosting",
-      "random_forest"
-     ],
-     "allowed_vars": null,
-     "default": "logit",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "trim",
-     "kind": "number",
-     "required": false,
-     "description": "Trim propensities to [trim, 1-trim].",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.01,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed for the random number generator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  }
- ]
+  ]
 }

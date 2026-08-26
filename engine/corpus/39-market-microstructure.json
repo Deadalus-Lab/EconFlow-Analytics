@@ -1,1223 +1,1223 @@
 {
- "category": "39-market-microstructure",
- "cards": [
-  {
-   "id": 333,
-   "method": "OHLC spread estimators: Roll, Corwin-Schultz, Abdi-Ranaldo and EDGE",
-   "wrapper_file": "c39_market_microstructure/ohlc_spreads.py",
-   "tool_fns": [
-    "ms_ohlc_spread"
-   ],
-   "when": "estimating the effective bid-ask spread from daily open-high-low-close data when trade-and-quote data is unavailable or unaffordable",
-   "when_not": "you have trade and quote data, where the spread can be measured directly rather than estimated",
-   "alternatives": [
+  "category": "39-market-microstructure",
+  "cards": [
     {
-     "alt": "direct quoted spread",
-     "criterion": "you have quote data"
+      "id": 333,
+      "method": "OHLC spread estimators: Roll, Corwin-Schultz, Abdi-Ranaldo and EDGE",
+      "wrapper_file": "c39_market_microstructure/ohlc_spreads.py",
+      "tool_fns": [
+        "ms_ohlc_spread"
+      ],
+      "when": "estimating the effective bid-ask spread from daily open-high-low-close data when trade-and-quote data is unavailable or unaffordable",
+      "when_not": "you have trade and quote data, where the spread can be measured directly rather than estimated",
+      "alternatives": [
+        {
+          "alt": "direct quoted spread",
+          "criterion": "you have quote data"
+        },
+        {
+          "alt": "Corwin-Schultz",
+          "criterion": "high-low data available and you want a well-tested estimator"
+        },
+        {
+          "alt": "EDGE",
+          "criterion": "you want the current best-performing OHLC estimator"
+        }
+      ],
+      "output_key_fields": [
+        "spread: the estimated proportional effective spread per period",
+        "estimator: which construction produced it",
+        "n_negative: periods where the estimate came out negative, which happens often",
+        "diagnostics: inputs that were unusable, such as zero-range days"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "these estimators routinely produce NEGATIVE spreads; how negatives are handled -- truncated, averaged, dropped -- changes the level materially and must be reported",
+        "overnight price moves contaminate high-low estimators; adjusting for them is not optional for stocks with news",
+        "the estimators disagree with each other and with measured spreads by economically large amounts, so the choice is a result, not a detail"
+      ],
+      "sources": [
+        "Roll 1984 (Journal of Finance 39:1127-1139)",
+        "Corwin & Schultz 2012 (Journal of Finance 67:719-760)",
+        "Abdi & Ranaldo 2017 (Review of Financial Studies 30:4437)",
+        "bidask"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "Corwin-Schultz",
-     "criterion": "high-low data available and you want a well-tested estimator"
+      "id": 334,
+      "method": "Amihud illiquidity, turnover and zero-return measures",
+      "wrapper_file": "c39_market_microstructure/liquidity_measures.py",
+      "tool_fns": [
+        "ms_amihud",
+        "ms_liquidity_panel"
+      ],
+      "when": "measuring how much price a trade moves, or how thin a market is, from daily data available for any listed asset",
+      "when_not": "you need intraday depth or resiliency, which daily aggregates cannot see",
+      "alternatives": [
+        {
+          "alt": "Amihud illiquidity",
+          "criterion": "price impact per unit of volume"
+        },
+        {
+          "alt": "turnover",
+          "criterion": "trading activity relative to size"
+        },
+        {
+          "alt": "zero-return share",
+          "criterion": "very thin markets where the others are undefined"
+        }
+      ],
+      "output_key_fields": [
+        "amihud: absolute return per unit of dollar volume",
+        "turnover: volume over shares outstanding",
+        "zero_return_share: proportion of days with no price change",
+        "roll_impact: the implied round-trip cost"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "Amihud is a RATIO with volume in the denominator; zero-volume days must be excluded explicitly or the measure explodes",
+        "the measure is not comparable across assets of very different price levels or currencies without scaling",
+        "a high zero-return share means the other liquidity measures are estimated on very few informative days"
+      ],
+      "sources": [
+        "Amihud 2002 (Journal of Financial Markets 5:31-56)",
+        "Lesmond, Ogden & Trzcinka 1999 (Review of Financial Studies 12:1113)",
+        "Goyenko, Holden & Trzcinka 2009 (Journal of Financial Economics 92:153)",
+        "DOI 10.1016/s1386-4181(01)00024-6"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "EDGE",
-     "criterion": "you want the current best-performing OHLC estimator"
+      "id": 335,
+      "method": "Kyle's lambda, Hasbrouck's lambda and price impact",
+      "wrapper_file": "c39_market_microstructure/price_impact.py",
+      "tool_fns": [
+        "ms_kyle_lambda",
+        "ms_hasbrouck_lambda"
+      ],
+      "when": "measuring how much order flow moves prices -- the empirical counterpart of market depth and the standard proxy for adverse selection",
+      "when_not": "you have no signed order flow and no way to sign trades",
+      "alternatives": [
+        {
+          "alt": "Kyle's lambda",
+          "criterion": "a regression of returns on signed volume"
+        },
+        {
+          "alt": "Hasbrouck's lambda",
+          "criterion": "a structural VAR of trades and quote revisions"
+        },
+        {
+          "alt": "Amihud",
+          "criterion": "no signed flow available at all"
+        }
+      ],
+      "output_key_fields": [
+        "lambda: the price-impact coefficient",
+        "r_squared: how much of the price change order flow explains",
+        "permanent_impact, temporary_impact: the decomposition where the method provides one",
+        "se: standard error of the impact coefficient"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "lambda depends on the TRADE-SIGNING rule; Lee-Ready, tick and quote rules give materially different estimates on the same data",
+        "the permanent component is information and the temporary one is inventory cost -- conflating them misreads the microstructure",
+        "estimates are highly sensitive to the sampling interval; five-minute and daily lambdas are not comparable"
+      ],
+      "sources": [
+        "Kyle 1985 (Econometrica 53:1315-1335)",
+        "Hasbrouck 1991 (Journal of Finance 46:179-207)",
+        "Hasbrouck 2009 (Journal of Finance 64:1445)",
+        "frds"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 336,
+      "method": "Trade classification and order-flow imbalance",
+      "wrapper_file": "c39_market_microstructure/trade_classification.py",
+      "tool_fns": [
+        "ms_classify_trades",
+        "ms_order_flow_imbalance"
+      ],
+      "when": "assigning a buyer or seller initiator to each trade, which every order-flow measure downstream depends on",
+      "when_not": "the data already carry a trade direction flag; you have no quotes and only the tick rule is possible",
+      "alternatives": [
+        {
+          "alt": "Lee-Ready",
+          "criterion": "quotes are available and correctly timestamped"
+        },
+        {
+          "alt": "tick rule",
+          "criterion": "no quote data at all"
+        },
+        {
+          "alt": "bulk volume classification",
+          "criterion": "only aggregated bars are available"
+        }
+      ],
+      "output_key_fields": [
+        "direction: the signed classification per trade",
+        "order_flow_imbalance: signed volume aggregated to the requested frequency",
+        "unclassified_share: trades the rule could not sign",
+        "agreement: agreement rate between rules, where more than one is computed"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "Lee-Ready is sensitive to QUOTE TIMESTAMP ALIGNMENT; the historical five-second offset is wrong for modern data and using it degrades accuracy badly",
+        "classification accuracy falls sharply for trades inside the spread and in fast markets",
+        "every downstream measure -- lambda, imbalance, adverse selection -- inherits the classification error without reporting it"
+      ],
+      "sources": [
+        "Lee & Ready 1991 (Journal of Finance 46:733-746)",
+        "Ellis, Michaely & O'Hara 2000 (Journal of Financial and Quantitative Analysis 35:529)",
+        "Chakrabarty, Li, Nguyen & Van Ness 2007 (Journal of Financial Markets 10:277)",
+        "DOI 10.1111/j.1540-6261.1991.tb02683.x"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 337,
+      "method": "Noise-robust realised measures: two-scale, kernel and pre-averaged",
+      "wrapper_file": "c39_market_microstructure/realised_measures.py",
+      "tool_fns": [
+        "ms_realised_variance",
+        "ms_noise_variance"
+      ],
+      "when": "estimating integrated variance from high-frequency returns, where naive realised variance is dominated by microstructure noise rather than by volatility",
+      "when_not": "the sampling frequency is low enough that noise is negligible; you only have daily data",
+      "alternatives": [
+        {
+          "alt": "sparse-sampled realised variance",
+          "criterion": "a crude but transparent noise control"
+        },
+        {
+          "alt": "two-scale estimator",
+          "criterion": "you want a consistent estimator with a simple construction"
+        },
+        {
+          "alt": "realised kernel",
+          "criterion": "you want the efficient noise-robust estimator"
+        }
+      ],
+      "output_key_fields": [
+        "realised_variance: the estimate at the chosen construction",
+        "noise_variance: the estimated microstructure noise, which is the diagnostic",
+        "optimal_frequency: the sampling interval the signature plot implies",
+        "jump_component: the separated jump contribution where requested"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "naive realised variance at the highest available frequency estimates the NOISE, not the volatility -- it diverges as the interval shrinks",
+        "the estimators assume noise is independent of the efficient price, which fails in fast or illiquid markets",
+        "overnight returns are not covered by any intraday estimator and must be added explicitly if a daily figure is wanted"
+      ],
+      "sources": [
+        "Zhang, Mykland & Ait-Sahalia 2005 (JASA 100:1394-1411)",
+        "Barndorff-Nielsen, Hansen, Lunde & Shephard 2008 (Econometrica 76:1481)",
+        "Jacod, Li, Mykland, Podolskij & Vetter 2009 (Stochastic Processes and their Applications 119:2249)",
+        "DOI 10.3982/ECTA6495"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 338,
+      "method": "Intraday volatility patterns, signature plots and optimal sampling",
+      "wrapper_file": "c39_market_microstructure/intraday_patterns.py",
+      "tool_fns": [
+        "ms_signature_plot",
+        "ms_intraday_periodicity"
+      ],
+      "when": "diagnosing the intraday shape of volatility and choosing the sampling frequency at which a realised measure is actually informative",
+      "when_not": "you are not using intraday data; the estimator already selects its own frequency internally",
+      "alternatives": [
+        {
+          "alt": "signature plot",
+          "criterion": "choosing a sampling interval"
+        },
+        {
+          "alt": "intraday periodicity estimation",
+          "criterion": "removing the U shape before modelling"
+        },
+        {
+          "alt": "optimal-frequency rules",
+          "criterion": "you want a stated rule rather than a visual choice"
+        }
+      ],
+      "output_key_fields": [
+        "signature: realised variance against sampling interval, which flattens where noise stops dominating",
+        "optimal_interval: the interval the rule selects",
+        "periodicity: the estimated intraday volatility pattern",
+        "deseasonalised: returns with the pattern removed"
+      ],
+      "chart_kind": "line",
+      "interpretation_traps": [
+        "the intraday U shape means volatility is NOT stationary within the day; fitting a GARCH to raw intraday returns models the opening and closing auctions",
+        "the signature plot's flat region can be ambiguous; the choice of interval within it still moves the estimate",
+        "periodicity estimated on a short sample is dominated by a few unusual days"
+      ],
+      "sources": [
+        "Andersen & Bollerslev 1997 (Journal of Empirical Finance 4:115-158)",
+        "Ait-Sahalia, Mykland & Zhang 2005 (Review of Financial Studies 18:351)",
+        "Boudt, Croux & Laurent 2011 (Journal of Empirical Finance 18:353)",
+        "DOI 10.1016/S0927-5398(97)00004-2"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 339,
+      "method": "Effective and realised spreads and price discovery",
+      "wrapper_file": "c39_market_microstructure/price_discovery.py",
+      "tool_fns": [
+        "ms_spread_decomposition",
+        "ms_information_share",
+        "ms_component_share"
+      ],
+      "when": "decomposing the cost of a trade into what the market maker keeps and what the informed trader takes, and locating where price discovery happens across venues",
+      "when_not": "there is one venue and one price series, so there is nothing to attribute across markets",
+      "alternatives": [
+        {
+          "alt": "effective and realised spread",
+          "criterion": "the question is transaction cost decomposition"
+        },
+        {
+          "alt": "Hasbrouck information share",
+          "criterion": "several venues quote the same asset"
+        },
+        {
+          "alt": "Gonzalo-Granger component share",
+          "criterion": "you prefer the permanent-transitory decomposition"
+        }
+      ],
+      "output_key_fields": [
+        "effective_spread: twice the signed distance from the midpoint",
+        "realised_spread: the market maker's revenue after the price settles",
+        "price_impact: effective minus realised, the adverse-selection component",
+        "information_share, component_share: cross-venue price-discovery attribution"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "the Hasbrouck information share is only identified up to BOUNDS when the venue innovations are correlated; a point estimate presented without its bounds is misleading",
+        "the realised spread depends on the horizon chosen for the post-trade midpoint, and the answer moves with it",
+        "information and component shares answer different questions and routinely rank venues differently"
+      ],
+      "sources": [
+        "Hasbrouck 1995 (Journal of Finance 50:1175-1199)",
+        "Gonzalo & Granger 1995 (Journal of Business and Economic Statistics 13:27)",
+        "Huang & Stoll 1996 (Review of Financial Studies 9:1005)",
+        "statsmodels"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     }
-   ],
-   "output_key_fields": [
-    "spread: the estimated proportional effective spread per period",
-    "estimator: which construction produced it",
-    "n_negative: periods where the estimate came out negative, which happens often",
-    "diagnostics: inputs that were unusable, such as zero-range days"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "these estimators routinely produce NEGATIVE spreads; how negatives are handled -- truncated, averaged, dropped -- changes the level materially and must be reported",
-    "overnight price moves contaminate high-low estimators; adjusting for them is not optional for stocks with news",
-    "the estimators disagree with each other and with measured spreads by economically large amounts, so the choice is a result, not a detail"
-   ],
-   "sources": [
-    "Roll 1984 (Journal of Finance 39:1127-1139)",
-    "Corwin & Schultz 2012 (Journal of Finance 67:719-760)",
-    "Abdi & Ranaldo 2017 (Review of Financial Studies 30:4437)",
-    "bidask"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 334,
-   "method": "Amihud illiquidity, turnover and zero-return measures",
-   "wrapper_file": "c39_market_microstructure/liquidity_measures.py",
-   "tool_fns": [
-    "ms_amihud",
-    "ms_liquidity_panel"
-   ],
-   "when": "measuring how much price a trade moves, or how thin a market is, from daily data available for any listed asset",
-   "when_not": "you need intraday depth or resiliency, which daily aggregates cannot see",
-   "alternatives": [
+  ],
+  "nodes": [
     {
-     "alt": "Amihud illiquidity",
-     "criterion": "price impact per unit of volume"
+      "fn": "ms_ohlc_spread",
+      "card_id": 333,
+      "register": null,
+      "input_example": {
+        "open": "<series_handle>",
+        "high": "<series_handle>",
+        "low": "<series_handle>",
+        "close": "<series_handle>",
+        "estimator": "edge",
+        "negative": "zero"
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "spread",
+          "estimator",
+          "n_negative",
+          "diagnostics"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "open",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Open price.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "high",
+          "kind": "series_handle",
+          "required": true,
+          "description": "High price.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "low",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Low price.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "close",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Close price.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "estimator",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimator family.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "roll",
+            "corwin_schultz",
+            "abdi_ranaldo",
+            "edge"
+          ],
+          "allowed_vars": null,
+          "default": "edge",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "negative",
+          "kind": "enum",
+          "required": false,
+          "description": "Handling of negative estimates.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "keep",
+            "zero",
+            "drop"
+          ],
+          "allowed_vars": null,
+          "default": "zero",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "window",
+          "kind": "integer",
+          "required": false,
+          "description": "Rolling window in periods; omitted = full sample.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
     },
     {
-     "alt": "turnover",
-     "criterion": "trading activity relative to size"
+      "fn": "ms_amihud",
+      "card_id": 334,
+      "register": null,
+      "input_example": {
+        "returns": "<series_handle>",
+        "volume": "<series_handle>",
+        "window": 21,
+        "min_observations": 15
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Daily returns.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "volume",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Daily dollar volume.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "window",
+          "kind": "integer",
+          "required": false,
+          "description": "Aggregation window in days.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 21,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "min_observations",
+          "kind": "integer",
+          "required": false,
+          "description": "Minimum non-zero-volume days required.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 15,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
     },
     {
-     "alt": "zero-return share",
-     "criterion": "very thin markets where the others are undefined"
+      "fn": "ms_liquidity_panel",
+      "card_id": 334,
+      "register": null,
+      "input_example": {
+        "returns": "<series_handle>",
+        "volume": "<series_handle>",
+        "window": 21
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Daily returns.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "volume",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Daily share volume.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "shares_outstanding",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Shares outstanding for turnover.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "window",
+          "kind": "integer",
+          "required": false,
+          "description": "Aggregation window in days.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 21,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "ms_kyle_lambda",
+      "card_id": 335,
+      "register": null,
+      "input_example": {
+        "returns": "<series_handle>",
+        "signed_volume": "<series_handle>",
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Returns at the sampling frequency.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "signed_volume",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Signed order flow.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "window",
+          "kind": "integer",
+          "required": false,
+          "description": "Rolling window; omitted = full sample.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "ms_hasbrouck_lambda",
+      "card_id": 335,
+      "register": null,
+      "input_example": {
+        "returns": "<series_handle>",
+        "signed_trades": "<series_handle>",
+        "lags": 5
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Quote-midpoint returns.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "signed_trades",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Signed trade indicator or volume.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "lags",
+          "kind": "integer",
+          "required": false,
+          "description": "VAR lag order.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "ms_classify_trades",
+      "card_id": 336,
+      "register": null,
+      "input_example": {
+        "price": "<series_handle>",
+        "rule": "lee_ready",
+        "quote_lag": 0.0
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "price",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Trade price.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "bid",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Prevailing bid.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "ask",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Prevailing ask.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rule",
+          "kind": "enum",
+          "required": false,
+          "description": "Classification rule.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "tick",
+            "quote",
+            "lee_ready",
+            "emo",
+            "clnv"
+          ],
+          "allowed_vars": null,
+          "default": "lee_ready",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "quote_lag",
+          "kind": "number",
+          "required": false,
+          "description": "Quote alignment offset in seconds.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.0,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "ms_order_flow_imbalance",
+      "card_id": 336,
+      "register": null,
+      "input_example": {
+        "signed_volume": "<series_handle>",
+        "frequency": "5min"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "signed_volume",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Signed trade volume.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "frequency",
+          "kind": "enum",
+          "required": false,
+          "description": "Aggregation frequency.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "1min",
+            "5min",
+            "15min",
+            "30min",
+            "1h",
+            "daily"
+          ],
+          "allowed_vars": null,
+          "default": "5min",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "ms_realised_variance",
+      "card_id": 337,
+      "register": null,
+      "input_example": {
+        "prices": "<irregular_series_handle>",
+        "estimator": "kernel",
+        "sampling": "calendar",
+        "interval": 300
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "prices",
+          "kind": "irregular_series_handle",
+          "required": true,
+          "description": "Intraday price series with timestamps.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "estimator",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimator construction.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "naive",
+            "sparse",
+            "two_scale",
+            "multi_scale",
+            "kernel",
+            "pre_averaged"
+          ],
+          "allowed_vars": null,
+          "default": "kernel",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "sampling",
+          "kind": "enum",
+          "required": false,
+          "description": "Sampling scheme.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "calendar",
+            "tick",
+            "business"
+          ],
+          "allowed_vars": null,
+          "default": "calendar",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "interval",
+          "kind": "integer",
+          "required": false,
+          "description": "Sampling interval in seconds.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 300,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "ms_noise_variance",
+      "card_id": 337,
+      "register": null,
+      "input_example": {
+        "prices": "<irregular_series_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "prices",
+          "kind": "irregular_series_handle",
+          "required": true,
+          "description": "Intraday price series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "ms_signature_plot",
+      "card_id": 338,
+      "register": null,
+      "input_example": {
+        "prices": "<irregular_series_handle>",
+        "intervals": [
+          5,
+          10,
+          30,
+          60,
+          300,
+          600,
+          1800
+        ]
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "prices",
+          "kind": "irregular_series_handle",
+          "required": true,
+          "description": "Intraday price series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "intervals",
+          "kind": "int_array",
+          "required": false,
+          "description": "Sampling intervals in seconds to scan.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": [
+            5,
+            10,
+            30,
+            60,
+            300,
+            600,
+            1800
+          ],
+          "has_default": true,
+          "default_json_type": "array"
+        }
+      ]
+    },
+    {
+      "fn": "ms_intraday_periodicity",
+      "card_id": 338,
+      "register": null,
+      "input_example": {
+        "returns": "<irregular_series_handle>",
+        "method": "wsd",
+        "bins_per_day": 78
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "irregular_series_handle",
+          "required": true,
+          "description": "Intraday returns.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Periodicity estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "mean_absolute",
+            "wsd",
+            "shortest_half",
+            "trimmed_mean"
+          ],
+          "allowed_vars": null,
+          "default": "wsd",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "bins_per_day",
+          "kind": "integer",
+          "required": false,
+          "description": "Intraday bins per trading day.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 78,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "ms_spread_decomposition",
+      "card_id": 339,
+      "register": null,
+      "input_example": {
+        "price": "<series_handle>",
+        "midpoint": "<series_handle>",
+        "direction": "<series_handle>",
+        "horizon": 5
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "price",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Trade price.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "midpoint",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Prevailing quote midpoint.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "direction",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Signed trade direction.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "horizon",
+          "kind": "integer",
+          "required": false,
+          "description": "Periods ahead for the post-trade midpoint.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "ms_information_share",
+      "card_id": 339,
+      "register": null,
+      "input_example": {
+        "prices": "<multiseries_handle>",
+        "lags": 5
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "prices",
+          "kind": "multiseries_handle",
+          "required": true,
+          "description": "Price series, one column per venue.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "lags",
+          "kind": "integer",
+          "required": false,
+          "description": "VECM lag order.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "ms_component_share",
+      "card_id": 339,
+      "register": null,
+      "input_example": {
+        "prices": "<multiseries_handle>",
+        "lags": 5
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "prices",
+          "kind": "multiseries_handle",
+          "required": true,
+          "description": "Price series, one column per venue.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "lags",
+          "kind": "integer",
+          "required": false,
+          "description": "VECM lag order.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
     }
-   ],
-   "output_key_fields": [
-    "amihud: absolute return per unit of dollar volume",
-    "turnover: volume over shares outstanding",
-    "zero_return_share: proportion of days with no price change",
-    "roll_impact: the implied round-trip cost"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "Amihud is a RATIO with volume in the denominator; zero-volume days must be excluded explicitly or the measure explodes",
-    "the measure is not comparable across assets of very different price levels or currencies without scaling",
-    "a high zero-return share means the other liquidity measures are estimated on very few informative days"
-   ],
-   "sources": [
-    "Amihud 2002 (Journal of Financial Markets 5:31-56)",
-    "Lesmond, Ogden & Trzcinka 1999 (Review of Financial Studies 12:1113)",
-    "Goyenko, Holden & Trzcinka 2009 (Journal of Financial Economics 92:153)",
-    "frds"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 335,
-   "method": "Kyle's lambda, Hasbrouck's lambda and price impact",
-   "wrapper_file": "c39_market_microstructure/price_impact.py",
-   "tool_fns": [
-    "ms_kyle_lambda",
-    "ms_hasbrouck_lambda"
-   ],
-   "when": "measuring how much order flow moves prices -- the empirical counterpart of market depth and the standard proxy for adverse selection",
-   "when_not": "you have no signed order flow and no way to sign trades",
-   "alternatives": [
-    {
-     "alt": "Kyle's lambda",
-     "criterion": "a regression of returns on signed volume"
-    },
-    {
-     "alt": "Hasbrouck's lambda",
-     "criterion": "a structural VAR of trades and quote revisions"
-    },
-    {
-     "alt": "Amihud",
-     "criterion": "no signed flow available at all"
-    }
-   ],
-   "output_key_fields": [
-    "lambda: the price-impact coefficient",
-    "r_squared: how much of the price change order flow explains",
-    "permanent_impact, temporary_impact: the decomposition where the method provides one",
-    "se: standard error of the impact coefficient"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "lambda depends on the TRADE-SIGNING rule; Lee-Ready, tick and quote rules give materially different estimates on the same data",
-    "the permanent component is information and the temporary one is inventory cost -- conflating them misreads the microstructure",
-    "estimates are highly sensitive to the sampling interval; five-minute and daily lambdas are not comparable"
-   ],
-   "sources": [
-    "Kyle 1985 (Econometrica 53:1315-1335)",
-    "Hasbrouck 1991 (Journal of Finance 46:179-207)",
-    "Hasbrouck 2009 (Journal of Finance 64:1445)",
-    "frds"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 336,
-   "method": "Trade classification and order-flow imbalance",
-   "wrapper_file": "c39_market_microstructure/trade_classification.py",
-   "tool_fns": [
-    "ms_classify_trades",
-    "ms_order_flow_imbalance"
-   ],
-   "when": "assigning a buyer or seller initiator to each trade, which every order-flow measure downstream depends on",
-   "when_not": "the data already carry a trade direction flag; you have no quotes and only the tick rule is possible",
-   "alternatives": [
-    {
-     "alt": "Lee-Ready",
-     "criterion": "quotes are available and correctly timestamped"
-    },
-    {
-     "alt": "tick rule",
-     "criterion": "no quote data at all"
-    },
-    {
-     "alt": "bulk volume classification",
-     "criterion": "only aggregated bars are available"
-    }
-   ],
-   "output_key_fields": [
-    "direction: the signed classification per trade",
-    "order_flow_imbalance: signed volume aggregated to the requested frequency",
-    "unclassified_share: trades the rule could not sign",
-    "agreement: agreement rate between rules, where more than one is computed"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "Lee-Ready is sensitive to QUOTE TIMESTAMP ALIGNMENT; the historical five-second offset is wrong for modern data and using it degrades accuracy badly",
-    "classification accuracy falls sharply for trades inside the spread and in fast markets",
-    "every downstream measure -- lambda, imbalance, adverse selection -- inherits the classification error without reporting it"
-   ],
-   "sources": [
-    "Lee & Ready 1991 (Journal of Finance 46:733-746)",
-    "Ellis, Michaely & O'Hara 2000 (Journal of Financial and Quantitative Analysis 35:529)",
-    "Chakrabarty, Li, Nguyen & Van Ness 2007 (Journal of Financial Markets 10:277)",
-    "frds"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 337,
-   "method": "Noise-robust realised measures: two-scale, kernel and pre-averaged",
-   "wrapper_file": "c39_market_microstructure/realised_measures.py",
-   "tool_fns": [
-    "ms_realised_variance",
-    "ms_noise_variance"
-   ],
-   "when": "estimating integrated variance from high-frequency returns, where naive realised variance is dominated by microstructure noise rather than by volatility",
-   "when_not": "the sampling frequency is low enough that noise is negligible; you only have daily data",
-   "alternatives": [
-    {
-     "alt": "sparse-sampled realised variance",
-     "criterion": "a crude but transparent noise control"
-    },
-    {
-     "alt": "two-scale estimator",
-     "criterion": "you want a consistent estimator with a simple construction"
-    },
-    {
-     "alt": "realised kernel",
-     "criterion": "you want the efficient noise-robust estimator"
-    }
-   ],
-   "output_key_fields": [
-    "realised_variance: the estimate at the chosen construction",
-    "noise_variance: the estimated microstructure noise, which is the diagnostic",
-    "optimal_frequency: the sampling interval the signature plot implies",
-    "jump_component: the separated jump contribution where requested"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "naive realised variance at the highest available frequency estimates the NOISE, not the volatility -- it diverges as the interval shrinks",
-    "the estimators assume noise is independent of the efficient price, which fails in fast or illiquid markets",
-    "overnight returns are not covered by any intraday estimator and must be added explicitly if a daily figure is wanted"
-   ],
-   "sources": [
-    "Zhang, Mykland & Ait-Sahalia 2005 (JASA 100:1394-1411)",
-    "Barndorff-Nielsen, Hansen, Lunde & Shephard 2008 (Econometrica 76:1481)",
-    "Jacod, Li, Mykland, Podolskij & Vetter 2009 (Stochastic Processes and their Applications 119:2249)",
-    "arch"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 338,
-   "method": "Intraday volatility patterns, signature plots and optimal sampling",
-   "wrapper_file": "c39_market_microstructure/intraday_patterns.py",
-   "tool_fns": [
-    "ms_signature_plot",
-    "ms_intraday_periodicity"
-   ],
-   "when": "diagnosing the intraday shape of volatility and choosing the sampling frequency at which a realised measure is actually informative",
-   "when_not": "you are not using intraday data; the estimator already selects its own frequency internally",
-   "alternatives": [
-    {
-     "alt": "signature plot",
-     "criterion": "choosing a sampling interval"
-    },
-    {
-     "alt": "intraday periodicity estimation",
-     "criterion": "removing the U shape before modelling"
-    },
-    {
-     "alt": "optimal-frequency rules",
-     "criterion": "you want a stated rule rather than a visual choice"
-    }
-   ],
-   "output_key_fields": [
-    "signature: realised variance against sampling interval, which flattens where noise stops dominating",
-    "optimal_interval: the interval the rule selects",
-    "periodicity: the estimated intraday volatility pattern",
-    "deseasonalised: returns with the pattern removed"
-   ],
-   "chart_kind": "line",
-   "interpretation_traps": [
-    "the intraday U shape means volatility is NOT stationary within the day; fitting a GARCH to raw intraday returns models the opening and closing auctions",
-    "the signature plot's flat region can be ambiguous; the choice of interval within it still moves the estimate",
-    "periodicity estimated on a short sample is dominated by a few unusual days"
-   ],
-   "sources": [
-    "Andersen & Bollerslev 1997 (Journal of Empirical Finance 4:115-158)",
-    "Ait-Sahalia, Mykland & Zhang 2005 (Review of Financial Studies 18:351)",
-    "Boudt, Croux & Laurent 2011 (Journal of Empirical Finance 18:353)",
-    "arch"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 339,
-   "method": "Effective and realised spreads and price discovery",
-   "wrapper_file": "c39_market_microstructure/price_discovery.py",
-   "tool_fns": [
-    "ms_spread_decomposition",
-    "ms_information_share",
-    "ms_component_share"
-   ],
-   "when": "decomposing the cost of a trade into what the market maker keeps and what the informed trader takes, and locating where price discovery happens across venues",
-   "when_not": "there is one venue and one price series, so there is nothing to attribute across markets",
-   "alternatives": [
-    {
-     "alt": "effective and realised spread",
-     "criterion": "the question is transaction cost decomposition"
-    },
-    {
-     "alt": "Hasbrouck information share",
-     "criterion": "several venues quote the same asset"
-    },
-    {
-     "alt": "Gonzalo-Granger component share",
-     "criterion": "you prefer the permanent-transitory decomposition"
-    }
-   ],
-   "output_key_fields": [
-    "effective_spread: twice the signed distance from the midpoint",
-    "realised_spread: the market maker's revenue after the price settles",
-    "price_impact: effective minus realised, the adverse-selection component",
-    "information_share, component_share: cross-venue price-discovery attribution"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "the Hasbrouck information share is only identified up to BOUNDS when the venue innovations are correlated; a point estimate presented without its bounds is misleading",
-    "the realised spread depends on the horizon chosen for the post-trade midpoint, and the answer moves with it",
-    "information and component shares answer different questions and routinely rank venues differently"
-   ],
-   "sources": [
-    "Hasbrouck 1995 (Journal of Finance 50:1175-1199)",
-    "Gonzalo & Granger 1995 (Journal of Business and Economic Statistics 13:27)",
-    "Huang & Stoll 1996 (Review of Financial Studies 9:1005)",
-    "statsmodels"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  }
- ],
- "nodes": [
-  {
-   "fn": "ms_ohlc_spread",
-   "card_id": 333,
-   "register": null,
-   "input_example": {
-    "open": "<series_handle>",
-    "high": "<series_handle>",
-    "low": "<series_handle>",
-    "close": "<series_handle>",
-    "estimator": "edge",
-    "negative": "zero"
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "spread",
-     "estimator",
-     "n_negative",
-     "diagnostics"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "open",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Open price.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "high",
-     "kind": "series_handle",
-     "required": true,
-     "description": "High price.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "low",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Low price.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "close",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Close price.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "estimator",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimator family.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "roll",
-      "corwin_schultz",
-      "abdi_ranaldo",
-      "edge"
-     ],
-     "allowed_vars": null,
-     "default": "edge",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "negative",
-     "kind": "enum",
-     "required": false,
-     "description": "Handling of negative estimates.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "keep",
-      "zero",
-      "drop"
-     ],
-     "allowed_vars": null,
-     "default": "zero",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "window",
-     "kind": "integer",
-     "required": false,
-     "description": "Rolling window in periods; omitted = full sample.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "ms_amihud",
-   "card_id": 334,
-   "register": null,
-   "input_example": {
-    "returns": "<series_handle>",
-    "volume": "<series_handle>",
-    "window": 21,
-    "min_observations": 15
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Daily returns.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "volume",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Daily dollar volume.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "window",
-     "kind": "integer",
-     "required": false,
-     "description": "Aggregation window in days.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 21,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "min_observations",
-     "kind": "integer",
-     "required": false,
-     "description": "Minimum non-zero-volume days required.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 15,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "ms_liquidity_panel",
-   "card_id": 334,
-   "register": null,
-   "input_example": {
-    "returns": "<series_handle>",
-    "volume": "<series_handle>",
-    "window": 21
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Daily returns.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "volume",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Daily share volume.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "shares_outstanding",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Shares outstanding for turnover.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "window",
-     "kind": "integer",
-     "required": false,
-     "description": "Aggregation window in days.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 21,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "ms_kyle_lambda",
-   "card_id": 335,
-   "register": null,
-   "input_example": {
-    "returns": "<series_handle>",
-    "signed_volume": "<series_handle>",
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Returns at the sampling frequency.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "signed_volume",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Signed order flow.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "window",
-     "kind": "integer",
-     "required": false,
-     "description": "Rolling window; omitted = full sample.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "ms_hasbrouck_lambda",
-   "card_id": 335,
-   "register": null,
-   "input_example": {
-    "returns": "<series_handle>",
-    "signed_trades": "<series_handle>",
-    "lags": 5
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Quote-midpoint returns.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "signed_trades",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Signed trade indicator or volume.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "lags",
-     "kind": "integer",
-     "required": false,
-     "description": "VAR lag order.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "ms_classify_trades",
-   "card_id": 336,
-   "register": null,
-   "input_example": {
-    "price": "<series_handle>",
-    "rule": "lee_ready",
-    "quote_lag": 0.0
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "price",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Trade price.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "bid",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Prevailing bid.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "ask",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Prevailing ask.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rule",
-     "kind": "enum",
-     "required": false,
-     "description": "Classification rule.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "tick",
-      "quote",
-      "lee_ready",
-      "emo",
-      "clnv"
-     ],
-     "allowed_vars": null,
-     "default": "lee_ready",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "quote_lag",
-     "kind": "number",
-     "required": false,
-     "description": "Quote alignment offset in seconds.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.0,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "ms_order_flow_imbalance",
-   "card_id": 336,
-   "register": null,
-   "input_example": {
-    "signed_volume": "<series_handle>",
-    "frequency": "5min"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "signed_volume",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Signed trade volume.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "frequency",
-     "kind": "enum",
-     "required": false,
-     "description": "Aggregation frequency.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "1min",
-      "5min",
-      "15min",
-      "30min",
-      "1h",
-      "daily"
-     ],
-     "allowed_vars": null,
-     "default": "5min",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "ms_realised_variance",
-   "card_id": 337,
-   "register": null,
-   "input_example": {
-    "prices": "<irregular_series_handle>",
-    "estimator": "kernel",
-    "sampling": "calendar",
-    "interval": 300
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "prices",
-     "kind": "irregular_series_handle",
-     "required": true,
-     "description": "Intraday price series with timestamps.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "estimator",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimator construction.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "naive",
-      "sparse",
-      "two_scale",
-      "multi_scale",
-      "kernel",
-      "pre_averaged"
-     ],
-     "allowed_vars": null,
-     "default": "kernel",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "sampling",
-     "kind": "enum",
-     "required": false,
-     "description": "Sampling scheme.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "calendar",
-      "tick",
-      "business"
-     ],
-     "allowed_vars": null,
-     "default": "calendar",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "interval",
-     "kind": "integer",
-     "required": false,
-     "description": "Sampling interval in seconds.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 300,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "ms_noise_variance",
-   "card_id": 337,
-   "register": null,
-   "input_example": {
-    "prices": "<irregular_series_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "prices",
-     "kind": "irregular_series_handle",
-     "required": true,
-     "description": "Intraday price series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "ms_signature_plot",
-   "card_id": 338,
-   "register": null,
-   "input_example": {
-    "prices": "<irregular_series_handle>",
-    "intervals": [
-     5,
-     10,
-     30,
-     60,
-     300,
-     600,
-     1800
-    ]
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "prices",
-     "kind": "irregular_series_handle",
-     "required": true,
-     "description": "Intraday price series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "intervals",
-     "kind": "int_array",
-     "required": false,
-     "description": "Sampling intervals in seconds to scan.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": [
-      5,
-      10,
-      30,
-      60,
-      300,
-      600,
-      1800
-     ],
-     "has_default": true,
-     "default_json_type": "array"
-    }
-   ]
-  },
-  {
-   "fn": "ms_intraday_periodicity",
-   "card_id": 338,
-   "register": null,
-   "input_example": {
-    "returns": "<irregular_series_handle>",
-    "method": "wsd",
-    "bins_per_day": 78
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "irregular_series_handle",
-     "required": true,
-     "description": "Intraday returns.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Periodicity estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "mean_absolute",
-      "wsd",
-      "shortest_half",
-      "trimmed_mean"
-     ],
-     "allowed_vars": null,
-     "default": "wsd",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "bins_per_day",
-     "kind": "integer",
-     "required": false,
-     "description": "Intraday bins per trading day.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 78,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "ms_spread_decomposition",
-   "card_id": 339,
-   "register": null,
-   "input_example": {
-    "price": "<series_handle>",
-    "midpoint": "<series_handle>",
-    "direction": "<series_handle>",
-    "horizon": 5
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "price",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Trade price.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "midpoint",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Prevailing quote midpoint.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "direction",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Signed trade direction.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "horizon",
-     "kind": "integer",
-     "required": false,
-     "description": "Periods ahead for the post-trade midpoint.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "ms_information_share",
-   "card_id": 339,
-   "register": null,
-   "input_example": {
-    "prices": "<multiseries_handle>",
-    "lags": 5
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "prices",
-     "kind": "multiseries_handle",
-     "required": true,
-     "description": "Price series, one column per venue.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "lags",
-     "kind": "integer",
-     "required": false,
-     "description": "VECM lag order.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "ms_component_share",
-   "card_id": 339,
-   "register": null,
-   "input_example": {
-    "prices": "<multiseries_handle>",
-    "lags": 5
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "prices",
-     "kind": "multiseries_handle",
-     "required": true,
-     "description": "Price series, one column per venue.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "lags",
-     "kind": "integer",
-     "required": false,
-     "description": "VECM lag order.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  }
- ]
+  ]
 }

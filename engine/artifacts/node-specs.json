@@ -2,10 +2,10 @@
  "artifact_version": 2,
  "generated_by": "scripts/gen_artifacts.py from corpus/ -- regenerate, never edit",
  "previous": {
-  "node_specs_sha256": "419a288b93d613ebfbf2bf16d55aa9f879a2e5a33600c5fadbd40d3bd2d078e2",
-  "method_cards_sha256": "e3d7c551349a0faf56fa6e4cc63831f7ec83c92b6cb48a80f11861a66a4d8768",
+  "node_specs_sha256": "c22ba99ee3684cf5048d86f9cfd0dc54ffa28e45bacdb74589d9ef7e7c32e185",
+  "method_cards_sha256": "5623bb36280c94bea0192bd59cbaeb1e010152cf04fff840af796c6e89b86511",
   "resealed": "2026-08-26",
-  "reason": "boxes 2.1.1.2 and 2.1.1.5 -- the chronology becomes a caller-supplied argument, and every node declares its payload key set"
+  "reason": "box 2.1.1.12 -- 46 cards stop naming a distribution the register measured as not implementing their method"
  },
  "engine": {
   "n_nodes": 1456,

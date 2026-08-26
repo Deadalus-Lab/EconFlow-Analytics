@@ -418,6 +418,95 @@ def test_every_refutation_names_a_distribution(
             assert isinstance(name, str) and name.strip(), key
 
 
+def _cards() -> list[dict[str, Any]]:
+    return list(json.loads(
+        (ENGINE_ROOT / "artifacts/method-cards.json").read_bytes().decode("utf-8"))["cards"])
+
+
+def _card_source_faults(
+    cards: list[dict[str, Any]], rows: dict[str, dict[str, Any]]
+) -> list[str]:
+    """Every card `sources` entry naming a distribution its own row refutes.
+
+    ONE FUNCTION, TWO CALLERS, like ``_refuted_faults`` beside it. A card's entry
+    is a BARE PACKAGE NAME where it is doing this job -- ``arch``,
+    ``statsmodels.tsa.regime_switching`` -- so the match is on the entry, or on
+    its dotted root, and never on a substring: a bibliography line that happens
+    to contain a distribution's name is prose about a paper, not a pointer.
+    """
+    faults = []
+    for card in cards:
+        row = rows.get(card["wrapper_file"].removesuffix(".py"))
+        if not row or not row["refuted"]:
+            continue
+        refuted = {_normalise(r) for r in row["refuted"]}
+        for entry in card["sources"] or []:
+            root = entry.split(".")[0].strip()
+            if _normalise(root) in refuted or _normalise(entry.strip()) in refuted:
+                faults.append(
+                    f"card #{card['id']} ({card['wrapper_file']}) names {entry!r} in "
+                    f"`sources`, which its register row records as refuted"
+                )
+    return faults
+
+
+def test_no_card_names_a_source_its_own_register_row_refutes(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """THE SAME TREE MUST NOT ASSERT BOTH HALVES OF A CONTRADICTION.
+
+    A card's ``sources`` was doing two jobs -- bibliography, and implementation
+    pointer -- and the second belongs to the register, which is measured and
+    audited. Measured on 2026-08-26: 46 cards named, in bare package form, a
+    distribution their own row records as not implementing their method. So the
+    tree said both "ruptures implements ICSS" (card #441) and "it does not"
+    (register), and the card's version is what ``embed_text`` publishes to
+    retrieval, where a wrapper author in 2.2 reads it.
+
+    THE DENOMINATOR IS ASSERTED, not assumed. A rule written only as "no card
+    does this" is satisfied perfectly by a cards list that failed to load, which
+    is the shape of gate this repository has caught six times.
+    """
+    cards = _cards()
+    declared = json.loads(
+        INVENTORY.read_bytes().decode("utf-8"))["artifacts"]["n_cards"]
+    assert len(cards) == declared, len(cards)
+    assert _card_source_faults(cards, rows) == [], _card_source_faults(cards, rows)
+
+
+def test_the_card_source_check_flags_a_card_put_back_on_a_refuted_source(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """THE POSITIVE CONTROL, and the live catalogue cannot supply one.
+
+    Every card above already names something else, so the assertion holds over a
+    catalogue emptied to nothing just as well as over the real one. This plants
+    the reversion the rule exists to catch -- card #395's `sources` put back on
+    ``arch``, the entry box 2.1.1.12 replaced with the Phillips, Shi and Yu DOI
+    -- and requires the same function to name it.
+    """
+    planted = [dict(c) for c in _cards()]
+    victim = next(c for c in planted if c["id"] == 395)
+    victim["sources"] = [*victim["sources"], "arch"]
+
+    faults = _card_source_faults(planted, rows)
+    assert len(faults) == 1, faults
+    assert "#395" in faults[0] and "'arch'" in faults[0], faults
+
+
+def test_the_card_source_check_does_not_flag_a_bibliography_line(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """THE NEGATIVE CONTROL. A rule tightened into one that refuses correct cards
+    is broken, not stricter, and the control above cannot tell the two apart. A
+    card citing the paper an `arch`-refuted row points at, in prose that contains
+    the distribution's name, is a bibliography entry and must pass."""
+    planted = [dict(c) for c in _cards()]
+    victim = next(c for c in planted if c["id"] == 395)
+    victim["sources"] = [*victim["sources"], "Phillips, Shi & Yu 2015, the arch of a bubble"]
+    assert _card_source_faults(planted, rows) == []
+
+
 def test_wave_one_libraries_resolve_in_the_lockfile(
     rows: dict[str, dict[str, Any]], locked: set[str]
 ) -> None:

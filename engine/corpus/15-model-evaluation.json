@@ -1,2914 +1,2914 @@
 {
- "category": "15-model-evaluation",
- "cards": [
-  {
-   "id": 74,
-   "method": "Diebold-Mariano test + rolling-origin backtest",
-   "wrapper_file": "c15_model_evaluation/diebold_mariano_backtest.py",
-   "tool_fns": [
-    "eval_dm_test",
-    "eval_rolling_origin"
-   ],
-   "when": "comparing the forecast accuracy of TWO methods (DM) or an honest out-of-sample backtest of one model per horizon (tsCV)",
-   "when_not": "more than two models together (→ #75); assumption diagnostics for a single model (→ #76/#77); an in-sample or nested comparison",
-   "alternatives": [
+  "category": "15-model-evaluation",
+  "cards": [
     {
-     "alt": "#75 MCS",
-     "criterion": "when you compare >2 models (it avoids the multiple-testing bias of the pairwise DM)"
+      "id": 74,
+      "method": "Diebold-Mariano test + rolling-origin backtest",
+      "wrapper_file": "c15_model_evaluation/diebold_mariano_backtest.py",
+      "tool_fns": [
+        "eval_dm_test",
+        "eval_rolling_origin"
+      ],
+      "when": "comparing the forecast accuracy of TWO methods (DM) or an honest out-of-sample backtest of one model per horizon (tsCV)",
+      "when_not": "more than two models together (→ #75); assumption diagnostics for a single model (→ #76/#77); an in-sample or nested comparison",
+      "alternatives": [
+        {
+          "alt": "#75 MCS",
+          "criterion": "when you compare >2 models (it avoids the multiple-testing bias of the pairwise DM)"
+        },
+        {
+          "alt": "02/accuracy",
+          "criterion": "loss-based ranking without a statistical significance test"
+        }
+      ],
+      "output_key_fields": [
+        "statistic: the DM stat (~t); the sign/direction depends on the order of e1,e2",
+        "p_value: < a rejects equal accuracy",
+        "parameter: (horizon, power)",
+        "errors: a series (h=1) or frame (h>1) of forecast errors with leading blanks",
+        "accuracy: data_frame per-horizon rmse/mae/me/n_eff over the finite values"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "alternative=less => method 2 is less accurate than 1 (e1 is better); greater => the reverse; the sign depends on the order of e1,e2",
+        "me != 0 => a bias in the forecast",
+        "n_eff falls at large h => a less reliable RMSE",
+        "DM is not for in-sample/nested comparison (Diebold 2015)"
+      ],
+      "sources": [
+        "Diebold & Mariano 1995 (JBES)",
+        "Harvey, Leybourne & Newbold 1997 (IJF small-sample DM)",
+        "Diebold 2015 (careful use of DM)",
+        "Hyndman & Athanasopoulos FPP3 (tsCV)",
+        "forecast reference manual (dm_test, tsCV)"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "02/accuracy",
-     "criterion": "loss-based ranking without a statistical significance test"
+      "id": 75,
+      "method": "Model Confidence Set (Hansen-Lunde-Nason)",
+      "wrapper_file": "c15_model_evaluation/confidence_set.py",
+      "tool_fns": [
+        "run_mcs_procedure",
+        "compute_loss_level",
+        "compute_loss_vol"
+      ],
+      "when": "many (>=2) models together -> the subset statistically indistinguishable from the best at (1-alpha), via a block bootstrap of the loss matrix",
+      "when_not": "exactly 2 models (→ dm_test, simpler, no bootstrap); it does not say which one is 'the best'",
+      "alternatives": [
+        {
+          "alt": "#74 dm_test",
+          "criterion": "for exactly 2 models, a pairwise test"
+        },
+        {
+          "alt": "SPA test (Hansen 2005)",
+          "criterion": "many models against ONE benchmark (not covered here)"
+        }
+      ],
+      "output_key_fields": [
+        "show: data_frame of the surviving models only (model, Avg.Loss, ranks, MCS p-Value)",
+        "included: the names of the models in the final confidence set",
+        "statistic: Tmax or TR; ssm: the raw model handle (a stub once serialised)"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "show contains ONLY the surviving models, not the eliminated ones",
+        "the MCS p-Value is NOT the p-value of an individual model; a model is in the set if its MCS p-Value > alpha",
+        "a different seed/B => a slightly different set (bootstrap variability) - supply a seed",
+        "Tmax vs TR can give different sets",
+        "LossLevel/LossVol are non-conformable for a multi-column evaluated argument => the wrapper calls them per column + cbind"
+      ],
+      "sources": [
+        "Hansen, Lunde & Nason 2011 (Econometrica 79(2):453-497)",
+        "Bernardi & Catania 2014 (the model confidence set procedure)",
+        "Patton 2011 (robust volatility loss, QLIKE)"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 76,
+      "method": "Breusch-Godfrey / Breusch-Pagan / Ramsey RESET",
+      "wrapper_file": "c15_model_evaluation/breusch_godfrey_breusch.py",
+      "tool_fns": [
+        "run_bg_test",
+        "run_bp_test",
+        "run_reset_test"
+      ],
+      "when": "residual diagnostics for a regression (lm/glm): serial correlation (BG), heteroskedasticity (BP), wrong functional form (RESET)",
+      "when_not": "ARCH in a time series (→ #77); unit root or stationarity (→ category 01); models beyond least squares/GLM (→ the VAR serial-correlation test, #11)",
+      "alternatives": [
+        {
+          "alt": "White test",
+          "criterion": "more general heteroskedasticity (approximated by BP + varformula)"
+        },
+        {
+          "alt": "Ljung-Box",
+          "criterion": "autocorrelation in a plain residual series without a regression design matrix"
+        },
+        {
+          "alt": "#77 ARCH-LM",
+          "criterion": "when the heteroskedasticity is time-dependent (volatility clustering)"
+        }
+      ],
+      "output_key_fields": [
+        "statistic: BG LM=n*R2 (Chisq)/F; BP Chisq; RESET F",
+        "p_value: < a rejects H0 => a problem EXISTS",
+        "parameter: df; method/data_name; plus the raw test record"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "polarity: rejection = BAD (the model fails the diagnostic); H0='all is well'",
+        "BG with a very small order misses high-order autocorrelation",
+        "Breusch-Pagan with studentize=False is sensitive to non-normality — prefer True",
+        "a RESET rejection => misspecification BUT not of what kind",
+        "a serial-correlation rejection => the OLS standard errors are invalid (use HAC/Newey-West), not necessarily biased coefficients"
+      ],
+      "sources": [
+        "Breusch & Godfrey 1978",
+        "Breusch & Pagan 1979; Koenker 1981 (studentized BP)",
+        "Ramsey 1969 (RESET)",
+        "Enders 2015 (BG > DW with a lagged y)"
+      ],
+      "precondition_tools": [
+        "c01_preparation_prechecks/unit_root_normality.run_adf_test"
+      ],
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 77,
+      "method": "ARCH-LM test (Engle)",
+      "wrapper_file": "c15_model_evaluation/arch.py",
+      "tool_fns": [
+        "run_arch_test"
+      ],
+      "when": "testing for ARCH effects (conditional heteroskedasticity / volatility clustering) in a univariate series/residuals; a pre-check before GARCH",
+      "when_not": "cross-sectional heteroskedasticity (→ bptest); autocorrelation in the level (→ bgtest/Ljung-Box); multivariate volatility",
+      "alternatives": [
+        {
+          "alt": "McLeod-Li (Ljung-Box on the squared residuals)",
+          "criterion": "equivalent evidence of ARCH; ARCH-LM is preferred as a formal LM test with clear df"
+        },
+        {
+          "alt": "06 GARCH-family",
+          "criterion": "after a positive ARCH-LM -> fit a volatility model"
+        }
+      ],
+      "output_key_fields": [
+        "statistic: Chi-squared LM=n*R2 of the auxiliary regression",
+        "parameter: df = lags",
+        "p_value: < a rejects H0 => ARCH effects EXIST (you want GARCH)",
+        "lags/demean echoes; plus the raw test record"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "polarity: rejection = an ARCH effect is present (H0='no ARCH'); a small p => conditional heteroskedasticity",
+        "run it on residuals, not the raw series - ARCH in the raw series may be due to an unmodelled mean",
+        "large lags => lower power"
+      ],
+      "sources": [
+        "Engle 1982 (Econometrica, ARCH LM)",
+        "McLeod & Li 1983 (squared-residual Ljung-Box)",
+        "Tsay, Analysis of Financial Time Series (ARCH-LM pre-GARCH)"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 94,
+      "method": "Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted)",
+      "wrapper_file": "c15_model_evaluation/density_forecast_evaluation.py",
+      "tool_fns": [
+        "sr_crps_sample",
+        "sr_logs_sample",
+        "sr_crps_parametric",
+        "sr_logs_parametric",
+        "sr_crps_tailweighted",
+        "sr_pit_sample"
+      ],
+      "when": "evaluating a predictive DISTRIBUTION (posterior/ensemble draws or parametric) as a whole distribution; proper scoring (CRPS/LogS) + PIT calibration + tail-weighted CRPS for GaR downside risk",
+      "when_not": "a point-forecast comparison -> #74 Diebold-Mariano; selecting among many point models -> #75 model confidence set; binary AUC -> #84; in-sample fit -> #76/#77; multivariate ES and VS are outside the surface",
+      "alternatives": [
+        {
+          "alt": "sr_crps_sample(method=edf)",
+          "criterion": "a robust default for draws; the same units as y"
+        },
+        {
+          "alt": "sr_logs_sample",
+          "criterion": "a likelihood-based/local score; BUT sensitive to the KDE bandwidth in the tails"
+        },
+        {
+          "alt": "sr_*_parametric",
+          "criterion": "the predictive distribution is explicitly normal/t/mixnorm (an analytic BVAR predictive)"
+        },
+        {
+          "alt": "sr_crps_tailweighted (twcrps/owcrps)",
+          "criterion": "an asymmetric cost in the tail (GaR left-tail focus)"
+        },
+        {
+          "alt": "#74 Diebold-Mariano",
+          "criterion": "point forecasts only (comparing 2 models)"
+        },
+        {
+          "alt": "#95 sn skew-t",
+          "criterion": "GaR quantiles -> a full density; then parametric scoring here"
+        }
+      ],
+      "output_key_fields": [
+        "scores: per-observation score vector (chart-data, score per time period)",
+        "mean_score: the mean score (the comparative number; LOWER=BETTER)",
+        "score: 'CRPS'/'LogS'/'twCRPS'; method (edf/kde) or family (normal/t/mixnorm)",
+        "weighted/side/a/b/kind: tail-weighted metadata (twcrps threshold / owcrps outcome)",
+        "pit (sr_pit_sample): the PIT values in [0,1]; a histogram close to uniform => good calibration",
+        "n / n_draws: number of observations / draws"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "ORIENTATION: CRPS & LogS are NEGATIVELY oriented — LOWER = BETTER (not accuracy)",
+        "LogS = -Inf if y falls outside the support of the draws; KDE smooths that but is sensitive to the bandwidth in the tails -> for heavy tails prefer CRPS(edf)",
+        "the CRPS of a single observation is in the same units as y -> it is NOT comparable across series of different scale",
+        "PIT: a ∪ shape => underdispersed (too tight a distribution); a ∩ shape => overdispersed; uniform => calibrated",
+        "a low tail-weighted score may simply reflect few observations in the tail — read the per-obs scores",
+        "bw: crps/logs_sample requires a bw vector[1:n]; the wrapper recycles a scalar -> length(y)"
+      ],
+      "sources": [
+        "Jordan, Krüger & Lerch 2019 JSS 90(12) (evaluating probabilistic forecasts with proper scoring rules)",
+        "Gneiting & Raftery 2007 JASA 102:359-378 (proper scoring rules, CRPS/LogS)",
+        "Gneiting & Ranjan 2011 JBES 29(3):411-422 (threshold/outcome-weighted CRPS)",
+        "Krüger, Lerch, Thorarinsdottir & Gneiting 2021 Int. J. Forecast. (predictive-distribution scoring)",
+        "Diebold, Gunther & Tay 1998 Int. Econ. Rev. 39(4):863-883 (PIT calibration evaluation — the basis of sr_pit_sample, custom implementation)",
+        "Berkowitz 2001 JBES 19(4):465-474 (PIT-based density-forecast test)"
+      ],
+      "precondition_tools": [
+        "c03_multivariate_nowcasting/bayesian_var.bvar_predict (or #13/#14/#17/#60: they produce the posterior predictive draws the scores are evaluated on)",
+        "c12_distribution_risk/quantile_regression.qr_growth_at_risk (GaR quantiles; the density comes via #95 -> parametric scoring)"
+      ],
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 513,
+      "method": "Point-accuracy metric table across horizons and series",
+      "wrapper_file": "c15_model_evaluation/accuracy_metrics.py",
+      "tool_fns": [
+        "me_accuracy_table"
+      ],
+      "when": "the baseline of every forecast evaluation, and the input to every test of predictive ability",
+      "when_not": "the forecasts are densities rather than points (-> scoring rules); the series have no common scale and unscaled metrics would be meaningless",
+      "alternatives": [
+        {
+          "alt": "scale-dependent metrics",
+          "criterion": "one series, natural units"
+        },
+        {
+          "alt": "scaled metrics such as MASE",
+          "criterion": "several series with different scales"
+        },
+        {
+          "alt": "percentage metrics",
+          "criterion": "the scale is ratio and there are no zeros"
+        }
+      ],
+      "output_key_fields": [
+        "metrics: the table by horizon, series and method",
+        "mase, rmsse: scaled metrics, comparable across series",
+        "theil_u: against a naive benchmark",
+        "bias: mean error, which the squared metrics hide"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "MAPE IS UNDEFINED AT ZERO AND ASYMMETRIC -- it penalises over-forecasts more than under-forecasts, which systematically favours forecasts biased low",
+        "averaging a scale-dependent metric across series lets the largest series dominate; that is what the scaled metrics exist to prevent",
+        "the mean error is the only metric that reveals bias, and reporting only squared or absolute metrics hides it entirely"
+      ],
+      "sources": [
+        "Hyndman & Koehler 2006 (International Journal of Forecasting 22:679-688)",
+        "Makridakis, Spiliotis & Assimakopoulos 2020 (International Journal of Forecasting 36:54)",
+        "utilsforecast"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 514,
+      "method": "Proper scoring rules: CRPS, log score, pinball and tail-weighted CRPS",
+      "wrapper_file": "c15_model_evaluation/scoring_rules.py",
+      "tool_fns": [
+        "me_scoring_rules"
+      ],
+      "when": "evaluating a density or quantile forecast, where a point metric throws away everything the forecast said about uncertainty",
+      "when_not": "the forecast is a point with no distribution; the evaluation sample is too small for score differences to be distinguishable",
+      "alternatives": [
+        {
+          "alt": "CRPS",
+          "criterion": "the default for a full predictive distribution"
+        },
+        {
+          "alt": "log score",
+          "criterion": "strictly proper and local, but unbounded"
+        },
+        {
+          "alt": "pinball / quantile score",
+          "criterion": "the forecast is a set of quantiles"
+        }
+      ],
+      "output_key_fields": [
+        "scores: per observation and averaged",
+        "decomposition: reliability and resolution components where available",
+        "tail_weighted: scores emphasising a region of interest",
+        "skill: score against a reference forecast"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "THE LOG SCORE IS UNBOUNDED: a single observation in a region the forecast gave near-zero density produces an infinite score and destroys the average -- CRPS is bounded and usually preferred for that reason",
+        "a proper scoring rule cannot be gamed by hedging, but an improper one can -- and several popular ad hoc measures are improper",
+        "tail-weighted scores answer a different question from the unweighted version and rank forecasts differently"
+      ],
+      "sources": [
+        "Gneiting & Raftery 2007 (JASA 102:359-378)",
+        "Gneiting & Ranjan 2011 (Journal of Business and Economic Statistics 29:411)",
+        "scoringrules"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 515,
+      "method": "Clark-West and Giacomini-White conditional predictive ability",
+      "wrapper_file": "c15_model_evaluation/nested_predictive_tests.py",
+      "tool_fns": [
+        "me_nested_predictive_test"
+      ],
+      "when": "comparing NESTED forecasting models, where Diebold-Mariano is invalid because the difference in expected loss is zero under the null",
+      "when_not": "the models are non-nested, where Diebold-Mariano applies directly",
+      "alternatives": [
+        {
+          "alt": "Diebold-Mariano",
+          "criterion": "non-nested models"
+        },
+        {
+          "alt": "Clark-West",
+          "criterion": "nested models, adjusted for the estimation noise"
+        },
+        {
+          "alt": "Giacomini-White",
+          "criterion": "conditional predictive ability, finite-sample based"
+        }
+      ],
+      "output_key_fields": [
+        "statistic, p_value: the predictive-ability test",
+        "adjustment: the Clark-West correction term",
+        "conditional: whether ability varies with a state variable",
+        "loss_differential: the underlying series"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "DIEBOLD-MARIANO IS INVALID FOR NESTED MODELS -- the standard normal critical values are wrong and the test is badly undersized, which is exactly the case of adding one indicator to an autoregression",
+        "Clark-West tests equal predictive ability of the POPULATION models, not the estimated ones, which is a different and often less interesting null",
+        "Giacomini-White conditions on a state and can find ability that averages to zero unconditionally"
+      ],
+      "sources": [
+        "Clark & West 2007 (Journal of Econometrics 138:291-311)",
+        "Giacomini & White 2006 (Econometrica 74:1545)",
+        "Giacomini & Rossi 2010 (Journal of Applied Econometrics 25:595)",
+        "DOI 10.1016/j.jeconom.2006.05.023"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 516,
+      "method": "Superior predictive ability, reality check and StepM",
+      "wrapper_file": "c15_model_evaluation/spa_reality_check.py",
+      "tool_fns": [
+        "me_superior_predictive_ability"
+      ],
+      "when": "many forecasts are compared against a benchmark at once, and the best of many will beat it by chance alone",
+      "when_not": "there are two models, where a pairwise test suffices",
+      "alternatives": [
+        {
+          "alt": "Reality Check",
+          "criterion": "the original, conservative under poor models"
+        },
+        {
+          "alt": "Superior Predictive Ability",
+          "criterion": "less sensitive to poor models in the set"
+        },
+        {
+          "alt": "StepM",
+          "criterion": "you want to identify WHICH models beat the benchmark"
+        }
+      ],
+      "output_key_fields": [
+        "statistic, p_value: the joint test against the benchmark",
+        "superior_models: those surviving the stepwise procedure",
+        "n_models: how many were compared -- the source of the multiplicity",
+        "bootstrap: the resampling scheme used"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "THE BEST OF FIFTY MODELS WILL BEAT A BENCHMARK BY CHANCE; that is precisely the data-snooping bias these tests correct, and reporting the best model's individual p-value is the error",
+        "the Reality Check is sensitive to including many poor models, which drag the null distribution -- SPA was designed to fix that",
+        "these tests need a stationary or block bootstrap because the loss differentials are serially dependent"
+      ],
+      "sources": [
+        "White 2000 (Econometrica 68:1097-1126)",
+        "Hansen 2005 (Journal of Business and Economic Statistics 23:365)",
+        "Romano & Wolf 2005 (Econometrica 73:1237)",
+        "arch"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 517,
+      "method": "Forecast rationality: Mincer-Zarnowitz and encompassing",
+      "wrapper_file": "c15_model_evaluation/forecast_rationality.py",
+      "tool_fns": [
+        "me_forecast_rationality"
+      ],
+      "when": "testing whether a forecast is unbiased and efficient, and whether one forecast contains everything another has to offer",
+      "when_not": "the forecast sample is too short for the regressions to have power; the forecasts are not for the same target",
+      "alternatives": [
+        {
+          "alt": "Mincer-Zarnowitz",
+          "criterion": "unbiasedness and efficiency of one forecast"
+        },
+        {
+          "alt": "forecast encompassing",
+          "criterion": "whether one forecast subsumes another"
+        },
+        {
+          "alt": "orthogonality tests",
+          "criterion": "efficiency with respect to specific information"
+        }
+      ],
+      "output_key_fields": [
+        "mz_test: joint test that the intercept is zero and the slope one",
+        "bias: the estimated intercept",
+        "encompassing: whether one forecast's weight in a combination is one",
+        "efficiency: orthogonality against the tested information set"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "THE MINCER-ZARNOWITZ REGRESSION NEEDS HAC STANDARD ERRORS at horizons beyond one, because overlapping forecasts induce a moving-average error by construction",
+        "rejecting rationality can mean the loss function is asymmetric rather than the forecast irrational -- the test assumes squared loss",
+        "encompassing tests with highly correlated forecasts are uninformative because the combination weights are barely identified"
+      ],
+      "sources": [
+        "Mincer & Zarnowitz 1969, The evaluation of economic forecasts (Economic Forecasts and Expectations)",
+        "Chong & Hendry 1986 (Review of Economic Studies 53:671-690)",
+        "statsmodels"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 518,
+      "method": "Interval and quantile evaluation: coverage, Winkler and weighted interval score",
+      "wrapper_file": "c15_model_evaluation/interval_evaluation.py",
+      "tool_fns": [
+        "me_interval_evaluation"
+      ],
+      "when": "the forecast is an interval or a set of quantiles, and coverage alone can be bought by making the interval wide",
+      "when_not": "the forecast is a full density (-> scoring rules); the evaluation sample is too short for coverage to be estimated",
+      "alternatives": [
+        {
+          "alt": "empirical coverage",
+          "criterion": "a first check, necessary but not sufficient"
+        },
+        {
+          "alt": "Winkler score",
+          "criterion": "coverage and width in one number"
+        },
+        {
+          "alt": "weighted interval score",
+          "criterion": "several intervals summarised together"
+        }
+      ],
+      "output_key_fields": [
+        "coverage: realised against nominal, per level",
+        "winkler: interval score per observation",
+        "wis: the weighted interval score and its decomposition",
+        "width: mean interval width"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "COVERAGE AND WIDTH MUST BE READ TOGETHER: an interval from minus to plus infinity covers perfectly and is useless, which is why the Winkler score penalises width",
+        "the weighted interval score decomposes into spread, over-prediction and under-prediction, and that decomposition is where the diagnosis is",
+        "coverage estimated on a short sample has enormous sampling error; 19 of 20 is not evidence of 95% coverage"
+      ],
+      "sources": [
+        "Winkler 1972 (Management Science 19:187-191)",
+        "Bracher, Ray, Gneiting & Reich 2021 (PLOS Computational Biology 17:e1008618)",
+        "scoringrules"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 519,
+      "method": "Density comparison and calibration: Amisano-Giacomini and Berkowitz",
+      "wrapper_file": "c15_model_evaluation/density_evaluation.py",
+      "tool_fns": [
+        "me_density_evaluation"
+      ],
+      "when": "comparing density forecasts formally, and testing whether a predictive distribution is calibrated",
+      "when_not": "the forecasts are points; the sample is too short for the PIT distribution to be assessed",
+      "alternatives": [
+        {
+          "alt": "Amisano-Giacomini log-score test",
+          "criterion": "comparing two density forecasts"
+        },
+        {
+          "alt": "Berkowitz test",
+          "criterion": "calibration of one density, with a power advantage over raw PIT tests"
+        },
+        {
+          "alt": "PIT histogram",
+          "criterion": "a visual calibration check"
+        }
+      ],
+      "output_key_fields": [
+        "log_score_difference: with its test statistic",
+        "berkowitz: the calibration test",
+        "pit: probability-integral-transform values",
+        "autocorrelation: dependence in the PIT series, which independence requires"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "A UNIFORM PIT HISTOGRAM IS NECESSARY BUT NOT SUFFICIENT: the PIT series must also be independent, and a calibrated-looking histogram with autocorrelated PITs is a failed forecast",
+        "the Berkowitz test transforms PITs to normality and gains power over a raw uniformity test, which is why it is preferred",
+        "weighted log-score comparisons emphasising a region are not proper unless constructed carefully"
+      ],
+      "sources": [
+        "Amisano & Giacomini 2007 (Journal of Business and Economic Statistics 25:177-190)",
+        "Berkowitz 2001 (Journal of Business and Economic Statistics 19:465)",
+        "DOI 10.1198/073500106000000332"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 520,
+      "method": "Regression diagnostic battery",
+      "wrapper_file": "c15_model_evaluation/regression_diagnostics.py",
+      "tool_fns": [
+        "me_regression_diagnostics"
+      ],
+      "when": "the standard checks a fitted regression must pass before its coefficients are reported",
+      "when_not": "the model is not a regression; the diagnostics are already run by the estimator",
+      "alternatives": [
+        {
+          "alt": "heteroskedasticity tests",
+          "criterion": "White, Breusch-Pagan, Goldfeld-Quandt"
+        },
+        {
+          "alt": "functional form tests",
+          "criterion": "RESET, Harvey-Collier, linktest"
+        },
+        {
+          "alt": "robust standard errors",
+          "criterion": "you would rather correct than test"
+        }
+      ],
+      "output_key_fields": [
+        "heteroskedasticity: test statistics and p-values",
+        "functional_form: RESET and related tests",
+        "normality: residual normality tests",
+        "influence: leverage, Cook's distance and DFBETAS"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "HETEROSKEDASTICITY DOES NOT BIAS THE COEFFICIENTS, only the standard errors; a rejected test calls for robust errors, not for a different estimator",
+        "White's test has power against functional-form misspecification as well as heteroskedasticity, so a rejection does not identify the cause",
+        "with a large sample every diagnostic rejects; read the magnitude of the problem, not only the p-value"
+      ],
+      "sources": [
+        "White 1980 (Econometrica 48:817-838)",
+        "Ramsey 1969 (JRSS-B 31:350)",
+        "Belsley, Kuh & Welsch 1980, Regression Diagnostics",
+        "statsmodels"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 521,
+      "method": "Non-nested model tests: Cox, Davidson-MacKinnon J and Vuong",
+      "wrapper_file": "c15_model_evaluation/non_nested_tests.py",
+      "tool_fns": [
+        "me_non_nested_test"
+      ],
+      "when": "two models neither of which nests the other, where an information criterion gives a ranking but no test",
+      "when_not": "the models are nested (-> a likelihood-ratio or Clark-West test); they have different dependent variables",
+      "alternatives": [
+        {
+          "alt": "Davidson-MacKinnon J test",
+          "criterion": "regression models, simple to run"
+        },
+        {
+          "alt": "Cox test",
+          "criterion": "the classical non-nested likelihood test"
+        },
+        {
+          "alt": "Vuong test",
+          "criterion": "likelihood models, including a test that they are equivalent"
+        }
+      ],
+      "output_key_fields": [
+        "statistic, p_value: per direction of the test",
+        "conclusion: which model, if either, is rejected",
+        "vuong: the likelihood-ratio-based statistic with its variance correction",
+        "both_rejected: whether neither model survives"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "THESE TESTS CAN REJECT BOTH MODELS OR NEITHER, and both outcomes are informative -- a test that rejects model A against B is not evidence that B is correct",
+        "the J test is a regression-based approximation and has poor size in small samples",
+        "Vuong's test requires the models to be non-nested in a strict sense; applied to nested models its distribution is wrong"
+      ],
+      "sources": [
+        "Davidson & MacKinnon 1981 (Econometrica 49:781-793)",
+        "Cox 1961 (Proceedings of the Fourth Berkeley Symposium 1:105)",
+        "Vuong 1989 (Econometrica 57:307)",
+        "statsmodels"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 522,
+      "method": "Meta-analysis and publication bias: meta-regression, PET-PEESE, Egger and funnel",
+      "wrapper_file": "c15_model_evaluation/meta_analysis.py",
+      "tool_fns": [
+        "me_meta_analysis",
+        "me_publication_bias"
+      ],
+      "when": "synthesising many estimates of the same parameter, and testing whether the literature is distorted by selective reporting",
+      "when_not": "the estimates are of different parameters and cannot be pooled; there are too few studies for bias tests to have power",
+      "alternatives": [
+        {
+          "alt": "fixed-effect meta-analysis",
+          "criterion": "the studies estimate one common parameter"
+        },
+        {
+          "alt": "random-effects meta-analysis",
+          "criterion": "the true effect varies across studies"
+        },
+        {
+          "alt": "PET-PEESE and Egger",
+          "criterion": "you suspect publication bias"
+        }
+      ],
+      "output_key_fields": [
+        "pooled: the synthesised estimate with its interval",
+        "heterogeneity: tau squared and I squared",
+        "egger: the small-study-effects test",
+        "pet_peese: bias-corrected estimate"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "A SIGNIFICANT EGGER TEST IS NOT PROOF OF PUBLICATION BIAS -- small-study effects also arise when smaller studies genuinely differ in design or population",
+        "PET-PEESE is known to over-correct when there is no bias and under-correct with strong heterogeneity; it is a diagnostic, not a definitive correction",
+        "fixed and random effects answer different questions, and with high heterogeneity the fixed-effect interval is far too narrow"
+      ],
+      "sources": [
+        "Egger, Davey Smith, Schneider & Minder 1997 (BMJ 315:629-634)",
+        "Stanley & Doucouliagos 2014 (Research Synthesis Methods 5:60)",
+        "Borenstein, Hedges, Higgins & Rothstein 2009, Introduction to Meta-Analysis",
+        "statsmodels.stats.meta_analysis"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     }
-   ],
-   "output_key_fields": [
-    "statistic: the DM stat (~t); the sign/direction depends on the order of e1,e2",
-    "p_value: < a rejects equal accuracy",
-    "parameter: (horizon, power)",
-    "errors: a series (h=1) or frame (h>1) of forecast errors with leading blanks",
-    "accuracy: data_frame per-horizon rmse/mae/me/n_eff over the finite values"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "alternative=less => method 2 is less accurate than 1 (e1 is better); greater => the reverse; the sign depends on the order of e1,e2",
-    "me != 0 => a bias in the forecast",
-    "n_eff falls at large h => a less reliable RMSE",
-    "DM is not for in-sample/nested comparison (Diebold 2015)"
-   ],
-   "sources": [
-    "Diebold & Mariano 1995 (JBES)",
-    "Harvey, Leybourne & Newbold 1997 (IJF small-sample DM)",
-    "Diebold 2015 (careful use of DM)",
-    "Hyndman & Athanasopoulos FPP3 (tsCV)",
-    "forecast reference manual (dm_test, tsCV)"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 75,
-   "method": "Model Confidence Set (Hansen-Lunde-Nason)",
-   "wrapper_file": "c15_model_evaluation/confidence_set.py",
-   "tool_fns": [
-    "run_mcs_procedure",
-    "compute_loss_level",
-    "compute_loss_vol"
-   ],
-   "when": "many (>=2) models together -> the subset statistically indistinguishable from the best at (1-alpha), via a block bootstrap of the loss matrix",
-   "when_not": "exactly 2 models (→ dm_test, simpler, no bootstrap); it does not say which one is 'the best'",
-   "alternatives": [
+  ],
+  "nodes": [
     {
-     "alt": "#74 dm_test",
-     "criterion": "for exactly 2 models, a pairwise test"
+      "fn": "compute_loss_level",
+      "card_id": 75,
+      "register": null,
+      "input_example": {
+        "realized": "<series_handle>",
+        "evaluated": "<matrix_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "realized",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to the series of realized values (realized).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "evaluated",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to a matrix of point-forecasts (one column per model, same rows).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "which",
+          "kind": "enum",
+          "required": false,
+          "description": "Loss function: SE=squared, AE=absolute error (default SE).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "SE",
+            "AE"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
     },
     {
-     "alt": "SPA test (Hansen 2005)",
-     "criterion": "many models against ONE benchmark (not covered here)"
+      "fn": "compute_loss_vol",
+      "card_id": 75,
+      "register": null,
+      "input_example": {
+        "realized": "<series_handle>",
+        "evaluated": "<matrix_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "realized",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to the realized volatility/variance series (proxy).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "evaluated",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to a matrix of volatility-forecasts (one column per model).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "which",
+          "kind": "enum",
+          "required": false,
+          "description": "Robust volatility loss family (default SE1· QLIKE is robust to the proxy).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "SE1",
+            "SE2",
+            "QLIKE",
+            "R2LOG",
+            "AE1",
+            "AE2"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "eval_dm_test",
+      "card_id": 74,
+      "register": null,
+      "input_example": {
+        "e1": "<series_handle>",
+        "e2": "<series_handle>",
+        "h": 1,
+        "power": 2
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "e1",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to the forecast error series of method 1 (e1).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "e2",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to the forecast error series of method 2 (e2, same length).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "alternative",
+          "kind": "enum",
+          "required": false,
+          "description": "Alternative hypothesis (default two.sided· less => e1 is more accurate).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "two.sided",
+            "less",
+            "greater"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "h",
+          "kind": "integer",
+          "required": false,
+          "description": "Forecast horizon of the errors (positive integer < length, default 1).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "power",
+          "kind": "number",
+          "required": false,
+          "description": "Loss power (2 = squared error, 1 = absolute error· default 2).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 2,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "varestimator",
+          "kind": "enum",
+          "required": false,
+          "description": "Long-run variance estimator (default acf).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "acf",
+            "bartlett"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "eval_rolling_origin",
+      "card_id": 74,
+      "register": null,
+      "input_example": {
+        "y": "<series_handle>",
+        "forecastfunction": "naive",
+        "h": 1,
+        "initial": 0
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to the time series for the rolling-origin backtest.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecastfunction",
+          "kind": "forecastfn_enum",
+          "required": true,
+          "description": "The model/pipeline that is backtested: rolling-origin cross-validation of ONE forecasting function with signature function(y, h) that returns a forecast object (card 74). Given ONLY as a name from a closed allowlist, never as executable code. Options: naive = Naive / random walk: f(t+k)=y(T). The classic benchmark (FPP3). · seasonal-naive = Seasonal naive: f(t+k)=y(T+k-m). Benchmark for seasonal series; at frequency=1 it degenerates IDENTICALLY to naive (lag=1). · drift = Random walk with drift: naive + mean historical change (FPP3 benchmark). · mean = Mean forecast: f(t+k)=mean(y). Benchmark; bootstrap=True (5000 stochastic paths) is PINNED to False for determinism. · ses = Simple exponential smoothing = ETS(A,N,N) (without trend/seasonality). · holt = Holt linear trend = ETS(A,A,N) (linear trend, without seasonality). · ets = Automatic ETS state-space (error/trend/season selection with AICc); same method as the run_ets node (cat. 02). · auto_arima = Automatic (S)ARIMA with stepwise Hyndman-Khandakar; same method as the run_auto_arima node (cat. 02). · theta = Theta method (Assimakopoulos & Nikolopoulos 2000, M3 winner); same family as the run_theta node (cat. 02). Caution: tsCV re-fits at EVERY origin -> ets/auto_arima are significantly slower than the benchmarks.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "naive",
+            "snaive",
+            "drift",
+            "mean",
+            "ses",
+            "holt",
+            "ets",
+            "auto_arima",
+            "theta"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "h",
+          "kind": "integer",
+          "required": false,
+          "description": "Forecast horizon per origin (positive integer, default 1).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "window",
+          "kind": "integer",
+          "required": false,
+          "description": "Rolling window length (None = expanding· positive integer).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "initial",
+          "kind": "integer",
+          "required": false,
+          "description": "Observations omitted from the start (>= 0, default 0).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "run_arch_test",
+      "card_id": 77,
+      "register": null,
+      "input_example": {
+        "x": "<series_handle>",
+        "lags": 12,
+        "demean": false
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "x",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to a univariate series/residuals for testing ARCH effects.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "lags",
+          "kind": "integer",
+          "required": false,
+          "description": "Lags of the auxiliary regression (positive integer < length, default 12).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 12,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "demean",
+          "kind": "boolean",
+          "required": false,
+          "description": "Removal of the mean of x before the test (default False).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": false,
+          "has_default": true,
+          "default_json_type": "boolean"
+        }
+      ]
+    },
+    {
+      "fn": "run_bg_test",
+      "card_id": 76,
+      "register": null,
+      "input_example": {
+        "formula": "y ~ x",
+        "order": 1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "formula",
+          "kind": "formula",
+          "required": true,
+          "description": "Model formula (e.g. 'y ~ x1 + x2') for Breusch-Godfrey serial-correlation.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "order",
+          "kind": "integer",
+          "required": false,
+          "description": "Order of serial correlation to test (positive integer, default 1).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "type",
+          "kind": "enum",
+          "required": false,
+          "description": "Statistic type (default Chisq).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "Chisq",
+            "F"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": false,
+          "description": "Handle to a DataFrame with the formula variables.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "run_bp_test",
+      "card_id": 76,
+      "register": null,
+      "input_example": {
+        "formula": "y ~ x",
+        "studentize": true
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "formula",
+          "kind": "formula",
+          "required": true,
+          "description": "Model formula for Breusch-Pagan heteroskedasticity.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "studentize",
+          "kind": "boolean",
+          "required": false,
+          "description": "Koenker studentized version (robust to non-normality, default True).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": false,
+          "description": "Handle to a DataFrame with the formula variables.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "run_mcs_procedure",
+      "card_id": 75,
+      "register": null,
+      "input_example": {
+        "Loss": "<matrix_handle>",
+        "alpha": 0.15,
+        "B": 1000,
+        "min_k": 3
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "Loss",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to a loss matrix (rows=observations, columns=models, >=2 columns).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level = 1 - alpha (alpha in (0,1), default 0.15).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.15,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "B",
+          "kind": "integer",
+          "required": false,
+          "description": "Number of block-bootstrap replications (positive integer, default 1000).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1000,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "statistic",
+          "kind": "enum",
+          "required": false,
+          "description": "Equality test statistic (default Tmax).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "Tmax",
+            "TR"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "k",
+          "kind": "integer",
+          "required": false,
+          "description": "Block length of the bootstrap (None = auto· positive integer).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "min_k",
+          "kind": "integer",
+          "required": false,
+          "description": "Minimum block length (>= 1, default 3).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 3,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed for reproducibility of the bootstrap (integer).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "run_reset_test",
+      "card_id": 76,
+      "register": null,
+      "input_example": {
+        "formula": "y ~ x"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "formula",
+          "kind": "formula",
+          "required": true,
+          "description": "Model formula for Ramsey RESET functional-form misspecification.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "power",
+          "kind": "integer",
+          "required": false,
+          "description": "Power of the fitted values in the auxiliary regression (integer >= 2· default 2:3).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "type",
+          "kind": "enum",
+          "required": false,
+          "description": "Source of the non-linear terms (default fitted).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "fitted",
+            "regressor",
+            "princomp"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": false,
+          "description": "Handle to a DataFrame with the formula variables.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "sr_crps_parametric",
+      "card_id": 94,
+      "register": null,
+      "input_example": {
+        "y": "<raw_handle>",
+        "mean": 0,
+        "sd": 1,
+        "location": 0,
+        "scale": 1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a bare numeric vector of observations (realizations).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "family",
+          "kind": "enum",
+          "required": false,
+          "description": "Family of the predictive distribution (default normal).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "normal",
+            "t",
+            "mixnorm"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "mean",
+          "kind": "number",
+          "required": false,
+          "description": "Mean of the predictive normal (default 0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "sd",
+          "kind": "number",
+          "required": false,
+          "description": "Standard deviation of the predictive normal (>0, default 1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "df",
+          "kind": "number",
+          "required": false,
+          "description": "Degrees of freedom (required when family='t', >0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "location",
+          "kind": "number",
+          "required": false,
+          "description": "Location of the t (default 0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "scale",
+          "kind": "number",
+          "required": false,
+          "description": "Scale of the t (>0, default 1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "sr_crps_sample",
+      "card_id": 94,
+      "register": null,
+      "input_example": {
+        "y": "<raw_handle>",
+        "dat": "<matrix_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a bare numeric vector of observations (one per time· realizations).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "dat",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to a matrix of predictive draws (one row per observation, >=2 columns).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "CDF estimation: edf=empirical (default, robust), kde=Gaussian kernel.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "edf",
+            "kde"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "bw",
+          "kind": "number",
+          "required": false,
+          "description": "Bandwidth for kde (positive· None = auto).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "sr_crps_tailweighted",
+      "card_id": 94,
+      "register": null,
+      "input_example": {
+        "y": "<raw_handle>",
+        "dat": "<matrix_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a bare numeric vector of observations (realizations).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "dat",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to a matrix of predictive draws (one row per observation, >=2 columns).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "side",
+          "kind": "enum",
+          "required": false,
+          "description": "Weight region: left=[-Inf,b], right=[a,Inf], interval=[a,b] (default left, GaR downside).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "left",
+            "right",
+            "interval"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "a",
+          "kind": "number",
+          "required": false,
+          "description": "Lower threshold bound (finite for right/interval).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "b",
+          "kind": "number",
+          "required": false,
+          "description": "Upper threshold bound (finite for left/interval).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "kind",
+          "kind": "enum",
+          "required": false,
+          "description": "threshold=twcrps (indicator weight), outcome=owcrps (default threshold).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "threshold",
+            "outcome"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "sr_logs_parametric",
+      "card_id": 94,
+      "register": null,
+      "input_example": {
+        "y": "<raw_handle>",
+        "mean": 0,
+        "sd": 1,
+        "location": 0,
+        "scale": 1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a bare numeric vector of observations (realizations).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "family",
+          "kind": "enum",
+          "required": false,
+          "description": "Family of the predictive distribution (default normal).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "normal",
+            "t",
+            "mixnorm"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "mean",
+          "kind": "number",
+          "required": false,
+          "description": "Mean of the predictive normal (default 0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "sd",
+          "kind": "number",
+          "required": false,
+          "description": "Standard deviation of the predictive normal (>0, default 1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "df",
+          "kind": "number",
+          "required": false,
+          "description": "Degrees of freedom (required when family='t', >0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "location",
+          "kind": "number",
+          "required": false,
+          "description": "Location of the t (default 0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "scale",
+          "kind": "number",
+          "required": false,
+          "description": "Scale of the t (>0, default 1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "sr_logs_sample",
+      "card_id": 94,
+      "register": null,
+      "input_example": {
+        "y": "<raw_handle>",
+        "dat": "<matrix_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a bare numeric vector of observations (realizations).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "dat",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to a matrix of predictive draws (one row per observation, >=2 columns).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "bw",
+          "kind": "number",
+          "required": false,
+          "description": "KDE bandwidth (positive· None = auto· sensitive in the tails).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "sr_pit_sample",
+      "card_id": 94,
+      "register": null,
+      "input_example": {
+        "y": "<raw_handle>",
+        "dat": "<matrix_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a bare numeric vector of observations (realizations).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "dat",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to a matrix of predictive draws (one row per observation, >=2 columns).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "me_accuracy_table",
+      "card_id": 513,
+      "register": null,
+      "input_example": {
+        "actual": "<df_handle>",
+        "forecast": "<df_handle>",
+        "season_length": 1
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecast",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Forecasts, one column per method.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "metrics",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Metrics to compute; omitted = the standard set.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "insample",
+          "kind": "df_handle",
+          "required": false,
+          "description": "In-sample series for the scaled metrics.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "season_length",
+          "kind": "integer",
+          "required": false,
+          "description": "Seasonal period for MASE.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "by",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Grouping columns for the table.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "me_scoring_rules",
+      "card_id": 514,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "forecast": "<matrix_handle>",
+        "rule": "crps",
+        "weight": "none"
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "scores",
+          "decomposition",
+          "tail_weighted",
+          "skill"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecast",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Predictive samples or quantiles.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rule",
+          "kind": "enum",
+          "required": false,
+          "description": "Scoring rule.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "crps",
+            "log_score",
+            "pinball",
+            "dss",
+            "interval_score",
+            "energy"
+          ],
+          "allowed_vars": null,
+          "default": "crps",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "quantile_levels",
+          "kind": "num_array",
+          "required": false,
+          "description": "Quantile levels when the forecast is quantiles.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "weight",
+          "kind": "enum",
+          "required": false,
+          "description": "Tail weighting.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "none",
+            "left_tail",
+            "right_tail",
+            "centre"
+          ],
+          "allowed_vars": null,
+          "default": "none",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "me_nested_predictive_test",
+      "card_id": 515,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "forecast_restricted": "<series_handle>",
+        "forecast_unrestricted": "<series_handle>",
+        "test": "clark_west",
+        "horizon": 1,
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecast_restricted",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Forecast from the nested model.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecast_unrestricted",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Forecast from the larger model.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "test",
+          "kind": "enum",
+          "required": false,
+          "description": "Test.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "clark_west",
+            "giacomini_white",
+            "diebold_mariano",
+            "fluctuation"
+          ],
+          "allowed_vars": null,
+          "default": "clark_west",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "state",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Conditioning variable for the conditional test.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "horizon",
+          "kind": "integer",
+          "required": false,
+          "description": "Forecast horizon, for the HAC lag.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "me_superior_predictive_ability",
+      "card_id": 516,
+      "register": null,
+      "input_example": {
+        "losses": "<df_handle>",
+        "benchmark": "...",
+        "test": "spa",
+        "nboot": 999,
+        "seed": 1,
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "losses",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Loss series, one column per model.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "benchmark",
+          "kind": "string",
+          "required": true,
+          "description": "Column holding the benchmark loss.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "test",
+          "kind": "enum",
+          "required": false,
+          "description": "Test.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "spa",
+            "reality_check",
+            "stepm"
+          ],
+          "allowed_vars": null,
+          "default": "spa",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "block_size",
+          "kind": "integer",
+          "required": false,
+          "description": "Bootstrap block length; omitted = automatic.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "nboot",
+          "kind": "integer",
+          "required": false,
+          "description": "Number of bootstrap replications.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 999,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": true,
+          "description": "Seed for the random number generator; required for reproducibility.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "me_forecast_rationality",
+      "card_id": 517,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "forecast": "<series_handle>",
+        "horizon": 1,
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "mz_test",
+          "bias",
+          "encompassing",
+          "efficiency"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecast",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Forecast to test.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rival",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Rival forecast for the encompassing test.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "information",
+          "kind": "multiseries_handle",
+          "required": false,
+          "description": "Information set for orthogonality tests.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "horizon",
+          "kind": "integer",
+          "required": false,
+          "description": "Forecast horizon, for the HAC lag.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "me_interval_evaluation",
+      "card_id": 518,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "lower": "<df_handle>",
+        "upper": "<df_handle>",
+        "levels": [
+          1.0,
+          2.0
+        ],
+        "decompose": true
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "coverage",
+          "winkler",
+          "wis",
+          "width"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "lower",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Lower bounds, one column per level.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "upper",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Upper bounds, one column per level.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "levels",
+          "kind": "num_array",
+          "required": true,
+          "description": "Nominal levels.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "decompose",
+          "kind": "boolean",
+          "required": false,
+          "description": "Decompose the weighted interval score.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        }
+      ]
+    },
+    {
+      "fn": "me_density_evaluation",
+      "card_id": 519,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "predictive_cdf": "<matrix_handle>",
+        "test": "berkowitz",
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "log_score_difference",
+          "berkowitz",
+          "pit",
+          "autocorrelation"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "predictive_cdf",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Predictive CDF evaluated at the outcomes.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rival_cdf",
+          "kind": "matrix_handle",
+          "required": false,
+          "description": "Rival predictive CDF for comparison.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "test",
+          "kind": "enum",
+          "required": false,
+          "description": "Test.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "berkowitz",
+            "amisano_giacomini",
+            "ks",
+            "knuppel"
+          ],
+          "allowed_vars": null,
+          "default": "berkowitz",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "me_regression_diagnostics",
+      "card_id": 520,
+      "register": null,
+      "input_example": {
+        "fit": "<raw_handle>",
+        "influence": true,
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "heteroskedasticity",
+          "functional_form",
+          "normality",
+          "influence"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "fit",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a fitted regression.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "tests",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Tests to run; omitted = the standard set.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "influence",
+          "kind": "boolean",
+          "required": false,
+          "description": "Compute influence measures.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "me_non_nested_test",
+      "card_id": 521,
+      "register": null,
+      "input_example": {
+        "fit_a": "<raw_handle>",
+        "fit_b": "<raw_handle>",
+        "test": "j",
+        "correction": "bic",
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "fit_a",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to the first fitted model.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "fit_b",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to the second fitted model.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "test",
+          "kind": "enum",
+          "required": false,
+          "description": "Test.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "j",
+            "cox",
+            "vuong",
+            "encompassing"
+          ],
+          "allowed_vars": null,
+          "default": "j",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "correction",
+          "kind": "enum",
+          "required": false,
+          "description": "Vuong correction.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "none",
+            "aic",
+            "bic"
+          ],
+          "allowed_vars": null,
+          "default": "bic",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "me_meta_analysis",
+      "card_id": 522,
+      "register": null,
+      "input_example": {
+        "effects": "<series_handle>",
+        "standard_errors": "<series_handle>",
+        "model": "random",
+        "method": "dersimonian_laird",
+        "conf_level": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "effects",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Study effect estimates.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "standard_errors",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Study standard errors.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "model",
+          "kind": "enum",
+          "required": false,
+          "description": "Model.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "fixed",
+            "random"
+          ],
+          "allowed_vars": null,
+          "default": "random",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Heterogeneity estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "dersimonian_laird",
+            "reml",
+            "paule_mandel"
+          ],
+          "allowed_vars": null,
+          "default": "dersimonian_laird",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "moderators",
+          "kind": "series_codes",
+          "required": false,
+          "description": "Moderator columns for meta-regression.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "conf_level",
+          "kind": "number",
+          "required": false,
+          "description": "Confidence level for intervals.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "me_publication_bias",
+      "card_id": 522,
+      "register": null,
+      "input_example": {
+        "effects": "<series_handle>",
+        "standard_errors": "<series_handle>",
+        "method": "pet_peese",
+        "alpha": 0.05
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "effects",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Study effect estimates.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "standard_errors",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Study standard errors.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Method.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "egger",
+            "pet_peese",
+            "trim_fill",
+            "begg",
+            "selection_model"
+          ],
+          "allowed_vars": null,
+          "default": "pet_peese",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "alpha",
+          "kind": "number",
+          "required": false,
+          "description": "Significance level.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
     }
-   ],
-   "output_key_fields": [
-    "show: data_frame of the surviving models only (model, Avg.Loss, ranks, MCS p-Value)",
-    "included: the names of the models in the final confidence set",
-    "statistic: Tmax or TR; ssm: the raw model handle (a stub once serialised)"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "show contains ONLY the surviving models, not the eliminated ones",
-    "the MCS p-Value is NOT the p-value of an individual model; a model is in the set if its MCS p-Value > alpha",
-    "a different seed/B => a slightly different set (bootstrap variability) - supply a seed",
-    "Tmax vs TR can give different sets",
-    "LossLevel/LossVol are non-conformable for a multi-column evaluated argument => the wrapper calls them per column + cbind"
-   ],
-   "sources": [
-    "Hansen, Lunde & Nason 2011 (Econometrica 79(2):453-497)",
-    "Bernardi & Catania 2014 (the model confidence set procedure)",
-    "Patton 2011 (robust volatility loss, QLIKE)"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 76,
-   "method": "Breusch-Godfrey / Breusch-Pagan / Ramsey RESET",
-   "wrapper_file": "c15_model_evaluation/breusch_godfrey_breusch.py",
-   "tool_fns": [
-    "run_bg_test",
-    "run_bp_test",
-    "run_reset_test"
-   ],
-   "when": "residual diagnostics for a regression (lm/glm): serial correlation (BG), heteroskedasticity (BP), wrong functional form (RESET)",
-   "when_not": "ARCH in a time series (→ #77); unit root or stationarity (→ category 01); models beyond least squares/GLM (→ the VAR serial-correlation test, #11)",
-   "alternatives": [
-    {
-     "alt": "White test",
-     "criterion": "more general heteroskedasticity (approximated by BP + varformula)"
-    },
-    {
-     "alt": "Ljung-Box",
-     "criterion": "autocorrelation in a plain residual series without a regression design matrix"
-    },
-    {
-     "alt": "#77 ARCH-LM",
-     "criterion": "when the heteroskedasticity is time-dependent (volatility clustering)"
-    }
-   ],
-   "output_key_fields": [
-    "statistic: BG LM=n*R2 (Chisq)/F; BP Chisq; RESET F",
-    "p_value: < a rejects H0 => a problem EXISTS",
-    "parameter: df; method/data_name; plus the raw test record"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "polarity: rejection = BAD (the model fails the diagnostic); H0='all is well'",
-    "BG with a very small order misses high-order autocorrelation",
-    "Breusch-Pagan with studentize=False is sensitive to non-normality — prefer True",
-    "a RESET rejection => misspecification BUT not of what kind",
-    "a serial-correlation rejection => the OLS standard errors are invalid (use HAC/Newey-West), not necessarily biased coefficients"
-   ],
-   "sources": [
-    "Breusch & Godfrey 1978",
-    "Breusch & Pagan 1979; Koenker 1981 (studentized BP)",
-    "Ramsey 1969 (RESET)",
-    "Enders 2015 (BG > DW with a lagged y)"
-   ],
-   "precondition_tools": [
-    "c01_preparation_prechecks/unit_root_normality.run_adf_test"
-   ],
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 77,
-   "method": "ARCH-LM test (Engle)",
-   "wrapper_file": "c15_model_evaluation/arch.py",
-   "tool_fns": [
-    "run_arch_test"
-   ],
-   "when": "testing for ARCH effects (conditional heteroskedasticity / volatility clustering) in a univariate series/residuals; a pre-check before GARCH",
-   "when_not": "cross-sectional heteroskedasticity (→ bptest); autocorrelation in the level (→ bgtest/Ljung-Box); multivariate volatility",
-   "alternatives": [
-    {
-     "alt": "McLeod-Li (Ljung-Box on the squared residuals)",
-     "criterion": "equivalent evidence of ARCH; ARCH-LM is preferred as a formal LM test with clear df"
-    },
-    {
-     "alt": "06 GARCH-family",
-     "criterion": "after a positive ARCH-LM -> fit a volatility model"
-    }
-   ],
-   "output_key_fields": [
-    "statistic: Chi-squared LM=n*R2 of the auxiliary regression",
-    "parameter: df = lags",
-    "p_value: < a rejects H0 => ARCH effects EXIST (you want GARCH)",
-    "lags/demean echoes; plus the raw test record"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "polarity: rejection = an ARCH effect is present (H0='no ARCH'); a small p => conditional heteroskedasticity",
-    "run it on residuals, not the raw series - ARCH in the raw series may be due to an unmodelled mean",
-    "large lags => lower power"
-   ],
-   "sources": [
-    "Engle 1982 (Econometrica, ARCH LM)",
-    "McLeod & Li 1983 (squared-residual Ljung-Box)",
-    "Tsay, Analysis of Financial Time Series (ARCH-LM pre-GARCH)"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 94,
-   "method": "Density-forecast evaluation — CRPS / LogS / PIT (sample + parametric + tail-weighted)",
-   "wrapper_file": "c15_model_evaluation/density_forecast_evaluation.py",
-   "tool_fns": [
-    "sr_crps_sample",
-    "sr_logs_sample",
-    "sr_crps_parametric",
-    "sr_logs_parametric",
-    "sr_crps_tailweighted",
-    "sr_pit_sample"
-   ],
-   "when": "evaluating a predictive DISTRIBUTION (posterior/ensemble draws or parametric) as a whole distribution; proper scoring (CRPS/LogS) + PIT calibration + tail-weighted CRPS for GaR downside risk",
-   "when_not": "a point-forecast comparison -> #74 Diebold-Mariano; selecting among many point models -> #75 model confidence set; binary AUC -> #84; in-sample fit -> #76/#77; multivariate ES and VS are outside the surface",
-   "alternatives": [
-    {
-     "alt": "sr_crps_sample(method=edf)",
-     "criterion": "a robust default for draws; the same units as y"
-    },
-    {
-     "alt": "sr_logs_sample",
-     "criterion": "a likelihood-based/local score; BUT sensitive to the KDE bandwidth in the tails"
-    },
-    {
-     "alt": "sr_*_parametric",
-     "criterion": "the predictive distribution is explicitly normal/t/mixnorm (an analytic BVAR predictive)"
-    },
-    {
-     "alt": "sr_crps_tailweighted (twcrps/owcrps)",
-     "criterion": "an asymmetric cost in the tail (GaR left-tail focus)"
-    },
-    {
-     "alt": "#74 Diebold-Mariano",
-     "criterion": "point forecasts only (comparing 2 models)"
-    },
-    {
-     "alt": "#95 sn skew-t",
-     "criterion": "GaR quantiles -> a full density; then parametric scoring here"
-    }
-   ],
-   "output_key_fields": [
-    "scores: per-observation score vector (chart-data, score per time period)",
-    "mean_score: the mean score (the comparative number; LOWER=BETTER)",
-    "score: 'CRPS'/'LogS'/'twCRPS'; method (edf/kde) or family (normal/t/mixnorm)",
-    "weighted/side/a/b/kind: tail-weighted metadata (twcrps threshold / owcrps outcome)",
-    "pit (sr_pit_sample): the PIT values in [0,1]; a histogram close to uniform => good calibration",
-    "n / n_draws: number of observations / draws"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "ORIENTATION: CRPS & LogS are NEGATIVELY oriented — LOWER = BETTER (not accuracy)",
-    "LogS = -Inf if y falls outside the support of the draws; KDE smooths that but is sensitive to the bandwidth in the tails -> for heavy tails prefer CRPS(edf)",
-    "the CRPS of a single observation is in the same units as y -> it is NOT comparable across series of different scale",
-    "PIT: a ∪ shape => underdispersed (too tight a distribution); a ∩ shape => overdispersed; uniform => calibrated",
-    "a low tail-weighted score may simply reflect few observations in the tail — read the per-obs scores",
-    "bw: crps/logs_sample requires a bw vector[1:n]; the wrapper recycles a scalar -> length(y)"
-   ],
-   "sources": [
-    "Jordan, Krüger & Lerch 2019 JSS 90(12) (evaluating probabilistic forecasts with proper scoring rules)",
-    "Gneiting & Raftery 2007 JASA 102:359-378 (proper scoring rules, CRPS/LogS)",
-    "Gneiting & Ranjan 2011 JBES 29(3):411-422 (threshold/outcome-weighted CRPS)",
-    "Krüger, Lerch, Thorarinsdottir & Gneiting 2021 Int. J. Forecast. (predictive-distribution scoring)",
-    "Diebold, Gunther & Tay 1998 Int. Econ. Rev. 39(4):863-883 (PIT calibration evaluation — the basis of sr_pit_sample, custom implementation)",
-    "Berkowitz 2001 JBES 19(4):465-474 (PIT-based density-forecast test)"
-   ],
-   "precondition_tools": [
-    "c03_multivariate_nowcasting/bayesian_var.bvar_predict (or #13/#14/#17/#60: they produce the posterior predictive draws the scores are evaluated on)",
-    "c12_distribution_risk/quantile_regression.qr_growth_at_risk (GaR quantiles; the density comes via #95 -> parametric scoring)"
-   ],
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 513,
-   "method": "Point-accuracy metric table across horizons and series",
-   "wrapper_file": "c15_model_evaluation/accuracy_metrics.py",
-   "tool_fns": [
-    "me_accuracy_table"
-   ],
-   "when": "the baseline of every forecast evaluation, and the input to every test of predictive ability",
-   "when_not": "the forecasts are densities rather than points (-> scoring rules); the series have no common scale and unscaled metrics would be meaningless",
-   "alternatives": [
-    {
-     "alt": "scale-dependent metrics",
-     "criterion": "one series, natural units"
-    },
-    {
-     "alt": "scaled metrics such as MASE",
-     "criterion": "several series with different scales"
-    },
-    {
-     "alt": "percentage metrics",
-     "criterion": "the scale is ratio and there are no zeros"
-    }
-   ],
-   "output_key_fields": [
-    "metrics: the table by horizon, series and method",
-    "mase, rmsse: scaled metrics, comparable across series",
-    "theil_u: against a naive benchmark",
-    "bias: mean error, which the squared metrics hide"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "MAPE IS UNDEFINED AT ZERO AND ASYMMETRIC -- it penalises over-forecasts more than under-forecasts, which systematically favours forecasts biased low",
-    "averaging a scale-dependent metric across series lets the largest series dominate; that is what the scaled metrics exist to prevent",
-    "the mean error is the only metric that reveals bias, and reporting only squared or absolute metrics hides it entirely"
-   ],
-   "sources": [
-    "Hyndman & Koehler 2006 (International Journal of Forecasting 22:679-688)",
-    "Makridakis, Spiliotis & Assimakopoulos 2020 (International Journal of Forecasting 36:54)",
-    "utilsforecast"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 514,
-   "method": "Proper scoring rules: CRPS, log score, pinball and tail-weighted CRPS",
-   "wrapper_file": "c15_model_evaluation/scoring_rules.py",
-   "tool_fns": [
-    "me_scoring_rules"
-   ],
-   "when": "evaluating a density or quantile forecast, where a point metric throws away everything the forecast said about uncertainty",
-   "when_not": "the forecast is a point with no distribution; the evaluation sample is too small for score differences to be distinguishable",
-   "alternatives": [
-    {
-     "alt": "CRPS",
-     "criterion": "the default for a full predictive distribution"
-    },
-    {
-     "alt": "log score",
-     "criterion": "strictly proper and local, but unbounded"
-    },
-    {
-     "alt": "pinball / quantile score",
-     "criterion": "the forecast is a set of quantiles"
-    }
-   ],
-   "output_key_fields": [
-    "scores: per observation and averaged",
-    "decomposition: reliability and resolution components where available",
-    "tail_weighted: scores emphasising a region of interest",
-    "skill: score against a reference forecast"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "THE LOG SCORE IS UNBOUNDED: a single observation in a region the forecast gave near-zero density produces an infinite score and destroys the average -- CRPS is bounded and usually preferred for that reason",
-    "a proper scoring rule cannot be gamed by hedging, but an improper one can -- and several popular ad hoc measures are improper",
-    "tail-weighted scores answer a different question from the unweighted version and rank forecasts differently"
-   ],
-   "sources": [
-    "Gneiting & Raftery 2007 (JASA 102:359-378)",
-    "Gneiting & Ranjan 2011 (Journal of Business and Economic Statistics 29:411)",
-    "scoringrules"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 515,
-   "method": "Clark-West and Giacomini-White conditional predictive ability",
-   "wrapper_file": "c15_model_evaluation/nested_predictive_tests.py",
-   "tool_fns": [
-    "me_nested_predictive_test"
-   ],
-   "when": "comparing NESTED forecasting models, where Diebold-Mariano is invalid because the difference in expected loss is zero under the null",
-   "when_not": "the models are non-nested, where Diebold-Mariano applies directly",
-   "alternatives": [
-    {
-     "alt": "Diebold-Mariano",
-     "criterion": "non-nested models"
-    },
-    {
-     "alt": "Clark-West",
-     "criterion": "nested models, adjusted for the estimation noise"
-    },
-    {
-     "alt": "Giacomini-White",
-     "criterion": "conditional predictive ability, finite-sample based"
-    }
-   ],
-   "output_key_fields": [
-    "statistic, p_value: the predictive-ability test",
-    "adjustment: the Clark-West correction term",
-    "conditional: whether ability varies with a state variable",
-    "loss_differential: the underlying series"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "DIEBOLD-MARIANO IS INVALID FOR NESTED MODELS -- the standard normal critical values are wrong and the test is badly undersized, which is exactly the case of adding one indicator to an autoregression",
-    "Clark-West tests equal predictive ability of the POPULATION models, not the estimated ones, which is a different and often less interesting null",
-    "Giacomini-White conditions on a state and can find ability that averages to zero unconditionally"
-   ],
-   "sources": [
-    "Clark & West 2007 (Journal of Econometrics 138:291-311)",
-    "Giacomini & White 2006 (Econometrica 74:1545)",
-    "Giacomini & Rossi 2010 (Journal of Applied Econometrics 25:595)",
-    "dieboldmariano"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 516,
-   "method": "Superior predictive ability, reality check and StepM",
-   "wrapper_file": "c15_model_evaluation/spa_reality_check.py",
-   "tool_fns": [
-    "me_superior_predictive_ability"
-   ],
-   "when": "many forecasts are compared against a benchmark at once, and the best of many will beat it by chance alone",
-   "when_not": "there are two models, where a pairwise test suffices",
-   "alternatives": [
-    {
-     "alt": "Reality Check",
-     "criterion": "the original, conservative under poor models"
-    },
-    {
-     "alt": "Superior Predictive Ability",
-     "criterion": "less sensitive to poor models in the set"
-    },
-    {
-     "alt": "StepM",
-     "criterion": "you want to identify WHICH models beat the benchmark"
-    }
-   ],
-   "output_key_fields": [
-    "statistic, p_value: the joint test against the benchmark",
-    "superior_models: those surviving the stepwise procedure",
-    "n_models: how many were compared -- the source of the multiplicity",
-    "bootstrap: the resampling scheme used"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "THE BEST OF FIFTY MODELS WILL BEAT A BENCHMARK BY CHANCE; that is precisely the data-snooping bias these tests correct, and reporting the best model's individual p-value is the error",
-    "the Reality Check is sensitive to including many poor models, which drag the null distribution -- SPA was designed to fix that",
-    "these tests need a stationary or block bootstrap because the loss differentials are serially dependent"
-   ],
-   "sources": [
-    "White 2000 (Econometrica 68:1097-1126)",
-    "Hansen 2005 (Journal of Business and Economic Statistics 23:365)",
-    "Romano & Wolf 2005 (Econometrica 73:1237)",
-    "arch"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 517,
-   "method": "Forecast rationality: Mincer-Zarnowitz and encompassing",
-   "wrapper_file": "c15_model_evaluation/forecast_rationality.py",
-   "tool_fns": [
-    "me_forecast_rationality"
-   ],
-   "when": "testing whether a forecast is unbiased and efficient, and whether one forecast contains everything another has to offer",
-   "when_not": "the forecast sample is too short for the regressions to have power; the forecasts are not for the same target",
-   "alternatives": [
-    {
-     "alt": "Mincer-Zarnowitz",
-     "criterion": "unbiasedness and efficiency of one forecast"
-    },
-    {
-     "alt": "forecast encompassing",
-     "criterion": "whether one forecast subsumes another"
-    },
-    {
-     "alt": "orthogonality tests",
-     "criterion": "efficiency with respect to specific information"
-    }
-   ],
-   "output_key_fields": [
-    "mz_test: joint test that the intercept is zero and the slope one",
-    "bias: the estimated intercept",
-    "encompassing: whether one forecast's weight in a combination is one",
-    "efficiency: orthogonality against the tested information set"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "THE MINCER-ZARNOWITZ REGRESSION NEEDS HAC STANDARD ERRORS at horizons beyond one, because overlapping forecasts induce a moving-average error by construction",
-    "rejecting rationality can mean the loss function is asymmetric rather than the forecast irrational -- the test assumes squared loss",
-    "encompassing tests with highly correlated forecasts are uninformative because the combination weights are barely identified"
-   ],
-   "sources": [
-    "Mincer & Zarnowitz 1969, The evaluation of economic forecasts (Economic Forecasts and Expectations)",
-    "Chong & Hendry 1986 (Review of Economic Studies 53:671-690)",
-    "statsmodels"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 518,
-   "method": "Interval and quantile evaluation: coverage, Winkler and weighted interval score",
-   "wrapper_file": "c15_model_evaluation/interval_evaluation.py",
-   "tool_fns": [
-    "me_interval_evaluation"
-   ],
-   "when": "the forecast is an interval or a set of quantiles, and coverage alone can be bought by making the interval wide",
-   "when_not": "the forecast is a full density (-> scoring rules); the evaluation sample is too short for coverage to be estimated",
-   "alternatives": [
-    {
-     "alt": "empirical coverage",
-     "criterion": "a first check, necessary but not sufficient"
-    },
-    {
-     "alt": "Winkler score",
-     "criterion": "coverage and width in one number"
-    },
-    {
-     "alt": "weighted interval score",
-     "criterion": "several intervals summarised together"
-    }
-   ],
-   "output_key_fields": [
-    "coverage: realised against nominal, per level",
-    "winkler: interval score per observation",
-    "wis: the weighted interval score and its decomposition",
-    "width: mean interval width"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "COVERAGE AND WIDTH MUST BE READ TOGETHER: an interval from minus to plus infinity covers perfectly and is useless, which is why the Winkler score penalises width",
-    "the weighted interval score decomposes into spread, over-prediction and under-prediction, and that decomposition is where the diagnosis is",
-    "coverage estimated on a short sample has enormous sampling error; 19 of 20 is not evidence of 95% coverage"
-   ],
-   "sources": [
-    "Winkler 1972 (Management Science 19:187-191)",
-    "Bracher, Ray, Gneiting & Reich 2021 (PLOS Computational Biology 17:e1008618)",
-    "scoringrules"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 519,
-   "method": "Density comparison and calibration: Amisano-Giacomini and Berkowitz",
-   "wrapper_file": "c15_model_evaluation/density_evaluation.py",
-   "tool_fns": [
-    "me_density_evaluation"
-   ],
-   "when": "comparing density forecasts formally, and testing whether a predictive distribution is calibrated",
-   "when_not": "the forecasts are points; the sample is too short for the PIT distribution to be assessed",
-   "alternatives": [
-    {
-     "alt": "Amisano-Giacomini log-score test",
-     "criterion": "comparing two density forecasts"
-    },
-    {
-     "alt": "Berkowitz test",
-     "criterion": "calibration of one density, with a power advantage over raw PIT tests"
-    },
-    {
-     "alt": "PIT histogram",
-     "criterion": "a visual calibration check"
-    }
-   ],
-   "output_key_fields": [
-    "log_score_difference: with its test statistic",
-    "berkowitz: the calibration test",
-    "pit: probability-integral-transform values",
-    "autocorrelation: dependence in the PIT series, which independence requires"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "A UNIFORM PIT HISTOGRAM IS NECESSARY BUT NOT SUFFICIENT: the PIT series must also be independent, and a calibrated-looking histogram with autocorrelated PITs is a failed forecast",
-    "the Berkowitz test transforms PITs to normality and gains power over a raw uniformity test, which is why it is preferred",
-    "weighted log-score comparisons emphasising a region are not proper unless constructed carefully"
-   ],
-   "sources": [
-    "Amisano & Giacomini 2007 (Journal of Business and Economic Statistics 25:177-190)",
-    "Berkowitz 2001 (Journal of Business and Economic Statistics 19:465)",
-    "scoringrules"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 520,
-   "method": "Regression diagnostic battery",
-   "wrapper_file": "c15_model_evaluation/regression_diagnostics.py",
-   "tool_fns": [
-    "me_regression_diagnostics"
-   ],
-   "when": "the standard checks a fitted regression must pass before its coefficients are reported",
-   "when_not": "the model is not a regression; the diagnostics are already run by the estimator",
-   "alternatives": [
-    {
-     "alt": "heteroskedasticity tests",
-     "criterion": "White, Breusch-Pagan, Goldfeld-Quandt"
-    },
-    {
-     "alt": "functional form tests",
-     "criterion": "RESET, Harvey-Collier, linktest"
-    },
-    {
-     "alt": "robust standard errors",
-     "criterion": "you would rather correct than test"
-    }
-   ],
-   "output_key_fields": [
-    "heteroskedasticity: test statistics and p-values",
-    "functional_form: RESET and related tests",
-    "normality: residual normality tests",
-    "influence: leverage, Cook's distance and DFBETAS"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "HETEROSKEDASTICITY DOES NOT BIAS THE COEFFICIENTS, only the standard errors; a rejected test calls for robust errors, not for a different estimator",
-    "White's test has power against functional-form misspecification as well as heteroskedasticity, so a rejection does not identify the cause",
-    "with a large sample every diagnostic rejects; read the magnitude of the problem, not only the p-value"
-   ],
-   "sources": [
-    "White 1980 (Econometrica 48:817-838)",
-    "Ramsey 1969 (JRSS-B 31:350)",
-    "Belsley, Kuh & Welsch 1980, Regression Diagnostics",
-    "statsmodels"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 521,
-   "method": "Non-nested model tests: Cox, Davidson-MacKinnon J and Vuong",
-   "wrapper_file": "c15_model_evaluation/non_nested_tests.py",
-   "tool_fns": [
-    "me_non_nested_test"
-   ],
-   "when": "two models neither of which nests the other, where an information criterion gives a ranking but no test",
-   "when_not": "the models are nested (-> a likelihood-ratio or Clark-West test); they have different dependent variables",
-   "alternatives": [
-    {
-     "alt": "Davidson-MacKinnon J test",
-     "criterion": "regression models, simple to run"
-    },
-    {
-     "alt": "Cox test",
-     "criterion": "the classical non-nested likelihood test"
-    },
-    {
-     "alt": "Vuong test",
-     "criterion": "likelihood models, including a test that they are equivalent"
-    }
-   ],
-   "output_key_fields": [
-    "statistic, p_value: per direction of the test",
-    "conclusion: which model, if either, is rejected",
-    "vuong: the likelihood-ratio-based statistic with its variance correction",
-    "both_rejected: whether neither model survives"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "THESE TESTS CAN REJECT BOTH MODELS OR NEITHER, and both outcomes are informative -- a test that rejects model A against B is not evidence that B is correct",
-    "the J test is a regression-based approximation and has poor size in small samples",
-    "Vuong's test requires the models to be non-nested in a strict sense; applied to nested models its distribution is wrong"
-   ],
-   "sources": [
-    "Davidson & MacKinnon 1981 (Econometrica 49:781-793)",
-    "Cox 1961 (Proceedings of the Fourth Berkeley Symposium 1:105)",
-    "Vuong 1989 (Econometrica 57:307)",
-    "statsmodels"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 522,
-   "method": "Meta-analysis and publication bias: meta-regression, PET-PEESE, Egger and funnel",
-   "wrapper_file": "c15_model_evaluation/meta_analysis.py",
-   "tool_fns": [
-    "me_meta_analysis",
-    "me_publication_bias"
-   ],
-   "when": "synthesising many estimates of the same parameter, and testing whether the literature is distorted by selective reporting",
-   "when_not": "the estimates are of different parameters and cannot be pooled; there are too few studies for bias tests to have power",
-   "alternatives": [
-    {
-     "alt": "fixed-effect meta-analysis",
-     "criterion": "the studies estimate one common parameter"
-    },
-    {
-     "alt": "random-effects meta-analysis",
-     "criterion": "the true effect varies across studies"
-    },
-    {
-     "alt": "PET-PEESE and Egger",
-     "criterion": "you suspect publication bias"
-    }
-   ],
-   "output_key_fields": [
-    "pooled: the synthesised estimate with its interval",
-    "heterogeneity: tau squared and I squared",
-    "egger: the small-study-effects test",
-    "pet_peese: bias-corrected estimate"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "A SIGNIFICANT EGGER TEST IS NOT PROOF OF PUBLICATION BIAS -- small-study effects also arise when smaller studies genuinely differ in design or population",
-    "PET-PEESE is known to over-correct when there is no bias and under-correct with strong heterogeneity; it is a diagnostic, not a definitive correction",
-    "fixed and random effects answer different questions, and with high heterogeneity the fixed-effect interval is far too narrow"
-   ],
-   "sources": [
-    "Egger, Davey Smith, Schneider & Minder 1997 (BMJ 315:629-634)",
-    "Stanley & Doucouliagos 2014 (Research Synthesis Methods 5:60)",
-    "Borenstein, Hedges, Higgins & Rothstein 2009, Introduction to Meta-Analysis",
-    "statsmodels.stats.meta_analysis"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  }
- ],
- "nodes": [
-  {
-   "fn": "compute_loss_level",
-   "card_id": 75,
-   "register": null,
-   "input_example": {
-    "realized": "<series_handle>",
-    "evaluated": "<matrix_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "realized",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to the series of realized values (realized).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "evaluated",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to a matrix of point-forecasts (one column per model, same rows).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "which",
-     "kind": "enum",
-     "required": false,
-     "description": "Loss function: SE=squared, AE=absolute error (default SE).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "SE",
-      "AE"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "compute_loss_vol",
-   "card_id": 75,
-   "register": null,
-   "input_example": {
-    "realized": "<series_handle>",
-    "evaluated": "<matrix_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "realized",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to the realized volatility/variance series (proxy).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "evaluated",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to a matrix of volatility-forecasts (one column per model).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "which",
-     "kind": "enum",
-     "required": false,
-     "description": "Robust volatility loss family (default SE1· QLIKE is robust to the proxy).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "SE1",
-      "SE2",
-      "QLIKE",
-      "R2LOG",
-      "AE1",
-      "AE2"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "eval_dm_test",
-   "card_id": 74,
-   "register": null,
-   "input_example": {
-    "e1": "<series_handle>",
-    "e2": "<series_handle>",
-    "h": 1,
-    "power": 2
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "e1",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to the forecast error series of method 1 (e1).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "e2",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to the forecast error series of method 2 (e2, same length).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "alternative",
-     "kind": "enum",
-     "required": false,
-     "description": "Alternative hypothesis (default two.sided· less => e1 is more accurate).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "two.sided",
-      "less",
-      "greater"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "h",
-     "kind": "integer",
-     "required": false,
-     "description": "Forecast horizon of the errors (positive integer < length, default 1).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "power",
-     "kind": "number",
-     "required": false,
-     "description": "Loss power (2 = squared error, 1 = absolute error· default 2).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 2,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "varestimator",
-     "kind": "enum",
-     "required": false,
-     "description": "Long-run variance estimator (default acf).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "acf",
-      "bartlett"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "eval_rolling_origin",
-   "card_id": 74,
-   "register": null,
-   "input_example": {
-    "y": "<series_handle>",
-    "forecastfunction": "naive",
-    "h": 1,
-    "initial": 0
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to the time series for the rolling-origin backtest.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecastfunction",
-     "kind": "forecastfn_enum",
-     "required": true,
-     "description": "The model/pipeline that is backtested: rolling-origin cross-validation of ONE forecasting function with signature function(y, h) that returns a forecast object (card 74). Given ONLY as a name from a closed allowlist, never as executable code. Options: naive = Naive / random walk: f(t+k)=y(T). The classic benchmark (FPP3). · seasonal-naive = Seasonal naive: f(t+k)=y(T+k-m). Benchmark for seasonal series; at frequency=1 it degenerates IDENTICALLY to naive (lag=1). · drift = Random walk with drift: naive + mean historical change (FPP3 benchmark). · mean = Mean forecast: f(t+k)=mean(y). Benchmark; bootstrap=True (5000 stochastic paths) is PINNED to False for determinism. · ses = Simple exponential smoothing = ETS(A,N,N) (without trend/seasonality). · holt = Holt linear trend = ETS(A,A,N) (linear trend, without seasonality). · ets = Automatic ETS state-space (error/trend/season selection with AICc); same method as the run_ets node (cat. 02). · auto_arima = Automatic (S)ARIMA with stepwise Hyndman-Khandakar; same method as the run_auto_arima node (cat. 02). · theta = Theta method (Assimakopoulos & Nikolopoulos 2000, M3 winner); same family as the run_theta node (cat. 02). Caution: tsCV re-fits at EVERY origin -> ets/auto_arima are significantly slower than the benchmarks.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "naive",
-      "snaive",
-      "drift",
-      "mean",
-      "ses",
-      "holt",
-      "ets",
-      "auto_arima",
-      "theta"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "h",
-     "kind": "integer",
-     "required": false,
-     "description": "Forecast horizon per origin (positive integer, default 1).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "window",
-     "kind": "integer",
-     "required": false,
-     "description": "Rolling window length (None = expanding· positive integer).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "initial",
-     "kind": "integer",
-     "required": false,
-     "description": "Observations omitted from the start (>= 0, default 0).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "run_arch_test",
-   "card_id": 77,
-   "register": null,
-   "input_example": {
-    "x": "<series_handle>",
-    "lags": 12,
-    "demean": false
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "x",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to a univariate series/residuals for testing ARCH effects.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "lags",
-     "kind": "integer",
-     "required": false,
-     "description": "Lags of the auxiliary regression (positive integer < length, default 12).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 12,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "demean",
-     "kind": "boolean",
-     "required": false,
-     "description": "Removal of the mean of x before the test (default False).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": false,
-     "has_default": true,
-     "default_json_type": "boolean"
-    }
-   ]
-  },
-  {
-   "fn": "run_bg_test",
-   "card_id": 76,
-   "register": null,
-   "input_example": {
-    "formula": "y ~ x",
-    "order": 1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "formula",
-     "kind": "formula",
-     "required": true,
-     "description": "Model formula (e.g. 'y ~ x1 + x2') for Breusch-Godfrey serial-correlation.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "order",
-     "kind": "integer",
-     "required": false,
-     "description": "Order of serial correlation to test (positive integer, default 1).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "type",
-     "kind": "enum",
-     "required": false,
-     "description": "Statistic type (default Chisq).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "Chisq",
-      "F"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": false,
-     "description": "Handle to a DataFrame with the formula variables.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "run_bp_test",
-   "card_id": 76,
-   "register": null,
-   "input_example": {
-    "formula": "y ~ x",
-    "studentize": true
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "formula",
-     "kind": "formula",
-     "required": true,
-     "description": "Model formula for Breusch-Pagan heteroskedasticity.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "studentize",
-     "kind": "boolean",
-     "required": false,
-     "description": "Koenker studentized version (robust to non-normality, default True).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": false,
-     "description": "Handle to a DataFrame with the formula variables.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "run_mcs_procedure",
-   "card_id": 75,
-   "register": null,
-   "input_example": {
-    "Loss": "<matrix_handle>",
-    "alpha": 0.15,
-    "B": 1000,
-    "min_k": 3
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "Loss",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to a loss matrix (rows=observations, columns=models, >=2 columns).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level = 1 - alpha (alpha in (0,1), default 0.15).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.15,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "B",
-     "kind": "integer",
-     "required": false,
-     "description": "Number of block-bootstrap replications (positive integer, default 1000).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1000,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "statistic",
-     "kind": "enum",
-     "required": false,
-     "description": "Equality test statistic (default Tmax).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "Tmax",
-      "TR"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "k",
-     "kind": "integer",
-     "required": false,
-     "description": "Block length of the bootstrap (None = auto· positive integer).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "min_k",
-     "kind": "integer",
-     "required": false,
-     "description": "Minimum block length (>= 1, default 3).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 3,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed for reproducibility of the bootstrap (integer).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "run_reset_test",
-   "card_id": 76,
-   "register": null,
-   "input_example": {
-    "formula": "y ~ x"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "formula",
-     "kind": "formula",
-     "required": true,
-     "description": "Model formula for Ramsey RESET functional-form misspecification.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "power",
-     "kind": "integer",
-     "required": false,
-     "description": "Power of the fitted values in the auxiliary regression (integer >= 2· default 2:3).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "type",
-     "kind": "enum",
-     "required": false,
-     "description": "Source of the non-linear terms (default fitted).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "fitted",
-      "regressor",
-      "princomp"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": false,
-     "description": "Handle to a DataFrame with the formula variables.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "sr_crps_parametric",
-   "card_id": 94,
-   "register": null,
-   "input_example": {
-    "y": "<raw_handle>",
-    "mean": 0,
-    "sd": 1,
-    "location": 0,
-    "scale": 1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a bare numeric vector of observations (realizations).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "family",
-     "kind": "enum",
-     "required": false,
-     "description": "Family of the predictive distribution (default normal).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "normal",
-      "t",
-      "mixnorm"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "mean",
-     "kind": "number",
-     "required": false,
-     "description": "Mean of the predictive normal (default 0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "sd",
-     "kind": "number",
-     "required": false,
-     "description": "Standard deviation of the predictive normal (>0, default 1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "df",
-     "kind": "number",
-     "required": false,
-     "description": "Degrees of freedom (required when family='t', >0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "location",
-     "kind": "number",
-     "required": false,
-     "description": "Location of the t (default 0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "scale",
-     "kind": "number",
-     "required": false,
-     "description": "Scale of the t (>0, default 1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "sr_crps_sample",
-   "card_id": 94,
-   "register": null,
-   "input_example": {
-    "y": "<raw_handle>",
-    "dat": "<matrix_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a bare numeric vector of observations (one per time· realizations).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "dat",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to a matrix of predictive draws (one row per observation, >=2 columns).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "CDF estimation: edf=empirical (default, robust), kde=Gaussian kernel.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "edf",
-      "kde"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "bw",
-     "kind": "number",
-     "required": false,
-     "description": "Bandwidth for kde (positive· None = auto).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "sr_crps_tailweighted",
-   "card_id": 94,
-   "register": null,
-   "input_example": {
-    "y": "<raw_handle>",
-    "dat": "<matrix_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a bare numeric vector of observations (realizations).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "dat",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to a matrix of predictive draws (one row per observation, >=2 columns).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "side",
-     "kind": "enum",
-     "required": false,
-     "description": "Weight region: left=[-Inf,b], right=[a,Inf], interval=[a,b] (default left, GaR downside).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "left",
-      "right",
-      "interval"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "a",
-     "kind": "number",
-     "required": false,
-     "description": "Lower threshold bound (finite for right/interval).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "b",
-     "kind": "number",
-     "required": false,
-     "description": "Upper threshold bound (finite for left/interval).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "kind",
-     "kind": "enum",
-     "required": false,
-     "description": "threshold=twcrps (indicator weight), outcome=owcrps (default threshold).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "threshold",
-      "outcome"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "sr_logs_parametric",
-   "card_id": 94,
-   "register": null,
-   "input_example": {
-    "y": "<raw_handle>",
-    "mean": 0,
-    "sd": 1,
-    "location": 0,
-    "scale": 1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a bare numeric vector of observations (realizations).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "family",
-     "kind": "enum",
-     "required": false,
-     "description": "Family of the predictive distribution (default normal).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "normal",
-      "t",
-      "mixnorm"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "mean",
-     "kind": "number",
-     "required": false,
-     "description": "Mean of the predictive normal (default 0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "sd",
-     "kind": "number",
-     "required": false,
-     "description": "Standard deviation of the predictive normal (>0, default 1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "df",
-     "kind": "number",
-     "required": false,
-     "description": "Degrees of freedom (required when family='t', >0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "location",
-     "kind": "number",
-     "required": false,
-     "description": "Location of the t (default 0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "scale",
-     "kind": "number",
-     "required": false,
-     "description": "Scale of the t (>0, default 1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "sr_logs_sample",
-   "card_id": 94,
-   "register": null,
-   "input_example": {
-    "y": "<raw_handle>",
-    "dat": "<matrix_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a bare numeric vector of observations (realizations).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "dat",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to a matrix of predictive draws (one row per observation, >=2 columns).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "bw",
-     "kind": "number",
-     "required": false,
-     "description": "KDE bandwidth (positive· None = auto· sensitive in the tails).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "sr_pit_sample",
-   "card_id": 94,
-   "register": null,
-   "input_example": {
-    "y": "<raw_handle>",
-    "dat": "<matrix_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a bare numeric vector of observations (realizations).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "dat",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to a matrix of predictive draws (one row per observation, >=2 columns).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "me_accuracy_table",
-   "card_id": 513,
-   "register": null,
-   "input_example": {
-    "actual": "<df_handle>",
-    "forecast": "<df_handle>",
-    "season_length": 1
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecast",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Forecasts, one column per method.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "metrics",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Metrics to compute; omitted = the standard set.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "insample",
-     "kind": "df_handle",
-     "required": false,
-     "description": "In-sample series for the scaled metrics.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "season_length",
-     "kind": "integer",
-     "required": false,
-     "description": "Seasonal period for MASE.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "by",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Grouping columns for the table.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "me_scoring_rules",
-   "card_id": 514,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "forecast": "<matrix_handle>",
-    "rule": "crps",
-    "weight": "none"
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "scores",
-     "decomposition",
-     "tail_weighted",
-     "skill"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecast",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Predictive samples or quantiles.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rule",
-     "kind": "enum",
-     "required": false,
-     "description": "Scoring rule.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "crps",
-      "log_score",
-      "pinball",
-      "dss",
-      "interval_score",
-      "energy"
-     ],
-     "allowed_vars": null,
-     "default": "crps",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "quantile_levels",
-     "kind": "num_array",
-     "required": false,
-     "description": "Quantile levels when the forecast is quantiles.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "weight",
-     "kind": "enum",
-     "required": false,
-     "description": "Tail weighting.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "none",
-      "left_tail",
-      "right_tail",
-      "centre"
-     ],
-     "allowed_vars": null,
-     "default": "none",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "me_nested_predictive_test",
-   "card_id": 515,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "forecast_restricted": "<series_handle>",
-    "forecast_unrestricted": "<series_handle>",
-    "test": "clark_west",
-    "horizon": 1,
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecast_restricted",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Forecast from the nested model.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecast_unrestricted",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Forecast from the larger model.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "test",
-     "kind": "enum",
-     "required": false,
-     "description": "Test.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "clark_west",
-      "giacomini_white",
-      "diebold_mariano",
-      "fluctuation"
-     ],
-     "allowed_vars": null,
-     "default": "clark_west",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "state",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Conditioning variable for the conditional test.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "horizon",
-     "kind": "integer",
-     "required": false,
-     "description": "Forecast horizon, for the HAC lag.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "me_superior_predictive_ability",
-   "card_id": 516,
-   "register": null,
-   "input_example": {
-    "losses": "<df_handle>",
-    "benchmark": "...",
-    "test": "spa",
-    "nboot": 999,
-    "seed": 1,
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "losses",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Loss series, one column per model.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "benchmark",
-     "kind": "string",
-     "required": true,
-     "description": "Column holding the benchmark loss.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "test",
-     "kind": "enum",
-     "required": false,
-     "description": "Test.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "spa",
-      "reality_check",
-      "stepm"
-     ],
-     "allowed_vars": null,
-     "default": "spa",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "block_size",
-     "kind": "integer",
-     "required": false,
-     "description": "Bootstrap block length; omitted = automatic.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "nboot",
-     "kind": "integer",
-     "required": false,
-     "description": "Number of bootstrap replications.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 999,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": true,
-     "description": "Seed for the random number generator; required for reproducibility.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "me_forecast_rationality",
-   "card_id": 517,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "forecast": "<series_handle>",
-    "horizon": 1,
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "mz_test",
-     "bias",
-     "encompassing",
-     "efficiency"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecast",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Forecast to test.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rival",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Rival forecast for the encompassing test.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "information",
-     "kind": "multiseries_handle",
-     "required": false,
-     "description": "Information set for orthogonality tests.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "horizon",
-     "kind": "integer",
-     "required": false,
-     "description": "Forecast horizon, for the HAC lag.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "me_interval_evaluation",
-   "card_id": 518,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "lower": "<df_handle>",
-    "upper": "<df_handle>",
-    "levels": [
-     1.0,
-     2.0
-    ],
-    "decompose": true
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "coverage",
-     "winkler",
-     "wis",
-     "width"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "lower",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Lower bounds, one column per level.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "upper",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Upper bounds, one column per level.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "levels",
-     "kind": "num_array",
-     "required": true,
-     "description": "Nominal levels.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "decompose",
-     "kind": "boolean",
-     "required": false,
-     "description": "Decompose the weighted interval score.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    }
-   ]
-  },
-  {
-   "fn": "me_density_evaluation",
-   "card_id": 519,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "predictive_cdf": "<matrix_handle>",
-    "test": "berkowitz",
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "log_score_difference",
-     "berkowitz",
-     "pit",
-     "autocorrelation"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "predictive_cdf",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Predictive CDF evaluated at the outcomes.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rival_cdf",
-     "kind": "matrix_handle",
-     "required": false,
-     "description": "Rival predictive CDF for comparison.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "test",
-     "kind": "enum",
-     "required": false,
-     "description": "Test.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "berkowitz",
-      "amisano_giacomini",
-      "ks",
-      "knuppel"
-     ],
-     "allowed_vars": null,
-     "default": "berkowitz",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "me_regression_diagnostics",
-   "card_id": 520,
-   "register": null,
-   "input_example": {
-    "fit": "<raw_handle>",
-    "influence": true,
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "heteroskedasticity",
-     "functional_form",
-     "normality",
-     "influence"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "fit",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a fitted regression.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "tests",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Tests to run; omitted = the standard set.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "influence",
-     "kind": "boolean",
-     "required": false,
-     "description": "Compute influence measures.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "me_non_nested_test",
-   "card_id": 521,
-   "register": null,
-   "input_example": {
-    "fit_a": "<raw_handle>",
-    "fit_b": "<raw_handle>",
-    "test": "j",
-    "correction": "bic",
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "fit_a",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to the first fitted model.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "fit_b",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to the second fitted model.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "test",
-     "kind": "enum",
-     "required": false,
-     "description": "Test.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "j",
-      "cox",
-      "vuong",
-      "encompassing"
-     ],
-     "allowed_vars": null,
-     "default": "j",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "correction",
-     "kind": "enum",
-     "required": false,
-     "description": "Vuong correction.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "none",
-      "aic",
-      "bic"
-     ],
-     "allowed_vars": null,
-     "default": "bic",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "me_meta_analysis",
-   "card_id": 522,
-   "register": null,
-   "input_example": {
-    "effects": "<series_handle>",
-    "standard_errors": "<series_handle>",
-    "model": "random",
-    "method": "dersimonian_laird",
-    "conf_level": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "effects",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Study effect estimates.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "standard_errors",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Study standard errors.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "model",
-     "kind": "enum",
-     "required": false,
-     "description": "Model.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "fixed",
-      "random"
-     ],
-     "allowed_vars": null,
-     "default": "random",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Heterogeneity estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "dersimonian_laird",
-      "reml",
-      "paule_mandel"
-     ],
-     "allowed_vars": null,
-     "default": "dersimonian_laird",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "moderators",
-     "kind": "series_codes",
-     "required": false,
-     "description": "Moderator columns for meta-regression.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "conf_level",
-     "kind": "number",
-     "required": false,
-     "description": "Confidence level for intervals.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "me_publication_bias",
-   "card_id": 522,
-   "register": null,
-   "input_example": {
-    "effects": "<series_handle>",
-    "standard_errors": "<series_handle>",
-    "method": "pet_peese",
-    "alpha": 0.05
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "effects",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Study effect estimates.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "standard_errors",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Study standard errors.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Method.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "egger",
-      "pet_peese",
-      "trim_fill",
-      "begg",
-      "selection_model"
-     ],
-     "allowed_vars": null,
-     "default": "pet_peese",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "alpha",
-     "kind": "number",
-     "required": false,
-     "description": "Significance level.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  }
- ]
+  ]
 }

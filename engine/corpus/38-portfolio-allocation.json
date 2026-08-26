@@ -1,1742 +1,1742 @@
 {
- "category": "38-portfolio-allocation",
- "cards": [
-  {
-   "id": 324,
-   "method": "Mean-variance optimisation and the efficient frontier under constraints",
-   "wrapper_file": "c38_portfolio_allocation/mean_variance.py",
-   "tool_fns": [
-    "pf_mean_variance",
-    "pf_efficient_frontier"
-   ],
-   "when": "turning return and risk estimates into portfolio weights, with the constraints a real mandate imposes",
-   "when_not": "the inputs are estimated from a short sample without shrinkage, where the optimiser will amplify estimation error into extreme weights",
-   "alternatives": [
+  "category": "38-portfolio-allocation",
+  "cards": [
     {
-     "alt": "risk parity",
-     "criterion": "you distrust the return estimates entirely"
+      "id": 324,
+      "method": "Mean-variance optimisation and the efficient frontier under constraints",
+      "wrapper_file": "c38_portfolio_allocation/mean_variance.py",
+      "tool_fns": [
+        "pf_mean_variance",
+        "pf_efficient_frontier"
+      ],
+      "when": "turning return and risk estimates into portfolio weights, with the constraints a real mandate imposes",
+      "when_not": "the inputs are estimated from a short sample without shrinkage, where the optimiser will amplify estimation error into extreme weights",
+      "alternatives": [
+        {
+          "alt": "risk parity",
+          "criterion": "you distrust the return estimates entirely"
+        },
+        {
+          "alt": "Black-Litterman",
+          "criterion": "you want to blend views with a market-implied prior"
+        },
+        {
+          "alt": "robust optimisation",
+          "criterion": "you want weights that survive input uncertainty"
+        }
+      ],
+      "output_key_fields": [
+        "weights: the optimal portfolio",
+        "frontier: risk and return along the efficient set",
+        "expected_return, volatility, sharpe: the optimum's characteristics",
+        "status: whether the solver actually reached optimality"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "mean-variance is an ERROR MAXIMISER: it loads on assets whose returns are most overestimated, which is why raw sample means give unusable weights",
+        "the covariance matrix must be well conditioned; with more assets than periods it is singular and the optimum is arbitrary",
+        "a solver status other than optimal means the weights are not a solution, whatever they look like"
+      ],
+      "sources": [
+        "Markowitz 1952 (Journal of Finance 7:77-91)",
+        "Michaud 1989 (Financial Analysts Journal 45:31)",
+        "Ledoit & Wolf 2004 (Journal of Portfolio Management 30:110)",
+        "riskfolio-lib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "Black-Litterman",
-     "criterion": "you want to blend views with a market-implied prior"
+      "id": 325,
+      "method": "Covariance and return estimation with shrinkage and denoising",
+      "wrapper_file": "c38_portfolio_allocation/covariance_shrinkage.py",
+      "tool_fns": [
+        "pf_covariance",
+        "pf_expected_returns"
+      ],
+      "when": "the sample covariance is the weakest link in any allocation; shrinkage and denoising make it usable when assets are many and history is short",
+      "when_not": "you have far more periods than assets and the sample estimate is already well conditioned",
+      "alternatives": [
+        {
+          "alt": "Ledoit-Wolf shrinkage",
+          "criterion": "a well-tested default with an analytic intensity"
+        },
+        {
+          "alt": "random-matrix denoising",
+          "criterion": "you want to strip eigenvalues indistinguishable from noise"
+        },
+        {
+          "alt": "factor covariance",
+          "criterion": "a factor structure is credible and you want the implied matrix"
+        }
+      ],
+      "output_key_fields": [
+        "covariance: the estimated matrix",
+        "shrinkage_intensity: how far the estimate was pulled toward the target",
+        "condition_number: before and after -- the number that says whether it worked",
+        "eigenvalues: the spectrum, for the denoising diagnostic"
+      ],
+      "chart_kind": "heatmap",
+      "interpretation_traps": [
+        "a shrinkage intensity near one means the sample covariance carried almost no usable information; that is a finding, not a fix",
+        "shrinking the covariance while using raw sample MEANS leaves the larger problem untouched -- means are far harder to estimate than covariances",
+        "denoising changes the eigenvalue spectrum and therefore every risk decomposition computed from it"
+      ],
+      "sources": [
+        "Ledoit & Wolf 2004 (Journal of Multivariate Analysis 88:365-411)",
+        "Laloux, Cizeau, Bouchaud & Potters 1999 (Physical Review Letters 83:1467)",
+        "Lopez de Prado 2020, Machine Learning for Asset Managers",
+        "skfolio"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "robust optimisation",
-     "criterion": "you want weights that survive input uncertainty"
+      "id": 326,
+      "method": "Black-Litterman with investor views",
+      "wrapper_file": "c38_portfolio_allocation/black_litterman.py",
+      "tool_fns": [
+        "pf_black_litterman",
+        "pf_implied_returns"
+      ],
+      "when": "blending a market-implied equilibrium prior with explicit views, so the optimiser produces weights that differ from the market only where you have an opinion",
+      "when_not": "you have no views, in which case the answer is the market portfolio; the market capitalisations needed for the prior are unavailable",
+      "alternatives": [
+        {
+          "alt": "plain mean-variance",
+          "criterion": "you trust your return estimates directly"
+        },
+        {
+          "alt": "Black-Litterman",
+          "criterion": "you want the market as a prior and views as an update"
+        },
+        {
+          "alt": "entropy pooling",
+          "criterion": "the views are on non-linear functions or higher moments"
+        }
+      ],
+      "output_key_fields": [
+        "posterior_returns: the blended expected returns",
+        "posterior_covariance: the blended covariance",
+        "weights: the implied optimal portfolio",
+        "view_impact: how far each view moved the posterior"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "the prior comes from REVERSE-OPTIMISING market weights; feeding it arbitrary weights silently discards the method's whole logic",
+        "tau, the prior scaling, is barely identified and the posterior is sensitive to it -- report the value used",
+        "a view with high stated confidence and little supporting data dominates the posterior; the confidence parameter is an assumption, not evidence"
+      ],
+      "sources": [
+        "Black & Litterman 1992 (Financial Analysts Journal 48:28-43)",
+        "He & Litterman 1999, The intuition behind Black-Litterman model portfolios (Goldman Sachs)",
+        "Meucci 2010, The Black-Litterman approach",
+        "PyPortfolioOpt"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 327,
+      "method": "Risk parity, equal risk contribution and risk budgeting",
+      "wrapper_file": "c38_portfolio_allocation/risk_parity.py",
+      "tool_fns": [
+        "pf_risk_parity",
+        "pf_risk_contributions"
+      ],
+      "when": "allocating by risk rather than by capital, when return forecasts are not trusted but the covariance is",
+      "when_not": "you have credible return views that the method would ignore by construction",
+      "alternatives": [
+        {
+          "alt": "mean-variance",
+          "criterion": "you do trust the return estimates"
+        },
+        {
+          "alt": "equal risk contribution",
+          "criterion": "no view at all beyond risk"
+        },
+        {
+          "alt": "risk budgeting",
+          "criterion": "you want to allocate risk in stated proportions"
+        }
+      ],
+      "output_key_fields": [
+        "weights: the risk-parity portfolio",
+        "risk_contributions: each asset's share of total risk, equal by construction for ERC",
+        "converged: whether the nonlinear problem solved",
+        "leverage: the gross exposure implied, often above one"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "risk parity IGNORES expected returns entirely -- that is the design, and it is also its main weakness",
+        "the solution is invariant to leverage, so it usually needs scaling to a risk target, which reintroduces a decision the method was meant to avoid",
+        "risk contributions are computed from an ESTIMATED covariance and inherit all of its error"
+      ],
+      "sources": [
+        "Maillard, Roncalli & Teiletche 2010 (Journal of Portfolio Management 36:60-70)",
+        "Roncalli 2013, Introduction to Risk Parity and Budgeting",
+        "riskfolio-lib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 328,
+      "method": "Hierarchical risk parity and hierarchical equal risk contribution",
+      "wrapper_file": "c38_portfolio_allocation/hierarchical_risk_parity.py",
+      "tool_fns": [
+        "pf_hrp",
+        "pf_herc"
+      ],
+      "when": "allocating without inverting a covariance matrix at all, by clustering assets and splitting risk down the tree -- robust when the matrix is near-singular",
+      "when_not": "the asset set is small and well conditioned, where a direct optimiser is fine and more transparent",
+      "alternatives": [
+        {
+          "alt": "risk parity",
+          "criterion": "no hierarchy is credible"
+        },
+        {
+          "alt": "hierarchical risk parity",
+          "criterion": "many correlated assets and an unstable covariance"
+        },
+        {
+          "alt": "HERC",
+          "criterion": "you want the hierarchy but with an explicit risk measure at each split"
+        }
+      ],
+      "output_key_fields": [
+        "weights: the hierarchical allocation",
+        "linkage: the dendrogram the allocation followed",
+        "quasi_diagonal_order: the reordering that makes the correlation matrix near block-diagonal",
+        "clusters: the cluster assignment at the chosen cut"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "the answer depends on the LINKAGE and the distance metric; single linkage chains and produces very different trees from ward",
+        "no matrix inversion is the selling point -- so a near-singular covariance that would break mean-variance does not break this, but it does not become informative either",
+        "the tree is estimated from the same data as the weights, and that estimation error is not in any reported interval"
+      ],
+      "sources": [
+        "Lopez de Prado 2016 (Journal of Portfolio Management 42:59-69)",
+        "Raffinot 2017 (Journal of Portfolio Management 44:89)",
+        "riskfolio-lib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 329,
+      "method": "CVaR, CDaR, mean-semivariance and Kelly optimisation",
+      "wrapper_file": "c38_portfolio_allocation/downside_optimisation.py",
+      "tool_fns": [
+        "pf_downside_optimise",
+        "pf_kelly"
+      ],
+      "when": "variance is the wrong risk measure when returns are skewed or the mandate is written in terms of losses, not dispersion",
+      "when_not": "returns are near-symmetric and variance is an adequate proxy; the sample is too short to estimate a tail measure",
+      "alternatives": [
+        {
+          "alt": "mean-variance",
+          "criterion": "returns are near-normal"
+        },
+        {
+          "alt": "mean-CVaR",
+          "criterion": "the tail is the mandate's concern"
+        },
+        {
+          "alt": "Kelly",
+          "criterion": "the objective is long-run growth rather than a risk target"
+        }
+      ],
+      "output_key_fields": [
+        "weights: the optimal portfolio under the chosen measure",
+        "risk_value: the realised CVaR, CDaR or semideviation at the optimum",
+        "status: solver status",
+        "comparison: the same portfolio's variance-based risk, for reference"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "CVaR at a given level is estimated from the observations BEYOND that level -- at 99% on monthly data that is a handful of points, and the estimate is correspondingly unstable",
+        "full Kelly maximises long-run growth but produces violent drawdowns; fractional Kelly is what is actually used",
+        "CDaR is path dependent, so it depends on the ORDER of returns and is not invariant to resampling"
+      ],
+      "sources": [
+        "Rockafellar & Uryasev 2000 (Journal of Risk 2:21-42)",
+        "Chekhlov, Uryasev & Zabarankin 2005 (International Journal of Theoretical and Applied Finance 8:13)",
+        "MacLean, Thorp & Ziemba 2011, The Kelly Capital Growth Investment Criterion",
+        "riskfolio-lib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 330,
+      "method": "Robust and worst-case optimisation with uncertainty sets",
+      "wrapper_file": "c38_portfolio_allocation/robust_optimisation.py",
+      "tool_fns": [
+        "pf_robust_optimise"
+      ],
+      "when": "the inputs are estimates, and you want weights chosen to perform acceptably across a stated set of plausible inputs rather than optimally for one",
+      "when_not": "you have no defensible way to size the uncertainty set, in which case the robustness is arbitrary",
+      "alternatives": [
+        {
+          "alt": "shrinkage then plain optimisation",
+          "criterion": "you would rather fix the inputs than the objective"
+        },
+        {
+          "alt": "box uncertainty",
+          "criterion": "you can bound each input independently"
+        },
+        {
+          "alt": "ellipsoidal uncertainty",
+          "criterion": "the estimation error has a covariance you can use"
+        }
+      ],
+      "output_key_fields": [
+        "weights: the robust portfolio",
+        "worst_case_return: the objective at the worst point of the uncertainty set",
+        "uncertainty_size: the radius used, which drives everything",
+        "status: solver status"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "the uncertainty-set SIZE is the whole method; with a large set the answer collapses to the minimum-variance or equal-weight portfolio",
+        "robust weights are more diversified by construction -- that is not evidence they are better out of sample",
+        "the set must be calibrated to actual estimation error, not chosen for a pleasing answer"
+      ],
+      "sources": [
+        "Goldfarb & Iyengar 2003 (Mathematics of Operations Research 28:1-38)",
+        "Ben-Tal, El Ghaoui & Nemirovski 2009, Robust Optimization",
+        "Fabozzi, Kolm, Pachamanova & Focardi 2007, Robust Portfolio Optimization",
+        "riskfolio-lib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 331,
+      "method": "Walk-forward backtesting with turnover and transaction costs",
+      "wrapper_file": "c38_portfolio_allocation/walk_forward_backtest.py",
+      "tool_fns": [
+        "pf_walk_forward",
+        "pf_backtest_summary"
+      ],
+      "when": "estimating what an allocation rule would actually have delivered, using only information available at each rebalancing date and charging for trading",
+      "when_not": "you intend to evaluate on the same data the rule was fitted to, which measures nothing",
+      "alternatives": [
+        {
+          "alt": "in-sample evaluation",
+          "criterion": "never, for a rule with estimated parameters"
+        },
+        {
+          "alt": "walk-forward",
+          "criterion": "the honest default"
+        },
+        {
+          "alt": "combinatorial purged cross-validation",
+          "criterion": "you want many paths and control of leakage"
+        }
+      ],
+      "output_key_fields": [
+        "returns_net: the backtested return stream after costs",
+        "turnover: trading per rebalance",
+        "cost_drag: the return given up to costs, which often reverses the ranking of rules",
+        "weights_path: the weight history, so the rule is auditable"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "any use of full-sample information -- covariances, breakpoints, even the asset universe -- is LOOK-AHEAD BIAS and inflates every result",
+        "transaction costs frequently reverse the ranking of allocation rules; a backtest without them is not a backtest",
+        "survivorship in the asset universe is a bias no rebalancing scheme can undo"
+      ],
+      "sources": [
+        "Bailey & Lopez de Prado 2014 (Journal of Portfolio Management 40:94)",
+        "Harvey & Liu 2015 (Journal of Portfolio Management 42:13)",
+        "Lopez de Prado 2018, Advances in Financial Machine Learning",
+        "skfolio"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 332,
+      "method": "Risk contribution and factor risk attribution",
+      "wrapper_file": "c38_portfolio_allocation/risk_attribution.py",
+      "tool_fns": [
+        "pf_risk_attribution",
+        "pf_factor_attribution"
+      ],
+      "when": "decomposing portfolio risk into the assets or factors that generate it, which is what a risk report has to say",
+      "when_not": "the portfolio is a single asset; there is no factor model to attribute to",
+      "alternatives": [
+        {
+          "alt": "marginal risk contribution",
+          "criterion": "you want per-asset shares of total risk"
+        },
+        {
+          "alt": "factor attribution",
+          "criterion": "you want risk by systematic factor"
+        },
+        {
+          "alt": "scenario attribution",
+          "criterion": "you want risk under stated scenarios rather than a decomposition"
+        }
+      ],
+      "output_key_fields": [
+        "risk_contributions: per-asset shares, summing to total risk",
+        "factor_contributions: risk by factor plus a specific-risk residual",
+        "marginal_risk: the derivative of risk with respect to each weight",
+        "concentration: how far contributions are from equal"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "risk contributions sum to total risk only for HOMOGENEOUS risk measures; that holds for volatility and CVaR but not for every measure",
+        "a large factor contribution can come from a small exposure to a very volatile factor -- exposure and contribution are not the same thing",
+        "the decomposition inherits every error in the estimated covariance or factor model, and reports none of it"
+      ],
+      "sources": [
+        "Litterman 1996 (Journal of Portfolio Management 22:59)",
+        "Meucci 2007, Risk contributions from generic user-defined factors (Risk 20:84)",
+        "Roncalli 2013, Introduction to Risk Parity and Budgeting",
+        "riskfolio-lib"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     }
-   ],
-   "output_key_fields": [
-    "weights: the optimal portfolio",
-    "frontier: risk and return along the efficient set",
-    "expected_return, volatility, sharpe: the optimum's characteristics",
-    "status: whether the solver actually reached optimality"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "mean-variance is an ERROR MAXIMISER: it loads on assets whose returns are most overestimated, which is why raw sample means give unusable weights",
-    "the covariance matrix must be well conditioned; with more assets than periods it is singular and the optimum is arbitrary",
-    "a solver status other than optimal means the weights are not a solution, whatever they look like"
-   ],
-   "sources": [
-    "Markowitz 1952 (Journal of Finance 7:77-91)",
-    "Michaud 1989 (Financial Analysts Journal 45:31)",
-    "Ledoit & Wolf 2004 (Journal of Portfolio Management 30:110)",
-    "riskfolio-lib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 325,
-   "method": "Covariance and return estimation with shrinkage and denoising",
-   "wrapper_file": "c38_portfolio_allocation/covariance_shrinkage.py",
-   "tool_fns": [
-    "pf_covariance",
-    "pf_expected_returns"
-   ],
-   "when": "the sample covariance is the weakest link in any allocation; shrinkage and denoising make it usable when assets are many and history is short",
-   "when_not": "you have far more periods than assets and the sample estimate is already well conditioned",
-   "alternatives": [
+  ],
+  "nodes": [
     {
-     "alt": "Ledoit-Wolf shrinkage",
-     "criterion": "a well-tested default with an analytic intensity"
+      "fn": "pf_mean_variance",
+      "card_id": 324,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "objective": "max_sharpe",
+        "bounds": [
+          0.0,
+          1.0
+        ],
+        "risk_free": 0.0,
+        "covariance": "ledoit_wolf"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "objective",
+          "kind": "enum",
+          "required": false,
+          "description": "Optimisation objective.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "max_sharpe",
+            "min_volatility",
+            "max_return",
+            "target_return",
+            "target_risk",
+            "max_utility"
+          ],
+          "allowed_vars": null,
+          "default": "max_sharpe",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "target",
+          "kind": "number",
+          "required": false,
+          "description": "Target return or risk when the objective names one.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "bounds",
+          "kind": "num_array",
+          "required": false,
+          "description": "Lower and upper weight bounds.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": [
+            0.0,
+            1.0
+          ],
+          "has_default": true,
+          "default_json_type": "array"
+        },
+        {
+          "name": "risk_free",
+          "kind": "number",
+          "required": false,
+          "description": "Risk-free rate.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "covariance",
+          "kind": "enum",
+          "required": false,
+          "description": "Covariance estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "sample",
+            "ledoit_wolf",
+            "oas",
+            "exponential",
+            "denoised"
+          ],
+          "allowed_vars": null,
+          "default": "ledoit_wolf",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
     },
     {
-     "alt": "random-matrix denoising",
-     "criterion": "you want to strip eigenvalues indistinguishable from noise"
+      "fn": "pf_efficient_frontier",
+      "card_id": 324,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "n_points": 50,
+        "bounds": [
+          0.0,
+          1.0
+        ],
+        "covariance": "ledoit_wolf"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "n_points",
+          "kind": "integer",
+          "required": false,
+          "description": "Points along the frontier.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 50,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "bounds",
+          "kind": "num_array",
+          "required": false,
+          "description": "Lower and upper weight bounds.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": [
+            0.0,
+            1.0
+          ],
+          "has_default": true,
+          "default_json_type": "array"
+        },
+        {
+          "name": "covariance",
+          "kind": "enum",
+          "required": false,
+          "description": "Covariance estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "sample",
+            "ledoit_wolf",
+            "oas",
+            "exponential",
+            "denoised"
+          ],
+          "allowed_vars": null,
+          "default": "ledoit_wolf",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
     },
     {
-     "alt": "factor covariance",
-     "criterion": "a factor structure is credible and you want the implied matrix"
+      "fn": "pf_covariance",
+      "card_id": 325,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "method": "ledoit_wolf"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "sample",
+            "ledoit_wolf",
+            "oas",
+            "shrunk",
+            "exponential",
+            "denoised",
+            "detoned",
+            "graphical_lasso"
+          ],
+          "allowed_vars": null,
+          "default": "ledoit_wolf",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "halflife",
+          "kind": "integer",
+          "required": false,
+          "description": "Half-life for the exponential estimator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "shrinkage",
+          "kind": "number",
+          "required": false,
+          "description": "Manual shrinkage intensity; omitted = analytic.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "pf_expected_returns",
+      "card_id": 325,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "method": "james_stein"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Estimator.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "sample",
+            "exponential",
+            "james_stein",
+            "bayes_stein",
+            "capm",
+            "equal"
+          ],
+          "allowed_vars": null,
+          "default": "james_stein",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "halflife",
+          "kind": "integer",
+          "required": false,
+          "description": "Half-life for the exponential estimator.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "market",
+          "kind": "series_handle",
+          "required": false,
+          "description": "Market return for the CAPM estimator.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "pf_black_litterman",
+      "card_id": 326,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "market_weights": "<series_handle>",
+        "views": "<matrix_handle>",
+        "view_returns": [
+          1.0,
+          2.0
+        ],
+        "tau": 0.05,
+        "risk_aversion": 2.5
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "market_weights",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Market-capitalisation weights for the prior.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "views",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "View picking matrix P.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "view_returns",
+          "kind": "num_array",
+          "required": true,
+          "description": "View return vector Q.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "view_confidence",
+          "kind": "num_array",
+          "required": false,
+          "description": "Confidence per view; omitted = proportional to prior variance.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "tau",
+          "kind": "number",
+          "required": false,
+          "description": "Scaling of the prior covariance.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.05,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "risk_aversion",
+          "kind": "number",
+          "required": false,
+          "description": "Risk-aversion coefficient.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 2.5,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "pf_implied_returns",
+      "card_id": 326,
+      "register": null,
+      "input_example": {
+        "covariance": "<matrix_handle>",
+        "market_weights": "<series_handle>",
+        "risk_aversion": 2.5
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "covariance",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Asset covariance matrix.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "market_weights",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Market-capitalisation weights.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "risk_aversion",
+          "kind": "number",
+          "required": false,
+          "description": "Risk-aversion coefficient.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 2.5,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "pf_risk_parity",
+      "card_id": 327,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "risk_measure": "variance",
+        "bounds": [
+          0.0,
+          1.0
+        ]
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "budget",
+          "kind": "num_array",
+          "required": false,
+          "description": "Target risk shares; omitted = equal.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "risk_measure",
+          "kind": "enum",
+          "required": false,
+          "description": "Risk measure the contributions are defined on.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "variance",
+            "mad",
+            "cvar",
+            "cdar",
+            "evar"
+          ],
+          "allowed_vars": null,
+          "default": "variance",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "bounds",
+          "kind": "num_array",
+          "required": false,
+          "description": "Lower and upper weight bounds.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": [
+            0.0,
+            1.0
+          ],
+          "has_default": true,
+          "default_json_type": "array"
+        }
+      ]
+    },
+    {
+      "fn": "pf_risk_contributions",
+      "card_id": 327,
+      "register": null,
+      "input_example": {
+        "weights": "<series_handle>",
+        "covariance": "<matrix_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "weights",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Portfolio weights.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "covariance",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Asset covariance matrix.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "pf_hrp",
+      "card_id": 328,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "linkage": "ward",
+        "distance": "correlation",
+        "risk_measure": "variance"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "linkage",
+          "kind": "enum",
+          "required": false,
+          "description": "Hierarchical linkage.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "single",
+            "complete",
+            "average",
+            "ward"
+          ],
+          "allowed_vars": null,
+          "default": "ward",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "distance",
+          "kind": "enum",
+          "required": false,
+          "description": "Distance metric on correlations.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "correlation",
+            "absolute_correlation",
+            "distance_correlation"
+          ],
+          "allowed_vars": null,
+          "default": "correlation",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "risk_measure",
+          "kind": "enum",
+          "required": false,
+          "description": "Risk measure used at each split.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "variance",
+            "mad",
+            "cvar",
+            "cdar"
+          ],
+          "allowed_vars": null,
+          "default": "variance",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "pf_herc",
+      "card_id": 328,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "linkage": "ward",
+        "risk_measure": "variance"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "linkage",
+          "kind": "enum",
+          "required": false,
+          "description": "Hierarchical linkage.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "single",
+            "complete",
+            "average",
+            "ward"
+          ],
+          "allowed_vars": null,
+          "default": "ward",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "n_clusters",
+          "kind": "integer",
+          "required": false,
+          "description": "Clusters to cut the tree at; omitted = gap statistic.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "risk_measure",
+          "kind": "enum",
+          "required": false,
+          "description": "Risk measure used at each split.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "variance",
+            "mad",
+            "cvar",
+            "cdar"
+          ],
+          "allowed_vars": null,
+          "default": "variance",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "pf_downside_optimise",
+      "card_id": 329,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "risk_measure": "cvar",
+        "confidence": 0.95,
+        "bounds": [
+          0.0,
+          1.0
+        ]
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "risk_measure",
+          "kind": "enum",
+          "required": false,
+          "description": "Risk measure to minimise.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "cvar",
+            "cdar",
+            "semivariance",
+            "evar",
+            "worst_realisation",
+            "max_drawdown"
+          ],
+          "allowed_vars": null,
+          "default": "cvar",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "confidence",
+          "kind": "number",
+          "required": false,
+          "description": "Tail level for CVaR and CDaR.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "target_return",
+          "kind": "number",
+          "required": false,
+          "description": "Return floor.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "bounds",
+          "kind": "num_array",
+          "required": false,
+          "description": "Lower and upper weight bounds.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": [
+            0.0,
+            1.0
+          ],
+          "has_default": true,
+          "default_json_type": "array"
+        }
+      ]
+    },
+    {
+      "fn": "pf_kelly",
+      "card_id": 329,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "fraction": 0.5,
+        "bounds": [
+          0.0,
+          1.0
+        ]
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "fraction",
+          "kind": "number",
+          "required": false,
+          "description": "Fraction of full Kelly to apply.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.5,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "bounds",
+          "kind": "num_array",
+          "required": false,
+          "description": "Lower and upper weight bounds.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": [
+            0.0,
+            1.0
+          ],
+          "has_default": true,
+          "default_json_type": "array"
+        }
+      ]
+    },
+    {
+      "fn": "pf_robust_optimise",
+      "card_id": 330,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "uncertainty": "ellipsoidal",
+        "size": 1.0,
+        "objective": "max_worst_case_return",
+        "bounds": [
+          0.0,
+          1.0
+        ]
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "weights",
+          "worst_case_return",
+          "uncertainty_size",
+          "status"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "uncertainty",
+          "kind": "enum",
+          "required": false,
+          "description": "Uncertainty-set geometry.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "box",
+            "ellipsoidal",
+            "budget"
+          ],
+          "allowed_vars": null,
+          "default": "ellipsoidal",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "size",
+          "kind": "number",
+          "required": false,
+          "description": "Uncertainty radius.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1.0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "objective",
+          "kind": "enum",
+          "required": false,
+          "description": "Objective.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "max_worst_case_return",
+            "min_worst_case_risk"
+          ],
+          "allowed_vars": null,
+          "default": "max_worst_case_return",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "bounds",
+          "kind": "num_array",
+          "required": false,
+          "description": "Lower and upper weight bounds.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": [
+            0.0,
+            1.0
+          ],
+          "has_default": true,
+          "default_json_type": "array"
+        }
+      ]
+    },
+    {
+      "fn": "pf_walk_forward",
+      "card_id": 331,
+      "register": null,
+      "input_example": {
+        "returns": "<df_handle>",
+        "rule": "y ~ x",
+        "train_window": 252,
+        "rebalance_every": 21,
+        "cost_bps": 10.0,
+        "expanding": false
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "rule",
+          "kind": "formula",
+          "required": true,
+          "description": "Allocation rule to apply at each rebalance.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "train_window",
+          "kind": "integer",
+          "required": false,
+          "description": "Estimation window in periods.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 252,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "rebalance_every",
+          "kind": "integer",
+          "required": false,
+          "description": "Periods between rebalances.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 21,
+          "has_default": true,
+          "default_json_type": "integer"
+        },
+        {
+          "name": "cost_bps",
+          "kind": "number",
+          "required": false,
+          "description": "Round-trip cost in basis points.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 10.0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "expanding",
+          "kind": "boolean",
+          "required": false,
+          "description": "Use an expanding rather than rolling window.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": false,
+          "has_default": true,
+          "default_json_type": "boolean"
+        }
+      ]
+    },
+    {
+      "fn": "pf_backtest_summary",
+      "card_id": 331,
+      "register": null,
+      "input_example": {
+        "backtest": "<raw_handle>",
+        "frequency": "daily"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "backtest",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a completed backtest.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "frequency",
+          "kind": "enum",
+          "required": false,
+          "description": "Return frequency for annualisation.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "daily",
+            "weekly",
+            "monthly"
+          ],
+          "allowed_vars": null,
+          "default": "daily",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "pf_risk_attribution",
+      "card_id": 332,
+      "register": null,
+      "input_example": {
+        "weights": "<series_handle>",
+        "returns": "<df_handle>",
+        "risk_measure": "volatility",
+        "confidence": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "weights",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Portfolio weights.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "risk_measure",
+          "kind": "enum",
+          "required": false,
+          "description": "Risk measure to decompose.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "volatility",
+            "cvar",
+            "var",
+            "mad"
+          ],
+          "allowed_vars": null,
+          "default": "volatility",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "confidence",
+          "kind": "number",
+          "required": false,
+          "description": "Tail level where the measure needs one.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "pf_factor_attribution",
+      "card_id": 332,
+      "register": null,
+      "input_example": {
+        "weights": "<series_handle>",
+        "returns": "<df_handle>",
+        "factors": "<multiseries_handle>"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "weights",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Portfolio weights.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "returns",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Asset return panel.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "factors",
+          "kind": "multiseries_handle",
+          "required": true,
+          "description": "Factor return series.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
     }
-   ],
-   "output_key_fields": [
-    "covariance: the estimated matrix",
-    "shrinkage_intensity: how far the estimate was pulled toward the target",
-    "condition_number: before and after -- the number that says whether it worked",
-    "eigenvalues: the spectrum, for the denoising diagnostic"
-   ],
-   "chart_kind": "heatmap",
-   "interpretation_traps": [
-    "a shrinkage intensity near one means the sample covariance carried almost no usable information; that is a finding, not a fix",
-    "shrinking the covariance while using raw sample MEANS leaves the larger problem untouched -- means are far harder to estimate than covariances",
-    "denoising changes the eigenvalue spectrum and therefore every risk decomposition computed from it"
-   ],
-   "sources": [
-    "Ledoit & Wolf 2004 (Journal of Multivariate Analysis 88:365-411)",
-    "Laloux, Cizeau, Bouchaud & Potters 1999 (Physical Review Letters 83:1467)",
-    "Lopez de Prado 2020, Machine Learning for Asset Managers",
-    "skfolio"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 326,
-   "method": "Black-Litterman with investor views",
-   "wrapper_file": "c38_portfolio_allocation/black_litterman.py",
-   "tool_fns": [
-    "pf_black_litterman",
-    "pf_implied_returns"
-   ],
-   "when": "blending a market-implied equilibrium prior with explicit views, so the optimiser produces weights that differ from the market only where you have an opinion",
-   "when_not": "you have no views, in which case the answer is the market portfolio; the market capitalisations needed for the prior are unavailable",
-   "alternatives": [
-    {
-     "alt": "plain mean-variance",
-     "criterion": "you trust your return estimates directly"
-    },
-    {
-     "alt": "Black-Litterman",
-     "criterion": "you want the market as a prior and views as an update"
-    },
-    {
-     "alt": "entropy pooling",
-     "criterion": "the views are on non-linear functions or higher moments"
-    }
-   ],
-   "output_key_fields": [
-    "posterior_returns: the blended expected returns",
-    "posterior_covariance: the blended covariance",
-    "weights: the implied optimal portfolio",
-    "view_impact: how far each view moved the posterior"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "the prior comes from REVERSE-OPTIMISING market weights; feeding it arbitrary weights silently discards the method's whole logic",
-    "tau, the prior scaling, is barely identified and the posterior is sensitive to it -- report the value used",
-    "a view with high stated confidence and little supporting data dominates the posterior; the confidence parameter is an assumption, not evidence"
-   ],
-   "sources": [
-    "Black & Litterman 1992 (Financial Analysts Journal 48:28-43)",
-    "He & Litterman 1999, The intuition behind Black-Litterman model portfolios (Goldman Sachs)",
-    "Meucci 2010, The Black-Litterman approach",
-    "PyPortfolioOpt"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 327,
-   "method": "Risk parity, equal risk contribution and risk budgeting",
-   "wrapper_file": "c38_portfolio_allocation/risk_parity.py",
-   "tool_fns": [
-    "pf_risk_parity",
-    "pf_risk_contributions"
-   ],
-   "when": "allocating by risk rather than by capital, when return forecasts are not trusted but the covariance is",
-   "when_not": "you have credible return views that the method would ignore by construction",
-   "alternatives": [
-    {
-     "alt": "mean-variance",
-     "criterion": "you do trust the return estimates"
-    },
-    {
-     "alt": "equal risk contribution",
-     "criterion": "no view at all beyond risk"
-    },
-    {
-     "alt": "risk budgeting",
-     "criterion": "you want to allocate risk in stated proportions"
-    }
-   ],
-   "output_key_fields": [
-    "weights: the risk-parity portfolio",
-    "risk_contributions: each asset's share of total risk, equal by construction for ERC",
-    "converged: whether the nonlinear problem solved",
-    "leverage: the gross exposure implied, often above one"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "risk parity IGNORES expected returns entirely -- that is the design, and it is also its main weakness",
-    "the solution is invariant to leverage, so it usually needs scaling to a risk target, which reintroduces a decision the method was meant to avoid",
-    "risk contributions are computed from an ESTIMATED covariance and inherit all of its error"
-   ],
-   "sources": [
-    "Maillard, Roncalli & Teiletche 2010 (Journal of Portfolio Management 36:60-70)",
-    "Roncalli 2013, Introduction to Risk Parity and Budgeting",
-    "riskfolio-lib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 328,
-   "method": "Hierarchical risk parity and hierarchical equal risk contribution",
-   "wrapper_file": "c38_portfolio_allocation/hierarchical_risk_parity.py",
-   "tool_fns": [
-    "pf_hrp",
-    "pf_herc"
-   ],
-   "when": "allocating without inverting a covariance matrix at all, by clustering assets and splitting risk down the tree -- robust when the matrix is near-singular",
-   "when_not": "the asset set is small and well conditioned, where a direct optimiser is fine and more transparent",
-   "alternatives": [
-    {
-     "alt": "risk parity",
-     "criterion": "no hierarchy is credible"
-    },
-    {
-     "alt": "hierarchical risk parity",
-     "criterion": "many correlated assets and an unstable covariance"
-    },
-    {
-     "alt": "HERC",
-     "criterion": "you want the hierarchy but with an explicit risk measure at each split"
-    }
-   ],
-   "output_key_fields": [
-    "weights: the hierarchical allocation",
-    "linkage: the dendrogram the allocation followed",
-    "quasi_diagonal_order: the reordering that makes the correlation matrix near block-diagonal",
-    "clusters: the cluster assignment at the chosen cut"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "the answer depends on the LINKAGE and the distance metric; single linkage chains and produces very different trees from ward",
-    "no matrix inversion is the selling point -- so a near-singular covariance that would break mean-variance does not break this, but it does not become informative either",
-    "the tree is estimated from the same data as the weights, and that estimation error is not in any reported interval"
-   ],
-   "sources": [
-    "Lopez de Prado 2016 (Journal of Portfolio Management 42:59-69)",
-    "Raffinot 2017 (Journal of Portfolio Management 44:89)",
-    "riskfolio-lib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 329,
-   "method": "CVaR, CDaR, mean-semivariance and Kelly optimisation",
-   "wrapper_file": "c38_portfolio_allocation/downside_optimisation.py",
-   "tool_fns": [
-    "pf_downside_optimise",
-    "pf_kelly"
-   ],
-   "when": "variance is the wrong risk measure when returns are skewed or the mandate is written in terms of losses, not dispersion",
-   "when_not": "returns are near-symmetric and variance is an adequate proxy; the sample is too short to estimate a tail measure",
-   "alternatives": [
-    {
-     "alt": "mean-variance",
-     "criterion": "returns are near-normal"
-    },
-    {
-     "alt": "mean-CVaR",
-     "criterion": "the tail is the mandate's concern"
-    },
-    {
-     "alt": "Kelly",
-     "criterion": "the objective is long-run growth rather than a risk target"
-    }
-   ],
-   "output_key_fields": [
-    "weights: the optimal portfolio under the chosen measure",
-    "risk_value: the realised CVaR, CDaR or semideviation at the optimum",
-    "status: solver status",
-    "comparison: the same portfolio's variance-based risk, for reference"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "CVaR at a given level is estimated from the observations BEYOND that level -- at 99% on monthly data that is a handful of points, and the estimate is correspondingly unstable",
-    "full Kelly maximises long-run growth but produces violent drawdowns; fractional Kelly is what is actually used",
-    "CDaR is path dependent, so it depends on the ORDER of returns and is not invariant to resampling"
-   ],
-   "sources": [
-    "Rockafellar & Uryasev 2000 (Journal of Risk 2:21-42)",
-    "Chekhlov, Uryasev & Zabarankin 2005 (International Journal of Theoretical and Applied Finance 8:13)",
-    "MacLean, Thorp & Ziemba 2011, The Kelly Capital Growth Investment Criterion",
-    "riskfolio-lib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 330,
-   "method": "Robust and worst-case optimisation with uncertainty sets",
-   "wrapper_file": "c38_portfolio_allocation/robust_optimisation.py",
-   "tool_fns": [
-    "pf_robust_optimise"
-   ],
-   "when": "the inputs are estimates, and you want weights chosen to perform acceptably across a stated set of plausible inputs rather than optimally for one",
-   "when_not": "you have no defensible way to size the uncertainty set, in which case the robustness is arbitrary",
-   "alternatives": [
-    {
-     "alt": "shrinkage then plain optimisation",
-     "criterion": "you would rather fix the inputs than the objective"
-    },
-    {
-     "alt": "box uncertainty",
-     "criterion": "you can bound each input independently"
-    },
-    {
-     "alt": "ellipsoidal uncertainty",
-     "criterion": "the estimation error has a covariance you can use"
-    }
-   ],
-   "output_key_fields": [
-    "weights: the robust portfolio",
-    "worst_case_return: the objective at the worst point of the uncertainty set",
-    "uncertainty_size: the radius used, which drives everything",
-    "status: solver status"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "the uncertainty-set SIZE is the whole method; with a large set the answer collapses to the minimum-variance or equal-weight portfolio",
-    "robust weights are more diversified by construction -- that is not evidence they are better out of sample",
-    "the set must be calibrated to actual estimation error, not chosen for a pleasing answer"
-   ],
-   "sources": [
-    "Goldfarb & Iyengar 2003 (Mathematics of Operations Research 28:1-38)",
-    "Ben-Tal, El Ghaoui & Nemirovski 2009, Robust Optimization",
-    "Fabozzi, Kolm, Pachamanova & Focardi 2007, Robust Portfolio Optimization",
-    "cvxpy"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 331,
-   "method": "Walk-forward backtesting with turnover and transaction costs",
-   "wrapper_file": "c38_portfolio_allocation/walk_forward_backtest.py",
-   "tool_fns": [
-    "pf_walk_forward",
-    "pf_backtest_summary"
-   ],
-   "when": "estimating what an allocation rule would actually have delivered, using only information available at each rebalancing date and charging for trading",
-   "when_not": "you intend to evaluate on the same data the rule was fitted to, which measures nothing",
-   "alternatives": [
-    {
-     "alt": "in-sample evaluation",
-     "criterion": "never, for a rule with estimated parameters"
-    },
-    {
-     "alt": "walk-forward",
-     "criterion": "the honest default"
-    },
-    {
-     "alt": "combinatorial purged cross-validation",
-     "criterion": "you want many paths and control of leakage"
-    }
-   ],
-   "output_key_fields": [
-    "returns_net: the backtested return stream after costs",
-    "turnover: trading per rebalance",
-    "cost_drag: the return given up to costs, which often reverses the ranking of rules",
-    "weights_path: the weight history, so the rule is auditable"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "any use of full-sample information -- covariances, breakpoints, even the asset universe -- is LOOK-AHEAD BIAS and inflates every result",
-    "transaction costs frequently reverse the ranking of allocation rules; a backtest without them is not a backtest",
-    "survivorship in the asset universe is a bias no rebalancing scheme can undo"
-   ],
-   "sources": [
-    "Bailey & Lopez de Prado 2014 (Journal of Portfolio Management 40:94)",
-    "Harvey & Liu 2015 (Journal of Portfolio Management 42:13)",
-    "Lopez de Prado 2018, Advances in Financial Machine Learning",
-    "skfolio"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 332,
-   "method": "Risk contribution and factor risk attribution",
-   "wrapper_file": "c38_portfolio_allocation/risk_attribution.py",
-   "tool_fns": [
-    "pf_risk_attribution",
-    "pf_factor_attribution"
-   ],
-   "when": "decomposing portfolio risk into the assets or factors that generate it, which is what a risk report has to say",
-   "when_not": "the portfolio is a single asset; there is no factor model to attribute to",
-   "alternatives": [
-    {
-     "alt": "marginal risk contribution",
-     "criterion": "you want per-asset shares of total risk"
-    },
-    {
-     "alt": "factor attribution",
-     "criterion": "you want risk by systematic factor"
-    },
-    {
-     "alt": "scenario attribution",
-     "criterion": "you want risk under stated scenarios rather than a decomposition"
-    }
-   ],
-   "output_key_fields": [
-    "risk_contributions: per-asset shares, summing to total risk",
-    "factor_contributions: risk by factor plus a specific-risk residual",
-    "marginal_risk: the derivative of risk with respect to each weight",
-    "concentration: how far contributions are from equal"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "risk contributions sum to total risk only for HOMOGENEOUS risk measures; that holds for volatility and CVaR but not for every measure",
-    "a large factor contribution can come from a small exposure to a very volatile factor -- exposure and contribution are not the same thing",
-    "the decomposition inherits every error in the estimated covariance or factor model, and reports none of it"
-   ],
-   "sources": [
-    "Litterman 1996 (Journal of Portfolio Management 22:59)",
-    "Meucci 2007, Risk contributions from generic user-defined factors (Risk 20:84)",
-    "Roncalli 2013, Introduction to Risk Parity and Budgeting",
-    "riskfolio-lib"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  }
- ],
- "nodes": [
-  {
-   "fn": "pf_mean_variance",
-   "card_id": 324,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "objective": "max_sharpe",
-    "bounds": [
-     0.0,
-     1.0
-    ],
-    "risk_free": 0.0,
-    "covariance": "ledoit_wolf"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "objective",
-     "kind": "enum",
-     "required": false,
-     "description": "Optimisation objective.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "max_sharpe",
-      "min_volatility",
-      "max_return",
-      "target_return",
-      "target_risk",
-      "max_utility"
-     ],
-     "allowed_vars": null,
-     "default": "max_sharpe",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "target",
-     "kind": "number",
-     "required": false,
-     "description": "Target return or risk when the objective names one.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "bounds",
-     "kind": "num_array",
-     "required": false,
-     "description": "Lower and upper weight bounds.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": [
-      0.0,
-      1.0
-     ],
-     "has_default": true,
-     "default_json_type": "array"
-    },
-    {
-     "name": "risk_free",
-     "kind": "number",
-     "required": false,
-     "description": "Risk-free rate.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "covariance",
-     "kind": "enum",
-     "required": false,
-     "description": "Covariance estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "sample",
-      "ledoit_wolf",
-      "oas",
-      "exponential",
-      "denoised"
-     ],
-     "allowed_vars": null,
-     "default": "ledoit_wolf",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "pf_efficient_frontier",
-   "card_id": 324,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "n_points": 50,
-    "bounds": [
-     0.0,
-     1.0
-    ],
-    "covariance": "ledoit_wolf"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "n_points",
-     "kind": "integer",
-     "required": false,
-     "description": "Points along the frontier.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 50,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "bounds",
-     "kind": "num_array",
-     "required": false,
-     "description": "Lower and upper weight bounds.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": [
-      0.0,
-      1.0
-     ],
-     "has_default": true,
-     "default_json_type": "array"
-    },
-    {
-     "name": "covariance",
-     "kind": "enum",
-     "required": false,
-     "description": "Covariance estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "sample",
-      "ledoit_wolf",
-      "oas",
-      "exponential",
-      "denoised"
-     ],
-     "allowed_vars": null,
-     "default": "ledoit_wolf",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "pf_covariance",
-   "card_id": 325,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "method": "ledoit_wolf"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "sample",
-      "ledoit_wolf",
-      "oas",
-      "shrunk",
-      "exponential",
-      "denoised",
-      "detoned",
-      "graphical_lasso"
-     ],
-     "allowed_vars": null,
-     "default": "ledoit_wolf",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "halflife",
-     "kind": "integer",
-     "required": false,
-     "description": "Half-life for the exponential estimator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "shrinkage",
-     "kind": "number",
-     "required": false,
-     "description": "Manual shrinkage intensity; omitted = analytic.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "pf_expected_returns",
-   "card_id": 325,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "method": "james_stein"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Estimator.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "sample",
-      "exponential",
-      "james_stein",
-      "bayes_stein",
-      "capm",
-      "equal"
-     ],
-     "allowed_vars": null,
-     "default": "james_stein",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "halflife",
-     "kind": "integer",
-     "required": false,
-     "description": "Half-life for the exponential estimator.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "market",
-     "kind": "series_handle",
-     "required": false,
-     "description": "Market return for the CAPM estimator.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "pf_black_litterman",
-   "card_id": 326,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "market_weights": "<series_handle>",
-    "views": "<matrix_handle>",
-    "view_returns": [
-     1.0,
-     2.0
-    ],
-    "tau": 0.05,
-    "risk_aversion": 2.5
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "market_weights",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Market-capitalisation weights for the prior.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "views",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "View picking matrix P.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "view_returns",
-     "kind": "num_array",
-     "required": true,
-     "description": "View return vector Q.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "view_confidence",
-     "kind": "num_array",
-     "required": false,
-     "description": "Confidence per view; omitted = proportional to prior variance.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "tau",
-     "kind": "number",
-     "required": false,
-     "description": "Scaling of the prior covariance.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.05,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "risk_aversion",
-     "kind": "number",
-     "required": false,
-     "description": "Risk-aversion coefficient.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 2.5,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "pf_implied_returns",
-   "card_id": 326,
-   "register": null,
-   "input_example": {
-    "covariance": "<matrix_handle>",
-    "market_weights": "<series_handle>",
-    "risk_aversion": 2.5
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "covariance",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Asset covariance matrix.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "market_weights",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Market-capitalisation weights.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "risk_aversion",
-     "kind": "number",
-     "required": false,
-     "description": "Risk-aversion coefficient.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 2.5,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "pf_risk_parity",
-   "card_id": 327,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "risk_measure": "variance",
-    "bounds": [
-     0.0,
-     1.0
-    ]
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "budget",
-     "kind": "num_array",
-     "required": false,
-     "description": "Target risk shares; omitted = equal.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "risk_measure",
-     "kind": "enum",
-     "required": false,
-     "description": "Risk measure the contributions are defined on.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "variance",
-      "mad",
-      "cvar",
-      "cdar",
-      "evar"
-     ],
-     "allowed_vars": null,
-     "default": "variance",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "bounds",
-     "kind": "num_array",
-     "required": false,
-     "description": "Lower and upper weight bounds.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": [
-      0.0,
-      1.0
-     ],
-     "has_default": true,
-     "default_json_type": "array"
-    }
-   ]
-  },
-  {
-   "fn": "pf_risk_contributions",
-   "card_id": 327,
-   "register": null,
-   "input_example": {
-    "weights": "<series_handle>",
-    "covariance": "<matrix_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "weights",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Portfolio weights.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "covariance",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Asset covariance matrix.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "pf_hrp",
-   "card_id": 328,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "linkage": "ward",
-    "distance": "correlation",
-    "risk_measure": "variance"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "linkage",
-     "kind": "enum",
-     "required": false,
-     "description": "Hierarchical linkage.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "single",
-      "complete",
-      "average",
-      "ward"
-     ],
-     "allowed_vars": null,
-     "default": "ward",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "distance",
-     "kind": "enum",
-     "required": false,
-     "description": "Distance metric on correlations.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "correlation",
-      "absolute_correlation",
-      "distance_correlation"
-     ],
-     "allowed_vars": null,
-     "default": "correlation",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "risk_measure",
-     "kind": "enum",
-     "required": false,
-     "description": "Risk measure used at each split.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "variance",
-      "mad",
-      "cvar",
-      "cdar"
-     ],
-     "allowed_vars": null,
-     "default": "variance",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "pf_herc",
-   "card_id": 328,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "linkage": "ward",
-    "risk_measure": "variance"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "linkage",
-     "kind": "enum",
-     "required": false,
-     "description": "Hierarchical linkage.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "single",
-      "complete",
-      "average",
-      "ward"
-     ],
-     "allowed_vars": null,
-     "default": "ward",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "n_clusters",
-     "kind": "integer",
-     "required": false,
-     "description": "Clusters to cut the tree at; omitted = gap statistic.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "risk_measure",
-     "kind": "enum",
-     "required": false,
-     "description": "Risk measure used at each split.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "variance",
-      "mad",
-      "cvar",
-      "cdar"
-     ],
-     "allowed_vars": null,
-     "default": "variance",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "pf_downside_optimise",
-   "card_id": 329,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "risk_measure": "cvar",
-    "confidence": 0.95,
-    "bounds": [
-     0.0,
-     1.0
-    ]
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "risk_measure",
-     "kind": "enum",
-     "required": false,
-     "description": "Risk measure to minimise.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "cvar",
-      "cdar",
-      "semivariance",
-      "evar",
-      "worst_realisation",
-      "max_drawdown"
-     ],
-     "allowed_vars": null,
-     "default": "cvar",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "confidence",
-     "kind": "number",
-     "required": false,
-     "description": "Tail level for CVaR and CDaR.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "target_return",
-     "kind": "number",
-     "required": false,
-     "description": "Return floor.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "bounds",
-     "kind": "num_array",
-     "required": false,
-     "description": "Lower and upper weight bounds.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": [
-      0.0,
-      1.0
-     ],
-     "has_default": true,
-     "default_json_type": "array"
-    }
-   ]
-  },
-  {
-   "fn": "pf_kelly",
-   "card_id": 329,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "fraction": 0.5,
-    "bounds": [
-     0.0,
-     1.0
-    ]
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "fraction",
-     "kind": "number",
-     "required": false,
-     "description": "Fraction of full Kelly to apply.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.5,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "bounds",
-     "kind": "num_array",
-     "required": false,
-     "description": "Lower and upper weight bounds.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": [
-      0.0,
-      1.0
-     ],
-     "has_default": true,
-     "default_json_type": "array"
-    }
-   ]
-  },
-  {
-   "fn": "pf_robust_optimise",
-   "card_id": 330,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "uncertainty": "ellipsoidal",
-    "size": 1.0,
-    "objective": "max_worst_case_return",
-    "bounds": [
-     0.0,
-     1.0
-    ]
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "weights",
-     "worst_case_return",
-     "uncertainty_size",
-     "status"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "uncertainty",
-     "kind": "enum",
-     "required": false,
-     "description": "Uncertainty-set geometry.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "box",
-      "ellipsoidal",
-      "budget"
-     ],
-     "allowed_vars": null,
-     "default": "ellipsoidal",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "size",
-     "kind": "number",
-     "required": false,
-     "description": "Uncertainty radius.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1.0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "objective",
-     "kind": "enum",
-     "required": false,
-     "description": "Objective.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "max_worst_case_return",
-      "min_worst_case_risk"
-     ],
-     "allowed_vars": null,
-     "default": "max_worst_case_return",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "bounds",
-     "kind": "num_array",
-     "required": false,
-     "description": "Lower and upper weight bounds.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": [
-      0.0,
-      1.0
-     ],
-     "has_default": true,
-     "default_json_type": "array"
-    }
-   ]
-  },
-  {
-   "fn": "pf_walk_forward",
-   "card_id": 331,
-   "register": null,
-   "input_example": {
-    "returns": "<df_handle>",
-    "rule": "y ~ x",
-    "train_window": 252,
-    "rebalance_every": 21,
-    "cost_bps": 10.0,
-    "expanding": false
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "rule",
-     "kind": "formula",
-     "required": true,
-     "description": "Allocation rule to apply at each rebalance.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "train_window",
-     "kind": "integer",
-     "required": false,
-     "description": "Estimation window in periods.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 252,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "rebalance_every",
-     "kind": "integer",
-     "required": false,
-     "description": "Periods between rebalances.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 21,
-     "has_default": true,
-     "default_json_type": "integer"
-    },
-    {
-     "name": "cost_bps",
-     "kind": "number",
-     "required": false,
-     "description": "Round-trip cost in basis points.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 10.0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "expanding",
-     "kind": "boolean",
-     "required": false,
-     "description": "Use an expanding rather than rolling window.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": false,
-     "has_default": true,
-     "default_json_type": "boolean"
-    }
-   ]
-  },
-  {
-   "fn": "pf_backtest_summary",
-   "card_id": 331,
-   "register": null,
-   "input_example": {
-    "backtest": "<raw_handle>",
-    "frequency": "daily"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "backtest",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a completed backtest.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "frequency",
-     "kind": "enum",
-     "required": false,
-     "description": "Return frequency for annualisation.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "daily",
-      "weekly",
-      "monthly"
-     ],
-     "allowed_vars": null,
-     "default": "daily",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "pf_risk_attribution",
-   "card_id": 332,
-   "register": null,
-   "input_example": {
-    "weights": "<series_handle>",
-    "returns": "<df_handle>",
-    "risk_measure": "volatility",
-    "confidence": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "weights",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Portfolio weights.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "risk_measure",
-     "kind": "enum",
-     "required": false,
-     "description": "Risk measure to decompose.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "volatility",
-      "cvar",
-      "var",
-      "mad"
-     ],
-     "allowed_vars": null,
-     "default": "volatility",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "confidence",
-     "kind": "number",
-     "required": false,
-     "description": "Tail level where the measure needs one.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "pf_factor_attribution",
-   "card_id": 332,
-   "register": null,
-   "input_example": {
-    "weights": "<series_handle>",
-    "returns": "<df_handle>",
-    "factors": "<multiseries_handle>"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "weights",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Portfolio weights.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "returns",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Asset return panel.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "factors",
-     "kind": "multiseries_handle",
-     "required": true,
-     "description": "Factor return series.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  }
- ]
+  ]
 }

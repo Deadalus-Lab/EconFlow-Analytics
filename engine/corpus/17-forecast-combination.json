@@ -1,1608 +1,1608 @@
 {
- "category": "17-forecast-combination",
- "cards": [
-  {
-   "id": 85,
-   "method": "Ensemble forecast combination (equal / in-sample / CV weights)",
-   "wrapper_file": "c17_forecast_combination/ensemble_forecast_combination.py",
-   "tool_fns": [
-    "run_hybrid"
-   ],
-   "when": "a robust combination of 2-7 univariate models (a/e/f/n/s/t/z) on ONE series; a baseline macro forecast where stability matters",
-   "when_not": "multivariate/structural analysis (VAR/VECM), causal Granger, a need for statistically exact PI, or a single dominant model; length(y)<4",
-   "alternatives": [
+  "category": "17-forecast-combination",
+  "cards": [
     {
-     "alt": "a single model (#7 automatic ARIMA/ETS, or #8)",
-     "criterion": "one model clearly dominates or you want interpretable parameters/diagnostics"
+      "id": 85,
+      "method": "Ensemble forecast combination (equal / in-sample / CV weights)",
+      "wrapper_file": "c17_forecast_combination/ensemble_forecast_combination.py",
+      "tool_fns": [
+        "run_hybrid"
+      ],
+      "when": "a robust combination of 2-7 univariate models (a/e/f/n/s/t/z) on ONE series; a baseline macro forecast where stability matters",
+      "when_not": "multivariate/structural analysis (VAR/VECM), causal Granger, a need for statistically exact PI, or a single dominant model; length(y)<4",
+      "alternatives": [
+        {
+          "alt": "a single model (#7 automatic ARIMA/ETS, or #8)",
+          "criterion": "one model clearly dominates or you want interpretable parameters/diagnostics"
+        },
+        {
+          "alt": "VAR/VECM (sections 04/05)",
+          "criterion": "there are cross-series dependencies/cointegration that the univariate combination ignores"
+        },
+        {
+          "alt": "Bayesian model averaging (section 14)",
+          "criterion": "you want a posterior-weighted combination with full uncertainty quantification"
+        }
+      ],
+      "output_key_fields": [
+        "included_models: which components ACTUALLY took part after the automatic removals",
+        "dropped_models: requested but NOT included (length removal or a drop by hybridModel) — always check it",
+        "weights_method / weights: the method + per-model weights (summing to ~1)",
+        "point_forecast: ts -> {values,start,frequency}, the central forecast",
+        "lower / upper: matrix h x length(level) -> nested rows+dim+axis labels, the PI bounds",
+        "pi_combination: 'extreme' (the more extreme bounds) or 'mean'",
+        "pi_disclaimer: an explicit statement that the PI are over-conservative"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "the PI are OVER-CONSERVATIVE: lower/upper are heuristic, with no guaranteed nominal coverage — not strict statistical bounds",
+        "silent degradation: hybridModel removes components on its own (STL/neural-net if length<2*frequency, ets if the seasonal period>24) — read dropped_models/included_models",
+        "neural-net (n) is stochastic (random initial weights): the wrapper enforces a local seed (default 42L); changing the seed changes the forecasts",
+        "in-sample errors are not recommended as weights: they overfit; equal weights are more robust, and cross-validated errors are better but slow and data-hungry",
+        "the weights reflect low error, NOT the structural correctness of the component (a purely predictive criterion)"
+      ],
+      "sources": [
+        "Bates & Granger 1969 The Combination of Forecasts",
+        "Timmermann 2006 Forecast Combinations (Handbook of Economic Forecasting)",
+        "Hyndman & Athanasopoulos, Forecasting: Principles and Practice"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "VAR/VECM (sections 04/05)",
-     "criterion": "there are cross-series dependencies/cointegration that the univariate combination ignores"
+      "id": 207,
+      "method": "Online probabilistic forecast combination via CRPS-Learning (BOA/BEWA/ML-Poly/EWA aggregation of quantile expert forecasts)",
+      "wrapper_file": "c17_forecast_combination/online_probabilistic_forecast.py",
+      "tool_fns": [
+        "crps_learning"
+      ],
+      "when": "you have >=2 experts producing PROBABILISTIC (quantile) forecasts at the SAME tau levels and you want to combine them ADAPTIVELY online (the weights are learned sequentially from the past loss), optimally under CRPS; experts = a 3D array [T x quantiles(P) x experts(K)], y = a Tx1 realized series; appropriate when the relative performance of the experts changes over time (regime shifts) and you want per-quantile weights + the out-of-sample loss against each expert",
+      "when_not": "point-only forecasts rather than quantiles -> #85; hierarchical or temporal RECONCILIATION rather than combination -> reconcile_cross_temporal / reconcile_grouped; a single expert (K<2, so there is nothing to combine); batch or offline optimal fixed weights rather than online adaptivity (outside the curated surface); you simply want to EVALUATE a density forecast rather than combine -> #94 sr_crps_sample",
+      "alternatives": [
+        {
+          "alt": "#85 run_hybrid",
+          "criterion": "point-forecast combination (not probabilistic/quantile) over a single ts"
+        },
+        {
+          "alt": "#208 reconcile_cross_temporal",
+          "criterion": "hierarchical/temporal RECONCILIATION (coherence within a hierarchy) rather than learning weights from a loss"
+        },
+        {
+          "alt": "17-forecast-combination/reconcile_grouped",
+          "criterion": "reconciliation over keyed series (#209), with MinT, WLS or OLS weights"
+        },
+        {
+          "alt": "15-model-evaluation/sr_crps_sample",
+          "criterion": "you want ONLY the evaluation of a density/quantile forecast (CRPS/LogS/PIT), not a combination"
+        }
+      ],
+      "output_key_fields": [
+        "predictions: a T x P matrix, the combined probabilistic forecast per time and quantile level (chart data; sorted when allow_quantile_crossing=False)",
+        "final_weights: a P x K matrix (the adaptive weights at the last instant T+1; the weights with which the experts will be combined in the NEXT forecast; they sum to ~1 per quantile for method boa/bewa/ewa)",
+        "mean_weights: a P x K matrix (the average weight over time per expert × quantile — which expert dominated overall)",
+        "forecaster_loss_total / forecaster_loss_mean / forecaster_loss_per_quantile: the cumulative & mean CRPS-learning loss of the COMBINATION (per quantile, of length P)",
+        "expert_loss_total: a length-K cumulative loss for EACH single expert (the baseline); best_expert = the best single one",
+        "beats_best_expert: True when forecaster_loss_total <= min(expert_loss_total) — the combination beats the best single expert out of sample, which is the reason online learning exists"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "dims: experts MUST be [T x P x K] with dim1==length(y), dim2==length(tau); the wrong axis order (e.g. [T x K x P]) passes silently and gives a WRONG result -> a hard gate checks dim2==length(tau); double-check that the 2nd dimension is quantiles (in the same order as tau)",
+        "tau must be STRICTLY increasing & must match exactly the quantile levels at which the expert forecasts were computed; a mismatch -> an invalid loss (the gate blocks values outside (0,1)/unsorted values but NOT a semantic mismatch of levels — that is the caller's responsibility)",
+        "method: 'bewa' (default) = the BOA regret + an EWA weight update; 'boa' = the full BOA (second order); 'ewa' = plain exponential weighting; 'ml_poly'; different adaptivity — 'ewa'/'ml_poly' may not give simplex weights with thresholds",
+        "beats_best_expert=False is NOT a failure: with a small T, or one dominant expert, online learning needs time to converge; look at mean_weights — is it learning the right expert? — before rejecting it",
+        "allow_quantile_crossing=False (the default) sorts the predictions per t, giving monotone quantiles; True allows crossing and hence an invalid CDF — leave it False for interpretable quantiles",
+        "smoothing (a B-spline/P-spline across quantiles) is NOT exposed (the defaults mean no smoothing); for smooth per-quantile weights you need a custom fit outside the node",
+        "predict/update (incremental on new data) are NOT exposed: a stateless node -> every call is a complete re-fit over the supplied window"
+      ],
+      "sources": [
+        "Berrisch, J. & Ziel, F. (2023) CRPS Learning, Journal of Econometrics 237(2):105221 <doi:10.1016/j.jeconom.2021.11.008>",
+        "Gaillard, P. & Goude, Y. (2015) Forecasting electricity consumption by aggregating experts (BOA/ML-Poly online aggregation)",
+        "Wintenberger, O. (2017) Optimal learning with Bernstein Online Aggregation, Machine Learning 106:119"
+      ],
+      "precondition_tools": [
+        "c02_univariate_forecasting/grouped_arima_ets.run_grouped_arima (it produces the quantile forecasts of one expert; repeat per model and stack them into a [T x P x K] array)",
+        "c02_univariate_forecasting/grouped_arima_ets.run_grouped_ets (a second expert for the array; at least two are needed)",
+        "c00_data_utilities/reading_delimited_fixed.read_delimited (load the realized y values)"
+      ],
+      "precondition_gates": null,
+      "validation_notes": null
     },
     {
-     "alt": "Bayesian model averaging (section 14)",
-     "criterion": "you want a posterior-weighted combination with full uncertainty quantification"
+      "id": 208,
+      "method": "Coherent forecast reconciliation (cross-sectional / temporal / cross-temporal) via an optimal least-squares projection (MinT: ols/str/wls/shr/sam)",
+      "wrapper_file": "c17_forecast_combination/coherent_forecast_reconciliation.py",
+      "tool_fns": [
+        "reconcile_cross_temporal"
+      ],
+      "when": "you have INCOHERENT base forecasts of a linearly constrained (hierarchical/grouped) multiple series — e.g. GDP = the sum of sectors, national = the sum of regions, or annual = the sum of quarters — and you want to make them COHERENT (the aggregates equal the sum of the components exactly) while ALSO improving accuracy through MinT (Wickramasuriya 2019). type: 'cs' a cross-sectional hierarchy, 'te' temporal (one series, several frequencies), 'ct' cross-temporal (both at once)",
+      "when_not": "a single series with no hierarchical or temporal constraint structure (there is nothing to reconcile); you want to COMBINE alternative forecasts of the SAME series, an ensemble or model average (-> #85, or the combination of #209); you do not have base forecasts for ALL the levels of the hierarchy; you want probabilistic or bootstrap reconciled paths (outside the curated surface)",
+      "alternatives": [
+        {
+          "alt": "reconcile_cross_temporal comb='shr'",
+          "criterion": "MinT shrinkage (Wickramasuriya 2019) — the normal default for accuracy when you have in-sample residuals; ols/str ignore the error covariance"
+        },
+        {
+          "alt": "reconcile_cross_temporal type='ct'",
+          "criterion": "you want simultaneous cross-sectional AND temporal coherence (e.g. quarterly regional series summing to an annual national total)"
+        },
+        {
+          "alt": "#85 run_hybrid",
+          "criterion": "you want a COMBINATION of several models for ONE series (an ensemble), not the reconciliation of a hierarchy"
+        },
+        {
+          "alt": "nn='sntz'/'osqp'",
+          "criterion": "the reconciled forecasts must be non-negative (e.g. counts, positive magnitudes)"
+        }
+      ],
+      "output_key_fields": [
+        "reconciled: the coherent forecasts — cs, an (h x n) matrix; te, a vector of length h*(k*+m) with labels; ct, an (n x h*(k*+m)) matrix (chart-data)",
+        "type/comb/approach/nn: the reconciliation that was performed",
+        "cs: n/n_upper/n_bottom/h + coherence_err (max|upper - agg_mat·bottom| ~0 => coherent, a post-check)",
+        "te/ct: agg_order/m/kt/h + tew; ct: n/n_upper/n_bottom",
+        "object: the foreco object (fitted)"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "the ORDER OF THE base COLUMNS/ROWS: cs columns = [upper.., bottom..] (the n_a upper series FIRST, then the n_b bottom ones) consistent with agg_mat; the wrong order => a silently wrong reconciliation (the wrapper checks ONLY the dimension n, not the semantic mapping)",
+        "comb DIFFERS by type: 'wlsv' is valid only for te/ct (NOT cs); 'oasd' only for cs; the wrapper blocks an invalid comb for a given type",
+        "MinT (shr/wls/sam/acov..) REQUIRES res (the in-sample residuals); without res -> a gate stop; ols/str/csstr/testr do NOT need res",
+        "temporal base ordering: LOW->HIGH frequency (the most aggregated first, e.g. annual, then semi-annual, then quarterly); the wrong order => a wrong result",
+        "a scalar agg_order m => ALL the divisors of m are used (k*+m = the sum of the divisors; m=4 -> 7, m=12 -> 28); length(base) must be a multiple of that",
+        "reconciliation is NOT an ensemble: it combines forecasts of DIFFERENT series/frequencies within one hierarchy so that they add up; it does NOT average models of the same series"
+      ],
+      "sources": [
+        "Wickramasuriya, S.L., Athanasopoulos, G. & Hyndman, R.J. (2019), Optimal forecast reconciliation through trace minimization (MinT), JASA 114(526):804-819. doi:10.1080/01621459.2018.1448825",
+        "Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. & Shang, H.L. (2011), Optimal combination forecasts for hierarchical time series, CSDA 55(9):2579-2589. doi:10.1016/j.csda.2011.03.006",
+        "Athanasopoulos, G., Hyndman, R.J., Kourentzes, N. & Petropoulos, F. (2017), Forecasting with temporal hierarchies, EJOR 262(1):60-74. doi:10.1016/j.ejor.2017.02.046",
+        "Di Fonzo, T. & Girolimetto, D. (2023), Cross-temporal forecast reconciliation: Optimal combination method and heuristic alternatives, Int. J. Forecasting 39(1):39-57. doi:10.1016/j.ijforecast.2021.08.004",
+        "Panagiotelis, A., Athanasopoulos, G., Gamakumara, P. & Hyndman, R.J. (2021), Forecast reconciliation: A geometric view, Int. J. Forecasting 37(1):343-359. doi:10.1016/j.ijforecast.2020.06.004"
+      ],
+      "precondition_tools": [
+        "c02_univariate_forecasting/grouped_arima_ets.run_grouped_arima (it produces the base forecasts per series and level; stack them into a base matrix or vector)",
+        "c02_univariate_forecasting/classical_univariate_forecasting.run_ets (an alternative producer of the base forecasts and residuals for the MinT combination)",
+        "reconcile_cross_temporal (an ols baseline first; then MinT shr/wls with res for accuracy)"
+      ],
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 209,
+      "method": "Tidy hierarchical/grouped forecast reconciliation (aggregate_key + MinT/bottom_up) in the long-format forecasting framework",
+      "wrapper_file": "c17_forecast_combination/hierarchical_grouped_reconciliation.py",
+      "tool_fns": [
+        "reconcile_grouped"
+      ],
+      "when": "you have a long panel (an index + >=1 key/grouping columns + a numeric value) that aggregates naturally into a hierarchy (e.g. region/sector -> national, or CPI sub-indices -> the headline) and you want COHERENT forecasts — the leaves must sum EXACTLY to the aggregates; one base model (ARIMA/ETS/SNAIVE) is fitted per node and reconciled with MinT (min_trace) or bottom_up",
+      "when_not": "a single univariate series with no hierarchy (-> #85, or a standalone ARIMA); you want an online adaptive combination of experts (-> #207); purely cross-temporal reconciliation of numeric matrices with no keyed table (-> #208); a value with a gap, or an irregular index; structural or causal analysis (VAR/VECM)",
+      "alternatives": [
+        {
+          "alt": "17-forecast-combination/csrec",
+          "criterion": "you want cross-sectional, temporal or cross-temporal reconciliation of READY base forecasts as numeric matrices, not a keyed-table round trip"
+        },
+        {
+          "alt": "17-forecast-combination/run_hybrid",
+          "criterion": "ONE series without a hierarchy — you want an ensemble of several models rather than a coherent hierarchy"
+        },
+        {
+          "alt": "#8 run_grouped_arima (category 02)",
+          "criterion": "a single node / no need for coherence — a plain ARIMA/ETS fit + forecast"
+        },
+        {
+          "alt": "14-bayesian toolkit (BMA)",
+          "criterion": "you want a posterior-weighted combination with full uncertainty quantification rather than a MinT projection"
+        }
+      ],
+      "output_key_fields": [
+        "reconciled: data_frame records (the key columns + index + point + lower_L/upper_L per level) — the COHERENT forecast (chart-data); aggregated nodes are labelled '<aggregated>'",
+        "base: the corresponding records of the UNRECONCILED base forecasts (to compare the effect of the reconciliation)",
+        "hierarchy: a data_frame of the hierarchy nodes (each row = a key combination; '<aggregated>' = an aggregated level); n_series (leaves+aggregates); n_leaf",
+        "method / reconciliation: the selected method (min_trace(<method>) or bottom_up); structure (nested/grouped); base_model",
+        "object: the reconciled model table — stubbed by to_mcp, since nothing downstream in the category consumes it"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "coherence != accuracy: reconciliation GUARANTEES that the leaves sum to the aggregates, NOT that every node becomes more accurate — MinT (min_trace) typically improves matters, but bottom_up can worsen the top level if the leaves are noisy",
+        "choosing the MinT method: 'wls_struct' (default) = structural scaling, always robust; 'mint_shrink' (Wickramasuriya 2019) = shrinkage towards a diagonal, theoretically optimal but it NEEDS enough residuals — with short/few series it can be unstable; 'ols' ignores scale",
+        "'<aggregated>' in the key fields = an aggregated level (is_aggregated), NOT a category literally named '<aggregated>' — do not read it as a leaf",
+        "nested (grp1/grp2) vs grouped (grp1*grp2): nested => a genuine hierarchy (a region within a state); grouped => crossed without natural nesting (e.g. purpose x state) — the wrong choice changes which nodes exist",
+        "the PI come from the reconciled predictive distribution (hilo) — valid intervals per node, but the joint coherence concerns the points (the means), it does not guarantee joint coverage of the intervals",
+        "the value must aggregate meaningfully (a flow/stock): the coherence constraint is the sum of the leaves = the aggregate; ratios/percentages/index levels do NOT add up -> do not use them as the value"
+      ],
+      "sources": [
+        "Wickramasuriya, Athanasopoulos & Hyndman 2019 JASA 114(526) (optimal forecast reconciliation through trace minimization)",
+        "Wickramasuriya, Athanasopoulos & Hyndman (2019) Optimal forecast reconciliation for hierarchical and grouped time series through trace minimization, JASA 114(526):804",
+        "Hyndman & Athanasopoulos, Forecasting: Principles and Practice (3rd ed.), ch. 11 Forecasting hierarchical and grouped series (https://otexts.com/fpp3/hierarchical.html)",
+        "Hyndman, Ahmed, Athanasopoulos & Shang (2011) Optimal combination forecasts for hierarchical time series, CSDA 55:2579"
+      ],
+      "precondition_tools": [
+        "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the long-format panel CSV)",
+        "reconcile_grouped (run it with method='bottom_up' as a coherence baseline before comparing with MinT)",
+        "c02_univariate_forecasting/grouped_arima_ets.run_grouped_arima (checking the base model on a single node before the hierarchy)"
+      ],
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 530,
+      "method": "Bates-Granger inverse-MSE and Granger-Ramanathan weights",
+      "wrapper_file": "c17_forecast_combination/combination_weights.py",
+      "tool_fns": [
+        "fc_combination_weights"
+      ],
+      "when": "several forecasts exist and combining them almost always beats selecting one",
+      "when_not": "one forecast dominates on every fold; the weight-estimation sample is too short and equal weights will do better",
+      "alternatives": [
+        {
+          "alt": "equal weights",
+          "criterion": "the forecast combination puzzle: hard to beat"
+        },
+        {
+          "alt": "inverse-MSE weights",
+          "criterion": "weight by past accuracy, no estimation of covariances"
+        },
+        {
+          "alt": "Granger-Ramanathan regression weights",
+          "criterion": "estimated weights, optionally constrained"
+        }
+      ],
+      "output_key_fields": [
+        "weights: the combination weights",
+        "combined: the combined forecast",
+        "improvement: accuracy against the best individual and against equal weights",
+        "method: which weighting produced them"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "THE FORECAST COMBINATION PUZZLE IS REAL: equal weights frequently beat estimated optimal weights out of sample, because estimating weights adds more variance than it removes bias",
+        "unconstrained regression weights can be negative or exceed one, which is legitimate but fragile; constraining them usually improves out-of-sample performance",
+        "weights estimated on the same data used to evaluate the combination overstate its benefit"
+      ],
+      "sources": [
+        "Bates & Granger 1969 (Operational Research Quarterly 20:451-468)",
+        "Granger & Ramanathan 1984 (Journal of Forecasting 3:197)",
+        "Smith & Wallis 2009 (Oxford Bulletin of Economics and Statistics 71:331)",
+        "statsmodels"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 531,
+      "method": "Density combination: linear and logarithmic opinion pools",
+      "wrapper_file": "c17_forecast_combination/density_combination.py",
+      "tool_fns": [
+        "fc_density_combination",
+        "fc_score_driven_weights"
+      ],
+      "when": "combining predictive DISTRIBUTIONS rather than points, where the pooling rule changes the shape of the answer",
+      "when_not": "the forecasts are points; the component densities are not on a common support",
+      "alternatives": [
+        {
+          "alt": "linear pool",
+          "criterion": "a mixture: can be multimodal and is wider than its components"
+        },
+        {
+          "alt": "logarithmic pool",
+          "criterion": "a geometric mean: unimodal and narrower"
+        },
+        {
+          "alt": "score-driven weights",
+          "criterion": "weights update on predictive performance"
+        }
+      ],
+      "output_key_fields": [
+        "combined_density: the pooled predictive distribution",
+        "weights: the pooling weights",
+        "pool_type: linear or logarithmic, which determines the shape",
+        "log_score: of the pool against its components"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "A LINEAR POOL IS ALWAYS AT LEAST AS DISPERSED AS ITS COMPONENTS and can be multimodal; a logarithmic pool is narrower and unimodal -- the choice is substantive, not technical",
+        "linear pools are typically underconfident, which is why they are often recalibrated afterwards",
+        "weights based on the log score are dominated by the component that avoided the worst outcome, not the one that was best on average"
+      ],
+      "sources": [
+        "Hall & Mitchell 2007 (International Journal of Forecasting 23:1-13)",
+        "Geweke & Amisano 2011 (International Journal of Forecasting 27:465)",
+        "Genest & Zidek 1986 (Statistical Science 1:114)",
+        "DOI 10.1016/j.jeconom.2011.02.017"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 532,
+      "method": "Dynamic model averaging and dynamic model selection",
+      "wrapper_file": "c17_forecast_combination/dynamic_model_averaging.py",
+      "tool_fns": [
+        "fc_dynamic_model_averaging"
+      ],
+      "when": "which model is best changes over time, and the combination should track that instead of averaging over the whole sample",
+      "when_not": "the best model is stable; the model space is too large for the recursion to be feasible",
+      "alternatives": [
+        {
+          "alt": "static combination",
+          "criterion": "the ranking is stable"
+        },
+        {
+          "alt": "dynamic model averaging",
+          "criterion": "weights evolve with performance"
+        },
+        {
+          "alt": "dynamic model selection",
+          "criterion": "you want the single best model at each date"
+        }
+      ],
+      "output_key_fields": [
+        "weights: the time path of model probabilities",
+        "combined: the averaged forecast",
+        "selected: the highest-probability model at each date",
+        "forgetting: the forgetting factors used"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "THE FORGETTING FACTORS CONTROL EVERYTHING: close to one gives a nearly static average, lower values chase noise -- and the results move a great deal between them",
+        "the model space grows exponentially in the number of predictors, so the approach is feasible only with a restricted set",
+        "dynamic model selection is far more volatile than averaging and frequently forecasts worse despite picking the best model ex post"
+      ],
+      "sources": [
+        "Raftery, Karny & Ettler 2010 (Technometrics 52:52-66)",
+        "Koop & Korobilis 2012 (International Economic Review 53:867)",
+        "DOI 10.1198/tech.2009.08104"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 533,
+      "method": "Stacked generalisation of forecasters",
+      "wrapper_file": "c17_forecast_combination/forecast_stacking.py",
+      "tool_fns": [
+        "fc_stacking"
+      ],
+      "when": "learning how to combine forecasts from their cross-validated errors, rather than from a fixed rule",
+      "when_not": "the cross-validation folds are too few for the meta-learner to be estimated; the components are near-identical",
+      "alternatives": [
+        {
+          "alt": "simple weighted average",
+          "criterion": "few components, stable"
+        },
+        {
+          "alt": "stacking with a linear meta-learner",
+          "criterion": "you want learned weights with some structure"
+        },
+        {
+          "alt": "stacking with a nonlinear meta-learner",
+          "criterion": "the best combination depends on the state"
+        }
+      ],
+      "output_key_fields": [
+        "meta_model: the fitted combination rule",
+        "weights: implied component weights, where the meta-learner is linear",
+        "cv_predictions: the out-of-fold predictions the meta-learner was trained on",
+        "improvement: against equal weights and the best component"
+      ],
+      "chart_kind": "table",
+      "interpretation_traps": [
+        "THE META-LEARNER MUST BE TRAINED ON OUT-OF-FOLD PREDICTIONS; training it on in-sample fits leaks and produces weights that collapse onto the most overfitted component",
+        "the folds must respect time order for time-series data, or the combination learns from the future",
+        "a nonlinear meta-learner needs far more folds than a linear one and usually overfits with typical macro sample sizes"
+      ],
+      "sources": [
+        "Wolpert 1992 (Neural Networks 5:241-259)",
+        "Breiman 1996 (Machine Learning 24:49)",
+        "sktime"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
+    },
+    {
+      "id": 534,
+      "method": "Temporal-hierarchy combination: MAPA and THieF",
+      "wrapper_file": "c17_forecast_combination/temporal_hierarchy.py",
+      "tool_fns": [
+        "fc_temporal_hierarchy"
+      ],
+      "when": "forecasts made at different frequencies for the same series disagree, and reconciling across the temporal hierarchy improves all of them",
+      "when_not": "there is a single frequency; the series cannot be aggregated to higher levels meaningfully",
+      "alternatives": [
+        {
+          "alt": "single-frequency forecast",
+          "criterion": "one frequency only"
+        },
+        {
+          "alt": "MAPA",
+          "criterion": "aggregate, forecast and combine"
+        },
+        {
+          "alt": "THieF",
+          "criterion": "full temporal-hierarchy reconciliation"
+        }
+      ],
+      "output_key_fields": [
+        "reconciled: forecasts coherent across every aggregation level",
+        "levels: the temporal aggregation levels used",
+        "weights: the reconciliation weights",
+        "improvement: accuracy per level against unreconciled forecasts"
+      ],
+      "chart_kind": "multi-line",
+      "interpretation_traps": [
+        "TEMPORAL AGGREGATION CHANGES THE APPARENT DYNAMICS: a series can look noisy monthly and strongly trending annually, which is exactly the information this method exploits",
+        "reconciliation guarantees coherence, not accuracy -- forecasts can be made coherent and worse if the covariance is badly estimated",
+        "the aggregation levels must divide the seasonal period evenly or the hierarchy is not well defined"
+      ],
+      "sources": [
+        "Athanasopoulos, Hyndman, Kourentzes & Petropoulos 2017 (European Journal of Operational Research 262:60-74)",
+        "Kourentzes, Petropoulos & Trapero 2014 (International Journal of Forecasting 30:291)",
+        "hierarchicalforecast"
+      ],
+      "precondition_tools": null,
+      "precondition_gates": null,
+      "validation_notes": null
     }
-   ],
-   "output_key_fields": [
-    "included_models: which components ACTUALLY took part after the automatic removals",
-    "dropped_models: requested but NOT included (length removal or a drop by hybridModel) — always check it",
-    "weights_method / weights: the method + per-model weights (summing to ~1)",
-    "point_forecast: ts -> {values,start,frequency}, the central forecast",
-    "lower / upper: matrix h x length(level) -> nested rows+dim+axis labels, the PI bounds",
-    "pi_combination: 'extreme' (the more extreme bounds) or 'mean'",
-    "pi_disclaimer: an explicit statement that the PI are over-conservative"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "the PI are OVER-CONSERVATIVE: lower/upper are heuristic, with no guaranteed nominal coverage — not strict statistical bounds",
-    "silent degradation: hybridModel removes components on its own (STL/neural-net if length<2*frequency, ets if the seasonal period>24) — read dropped_models/included_models",
-    "neural-net (n) is stochastic (random initial weights): the wrapper enforces a local seed (default 42L); changing the seed changes the forecasts",
-    "in-sample errors are not recommended as weights: they overfit; equal weights are more robust, and cross-validated errors are better but slow and data-hungry",
-    "the weights reflect low error, NOT the structural correctness of the component (a purely predictive criterion)"
-   ],
-   "sources": [
-    "Bates & Granger 1969 The Combination of Forecasts",
-    "Timmermann 2006 Forecast Combinations (Handbook of Economic Forecasting)",
-    "Hyndman & Athanasopoulos, Forecasting: Principles and Practice"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 207,
-   "method": "Online probabilistic forecast combination via CRPS-Learning (BOA/BEWA/ML-Poly/EWA aggregation of quantile expert forecasts)",
-   "wrapper_file": "c17_forecast_combination/online_probabilistic_forecast.py",
-   "tool_fns": [
-    "crps_learning"
-   ],
-   "when": "you have >=2 experts producing PROBABILISTIC (quantile) forecasts at the SAME tau levels and you want to combine them ADAPTIVELY online (the weights are learned sequentially from the past loss), optimally under CRPS; experts = a 3D array [T x quantiles(P) x experts(K)], y = a Tx1 realized series; appropriate when the relative performance of the experts changes over time (regime shifts) and you want per-quantile weights + the out-of-sample loss against each expert",
-   "when_not": "point-only forecasts rather than quantiles -> #85; hierarchical or temporal RECONCILIATION rather than combination -> reconcile_cross_temporal / reconcile_grouped; a single expert (K<2, so there is nothing to combine); batch or offline optimal fixed weights rather than online adaptivity (outside the curated surface); you simply want to EVALUATE a density forecast rather than combine -> #94 sr_crps_sample",
-   "alternatives": [
+  ],
+  "nodes": [
     {
-     "alt": "#85 run_hybrid",
-     "criterion": "point-forecast combination (not probabilistic/quantile) over a single ts"
+      "fn": "reconcile_grouped",
+      "card_id": 209,
+      "register": null,
+      "input_example": {
+        "data": "<df_handle>",
+        "index": "...",
+        "keys": [
+          "PROVIDER/DATASET/SERIES"
+        ],
+        "value": "...",
+        "h": 8
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "data",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Handle to a long-format DataFrame (index column + >=1 key columns + numeric value column).",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "index",
+          "kind": "string",
+          "required": true,
+          "description": "Time column name (valid series index: Date/yearmonth/yearquarter/numeric).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "keys",
+          "kind": "series_codes",
+          "required": true,
+          "description": "Key/grouping column names (>=1; they define the hierarchy's nodes); grouped requires >=2.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "value",
+          "kind": "string",
+          "required": true,
+          "description": "Measured numeric column name (without NA; summed into the aggregates).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "structure",
+          "kind": "enum",
+          "required": false,
+          "description": "Structure: nested (grp1/grp2 hierarchy) or grouped (grp1*grp2 crossed; default nested).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "nested",
+            "grouped"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "base_model",
+          "kind": "enum",
+          "required": false,
+          "description": "Base model per node (ARIMA/ETS/SNAIVE; default arima).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "arima",
+            "ets",
+            "snaive"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Reconciliation: min_trace(method) MinT variants or bottom_up (default wls_struct — robust structural MinT).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "wls_struct",
+            "ols",
+            "wls_var",
+            "mint_shrink",
+            "mint_cov",
+            "bottom_up"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "h",
+          "kind": "integer",
+          "required": false,
+          "description": "Forecast horizon (positive integer; default 8).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 8,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
     },
     {
-     "alt": "#208 reconcile_cross_temporal",
-     "criterion": "hierarchical/temporal RECONCILIATION (coherence within a hierarchy) rather than learning weights from a loss"
+      "fn": "reconcile_cross_temporal",
+      "card_id": 208,
+      "register": null,
+      "input_example": {
+        "type": "cs",
+        "base": "<matrix_handle>",
+        "comb": "ols"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "type",
+          "kind": "enum",
+          "required": true,
+          "description": "Reconciliation framework: 'cs' cross-sectional (csrec; agg_mat), 'te' temporal (terec; agg_order), 'ct' cross-temporal (ctrec; agg_mat+agg_order).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "cs",
+            "te",
+            "ct"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "base",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to the base forecasts. cs: (h x n) matrix, columns [upper..., bottom...] (n=n_a+n_b). te: (h*(k*+m)) vector lowest->highest freq. ct: (n x h*(k*+m)) matrix.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "agg_mat",
+          "kind": "matrix_handle",
+          "required": false,
+          "description": "Handle to the (n_a x n_b) aggregation matrix (map bottom->upper). Required for type='cs' and 'ct'.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "agg_order",
+          "kind": "int_array",
+          "required": false,
+          "description": "Max temporal aggregation m (e.g. 4 quarterly->annual, 12 monthly) or a vector of factors of m. Required for 'te'/'ct'.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "comb",
+          "kind": "string",
+          "required": false,
+          "description": "Covariance/MinT method (closed set PER type). cs: ols/str/wls/shr/oasd/sam. te: ols/str/wlsh/wlsv/acov/strar1/sar1/har1/shr/sam. ct: ols/str/csstr/testr/wlsh/wlsv/acov/bdshr/bdsam/Sshr/Ssam/shr/sam/hbshr/hbsam/bshr/bsam/hshr/hsam. WLS/GLS/MinT require 'res'. Default 'ols'.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": "ols",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "tew",
+          "kind": "enum",
+          "required": false,
+          "description": "Type of temporal aggregation (te/ct): sum/avg/first/last (default sum).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "sum",
+            "avg",
+            "first",
+            "last"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "approach",
+          "kind": "enum",
+          "required": false,
+          "description": "Approach: proj(ection)/strc(structural)/*_osqp (default proj).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "proj",
+            "strc",
+            "proj_osqp",
+            "strc_osqp"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "res",
+          "kind": "matrix_handle",
+          "required": false,
+          "description": "Handle to in-sample residuals/validation errors (required for WLS/GLS/MinT comb). cs: (N x n) matrix. te: (N*(k*+m)) vector. ct: (n x N*(k*+m)) matrix.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "nn",
+          "kind": "enum",
+          "required": false,
+          "description": "Non-negativity algorithm for reconciled forecasts (default 'none').",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "none",
+            "osqp",
+            "sntz",
+            "bpv",
+            "nfca",
+            "nnic"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
     },
     {
-     "alt": "17-forecast-combination/reconcile_grouped",
-     "criterion": "reconciliation over keyed series (#209), with MinT, WLS or OLS weights"
+      "fn": "crps_learning",
+      "card_id": 207,
+      "register": null,
+      "input_example": {
+        "y": "<matrix_handle>",
+        "experts": "<raw_handle>",
+        "tau": [
+          0.5,
+          0.5
+        ],
+        "loss_parameter": 1,
+        "loss_gradient": true,
+        "lead_time": 0,
+        "forget_regret": 0,
+        "fixed_share": 0,
+        "gamma": 1,
+        "soft_threshold": null,
+        "hard_threshold": null,
+        "allow_quantile_crossing": false,
+        "seed": 2025
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Handle to a Tx1 matrix of realized values (probabilistic setting); without NA.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "experts",
+          "kind": "raw_handle",
+          "required": true,
+          "description": "Handle to a numeric 3D array [T x quantiles(P) x experts(K)]: experts[t,,k] = quantile forecasts of expert k at the tau levels; dim1==length(y), dim2==length(tau), K>=2, without NA.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "tau",
+          "kind": "num_array",
+          "required": true,
+          "description": "Probability levels in (0,1); STRICTLY increasing/unique; length P == dim(experts)[2].",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Online-learning algorithm (default bewa· boa=full BOA, ewa=exp. weighting, ml_poly=ML-Poly).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "bewa",
+            "boa",
+            "ml_poly",
+            "ewa"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "loss_function",
+          "kind": "enum",
+          "required": false,
+          "description": "Loss (default quantile = pinball/CRPS scoring).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "quantile",
+            "expectile",
+            "percentage"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "loss_parameter",
+          "kind": "number",
+          "required": false,
+          "description": "Scaling of the loss power (> 0; default 1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "loss_gradient",
+          "kind": "boolean",
+          "required": false,
+          "description": "Linearized (gradient) version of the loss (default True).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "lead_time",
+          "kind": "integer",
+          "required": false,
+          "description": "Offset of expert forecasts (0 = t+1 at t); integer 0<=·<T.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "forget_regret",
+          "kind": "number",
+          "required": false,
+          "description": "Share of past regret to forget per iteration; in [0,1] (default 0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "fixed_share",
+          "kind": "number",
+          "required": false,
+          "description": "Fixed share added to the weights; in [0,1] (1 => uniform; default 0).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "gamma",
+          "kind": "number",
+          "required": false,
+          "description": "Scaling of the learning rate (> 0; default 1).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 1,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "soft_threshold",
+          "kind": "number",
+          "required": false,
+          "description": "Soft-threshold on the weights (default -Inf = none).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "hard_threshold",
+          "kind": "number",
+          "required": false,
+          "description": "Hard-threshold on the weights (default -Inf = none).",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "allow_quantile_crossing",
+          "kind": "boolean",
+          "required": false,
+          "description": "False => the forecasts are sorted ascending per t (default False).",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": false,
+          "has_default": true,
+          "default_json_type": "boolean"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed (integer >=0) — determinism of any grid sampling.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 2025,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
     },
     {
-     "alt": "15-model-evaluation/sr_crps_sample",
-     "criterion": "you want ONLY the evaluation of a density/quantile forecast (CRPS/LogS/PIT), not a combination"
+      "fn": "run_hybrid",
+      "card_id": 85,
+      "register": null,
+      "input_example": {
+        "y": "<series_handle>",
+        "models": "aefnst",
+        "windowSize": 84,
+        "seed": 42
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Handle to a univariate ts/numeric series to forecast.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "models",
+          "kind": "string",
+          "required": false,
+          "description": "String of component-model letters (>=2 distinct): a=auto-ARIMA e=ETS f=theta n=neural-net s=STL t=TBATS z=seasonal-naive (default 'aefnst').",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": "aefnst",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "weights",
+          "kind": "enum",
+          "required": false,
+          "description": "Combination weighting method (default equal).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "equal",
+            "insample.errors",
+            "cv.errors"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "errorMethod",
+          "kind": "enum",
+          "required": false,
+          "description": "Error metric for the weights (when weights != equal; default RMSE).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "RMSE",
+            "MAE",
+            "MASE"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "h",
+          "kind": "integer",
+          "required": false,
+          "description": "Forecast horizon (positive integer); default 2*frequency if seasonal, otherwise 10.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "PI_combination",
+          "kind": "enum",
+          "required": false,
+          "description": "How the components' prediction intervals are combined (default extreme; the PI are OVER-CONSERVATIVE, non-nominal coverage).",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "extreme",
+            "mean"
+          ],
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "cvHorizon",
+          "kind": "integer",
+          "required": false,
+          "description": "CV horizon (only weights='cv.errors'; default frequency(y)).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "windowSize",
+          "kind": "integer",
+          "required": false,
+          "description": "CV window length (only weights='cv.errors'; default 84).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 84,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "seed",
+          "kind": "integer",
+          "required": false,
+          "description": "Seed for DETERMINISM (neural-net's 'n' is stochastic; default 42).",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 42,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "fc_combination_weights",
+      "card_id": 530,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "forecasts": "<df_handle>",
+        "method": "inverse_mse",
+        "constrain": true
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "weights",
+          "combined",
+          "improvement",
+          "method"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecasts",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Forecasts, one column per method.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "method",
+          "kind": "enum",
+          "required": false,
+          "description": "Weighting method.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "equal",
+            "inverse_mse",
+            "granger_ramanathan",
+            "constrained_ls",
+            "trimmed_mean"
+          ],
+          "allowed_vars": null,
+          "default": "inverse_mse",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "window",
+          "kind": "integer",
+          "required": false,
+          "description": "Rolling window for the weights; omitted = expanding.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "constrain",
+          "kind": "boolean",
+          "required": false,
+          "description": "Constrain weights to be non-negative and sum to one.",
+          "pointer_handle": false,
+          "json_type": "boolean",
+          "enum": null,
+          "allowed_vars": null,
+          "default": true,
+          "has_default": true,
+          "default_json_type": "boolean"
+        }
+      ]
+    },
+    {
+      "fn": "fc_density_combination",
+      "card_id": 531,
+      "register": null,
+      "input_example": {
+        "densities": "<matrix_handle>",
+        "pool": "linear"
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "densities",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Predictive densities or samples, one per component.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "weights",
+          "kind": "num_array",
+          "required": false,
+          "description": "Component weights; omitted = equal.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "pool",
+          "kind": "enum",
+          "required": false,
+          "description": "Pooling rule.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "linear",
+            "logarithmic",
+            "beta_transformed"
+          ],
+          "allowed_vars": null,
+          "default": "linear",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "grid",
+          "kind": "num_array",
+          "required": false,
+          "description": "Evaluation grid.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        }
+      ]
+    },
+    {
+      "fn": "fc_score_driven_weights",
+      "card_id": 531,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "densities": "<matrix_handle>",
+        "forgetting": 0.95
+      },
+      "output_keys": {
+        "status": "undeclared",
+        "keys": null
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "densities",
+          "kind": "matrix_handle",
+          "required": true,
+          "description": "Component predictive densities over time.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forgetting",
+          "kind": "number",
+          "required": false,
+          "description": "Forgetting factor on past scores.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        }
+      ]
+    },
+    {
+      "fn": "fc_dynamic_model_averaging",
+      "card_id": 532,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "forecasts": "<df_handle>",
+        "forgetting_weights": 0.99,
+        "forgetting_variance": 0.95,
+        "mode": "averaging"
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "weights",
+          "combined",
+          "selected",
+          "forgetting"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecasts",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Forecasts, one column per model.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forgetting_weights",
+          "kind": "number",
+          "required": false,
+          "description": "Forgetting factor on model probabilities.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.99,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "forgetting_variance",
+          "kind": "number",
+          "required": false,
+          "description": "Forgetting factor on the variance.",
+          "pointer_handle": false,
+          "json_type": "number",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 0.95,
+          "has_default": true,
+          "default_json_type": "number"
+        },
+        {
+          "name": "mode",
+          "kind": "enum",
+          "required": false,
+          "description": "Averaging or selection.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "averaging",
+            "selection"
+          ],
+          "allowed_vars": null,
+          "default": "averaging",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
+    },
+    {
+      "fn": "fc_stacking",
+      "card_id": 533,
+      "register": null,
+      "input_example": {
+        "actual": "<series_handle>",
+        "forecasts": "<df_handle>",
+        "meta_learner": "constrained_ls",
+        "n_folds": 5
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "meta_model",
+          "weights",
+          "cv_predictions",
+          "improvement"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "actual",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Realised values.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "forecasts",
+          "kind": "df_handle",
+          "required": true,
+          "description": "Forecasts, one column per component.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "meta_learner",
+          "kind": "enum",
+          "required": false,
+          "description": "Meta-learner.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "linear",
+            "ridge",
+            "constrained_ls",
+            "gradient_boosting"
+          ],
+          "allowed_vars": null,
+          "default": "constrained_ls",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "n_folds",
+          "kind": "integer",
+          "required": false,
+          "description": "Time-series cross-validation folds.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": 5,
+          "has_default": true,
+          "default_json_type": "integer"
+        }
+      ]
+    },
+    {
+      "fn": "fc_temporal_hierarchy",
+      "card_id": 534,
+      "register": null,
+      "input_example": {
+        "y": "<series_handle>",
+        "h": 1,
+        "base_model": "auto_ets",
+        "reconciliation": "wls_struct"
+      },
+      "output_keys": {
+        "status": "declared",
+        "keys": [
+          "reconciled",
+          "levels",
+          "weights",
+          "improvement"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "y",
+          "kind": "series_handle",
+          "required": true,
+          "description": "Series at the highest frequency.",
+          "pointer_handle": true,
+          "json_type": "string",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "h",
+          "kind": "integer",
+          "required": true,
+          "description": "Forecast horizon at the base frequency.",
+          "pointer_handle": false,
+          "json_type": "integer",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "levels",
+          "kind": "int_array",
+          "required": false,
+          "description": "Aggregation levels; omitted = divisors of the season.",
+          "pointer_handle": false,
+          "json_type": "array",
+          "enum": null,
+          "allowed_vars": null,
+          "default": null,
+          "has_default": false,
+          "default_json_type": null
+        },
+        {
+          "name": "base_model",
+          "kind": "enum",
+          "required": false,
+          "description": "Model fitted at each level.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "auto_arima",
+            "auto_ets",
+            "theta",
+            "naive"
+          ],
+          "allowed_vars": null,
+          "default": "auto_ets",
+          "has_default": true,
+          "default_json_type": "string"
+        },
+        {
+          "name": "reconciliation",
+          "kind": "enum",
+          "required": false,
+          "description": "Reconciliation method.",
+          "pointer_handle": false,
+          "json_type": "string",
+          "enum": [
+            "ols",
+            "wls_struct",
+            "wls_var",
+            "mint_shrink"
+          ],
+          "allowed_vars": null,
+          "default": "wls_struct",
+          "has_default": true,
+          "default_json_type": "string"
+        }
+      ]
     }
-   ],
-   "output_key_fields": [
-    "predictions: a T x P matrix, the combined probabilistic forecast per time and quantile level (chart data; sorted when allow_quantile_crossing=False)",
-    "final_weights: a P x K matrix (the adaptive weights at the last instant T+1; the weights with which the experts will be combined in the NEXT forecast; they sum to ~1 per quantile for method boa/bewa/ewa)",
-    "mean_weights: a P x K matrix (the average weight over time per expert × quantile — which expert dominated overall)",
-    "forecaster_loss_total / forecaster_loss_mean / forecaster_loss_per_quantile: the cumulative & mean CRPS-learning loss of the COMBINATION (per quantile, of length P)",
-    "expert_loss_total: a length-K cumulative loss for EACH single expert (the baseline); best_expert = the best single one",
-    "beats_best_expert: True when forecaster_loss_total <= min(expert_loss_total) — the combination beats the best single expert out of sample, which is the reason online learning exists"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "dims: experts MUST be [T x P x K] with dim1==length(y), dim2==length(tau); the wrong axis order (e.g. [T x K x P]) passes silently and gives a WRONG result -> a hard gate checks dim2==length(tau); double-check that the 2nd dimension is quantiles (in the same order as tau)",
-    "tau must be STRICTLY increasing & must match exactly the quantile levels at which the expert forecasts were computed; a mismatch -> an invalid loss (the gate blocks values outside (0,1)/unsorted values but NOT a semantic mismatch of levels — that is the caller's responsibility)",
-    "method: 'bewa' (default) = the BOA regret + an EWA weight update; 'boa' = the full BOA (second order); 'ewa' = plain exponential weighting; 'ml_poly'; different adaptivity — 'ewa'/'ml_poly' may not give simplex weights with thresholds",
-    "beats_best_expert=False is NOT a failure: with a small T, or one dominant expert, online learning needs time to converge; look at mean_weights — is it learning the right expert? — before rejecting it",
-    "allow_quantile_crossing=False (the default) sorts the predictions per t, giving monotone quantiles; True allows crossing and hence an invalid CDF — leave it False for interpretable quantiles",
-    "smoothing (a B-spline/P-spline across quantiles) is NOT exposed (the defaults mean no smoothing); for smooth per-quantile weights you need a custom fit outside the node",
-    "predict/update (incremental on new data) are NOT exposed: a stateless node -> every call is a complete re-fit over the supplied window"
-   ],
-   "sources": [
-    "Berrisch, J. & Ziel, F. (2023) CRPS Learning, Journal of Econometrics 237(2):105221 <doi:10.1016/j.jeconom.2021.11.008>",
-    "Gaillard, P. & Goude, Y. (2015) Forecasting electricity consumption by aggregating experts (BOA/ML-Poly online aggregation)",
-    "Wintenberger, O. (2017) Optimal learning with Bernstein Online Aggregation, Machine Learning 106:119"
-   ],
-   "precondition_tools": [
-    "c02_univariate_forecasting/grouped_arima_ets.run_grouped_arima (it produces the quantile forecasts of one expert; repeat per model and stack them into a [T x P x K] array)",
-    "c02_univariate_forecasting/grouped_arima_ets.run_grouped_ets (a second expert for the array; at least two are needed)",
-    "c00_data_utilities/reading_delimited_fixed.read_delimited (load the realized y values)"
-   ],
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 208,
-   "method": "Coherent forecast reconciliation (cross-sectional / temporal / cross-temporal) via an optimal least-squares projection (MinT: ols/str/wls/shr/sam)",
-   "wrapper_file": "c17_forecast_combination/coherent_forecast_reconciliation.py",
-   "tool_fns": [
-    "reconcile_cross_temporal"
-   ],
-   "when": "you have INCOHERENT base forecasts of a linearly constrained (hierarchical/grouped) multiple series — e.g. GDP = the sum of sectors, national = the sum of regions, or annual = the sum of quarters — and you want to make them COHERENT (the aggregates equal the sum of the components exactly) while ALSO improving accuracy through MinT (Wickramasuriya 2019). type: 'cs' a cross-sectional hierarchy, 'te' temporal (one series, several frequencies), 'ct' cross-temporal (both at once)",
-   "when_not": "a single series with no hierarchical or temporal constraint structure (there is nothing to reconcile); you want to COMBINE alternative forecasts of the SAME series, an ensemble or model average (-> #85, or the combination of #209); you do not have base forecasts for ALL the levels of the hierarchy; you want probabilistic or bootstrap reconciled paths (outside the curated surface)",
-   "alternatives": [
-    {
-     "alt": "reconcile_cross_temporal comb='shr'",
-     "criterion": "MinT shrinkage (Wickramasuriya 2019) — the normal default for accuracy when you have in-sample residuals; ols/str ignore the error covariance"
-    },
-    {
-     "alt": "reconcile_cross_temporal type='ct'",
-     "criterion": "you want simultaneous cross-sectional AND temporal coherence (e.g. quarterly regional series summing to an annual national total)"
-    },
-    {
-     "alt": "#85 run_hybrid",
-     "criterion": "you want a COMBINATION of several models for ONE series (an ensemble), not the reconciliation of a hierarchy"
-    },
-    {
-     "alt": "nn='sntz'/'osqp'",
-     "criterion": "the reconciled forecasts must be non-negative (e.g. counts, positive magnitudes)"
-    }
-   ],
-   "output_key_fields": [
-    "reconciled: the coherent forecasts — cs, an (h x n) matrix; te, a vector of length h*(k*+m) with labels; ct, an (n x h*(k*+m)) matrix (chart-data)",
-    "type/comb/approach/nn: the reconciliation that was performed",
-    "cs: n/n_upper/n_bottom/h + coherence_err (max|upper - agg_mat·bottom| ~0 => coherent, a post-check)",
-    "te/ct: agg_order/m/kt/h + tew; ct: n/n_upper/n_bottom",
-    "object: the foreco object (fitted)"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "the ORDER OF THE base COLUMNS/ROWS: cs columns = [upper.., bottom..] (the n_a upper series FIRST, then the n_b bottom ones) consistent with agg_mat; the wrong order => a silently wrong reconciliation (the wrapper checks ONLY the dimension n, not the semantic mapping)",
-    "comb DIFFERS by type: 'wlsv' is valid only for te/ct (NOT cs); 'oasd' only for cs; the wrapper blocks an invalid comb for a given type",
-    "MinT (shr/wls/sam/acov..) REQUIRES res (the in-sample residuals); without res -> a gate stop; ols/str/csstr/testr do NOT need res",
-    "temporal base ordering: LOW->HIGH frequency (the most aggregated first, e.g. annual, then semi-annual, then quarterly); the wrong order => a wrong result",
-    "a scalar agg_order m => ALL the divisors of m are used (k*+m = the sum of the divisors; m=4 -> 7, m=12 -> 28); length(base) must be a multiple of that",
-    "reconciliation is NOT an ensemble: it combines forecasts of DIFFERENT series/frequencies within one hierarchy so that they add up; it does NOT average models of the same series"
-   ],
-   "sources": [
-    "Wickramasuriya, S.L., Athanasopoulos, G. & Hyndman, R.J. (2019), Optimal forecast reconciliation through trace minimization (MinT), JASA 114(526):804-819. doi:10.1080/01621459.2018.1448825",
-    "Hyndman, R.J., Ahmed, R.A., Athanasopoulos, G. & Shang, H.L. (2011), Optimal combination forecasts for hierarchical time series, CSDA 55(9):2579-2589. doi:10.1016/j.csda.2011.03.006",
-    "Athanasopoulos, G., Hyndman, R.J., Kourentzes, N. & Petropoulos, F. (2017), Forecasting with temporal hierarchies, EJOR 262(1):60-74. doi:10.1016/j.ejor.2017.02.046",
-    "Di Fonzo, T. & Girolimetto, D. (2023), Cross-temporal forecast reconciliation: Optimal combination method and heuristic alternatives, Int. J. Forecasting 39(1):39-57. doi:10.1016/j.ijforecast.2021.08.004",
-    "Panagiotelis, A., Athanasopoulos, G., Gamakumara, P. & Hyndman, R.J. (2021), Forecast reconciliation: A geometric view, Int. J. Forecasting 37(1):343-359. doi:10.1016/j.ijforecast.2020.06.004"
-   ],
-   "precondition_tools": [
-    "c02_univariate_forecasting/grouped_arima_ets.run_grouped_arima (it produces the base forecasts per series and level; stack them into a base matrix or vector)",
-    "c02_univariate_forecasting/classical_univariate_forecasting.run_ets (an alternative producer of the base forecasts and residuals for the MinT combination)",
-    "reconcile_cross_temporal (an ols baseline first; then MinT shr/wls with res for accuracy)"
-   ],
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 209,
-   "method": "Tidy hierarchical/grouped forecast reconciliation (aggregate_key + MinT/bottom_up) in the long-format forecasting framework",
-   "wrapper_file": "c17_forecast_combination/hierarchical_grouped_reconciliation.py",
-   "tool_fns": [
-    "reconcile_grouped"
-   ],
-   "when": "you have a long panel (an index + >=1 key/grouping columns + a numeric value) that aggregates naturally into a hierarchy (e.g. region/sector -> national, or CPI sub-indices -> the headline) and you want COHERENT forecasts — the leaves must sum EXACTLY to the aggregates; one base model (ARIMA/ETS/SNAIVE) is fitted per node and reconciled with MinT (min_trace) or bottom_up",
-   "when_not": "a single univariate series with no hierarchy (-> #85, or a standalone ARIMA); you want an online adaptive combination of experts (-> #207); purely cross-temporal reconciliation of numeric matrices with no keyed table (-> #208); a value with a gap, or an irregular index; structural or causal analysis (VAR/VECM)",
-   "alternatives": [
-    {
-     "alt": "17-forecast-combination/csrec",
-     "criterion": "you want cross-sectional, temporal or cross-temporal reconciliation of READY base forecasts as numeric matrices, not a keyed-table round trip"
-    },
-    {
-     "alt": "17-forecast-combination/run_hybrid",
-     "criterion": "ONE series without a hierarchy — you want an ensemble of several models rather than a coherent hierarchy"
-    },
-    {
-     "alt": "#8 run_grouped_arima (category 02)",
-     "criterion": "a single node / no need for coherence — a plain ARIMA/ETS fit + forecast"
-    },
-    {
-     "alt": "14-bayesian toolkit (BMA)",
-     "criterion": "you want a posterior-weighted combination with full uncertainty quantification rather than a MinT projection"
-    }
-   ],
-   "output_key_fields": [
-    "reconciled: data_frame records (the key columns + index + point + lower_L/upper_L per level) — the COHERENT forecast (chart-data); aggregated nodes are labelled '<aggregated>'",
-    "base: the corresponding records of the UNRECONCILED base forecasts (to compare the effect of the reconciliation)",
-    "hierarchy: a data_frame of the hierarchy nodes (each row = a key combination; '<aggregated>' = an aggregated level); n_series (leaves+aggregates); n_leaf",
-    "method / reconciliation: the selected method (min_trace(<method>) or bottom_up); structure (nested/grouped); base_model",
-    "object: the reconciled model table — stubbed by to_mcp, since nothing downstream in the category consumes it"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "coherence != accuracy: reconciliation GUARANTEES that the leaves sum to the aggregates, NOT that every node becomes more accurate — MinT (min_trace) typically improves matters, but bottom_up can worsen the top level if the leaves are noisy",
-    "choosing the MinT method: 'wls_struct' (default) = structural scaling, always robust; 'mint_shrink' (Wickramasuriya 2019) = shrinkage towards a diagonal, theoretically optimal but it NEEDS enough residuals — with short/few series it can be unstable; 'ols' ignores scale",
-    "'<aggregated>' in the key fields = an aggregated level (is_aggregated), NOT a category literally named '<aggregated>' — do not read it as a leaf",
-    "nested (grp1/grp2) vs grouped (grp1*grp2): nested => a genuine hierarchy (a region within a state); grouped => crossed without natural nesting (e.g. purpose x state) — the wrong choice changes which nodes exist",
-    "the PI come from the reconciled predictive distribution (hilo) — valid intervals per node, but the joint coherence concerns the points (the means), it does not guarantee joint coverage of the intervals",
-    "the value must aggregate meaningfully (a flow/stock): the coherence constraint is the sum of the leaves = the aggregate; ratios/percentages/index levels do NOT add up -> do not use them as the value"
-   ],
-   "sources": [
-    "Wickramasuriya, Athanasopoulos & Hyndman 2019 JASA 114(526) (optimal forecast reconciliation through trace minimization)",
-    "Wickramasuriya, Athanasopoulos & Hyndman (2019) Optimal forecast reconciliation for hierarchical and grouped time series through trace minimization, JASA 114(526):804",
-    "Hyndman & Athanasopoulos, Forecasting: Principles and Practice (3rd ed.), ch. 11 Forecasting hierarchical and grouped series (https://otexts.com/fpp3/hierarchical.html)",
-    "Hyndman, Ahmed, Athanasopoulos & Shang (2011) Optimal combination forecasts for hierarchical time series, CSDA 55:2579"
-   ],
-   "precondition_tools": [
-    "c00_data_utilities/reading_delimited_fixed.read_delimited (loading the long-format panel CSV)",
-    "reconcile_grouped (run it with method='bottom_up' as a coherence baseline before comparing with MinT)",
-    "c02_univariate_forecasting/grouped_arima_ets.run_grouped_arima (checking the base model on a single node before the hierarchy)"
-   ],
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 530,
-   "method": "Bates-Granger inverse-MSE and Granger-Ramanathan weights",
-   "wrapper_file": "c17_forecast_combination/combination_weights.py",
-   "tool_fns": [
-    "fc_combination_weights"
-   ],
-   "when": "several forecasts exist and combining them almost always beats selecting one",
-   "when_not": "one forecast dominates on every fold; the weight-estimation sample is too short and equal weights will do better",
-   "alternatives": [
-    {
-     "alt": "equal weights",
-     "criterion": "the forecast combination puzzle: hard to beat"
-    },
-    {
-     "alt": "inverse-MSE weights",
-     "criterion": "weight by past accuracy, no estimation of covariances"
-    },
-    {
-     "alt": "Granger-Ramanathan regression weights",
-     "criterion": "estimated weights, optionally constrained"
-    }
-   ],
-   "output_key_fields": [
-    "weights: the combination weights",
-    "combined: the combined forecast",
-    "improvement: accuracy against the best individual and against equal weights",
-    "method: which weighting produced them"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "THE FORECAST COMBINATION PUZZLE IS REAL: equal weights frequently beat estimated optimal weights out of sample, because estimating weights adds more variance than it removes bias",
-    "unconstrained regression weights can be negative or exceed one, which is legitimate but fragile; constraining them usually improves out-of-sample performance",
-    "weights estimated on the same data used to evaluate the combination overstate its benefit"
-   ],
-   "sources": [
-    "Bates & Granger 1969 (Operational Research Quarterly 20:451-468)",
-    "Granger & Ramanathan 1984 (Journal of Forecasting 3:197)",
-    "Smith & Wallis 2009 (Oxford Bulletin of Economics and Statistics 71:331)",
-    "statsmodels"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 531,
-   "method": "Density combination: linear and logarithmic opinion pools",
-   "wrapper_file": "c17_forecast_combination/density_combination.py",
-   "tool_fns": [
-    "fc_density_combination",
-    "fc_score_driven_weights"
-   ],
-   "when": "combining predictive DISTRIBUTIONS rather than points, where the pooling rule changes the shape of the answer",
-   "when_not": "the forecasts are points; the component densities are not on a common support",
-   "alternatives": [
-    {
-     "alt": "linear pool",
-     "criterion": "a mixture: can be multimodal and is wider than its components"
-    },
-    {
-     "alt": "logarithmic pool",
-     "criterion": "a geometric mean: unimodal and narrower"
-    },
-    {
-     "alt": "score-driven weights",
-     "criterion": "weights update on predictive performance"
-    }
-   ],
-   "output_key_fields": [
-    "combined_density: the pooled predictive distribution",
-    "weights: the pooling weights",
-    "pool_type: linear or logarithmic, which determines the shape",
-    "log_score: of the pool against its components"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "A LINEAR POOL IS ALWAYS AT LEAST AS DISPERSED AS ITS COMPONENTS and can be multimodal; a logarithmic pool is narrower and unimodal -- the choice is substantive, not technical",
-    "linear pools are typically underconfident, which is why they are often recalibrated afterwards",
-    "weights based on the log score are dominated by the component that avoided the worst outcome, not the one that was best on average"
-   ],
-   "sources": [
-    "Hall & Mitchell 2007 (International Journal of Forecasting 23:1-13)",
-    "Geweke & Amisano 2011 (International Journal of Forecasting 27:465)",
-    "Genest & Zidek 1986 (Statistical Science 1:114)",
-    "scoringrules"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 532,
-   "method": "Dynamic model averaging and dynamic model selection",
-   "wrapper_file": "c17_forecast_combination/dynamic_model_averaging.py",
-   "tool_fns": [
-    "fc_dynamic_model_averaging"
-   ],
-   "when": "which model is best changes over time, and the combination should track that instead of averaging over the whole sample",
-   "when_not": "the best model is stable; the model space is too large for the recursion to be feasible",
-   "alternatives": [
-    {
-     "alt": "static combination",
-     "criterion": "the ranking is stable"
-    },
-    {
-     "alt": "dynamic model averaging",
-     "criterion": "weights evolve with performance"
-    },
-    {
-     "alt": "dynamic model selection",
-     "criterion": "you want the single best model at each date"
-    }
-   ],
-   "output_key_fields": [
-    "weights: the time path of model probabilities",
-    "combined: the averaged forecast",
-    "selected: the highest-probability model at each date",
-    "forgetting: the forgetting factors used"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "THE FORGETTING FACTORS CONTROL EVERYTHING: close to one gives a nearly static average, lower values chase noise -- and the results move a great deal between them",
-    "the model space grows exponentially in the number of predictors, so the approach is feasible only with a restricted set",
-    "dynamic model selection is far more volatile than averaging and frequently forecasts worse despite picking the best model ex post"
-   ],
-   "sources": [
-    "Raftery, Karny & Ettler 2010 (Technometrics 52:52-66)",
-    "Koop & Korobilis 2012 (International Economic Review 53:867)",
-    "pymc"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 533,
-   "method": "Stacked generalisation of forecasters",
-   "wrapper_file": "c17_forecast_combination/forecast_stacking.py",
-   "tool_fns": [
-    "fc_stacking"
-   ],
-   "when": "learning how to combine forecasts from their cross-validated errors, rather than from a fixed rule",
-   "when_not": "the cross-validation folds are too few for the meta-learner to be estimated; the components are near-identical",
-   "alternatives": [
-    {
-     "alt": "simple weighted average",
-     "criterion": "few components, stable"
-    },
-    {
-     "alt": "stacking with a linear meta-learner",
-     "criterion": "you want learned weights with some structure"
-    },
-    {
-     "alt": "stacking with a nonlinear meta-learner",
-     "criterion": "the best combination depends on the state"
-    }
-   ],
-   "output_key_fields": [
-    "meta_model: the fitted combination rule",
-    "weights: implied component weights, where the meta-learner is linear",
-    "cv_predictions: the out-of-fold predictions the meta-learner was trained on",
-    "improvement: against equal weights and the best component"
-   ],
-   "chart_kind": "table",
-   "interpretation_traps": [
-    "THE META-LEARNER MUST BE TRAINED ON OUT-OF-FOLD PREDICTIONS; training it on in-sample fits leaks and produces weights that collapse onto the most overfitted component",
-    "the folds must respect time order for time-series data, or the combination learns from the future",
-    "a nonlinear meta-learner needs far more folds than a linear one and usually overfits with typical macro sample sizes"
-   ],
-   "sources": [
-    "Wolpert 1992 (Neural Networks 5:241-259)",
-    "Breiman 1996 (Machine Learning 24:49)",
-    "sktime"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  },
-  {
-   "id": 534,
-   "method": "Temporal-hierarchy combination: MAPA and THieF",
-   "wrapper_file": "c17_forecast_combination/temporal_hierarchy.py",
-   "tool_fns": [
-    "fc_temporal_hierarchy"
-   ],
-   "when": "forecasts made at different frequencies for the same series disagree, and reconciling across the temporal hierarchy improves all of them",
-   "when_not": "there is a single frequency; the series cannot be aggregated to higher levels meaningfully",
-   "alternatives": [
-    {
-     "alt": "single-frequency forecast",
-     "criterion": "one frequency only"
-    },
-    {
-     "alt": "MAPA",
-     "criterion": "aggregate, forecast and combine"
-    },
-    {
-     "alt": "THieF",
-     "criterion": "full temporal-hierarchy reconciliation"
-    }
-   ],
-   "output_key_fields": [
-    "reconciled: forecasts coherent across every aggregation level",
-    "levels: the temporal aggregation levels used",
-    "weights: the reconciliation weights",
-    "improvement: accuracy per level against unreconciled forecasts"
-   ],
-   "chart_kind": "multi-line",
-   "interpretation_traps": [
-    "TEMPORAL AGGREGATION CHANGES THE APPARENT DYNAMICS: a series can look noisy monthly and strongly trending annually, which is exactly the information this method exploits",
-    "reconciliation guarantees coherence, not accuracy -- forecasts can be made coherent and worse if the covariance is badly estimated",
-    "the aggregation levels must divide the seasonal period evenly or the hierarchy is not well defined"
-   ],
-   "sources": [
-    "Athanasopoulos, Hyndman, Kourentzes & Petropoulos 2017 (European Journal of Operational Research 262:60-74)",
-    "Kourentzes, Petropoulos & Trapero 2014 (International Journal of Forecasting 30:291)",
-    "hierarchicalforecast"
-   ],
-   "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null
-  }
- ],
- "nodes": [
-  {
-   "fn": "reconcile_grouped",
-   "card_id": 209,
-   "register": null,
-   "input_example": {
-    "data": "<df_handle>",
-    "index": "...",
-    "keys": [
-     "PROVIDER/DATASET/SERIES"
-    ],
-    "value": "...",
-    "h": 8
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "data",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Handle to a long-format DataFrame (index column + >=1 key columns + numeric value column).",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "index",
-     "kind": "string",
-     "required": true,
-     "description": "Time column name (valid series index: Date/yearmonth/yearquarter/numeric).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "keys",
-     "kind": "series_codes",
-     "required": true,
-     "description": "Key/grouping column names (>=1; they define the hierarchy's nodes); grouped requires >=2.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "value",
-     "kind": "string",
-     "required": true,
-     "description": "Measured numeric column name (without NA; summed into the aggregates).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "structure",
-     "kind": "enum",
-     "required": false,
-     "description": "Structure: nested (grp1/grp2 hierarchy) or grouped (grp1*grp2 crossed; default nested).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "nested",
-      "grouped"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "base_model",
-     "kind": "enum",
-     "required": false,
-     "description": "Base model per node (ARIMA/ETS/SNAIVE; default arima).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "arima",
-      "ets",
-      "snaive"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Reconciliation: min_trace(method) MinT variants or bottom_up (default wls_struct — robust structural MinT).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "wls_struct",
-      "ols",
-      "wls_var",
-      "mint_shrink",
-      "mint_cov",
-      "bottom_up"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "h",
-     "kind": "integer",
-     "required": false,
-     "description": "Forecast horizon (positive integer; default 8).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 8,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "reconcile_cross_temporal",
-   "card_id": 208,
-   "register": null,
-   "input_example": {
-    "type": "cs",
-    "base": "<matrix_handle>",
-    "comb": "ols"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "type",
-     "kind": "enum",
-     "required": true,
-     "description": "Reconciliation framework: 'cs' cross-sectional (csrec; agg_mat), 'te' temporal (terec; agg_order), 'ct' cross-temporal (ctrec; agg_mat+agg_order).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "cs",
-      "te",
-      "ct"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "base",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to the base forecasts. cs: (h x n) matrix, columns [upper..., bottom...] (n=n_a+n_b). te: (h*(k*+m)) vector lowest->highest freq. ct: (n x h*(k*+m)) matrix.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "agg_mat",
-     "kind": "matrix_handle",
-     "required": false,
-     "description": "Handle to the (n_a x n_b) aggregation matrix (map bottom->upper). Required for type='cs' and 'ct'.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "agg_order",
-     "kind": "int_array",
-     "required": false,
-     "description": "Max temporal aggregation m (e.g. 4 quarterly->annual, 12 monthly) or a vector of factors of m. Required for 'te'/'ct'.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "comb",
-     "kind": "string",
-     "required": false,
-     "description": "Covariance/MinT method (closed set PER type). cs: ols/str/wls/shr/oasd/sam. te: ols/str/wlsh/wlsv/acov/strar1/sar1/har1/shr/sam. ct: ols/str/csstr/testr/wlsh/wlsv/acov/bdshr/bdsam/Sshr/Ssam/shr/sam/hbshr/hbsam/bshr/bsam/hshr/hsam. WLS/GLS/MinT require 'res'. Default 'ols'.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": "ols",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "tew",
-     "kind": "enum",
-     "required": false,
-     "description": "Type of temporal aggregation (te/ct): sum/avg/first/last (default sum).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "sum",
-      "avg",
-      "first",
-      "last"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "approach",
-     "kind": "enum",
-     "required": false,
-     "description": "Approach: proj(ection)/strc(structural)/*_osqp (default proj).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "proj",
-      "strc",
-      "proj_osqp",
-      "strc_osqp"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "res",
-     "kind": "matrix_handle",
-     "required": false,
-     "description": "Handle to in-sample residuals/validation errors (required for WLS/GLS/MinT comb). cs: (N x n) matrix. te: (N*(k*+m)) vector. ct: (n x N*(k*+m)) matrix.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "nn",
-     "kind": "enum",
-     "required": false,
-     "description": "Non-negativity algorithm for reconciled forecasts (default 'none').",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "none",
-      "osqp",
-      "sntz",
-      "bpv",
-      "nfca",
-      "nnic"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "crps_learning",
-   "card_id": 207,
-   "register": null,
-   "input_example": {
-    "y": "<matrix_handle>",
-    "experts": "<raw_handle>",
-    "tau": [
-     0.5,
-     0.5
-    ],
-    "loss_parameter": 1,
-    "loss_gradient": true,
-    "lead_time": 0,
-    "forget_regret": 0,
-    "fixed_share": 0,
-    "gamma": 1,
-    "soft_threshold": null,
-    "hard_threshold": null,
-    "allow_quantile_crossing": false,
-    "seed": 2025
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Handle to a Tx1 matrix of realized values (probabilistic setting); without NA.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "experts",
-     "kind": "raw_handle",
-     "required": true,
-     "description": "Handle to a numeric 3D array [T x quantiles(P) x experts(K)]: experts[t,,k] = quantile forecasts of expert k at the tau levels; dim1==length(y), dim2==length(tau), K>=2, without NA.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "tau",
-     "kind": "num_array",
-     "required": true,
-     "description": "Probability levels in (0,1); STRICTLY increasing/unique; length P == dim(experts)[2].",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Online-learning algorithm (default bewa· boa=full BOA, ewa=exp. weighting, ml_poly=ML-Poly).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "bewa",
-      "boa",
-      "ml_poly",
-      "ewa"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "loss_function",
-     "kind": "enum",
-     "required": false,
-     "description": "Loss (default quantile = pinball/CRPS scoring).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "quantile",
-      "expectile",
-      "percentage"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "loss_parameter",
-     "kind": "number",
-     "required": false,
-     "description": "Scaling of the loss power (> 0; default 1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "loss_gradient",
-     "kind": "boolean",
-     "required": false,
-     "description": "Linearized (gradient) version of the loss (default True).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "lead_time",
-     "kind": "integer",
-     "required": false,
-     "description": "Offset of expert forecasts (0 = t+1 at t); integer 0<=·<T.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "forget_regret",
-     "kind": "number",
-     "required": false,
-     "description": "Share of past regret to forget per iteration; in [0,1] (default 0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "fixed_share",
-     "kind": "number",
-     "required": false,
-     "description": "Fixed share added to the weights; in [0,1] (1 => uniform; default 0).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "gamma",
-     "kind": "number",
-     "required": false,
-     "description": "Scaling of the learning rate (> 0; default 1).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 1,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "soft_threshold",
-     "kind": "number",
-     "required": false,
-     "description": "Soft-threshold on the weights (default -Inf = none).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "hard_threshold",
-     "kind": "number",
-     "required": false,
-     "description": "Hard-threshold on the weights (default -Inf = none).",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "allow_quantile_crossing",
-     "kind": "boolean",
-     "required": false,
-     "description": "False => the forecasts are sorted ascending per t (default False).",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": false,
-     "has_default": true,
-     "default_json_type": "boolean"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed (integer >=0) — determinism of any grid sampling.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 2025,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "run_hybrid",
-   "card_id": 85,
-   "register": null,
-   "input_example": {
-    "y": "<series_handle>",
-    "models": "aefnst",
-    "windowSize": 84,
-    "seed": 42
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Handle to a univariate ts/numeric series to forecast.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "models",
-     "kind": "string",
-     "required": false,
-     "description": "String of component-model letters (>=2 distinct): a=auto-ARIMA e=ETS f=theta n=neural-net s=STL t=TBATS z=seasonal-naive (default 'aefnst').",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": "aefnst",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "weights",
-     "kind": "enum",
-     "required": false,
-     "description": "Combination weighting method (default equal).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "equal",
-      "insample.errors",
-      "cv.errors"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "errorMethod",
-     "kind": "enum",
-     "required": false,
-     "description": "Error metric for the weights (when weights != equal; default RMSE).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "RMSE",
-      "MAE",
-      "MASE"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "h",
-     "kind": "integer",
-     "required": false,
-     "description": "Forecast horizon (positive integer); default 2*frequency if seasonal, otherwise 10.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "PI_combination",
-     "kind": "enum",
-     "required": false,
-     "description": "How the components' prediction intervals are combined (default extreme; the PI are OVER-CONSERVATIVE, non-nominal coverage).",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "extreme",
-      "mean"
-     ],
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "cvHorizon",
-     "kind": "integer",
-     "required": false,
-     "description": "CV horizon (only weights='cv.errors'; default frequency(y)).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "windowSize",
-     "kind": "integer",
-     "required": false,
-     "description": "CV window length (only weights='cv.errors'; default 84).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 84,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "seed",
-     "kind": "integer",
-     "required": false,
-     "description": "Seed for DETERMINISM (neural-net's 'n' is stochastic; default 42).",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 42,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "fc_combination_weights",
-   "card_id": 530,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "forecasts": "<df_handle>",
-    "method": "inverse_mse",
-    "constrain": true
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "weights",
-     "combined",
-     "improvement",
-     "method"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecasts",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Forecasts, one column per method.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "method",
-     "kind": "enum",
-     "required": false,
-     "description": "Weighting method.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "equal",
-      "inverse_mse",
-      "granger_ramanathan",
-      "constrained_ls",
-      "trimmed_mean"
-     ],
-     "allowed_vars": null,
-     "default": "inverse_mse",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "window",
-     "kind": "integer",
-     "required": false,
-     "description": "Rolling window for the weights; omitted = expanding.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "constrain",
-     "kind": "boolean",
-     "required": false,
-     "description": "Constrain weights to be non-negative and sum to one.",
-     "pointer_handle": false,
-     "json_type": "boolean",
-     "enum": null,
-     "allowed_vars": null,
-     "default": true,
-     "has_default": true,
-     "default_json_type": "boolean"
-    }
-   ]
-  },
-  {
-   "fn": "fc_density_combination",
-   "card_id": 531,
-   "register": null,
-   "input_example": {
-    "densities": "<matrix_handle>",
-    "pool": "linear"
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "densities",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Predictive densities or samples, one per component.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "weights",
-     "kind": "num_array",
-     "required": false,
-     "description": "Component weights; omitted = equal.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "pool",
-     "kind": "enum",
-     "required": false,
-     "description": "Pooling rule.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "linear",
-      "logarithmic",
-      "beta_transformed"
-     ],
-     "allowed_vars": null,
-     "default": "linear",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "grid",
-     "kind": "num_array",
-     "required": false,
-     "description": "Evaluation grid.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    }
-   ]
-  },
-  {
-   "fn": "fc_score_driven_weights",
-   "card_id": 531,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "densities": "<matrix_handle>",
-    "forgetting": 0.95
-   },
-   "output_keys": {
-    "status": "undeclared",
-    "keys": null
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "densities",
-     "kind": "matrix_handle",
-     "required": true,
-     "description": "Component predictive densities over time.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forgetting",
-     "kind": "number",
-     "required": false,
-     "description": "Forgetting factor on past scores.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    }
-   ]
-  },
-  {
-   "fn": "fc_dynamic_model_averaging",
-   "card_id": 532,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "forecasts": "<df_handle>",
-    "forgetting_weights": 0.99,
-    "forgetting_variance": 0.95,
-    "mode": "averaging"
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "weights",
-     "combined",
-     "selected",
-     "forgetting"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecasts",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Forecasts, one column per model.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forgetting_weights",
-     "kind": "number",
-     "required": false,
-     "description": "Forgetting factor on model probabilities.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.99,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "forgetting_variance",
-     "kind": "number",
-     "required": false,
-     "description": "Forgetting factor on the variance.",
-     "pointer_handle": false,
-     "json_type": "number",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 0.95,
-     "has_default": true,
-     "default_json_type": "number"
-    },
-    {
-     "name": "mode",
-     "kind": "enum",
-     "required": false,
-     "description": "Averaging or selection.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "averaging",
-      "selection"
-     ],
-     "allowed_vars": null,
-     "default": "averaging",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  },
-  {
-   "fn": "fc_stacking",
-   "card_id": 533,
-   "register": null,
-   "input_example": {
-    "actual": "<series_handle>",
-    "forecasts": "<df_handle>",
-    "meta_learner": "constrained_ls",
-    "n_folds": 5
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "meta_model",
-     "weights",
-     "cv_predictions",
-     "improvement"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "actual",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Realised values.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "forecasts",
-     "kind": "df_handle",
-     "required": true,
-     "description": "Forecasts, one column per component.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "meta_learner",
-     "kind": "enum",
-     "required": false,
-     "description": "Meta-learner.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "linear",
-      "ridge",
-      "constrained_ls",
-      "gradient_boosting"
-     ],
-     "allowed_vars": null,
-     "default": "constrained_ls",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "n_folds",
-     "kind": "integer",
-     "required": false,
-     "description": "Time-series cross-validation folds.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": 5,
-     "has_default": true,
-     "default_json_type": "integer"
-    }
-   ]
-  },
-  {
-   "fn": "fc_temporal_hierarchy",
-   "card_id": 534,
-   "register": null,
-   "input_example": {
-    "y": "<series_handle>",
-    "h": 1,
-    "base_model": "auto_ets",
-    "reconciliation": "wls_struct"
-   },
-   "output_keys": {
-    "status": "declared",
-    "keys": [
-     "reconciled",
-     "levels",
-     "weights",
-     "improvement"
-    ]
-   },
-   "arguments": [
-    {
-     "name": "y",
-     "kind": "series_handle",
-     "required": true,
-     "description": "Series at the highest frequency.",
-     "pointer_handle": true,
-     "json_type": "string",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "h",
-     "kind": "integer",
-     "required": true,
-     "description": "Forecast horizon at the base frequency.",
-     "pointer_handle": false,
-     "json_type": "integer",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "levels",
-     "kind": "int_array",
-     "required": false,
-     "description": "Aggregation levels; omitted = divisors of the season.",
-     "pointer_handle": false,
-     "json_type": "array",
-     "enum": null,
-     "allowed_vars": null,
-     "default": null,
-     "has_default": false,
-     "default_json_type": null
-    },
-    {
-     "name": "base_model",
-     "kind": "enum",
-     "required": false,
-     "description": "Model fitted at each level.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "auto_arima",
-      "auto_ets",
-      "theta",
-      "naive"
-     ],
-     "allowed_vars": null,
-     "default": "auto_ets",
-     "has_default": true,
-     "default_json_type": "string"
-    },
-    {
-     "name": "reconciliation",
-     "kind": "enum",
-     "required": false,
-     "description": "Reconciliation method.",
-     "pointer_handle": false,
-     "json_type": "string",
-     "enum": [
-      "ols",
-      "wls_struct",
-      "wls_var",
-      "mint_shrink"
-     ],
-     "allowed_vars": null,
-     "default": "wls_struct",
-     "has_default": true,
-     "default_json_type": "string"
-    }
-   ]
-  }
- ]
+  ]
 }

@@ -277,25 +277,29 @@ def test_v2_declares_its_version_and_its_producer() -> None:
 #: checkable at all -- a block edited to name a digest that never existed is
 #: worse than no block, and with one home nothing would notice.
 #:
-#: MOVED ON 2026-08-26 BY BOX 2.1.1.2, and the pair here moved with the corpus
-#: record in the same commit -- that is the whole point of two homes. The digests
-#: below are the box 2.1.15 output, which this re-seal superseded; the pair they
-#: replaced is not kept, because the field records one generation and not a
-#: history. This re-seal differs from 2.1.15 in one way worth naming: 2.1.15
-#: moved no ``contract_hash`` at all, while this one moves exactly two, so a
-#: reviewer who reads "re-seal" here must not read it as "nothing in the
-#: catalogue changed".
+#: MOVED ON 2026-08-26 BY BOX 2.1.1.12, and the pair here moved with the corpus
+#: record in the same commit -- that is the whole point of two homes.
+#:
+#: THE TWO MOVE BY VERY DIFFERENT AMOUNTS, AND A REVIEWER MUST READ THE PAIR
+#: KNOWING IT. ``sources`` is a CARD field, so method-cards.json moves by 93
+#: lines -- 46 entries and the 46 ``embed_text`` blobs that carry them into
+#: retrieval -- while nothing in node-specs.json's catalogue changes at all: it
+#: moves by exactly the two lines of the provenance block, which is emitted onto
+#: both artifacts. Both digests are still the committed bytes each file
+#: superseded, read with ``git show HEAD:engine/artifacts/<stem>.sha256``.
+#:
+#: NO ``contract_hash`` MOVES: the projection is fn, arguments, register and
+#: export, and ``sources`` is none of them and lives in the other artifact.
 SUPERSEDED = {
-    "node_specs_sha256": "419a288b93d613ebfbf2bf16d55aa9f879a2e5a33600c5fadbd40d3bd2d078e2",
-    "method_cards_sha256": "e3d7c551349a0faf56fa6e4cc63831f7ec83c92b6cb48a80f11861a66a4d8768",
+    "node_specs_sha256": "c22ba99ee3684cf5048d86f9cfd0dc54ffa28e45bacdb74589d9ef7e7c32e185",
+    "method_cards_sha256": "5623bb36280c94bea0192bd59cbaeb1e010152cf04fff840af796c6e89b86511",
 }
 
 
 def test_both_artifacts_record_the_digests_this_reseal_superseded() -> None:
-    """Boxes 2.1.1.2 and 2.1.1.5. The re-seal happens IN PLACE, so the only trace it
-    leaves is this block: same filenames, same sidecar count, ``wrapper_file``
-    untouched. Both artifacts carry the same record, because one re-seal produced
-    both."""
+    """Box 2.1.1.12. The re-seal happens IN PLACE, so the only trace it leaves is
+    this block: same filenames, same sidecar count, ``wrapper_file`` untouched.
+    Both artifacts carry the same record, because one re-seal produced both."""
     import hashlib
     import re
 
@@ -305,8 +309,8 @@ def test_both_artifacts_record_the_digests_this_reseal_superseded() -> None:
     )
     previous = blocks["node-specs.json"]
     assert previous["reason"] == (
-        "boxes 2.1.1.2 and 2.1.1.5 -- the chronology becomes a caller-supplied "
-        "argument, and every node declares its payload key set"
+        "box 2.1.1.12 -- 46 cards stop naming a distribution the register measured "
+        "as not implementing their method"
     )
     assert re.match(r"^\d{4}-\d{2}-\d{2}$", previous["resealed"]), previous["resealed"]
     for key, digest in SUPERSEDED.items():
