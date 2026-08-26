@@ -86,10 +86,21 @@ globs:
   # own. A tool that writes Markdown into the working tree turns the whole suite
   # red without touching a published document, which is how a gate stops being
   # read at all.
-  - "!.private"
-  - "!.claude"
-  - "!.claude-mpm"
-  - "!.token-optimizer"
+  #
+  # EACH IS ALSO MATCHED AT ANY DEPTH, and that half was learned separately.
+  # These four were anchored at the root, so they described `/.claude-mpm` and
+  # nothing else. Measured 2026-08-26: a tool invoked with the working directory
+  # set to `engine/` wrote `engine/.claude-mpm/memories/README.md`, which no glob
+  # here matched and which turned the suite red on a file belonging to no
+  # document. The root `.gitignore` has the same shape -- its `/*` deny-by-default
+  # is root-anchored too -- so the file is untracked at the root and invisible to
+  # git below it, while markdownlint walks the filesystem and sees it either way.
+  # A working directory is not always the repository root, so a rule about tool
+  # output cannot be written as though it were.
+  - "!**/.private"
+  - "!**/.claude"
+  - "!**/.claude-mpm"
+  - "!**/.token-optimizer"
   - "!todo.md"
   - "!CLAUDE.md"
   # Tool caches that carry a vendored README of their own.
