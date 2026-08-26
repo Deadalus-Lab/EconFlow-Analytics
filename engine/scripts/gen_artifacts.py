@@ -109,16 +109,19 @@ DERIVED_COLUMNS: Final = frozenset(
 )
 
 #: The authored columns, each with the value a row that has never been decided
-#: reads as. ``None`` for four of them is deliberate and not a convenience: a row
+#: reads as. ``None`` for five of them is deliberate and not a convenience: a row
 #: whose wave or source nobody has chosen must read as undecided, which
 #: tests/test_method_sources.py refuses, rather than as a decision it never
-#: received. A new authored column belongs HERE and nowhere else.
+#: received. ``audited`` reads the same way for the same reason -- a row nobody
+#: has examined must not read as one somebody passed. A new authored column
+#: belongs HERE and nowhere else.
 AUTHORED_COLUMNS: Final[dict[str, Any]] = {
     "status": "planned",
     "library": None,
     "paper": None,
     "dataset": None,
     "wave": None,
+    "audited": None,
 }
 
 #: Emitted key order. Not correctness -- readability. A stable order keeps a

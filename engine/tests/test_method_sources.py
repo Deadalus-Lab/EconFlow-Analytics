@@ -25,6 +25,14 @@ place, with no version identifier and no DOI, leaves a URL recording where
 somebody looked rather than what they got. So the digest is RECOMPUTED here from
 the committed bytes rather than read and believed.
 
+A SOURCE IS TWO CLAIMS AND THIS FILE NOW ANSWERS FOR BOTH. That a distribution
+is installable and admissibly licensed is one; that it COMPUTES the method the
+row describes is the other, and nothing in a lockfile or a licence classifier
+can settle it. The second is what ``audited`` records, and it is asserted as a
+COUNT of rows examined rather than as an absence of unexamined ones -- because
+a register with the column deleted from every row satisfies the absence
+perfectly while having examined nothing.
+
 NO ROW CARRIES A DATASET TODAY, AND THAT IS WHY THE CONTROLS BELOW EXIST. The
 row the kind was defined for is still planned pending a licensing decision (see
 METHOD-SOURCES.json's own comment), so a check written only over the live
@@ -73,6 +81,19 @@ DATASET_FIELDS = frozenset({"publisher", "locator", "retrieved", "sha256"})
 DOI = re.compile(r"^10\.\d{4,9}/")
 ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+
+#: HOW MANY ROWS HAVE HAD THEIR METHOD FIT EXAMINED, and it is a COUNT because
+#: "no row is unaudited" is a sentence an empty register satisfies. A row's
+#: source is a claim that the named library computes the method the row's
+#: ``methods`` and ``node_fns`` describe, and that claim is separate from the
+#: licence and version work: a distribution can be perfectly admissible and
+#: still not implement the estimator. ``audited`` records that somebody checked.
+#:
+#: 149 of these were examined by the source-selection box, which probed the four
+#: installed distributions live and enumerated the four uninstalled ones from
+#: upstream source; 21 of the 149 named a library that does not implement their
+#: method. This figure moves only when rows are actually examined.
+AUDITED_ROWS = 149
 
 
 def _normalise(name: str) -> str:
@@ -241,6 +262,53 @@ def test_every_row_declares_a_wave(rows: dict[str, dict[str, Any]]) -> None:
             assert row["wave"] in {"one", "deferred"}, key
         else:
             assert row["wave"] == "none", key
+
+
+def _audited(rows: dict[str, dict[str, Any]]) -> list[str]:
+    """The rows whose method fit has been examined, named rather than counted.
+
+    ONE FUNCTION, TWO CALLERS, on the pattern ``_dataset_faults`` established
+    above. It measures the live register, and it measures the planted register
+    in the control below -- which is what stops the count being a number nobody
+    can make fall.
+    """
+    return sorted(k for k, r in rows.items() if r["audited"])
+
+
+def test_the_register_counts_the_rows_whose_method_fit_was_examined(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """A COUNT, NOT AN ABSENCE. "no row is unaudited" is satisfied by a register
+    with no audited rows in it at all, and by a column deleted from every row --
+    the shape this repository has caught six times. An exact count falls the
+    moment a row stops being examined, and rises only when one is."""
+    assert len(_audited(rows)) == AUDITED_ROWS, len(_audited(rows))
+
+
+def test_the_audit_count_falls_when_a_row_is_planted_unaudited(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """THE CONTROL, because the count above cannot supply one.
+
+    A register in which every row reads audited satisfies the assertion above
+    however the flag got there. This drives the same function over a register
+    with one flag cleared and requires the count to drop by exactly one, so the
+    number is known to be measured from the rows rather than restated.
+    """
+    planted = {k: dict(r) for k, r in rows.items()}
+    victim = _audited(planted)[0]
+    planted[victim]["audited"] = None
+    assert len(_audited(planted)) == AUDITED_ROWS - 1, victim
+
+
+def test_the_audited_flag_is_a_decision_and_never_a_stray_value(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """``True`` for examined and absent-as-``None`` for not yet. A string or a
+    zero would read as audited or not by accident of truthiness, and the count
+    above would move without anybody examining a row."""
+    stray = sorted(k for k, r in rows.items() if r["audited"] not in (True, None))
+    assert stray == [], stray
 
 
 def test_wave_one_libraries_resolve_in_the_lockfile(

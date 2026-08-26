@@ -37,32 +37,18 @@
     "on a dataset reports it as the result's 'vintage', so a saved graph carries",
     "the provenance of the answer it holds.",
     "",
-    "NO ROW CARRIES A DATASET TODAY. The kind was defined for the NBER",
-    "chronology and that row resolved to a library instead, so the four-field",
-    "rule and the digest recomputation above describe a shape the live register",
-    "does not exercise. They are held non-vacuous by planted positive and",
-    "negative controls in tests/test_method_sources.py rather than by a row --",
-    "which is the arrangement that keeps them checkable, and the reason the kind",
-    "stays defined rather than being deleted for want of a user.",
-    "",
-    "NO ROW IS PLANNED, AND THE COUNT THAT SAYS SO IS",
-    "engine.unresolved_sources = 0. The last one was",
-    "c00_data_utilities/nber_recession_chronology, and it was resolved on",
-    "2026-08-26 by removing what made it unresolvable rather than by admitting",
-    "it. That module's two node functions now take the peak/trough chronology as",
-    "a caller-supplied argument, so this engine ships no table, holds no snapshot",
-    "and reaches no network. Once the data is the caller's, what is left is",
-    "interval clipping and point-in-interval testing -- date arithmetic, which",
-    "pandas does -- so the row is 'selected' on library 'pandas', wave 'one'.",
-    "That is why the row is not a dataset row, and the reason is structural",
-    "rather than one of licence: the node was a lookup, and a lookup with the",
-    "data removed is arithmetic. Measured 2026-08-26 and recorded so it is not",
-    "re-litigated: the page publishing the chronology carries the line",
-    "'Permission to copy is granted, provided attribution of source is given',",
-    "so the bytes COULD have been admitted; 'All Rights Reserved' is site-wide",
-    "footer boilerplate and not a claim over that table. The count remains",
-    "asserted by exact equality, so the FIRST row to arrive unresolved turns",
-    "that suite red instead of joining a population that is now empty.",
+    "ONE ROW IS PLANNED AND IT IS COUNTED, NOT NAMED.",
+    "c00_data_utilities/nber_recession_chronology describes the NBER Business",
+    "Cycle Dating Committee's peak/trough chronology: a published table rather",
+    "than a method, which no admissible distribution ships and which carries no",
+    "DOI. It is the row the dataset kind was defined for, and it stays planned",
+    "until the bytes may be redistributed. Measured 2026-08-24: the committee",
+    "publishes the table as an Excel file and a PDF from a page whose footer",
+    "reads 'All Rights Reserved', and nber.org serves no terms-of-use page, so",
+    "admitting the file is a licensing decision of the same class as the NCSA",
+    "admission of arch and linearmodels, and belongs to the owner. The count of",
+    "planned rows is asserted against engine.unresolved_sources, so a SECOND",
+    "unresolved row turns that suite red instead of joining this one in silence.",
     "",
     "It is REBUILT from the sealed cards rather than edited alongside them,",
     "so it cannot drift from the catalogue it describes."
@@ -96,7 +82,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/temporal_aggregation_series": {
       "module": "temporal_aggregation_series",
@@ -116,7 +103,8 @@
       "library": "tsdisagg",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/replacement_missing_values": {
       "module": "replacement_missing_values",
@@ -138,7 +126,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/descriptive_statistics": {
       "module": "descriptive_statistics",
@@ -162,7 +151,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/macro_arithmetic": {
       "module": "macro_arithmetic",
@@ -185,7 +175,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/reading_delimited_fixed": {
       "module": "reading_delimited_fixed",
@@ -208,7 +199,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/reading_writing_excel": {
       "module": "reading_writing_excel",
@@ -230,7 +222,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/canonical_disk_format": {
       "module": "canonical_disk_format",
@@ -253,7 +246,8 @@
       "library": "pyarrow",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/json_interchange_parse": {
       "module": "json_interchange_parse",
@@ -276,7 +270,8 @@
       "library": "orjson",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/import_export_stata": {
       "module": "import_export_stata",
@@ -299,7 +294,8 @@
       "library": "pyreadstat",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/closed_vocabulary_tabular": {
       "module": "closed_vocabulary_tabular",
@@ -328,7 +324,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/reshaping_missing_values": {
       "module": "reshaping_missing_values",
@@ -356,7 +353,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/fast_transformation": {
       "module": "fast_transformation",
@@ -383,7 +381,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/deterministic_invertible_preprocessing": {
       "module": "deterministic_invertible_preprocessing",
@@ -410,7 +409,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/deterministic_rolling_window": {
       "module": "deterministic_rolling_window",
@@ -432,7 +432,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/indexed_time_series": {
       "module": "indexed_time_series",
@@ -455,7 +456,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/rolling_windowed_series": {
       "module": "rolling_windowed_series",
@@ -478,7 +480,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/fast_lead_lag": {
       "module": "fast_lead_lag",
@@ -499,7 +502,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/fast_rolling_expanding": {
       "module": "fast_rolling_expanding",
@@ -525,7 +529,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/rolling_statistics_numeric": {
       "module": "rolling_statistics_numeric",
@@ -549,7 +554,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/date_parsing_rounding": {
       "module": "date_parsing_rounding",
@@ -572,7 +578,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/business_day_calendar": {
       "module": "business_day_calendar",
@@ -595,7 +602,8 @@
       "library": "numpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/keyed_temporal_frames": {
       "module": "keyed_temporal_frames",
@@ -617,7 +625,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/robust_outlier_handling": {
       "module": "robust_outlier_handling",
@@ -639,7 +648,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/benchmarking_high_frequency": {
       "module": "benchmarking_high_frequency",
@@ -660,7 +670,8 @@
       "library": null,
       "paper": "10.1080/01621459.1971.10482227",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c00_data_utilities/fast_row_column": {
       "module": "fast_row_column",
@@ -682,7 +693,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/composite_index_dimensionality": {
       "module": "composite_index_dimensionality",
@@ -705,7 +717,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/parametric_distributions_numeric": {
       "module": "parametric_distributions_numeric",
@@ -727,7 +740,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/nber_recession_chronology": {
       "module": "nber_recession_chronology",
@@ -747,7 +761,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/numeric_rescaling_axis": {
       "module": "numeric_rescaling_axis",
@@ -769,7 +784,8 @@
       "library": null,
       "paper": "10.1109/TVCG.2010.130",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c00_data_utilities/analytic_ols_closed": {
       "module": "analytic_ols_closed",
@@ -789,7 +805,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/correlation_filter_greedy": {
       "module": "correlation_filter_greedy",
@@ -810,7 +827,8 @@
       "library": null,
       "paper": "10.1007/978-1-4614-6849-3",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c00_data_utilities/design_matrix_orthogonal": {
       "module": "design_matrix_orthogonal",
@@ -832,7 +850,8 @@
       "library": "formulaic",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/calendar_effects_holidays": {
       "module": "calendar_effects_holidays",
@@ -853,7 +872,8 @@
       "library": "holidays",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/discretisation_numeric_column": {
       "module": "discretisation_numeric_column",
@@ -874,7 +894,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c00_data_utilities/series_splicing": {
       "module": "series_splicing",
@@ -894,7 +915,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c00_data_utilities/chain_linking": {
       "module": "chain_linking",
@@ -914,7 +936,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c00_data_utilities/currency_conversion": {
       "module": "currency_conversion",
@@ -934,7 +957,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c00_data_utilities/calendar_regressors": {
       "module": "calendar_regressors",
@@ -953,7 +977,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c00_data_utilities/multivariate_imputation": {
       "module": "multivariate_imputation",
@@ -973,7 +998,8 @@
       "library": "miceforest",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/deterministic_terms": {
       "module": "deterministic_terms",
@@ -992,7 +1018,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c00_data_utilities/density_grids": {
       "module": "density_grids",
@@ -1012,7 +1039,8 @@
       "library": "KDEpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/schema_validation": {
       "module": "schema_validation",
@@ -1032,7 +1060,8 @@
       "library": "pandera",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/record_linkage": {
       "module": "record_linkage",
@@ -1052,7 +1081,8 @@
       "library": "recordlinkage",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/formula_design": {
       "module": "formula_design",
@@ -1072,7 +1102,8 @@
       "library": "formulaic",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/compositional_transforms": {
       "module": "compositional_transforms",
@@ -1092,7 +1123,8 @@
       "library": "composition-stats",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c00_data_utilities/columnar_engine": {
       "module": "columnar_engine",
@@ -1112,7 +1144,8 @@
       "library": "polars",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/unit_root_normality": {
       "module": "unit_root_normality",
@@ -1134,7 +1167,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/unit_root_suite": {
       "module": "unit_root_suite",
@@ -1157,7 +1191,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/structural_change": {
       "module": "structural_change",
@@ -1179,7 +1214,8 @@
       "library": "ruptures",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/seasonal_adjustment_13arima": {
       "module": "seasonal_adjustment_13arima",
@@ -1200,7 +1236,8 @@
       "library": null,
       "paper": "10.1080/07350015.1998.10524743",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/automatic_outlier_detection": {
       "module": "automatic_outlier_detection",
@@ -1219,7 +1256,8 @@
       "library": null,
       "paper": "10.1080/01621459.1993.10594321",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/panel_unit_root": {
       "module": "panel_unit_root",
@@ -1240,7 +1278,8 @@
       "library": null,
       "paper": "10.1016/S0304-4076(01)00098-7",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/seasonal_unit_roots": {
       "module": "seasonal_unit_roots",
@@ -1260,7 +1299,8 @@
       "library": null,
       "paper": "10.1016/0304-4076(90)90080-D",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/bootstrap_unit_root": {
       "module": "bootstrap_unit_root",
@@ -1282,7 +1322,8 @@
       "library": null,
       "paper": "10.18637/jss.v106.i12",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/covariate_augmented_dickey": {
       "module": "covariate_augmented_dickey",
@@ -1301,7 +1342,8 @@
       "library": null,
       "paper": "10.1017/S0266466600009993",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/general_specific_selection": {
       "module": "general_specific_selection",
@@ -1322,7 +1364,8 @@
       "library": null,
       "paper": "10.18637/jss.v086.i03",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/seasonality": {
       "module": "seasonality",
@@ -1347,7 +1390,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/time_series_decomposition": {
       "module": "time_series_decomposition",
@@ -1368,7 +1412,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/driven_locally_weighted": {
       "module": "driven_locally_weighted",
@@ -1387,7 +1432,8 @@
       "library": null,
       "paper": "10.1080/02664763.2012.740626",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/detection_structural_breaks": {
       "module": "detection_structural_breaks",
@@ -1407,7 +1453,8 @@
       "library": null,
       "paper": "10.1016/j.rse.2009.08.014",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/regularisation_decomposition_space": {
       "module": "regularisation_decomposition_space",
@@ -1428,7 +1475,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/robust_descriptives_correlation": {
       "module": "robust_descriptives_correlation",
@@ -1449,7 +1497,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/non_parametric_trend": {
       "module": "non_parametric_trend",
@@ -1471,7 +1520,8 @@
       "library": "pymannkendall",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/linearity_battery_linearity": {
       "module": "linearity_battery_linearity",
@@ -1491,7 +1541,8 @@
       "library": null,
       "paper": "10.1111/j.1467-9892.1993.tb00139.x",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/multivariate_outlier_detection": {
       "module": "multivariate_outlier_detection",
@@ -1512,7 +1563,8 @@
       "library": null,
       "paper": "10.1080/10618600.2012.672100",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c01_preparation_prechecks/battery_normality_edf": {
       "module": "battery_normality_edf",
@@ -1536,7 +1588,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/profiling_quality_report": {
       "module": "profiling_quality_report",
@@ -1557,7 +1610,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/missingness_patterns": {
       "module": "missingness_patterns",
@@ -1578,7 +1632,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/battery_parametric_mean": {
       "module": "battery_parametric_mean",
@@ -1599,7 +1654,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/battery_non_parametric": {
       "module": "battery_non_parametric",
@@ -1620,7 +1676,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c01_preparation_prechecks/portmanteau_autocorrelation": {
       "module": "portmanteau_autocorrelation",
@@ -1640,7 +1697,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c01_preparation_prechecks/bds_test": {
       "module": "bds_test",
@@ -1659,7 +1717,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c01_preparation_prechecks/long_run_variance": {
       "module": "long_run_variance",
@@ -1678,7 +1737,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c01_preparation_prechecks/bubble_tests": {
       "module": "bubble_tests",
@@ -1698,7 +1758,8 @@
       "library": null,
       "paper": "10.1111/iere.12132",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c01_preparation_prechecks/cross_sectional_dependence": {
       "module": "cross_sectional_dependence",
@@ -1717,7 +1778,8 @@
       "library": null,
       "paper": "10.1007/s00181-020-01875-7",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c01_preparation_prechecks/multicollinearity": {
       "module": "multicollinearity",
@@ -1737,7 +1799,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c01_preparation_prechecks/auto_orders": {
       "module": "auto_orders",
@@ -1757,7 +1820,8 @@
       "library": "statsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/stability_unknown_break": {
       "module": "stability_unknown_break",
@@ -1776,7 +1840,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c01_preparation_prechecks/long_memory": {
       "module": "long_memory",
@@ -1796,7 +1861,8 @@
       "library": "nolds",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/anomaly_detection": {
       "module": "anomaly_detection",
@@ -1815,7 +1881,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c01_preparation_prechecks/ts_features": {
       "module": "ts_features",
@@ -1835,7 +1902,8 @@
       "library": "tsfresh",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/distance_independence": {
       "module": "distance_independence",
@@ -1854,7 +1922,8 @@
       "library": "dcor",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/entropy_diagnostics": {
       "module": "entropy_diagnostics",
@@ -1873,7 +1942,8 @@
       "library": "antropy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/recurrence_quantification": {
       "module": "recurrence_quantification",
@@ -1892,7 +1962,8 @@
       "library": "PyRQA",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c01_preparation_prechecks/benford_tests": {
       "module": "benford_tests",
@@ -1911,7 +1982,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c02_univariate_forecasting/classical_univariate_forecasting": {
       "module": "classical_univariate_forecasting",
@@ -1933,7 +2005,8 @@
       "library": "statsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/grouped_arima_ets": {
       "module": "grouped_arima_ets",
@@ -1953,7 +2026,8 @@
       "library": "statsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/prophet": {
       "module": "prophet",
@@ -1973,7 +2047,8 @@
       "library": "prophet",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/adam_exponential_smoothing": {
       "module": "adam_exponential_smoothing",
@@ -1995,7 +2070,8 @@
       "library": null,
       "paper": "10.1201/9781003452652",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c02_univariate_forecasting/neural_network_forecasting": {
       "module": "neural_network_forecasting",
@@ -2015,7 +2091,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c02_univariate_forecasting/recursive_ml_forecasting": {
       "module": "recursive_ml_forecasting",
@@ -2036,7 +2113,8 @@
       "library": "skforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/intermittent_sparse_demand": {
       "module": "intermittent_sparse_demand",
@@ -2058,7 +2136,8 @@
       "library": "statsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/long_memory_fractional": {
       "module": "long_memory_fractional",
@@ -2080,7 +2159,8 @@
       "library": null,
       "paper": "10.2307/2347679",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c02_univariate_forecasting/distributed_lag_ardl": {
       "module": "distributed_lag_ardl",
@@ -2102,7 +2182,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c02_univariate_forecasting/maximum_entropy_bootstrap": {
       "module": "maximum_entropy_bootstrap",
@@ -2121,7 +2202,8 @@
       "library": null,
       "paper": "10.1016/j.asieco.2006.09.001",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c02_univariate_forecasting/benchmark_forecasters": {
       "module": "benchmark_forecasters",
@@ -2140,7 +2222,8 @@
       "library": "statsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/dynamic_regression": {
       "module": "dynamic_regression",
@@ -2160,7 +2243,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c02_univariate_forecasting/intervention_analysis": {
       "module": "intervention_analysis",
@@ -2179,7 +2263,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c02_univariate_forecasting/fan_charts": {
       "module": "fan_charts",
@@ -2198,7 +2283,8 @@
       "library": "statsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/global_tree_forecasting": {
       "module": "global_tree_forecasting",
@@ -2217,7 +2303,8 @@
       "library": "mlforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/bagged_forecasts": {
       "module": "bagged_forecasts",
@@ -2236,7 +2323,8 @@
       "library": "statsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/direct_multistep": {
       "module": "direct_multistep",
@@ -2255,7 +2343,8 @@
       "library": "sktime",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/conformal_intervals": {
       "module": "conformal_intervals",
@@ -2274,7 +2363,8 @@
       "library": "mapie",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c02_univariate_forecasting/auto_selection": {
       "module": "auto_selection",
@@ -2293,7 +2383,8 @@
       "library": "sktime",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c03_multivariate_nowcasting/reduced_form_var": {
       "module": "reduced_form_var",
@@ -2319,7 +2410,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c03_multivariate_nowcasting/bayesian_var": {
       "module": "bayesian_var",
@@ -2343,7 +2435,8 @@
       "library": null,
       "paper": "10.1162/REST_a_00483",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/bayesian_var_gibbs": {
       "module": "bayesian_var_gibbs",
@@ -2366,7 +2459,8 @@
       "library": null,
       "paper": "10.1561/0800000013",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/tvp_var_stochastic": {
       "module": "tvp_var_stochastic",
@@ -2389,7 +2483,8 @@
       "library": null,
       "paper": "10.1111/j.1467-937X.2005.00353.x",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/dynamic_factor_nowcasting": {
       "module": "dynamic_factor_nowcasting",
@@ -2411,7 +2506,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c03_multivariate_nowcasting/mixed_frequency_bayesian": {
       "module": "mixed_frequency_bayesian",
@@ -2432,7 +2528,8 @@
       "library": null,
       "paper": "10.1080/07350015.2014.954707",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/midas_regression": {
       "module": "midas_regression",
@@ -2454,7 +2551,8 @@
       "library": null,
       "paper": "10.1080/07474930600972467",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/high_dimensional_penalized": {
       "module": "high_dimensional_penalized",
@@ -2475,7 +2573,8 @@
       "library": null,
       "paper": "10.1016/j.ijforecast.2017.01.003",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/hierarchical_global_local": {
       "module": "hierarchical_global_local",
@@ -2496,7 +2595,8 @@
       "library": null,
       "paper": "10.1016/j.ijforecast.2025.02.001",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/sparse_dynamic_factor": {
       "module": "sparse_dynamic_factor",
@@ -2517,7 +2617,8 @@
       "library": null,
       "paper": "10.1007/s11222-023-10378-1",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/high_dimensional_mixed": {
       "module": "high_dimensional_mixed",
@@ -2538,7 +2639,8 @@
       "library": null,
       "paper": "10.1080/07350015.2021.1899933",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/time_varying_parameter": {
       "module": "time_varying_parameter",
@@ -2559,7 +2661,8 @@
       "library": null,
       "paper": "10.3390/econometrics8020020",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/bayesian_var_vhar": {
       "module": "bayesian_var_vhar",
@@ -2580,7 +2683,8 @@
       "library": null,
       "paper": "10.1080/00949655.2023.2281644",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/pca_mixed_variables": {
       "module": "pca_mixed_variables",
@@ -2600,7 +2704,8 @@
       "library": null,
       "paper": "10.3386/w32068",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c03_multivariate_nowcasting/nowcast_news": {
       "module": "nowcast_news",
@@ -2620,7 +2725,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c03_multivariate_nowcasting/conditional_forecasts": {
       "module": "conditional_forecasts",
@@ -2639,7 +2745,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c03_multivariate_nowcasting/favar": {
       "module": "favar",
@@ -2658,7 +2765,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c03_multivariate_nowcasting/varmax": {
       "module": "varmax",
@@ -2677,7 +2785,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c03_multivariate_nowcasting/bridge_midas": {
       "module": "bridge_midas",
@@ -2697,7 +2806,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c03_multivariate_nowcasting/large_bvar": {
       "module": "large_bvar",
@@ -2716,7 +2826,8 @@
       "library": "pymc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c03_multivariate_nowcasting/shadow_rate_var": {
       "module": "shadow_rate_var",
@@ -2735,7 +2846,8 @@
       "library": "srvar-toolkit",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c03_multivariate_nowcasting/sparse_var": {
       "module": "sparse_var",
@@ -2754,7 +2866,8 @@
       "library": "skglm",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c04_structural_shocks/svar_irf_fevd": {
       "module": "svar_irf_fevd",
@@ -2776,7 +2889,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c04_structural_shocks/driven_svar_identification": {
       "module": "driven_svar_identification",
@@ -2804,7 +2918,8 @@
       "library": null,
       "paper": "10.18637/jss.v097.i05",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c04_structural_shocks/sign_restriction_svar": {
       "module": "sign_restriction_svar",
@@ -2825,7 +2940,8 @@
       "library": null,
       "paper": "10.1016/j.jmoneco.2004.05.007",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c04_structural_shocks/local_projections_lp": {
       "module": "local_projections_lp",
@@ -2849,7 +2965,8 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c04_structural_shocks/bayesian_structural_var_identified_through": {
       "module": "bayesian_structural_var_identified_through",
@@ -2873,7 +2990,8 @@
       "library": null,
       "paper": "10.1016/j.jedc.2020.103862",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c04_structural_shocks/bayesian_structural_var_sign_zero": {
       "module": "bayesian_structural_var_sign_zero",
@@ -2895,7 +3013,8 @@
       "library": null,
       "paper": "10.3982/ECTA14468",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c04_structural_shocks/smooth_transition_threshold": {
       "module": "smooth_transition_threshold",
@@ -2917,7 +3036,8 @@
       "library": null,
       "paper": "10.1080/07474938.2026.2673986",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c04_structural_shocks/gaussian_student_mixture": {
       "module": "gaussian_student_mixture",
@@ -2939,7 +3059,8 @@
       "library": null,
       "paper": "10.1016/j.jeconom.2016.02.012",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c04_structural_shocks/desparsified_debiased_lasso": {
       "module": "desparsified_debiased_lasso",
@@ -2959,7 +3080,8 @@
       "library": null,
       "paper": "10.1016/j.jeconom.2022.08.008",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c04_structural_shocks/residual_diagnostics_reduced": {
       "module": "residual_diagnostics_reduced",
@@ -2981,7 +3103,8 @@
       "library": null,
       "paper": "10.1007/s00362-016-0744-0",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c04_structural_shocks/proxy_svar": {
       "module": "proxy_svar",
@@ -3001,7 +3124,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c04_structural_shocks/nongaussian_identification": {
       "module": "nongaussian_identification",
@@ -3021,7 +3145,8 @@
       "library": "SVARpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c04_structural_shocks/irf_bootstrap_bands": {
       "module": "irf_bootstrap_bands",
@@ -3040,7 +3165,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c04_structural_shocks/lag_augmented_lp": {
       "module": "lag_augmented_lp",
@@ -3059,7 +3185,8 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c04_structural_shocks/ms_var": {
       "module": "ms_var",
@@ -3078,7 +3205,8 @@
       "library": null,
       "paper": "10.1007/978-3-642-51684-9",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c04_structural_shocks/max_share_identification": {
       "module": "max_share_identification",
@@ -3097,7 +3225,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c04_structural_shocks/combined_restrictions": {
       "module": "combined_restrictions",
@@ -3116,7 +3245,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c04_structural_shocks/panel_local_projections": {
       "module": "panel_local_projections",
@@ -3135,7 +3265,8 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c05_cointegration/johansen_restricted_vecm": {
       "module": "johansen_restricted_vecm",
@@ -3156,7 +3287,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c05_cointegration/vecm_estimate_johansen": {
       "module": "vecm_estimate_johansen",
@@ -3178,7 +3310,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c05_cointegration/ardl_uecm_estimation": {
       "module": "ardl_uecm_estimation",
@@ -3203,7 +3336,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c05_cointegration/dynamic_ardl_ecm": {
       "module": "dynamic_ardl_ecm",
@@ -3224,7 +3358,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c05_cointegration/modified_ols_cointegrating": {
       "module": "modified_ols_cointegrating",
@@ -3245,7 +3380,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c05_cointegration/fractionally_cointegrated_var": {
       "module": "fractionally_cointegrated_var",
@@ -3267,7 +3403,8 @@
       "library": null,
       "paper": "10.3982/ECTA9299",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c05_cointegration/nonlinear_ardl_nardl": {
       "module": "nonlinear_ardl_nardl",
@@ -3288,7 +3425,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c05_cointegration/consistent_monitoring_stationarity": {
       "module": "consistent_monitoring_stationarity",
@@ -3308,7 +3446,8 @@
       "library": null,
       "paper": "10.1111/jtsa.12247",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c05_cointegration/gregory_hansen": {
       "module": "gregory_hansen",
@@ -3327,7 +3466,8 @@
       "library": null,
       "paper": "10.1016/0304-4076(69)41685-7",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c05_cointegration/vecm_restrictions": {
       "module": "vecm_restrictions",
@@ -3347,7 +3487,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c05_cointegration/panel_cointegration": {
       "module": "panel_cointegration",
@@ -3366,7 +3507,8 @@
       "library": null,
       "paper": "10.1111/j.1468-0084.2007.00477.x",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c05_cointegration/threshold_ecm": {
       "module": "threshold_ecm",
@@ -3385,7 +3527,8 @@
       "library": null,
       "paper": "10.1016/S0304-4076(02)00097-0",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c05_cointegration/canonical_cointegrating": {
       "module": "canonical_cointegrating",
@@ -3404,7 +3547,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c06_volatility_regimes/univariate_garch_family": {
       "module": "univariate_garch_family",
@@ -3428,7 +3572,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c06_volatility_regimes/dcc_mgarch": {
       "module": "dcc_mgarch",
@@ -3452,7 +3597,8 @@
       "library": "mvgarch",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c06_volatility_regimes/markov_switching": {
       "module": "markov_switching",
@@ -3473,7 +3619,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c06_volatility_regimes/markov_switching_garch": {
       "module": "markov_switching_garch",
@@ -3498,7 +3645,8 @@
       "library": null,
       "paper": "10.1093/jjfinec/nbh020",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c06_volatility_regimes/threshold": {
       "module": "threshold",
@@ -3523,7 +3671,8 @@
       "library": null,
       "paper": "10.2202/1558-3708.1024",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c06_volatility_regimes/univariate_garch_variants": {
       "module": "univariate_garch_variants",
@@ -3544,7 +3693,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c06_volatility_regimes/multivariate_garch_dynamic": {
       "module": "multivariate_garch_dynamic",
@@ -3565,7 +3715,8 @@
       "library": "mvgarch",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c06_volatility_regimes/realized_variance_intraday": {
       "module": "realized_variance_intraday",
@@ -3586,7 +3737,8 @@
       "library": null,
       "paper": "10.1093/jjfinec/nbh001",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c06_volatility_regimes/har_realized_volatility": {
       "module": "har_realized_volatility",
@@ -3607,7 +3759,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c06_volatility_regimes/generalized_autoregressive_score": {
       "module": "generalized_autoregressive_score",
@@ -3628,7 +3781,8 @@
       "library": null,
       "paper": "10.1002/jae.1279",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c06_volatility_regimes/garch_midas": {
       "module": "garch_midas",
@@ -3649,7 +3803,8 @@
       "library": null,
       "paper": "10.1162/REST_a_00300",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c06_volatility_regimes/bekk_family_multivariate": {
       "module": "bekk_family_multivariate",
@@ -3670,7 +3825,8 @@
       "library": null,
       "paper": "10.1017/S0266466600009063",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c06_volatility_regimes/hidden_markov_viterbi": {
       "module": "hidden_markov_viterbi",
@@ -3691,7 +3847,8 @@
       "library": "hmmlearn",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c06_volatility_regimes/bayesian_univariate_stochastic": {
       "module": "bayesian_univariate_stochastic",
@@ -3712,7 +3869,8 @@
       "library": null,
       "paper": "10.1016/j.csda.2013.01.002",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c06_volatility_regimes/multivariate_factor_stochastic": {
       "module": "multivariate_factor_stochastic",
@@ -3733,7 +3891,8 @@
       "library": null,
       "paper": "10.1080/10618600.2017.1322091",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c06_volatility_regimes/discrete_time_markov": {
       "module": "discrete_time_markov",
@@ -3753,7 +3912,8 @@
       "library": "quantecon",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c06_volatility_regimes/figarch": {
       "module": "figarch",
@@ -3772,7 +3932,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c06_volatility_regimes/ewma_variance": {
       "module": "ewma_variance",
@@ -3791,7 +3952,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c06_volatility_regimes/realised_garch": {
       "module": "realised_garch",
@@ -3810,7 +3972,8 @@
       "library": null,
       "paper": "10.1002/jae.1234",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c06_volatility_regimes/jump_tests": {
       "module": "jump_tests",
@@ -3829,7 +3992,8 @@
       "library": null,
       "paper": "10.1093/rfs/hhm056",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c06_volatility_regimes/icss_variance_breaks": {
       "module": "icss_variance_breaks",
@@ -3848,7 +4012,8 @@
       "library": "ruptures",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c06_volatility_regimes/tvtp_markov": {
       "module": "tvtp_markov",
@@ -3867,7 +4032,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c06_volatility_regimes/advanced_sv": {
       "module": "advanced_sv",
@@ -3886,7 +4052,8 @@
       "library": "stochvolmodels",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/fixed_effects_ols": {
       "module": "fixed_effects_ols",
@@ -3909,7 +4076,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c07_causality_policy/iv_2sls": {
       "module": "iv_2sls",
@@ -3928,7 +4096,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c07_causality_policy/hac_robust_standard": {
       "module": "hac_robust_standard",
@@ -3951,7 +4120,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c07_causality_policy/staggered_did": {
       "module": "staggered_did",
@@ -3975,7 +4145,8 @@
       "library": "diff-diff",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/did_imputation": {
       "module": "did_imputation",
@@ -3994,7 +4165,8 @@
       "library": "diff-diff",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/rdd_robust": {
       "module": "rdd_robust",
@@ -4014,7 +4186,8 @@
       "library": "rdrobust",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/rdd": {
       "module": "rdd",
@@ -4036,7 +4209,8 @@
       "library": null,
       "paper": "10.1093/restud/rdr043",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c07_causality_policy/synthetic_control": {
       "module": "synthetic_control",
@@ -4057,7 +4231,8 @@
       "library": "pysyncon",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/synthetic_control_prediction": {
       "module": "synthetic_control_prediction",
@@ -4078,7 +4253,8 @@
       "library": "scpi-pkg",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/synthetic_control_pipeline": {
       "module": "synthetic_control_pipeline",
@@ -4105,7 +4281,8 @@
       "library": "pysyncon",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/generalized_synthetic_control": {
       "module": "generalized_synthetic_control",
@@ -4124,7 +4301,8 @@
       "library": null,
       "paper": "10.1017/pan.2016.2",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c07_causality_policy/causal_forests": {
       "module": "causal_forests",
@@ -4146,7 +4324,8 @@
       "library": "econml",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/double_debiased": {
       "module": "double_debiased",
@@ -4167,7 +4346,8 @@
       "library": "DoubleML",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/counterfactual_intervention": {
       "module": "counterfactual_intervention",
@@ -4186,7 +4366,8 @@
       "library": "causalimpact",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/instrumental_variables_2sls": {
       "module": "instrumental_variables_2sls",
@@ -4205,7 +4386,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c07_causality_policy/heterogeneity_robust_dynamic": {
       "module": "heterogeneity_robust_dynamic",
@@ -4224,7 +4406,8 @@
       "library": "diff-diff",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/goodman_bacon_decomposition": {
       "module": "goodman_bacon_decomposition",
@@ -4243,7 +4426,8 @@
       "library": "diff-diff",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/honest_robust_inference": {
       "module": "honest_robust_inference",
@@ -4264,7 +4448,8 @@
       "library": "honestdid",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/rd_multiple_cutoffs": {
       "module": "rd_multiple_cutoffs",
@@ -4284,7 +4469,8 @@
       "library": "rdmulti",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/sensitivity_unobserved_confounding": {
       "module": "sensitivity_unobserved_confounding",
@@ -4303,7 +4489,8 @@
       "library": "PySensemakr",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/ipw_double_treatment": {
       "module": "ipw_double_treatment",
@@ -4325,7 +4512,8 @@
       "library": "DoubleML",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/generalized_moments_hansen": {
       "module": "generalized_moments_hansen",
@@ -4345,7 +4533,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c07_causality_policy/synthetic_did": {
       "module": "synthetic_did",
@@ -4364,7 +4553,8 @@
       "library": "sdid",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/rd_density": {
       "module": "rd_density",
@@ -4383,7 +4573,8 @@
       "library": "rddensity",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/rd_local_randomisation": {
       "module": "rd_local_randomisation",
@@ -4402,7 +4593,8 @@
       "library": "rdlocrand",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/binscatter": {
       "module": "binscatter",
@@ -4421,7 +4613,8 @@
       "library": "binsreg",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/cluster_inference": {
       "module": "cluster_inference",
@@ -4440,7 +4633,8 @@
       "library": "wildboottest",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/weak_iv": {
       "module": "weak_iv",
@@ -4460,7 +4654,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c07_causality_policy/quantile_treatment_effects": {
       "module": "quantile_treatment_effects",
@@ -4480,7 +4675,8 @@
       "library": "econml",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/cate_metalearners": {
       "module": "cate_metalearners",
@@ -4500,7 +4696,8 @@
       "library": "econml",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/policy_learning": {
       "module": "policy_learning",
@@ -4520,7 +4717,8 @@
       "library": "econml",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/event_study_panel": {
       "module": "event_study_panel",
@@ -4540,7 +4738,8 @@
       "library": "paneleventstudy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/marginal_effects": {
       "module": "marginal_effects",
@@ -4559,7 +4758,8 @@
       "library": "marginaleffects",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c07_causality_policy/hdfe_absorption": {
       "module": "hdfe_absorption",
@@ -4579,7 +4779,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c07_causality_policy/estimation_tables": {
       "module": "estimation_tables",
@@ -4598,7 +4799,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/static_panel_estimators": {
       "module": "static_panel_estimators",
@@ -4627,7 +4829,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c08_panel_data/fixed_effects_individual": {
       "module": "fixed_effects_individual",
@@ -4649,7 +4852,8 @@
       "library": null,
       "paper": "10.1177/0049124120926211",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c08_panel_data/beck_katz_panel": {
       "module": "beck_katz_panel",
@@ -4670,7 +4874,8 @@
       "library": null,
       "paper": "10.2307/2082979",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c08_panel_data/hierarchical_multilevel_linear": {
       "module": "hierarchical_multilevel_linear",
@@ -4692,7 +4897,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c08_panel_data/correlated_random_effects": {
       "module": "correlated_random_effects",
@@ -4711,7 +4917,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/heterogeneous_panel": {
       "module": "heterogeneous_panel",
@@ -4730,7 +4937,8 @@
       "library": null,
       "paper": "10.1016/0304-4076(94)01644-F",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c08_panel_data/panel_fama_macbeth": {
       "module": "panel_fama_macbeth",
@@ -4749,7 +4957,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/sur_3sls": {
       "module": "sur_3sls",
@@ -4768,7 +4977,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/panel_quantile": {
       "module": "panel_quantile",
@@ -4787,7 +4997,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/panel_iv_hdfe": {
       "module": "panel_iv_hdfe",
@@ -4806,7 +5017,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/panel_standard_errors": {
       "module": "panel_standard_errors",
@@ -4825,7 +5037,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/panel_count_hdfe": {
       "module": "panel_count_hdfe",
@@ -4844,7 +5057,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/panel_decomposition": {
       "module": "panel_decomposition",
@@ -4864,7 +5078,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/panel_attrition": {
       "module": "panel_attrition",
@@ -4884,7 +5099,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c08_panel_data/akm_two_way": {
       "module": "akm_two_way",
@@ -4903,7 +5119,8 @@
       "library": "pytwoway",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/input_output_leontief": {
       "module": "input_output_leontief",
@@ -4930,7 +5147,8 @@
       "library": null,
       "paper": "10.1017/CBO9780511626982",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/input_output_leontief_simple": {
       "module": "input_output_leontief_simple",
@@ -4964,7 +5182,8 @@
       "library": null,
       "paper": "10.1017/CBO9780511626982",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/global_var": {
       "module": "global_var",
@@ -4992,7 +5211,8 @@
       "library": null,
       "paper": "10.1198/073500104000000019",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/connectedness": {
       "module": "connectedness",
@@ -5014,7 +5234,8 @@
       "library": "diebold-yilmaz",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/frequency_connectedness": {
       "module": "frequency_connectedness",
@@ -5045,7 +5266,8 @@
       "library": null,
       "paper": "10.1093/jjfinec/nby001",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/spatial_regression": {
       "module": "spatial_regression",
@@ -5071,7 +5293,8 @@
       "library": "spreg",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/spatial_weights_diagnostics": {
       "module": "spatial_weights_diagnostics",
@@ -5099,7 +5322,8 @@
       "library": "esda",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/network": {
       "module": "network",
@@ -5122,7 +5346,8 @@
       "library": "networkx",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/bayesian_global_var": {
       "module": "bayesian_global_var",
@@ -5143,7 +5368,8 @@
       "library": null,
       "paper": "10.1002/jae.2504",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/spatial_panel_spatial": {
       "module": "spatial_panel_spatial",
@@ -5164,7 +5390,8 @@
       "library": "spreg",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/spatial_gmm_gs2sls": {
       "module": "spatial_gmm_gs2sls",
@@ -5183,7 +5410,8 @@
       "library": "spreg",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/spatial_dynamic_panel": {
       "module": "spatial_dynamic_panel",
@@ -5203,7 +5431,8 @@
       "library": null,
       "paper": "10.1017/S0266466609100099",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/moran_eigenvector_spatial": {
       "module": "moran_eigenvector_spatial",
@@ -5224,7 +5453,8 @@
       "library": null,
       "paper": "10.1007/s10109-015-0213-7",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/network_estimation_time": {
       "module": "network_estimation_time",
@@ -5243,7 +5473,8 @@
       "library": null,
       "paper": "10.1002/jae.2676",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/factor_adjusted_network": {
       "module": "factor_adjusted_network",
@@ -5263,7 +5494,8 @@
       "library": null,
       "paper": "10.1080/07350015.2023.2257270",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c09_cross_section_networks/geographically_weighted": {
       "module": "geographically_weighted",
@@ -5282,7 +5514,8 @@
       "library": "mgwr",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/spatial_interaction": {
       "module": "spatial_interaction",
@@ -5301,7 +5534,8 @@
       "library": "spint",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/esda": {
       "module": "esda",
@@ -5320,7 +5554,8 @@
       "library": "esda",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/spatial_markov": {
       "module": "spatial_markov",
@@ -5339,7 +5574,8 @@
       "library": "giddy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/areal_interpolation": {
       "module": "areal_interpolation",
@@ -5358,7 +5594,8 @@
       "library": "tobler",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/mrio_accounts": {
       "module": "mrio_accounts",
@@ -5378,7 +5615,8 @@
       "library": "pymrio",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c09_cross_section_networks/network_formation": {
       "module": "network_formation",
@@ -5398,7 +5636,8 @@
       "library": "graspologic",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c10_trend_cycle_statespace/hp_baxter_king": {
       "module": "hp_baxter_king",
@@ -5421,7 +5660,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c10_trend_cycle_statespace/hamilton_regression_filter": {
       "module": "hamilton_regression_filter",
@@ -5442,7 +5682,8 @@
       "library": "quantecon",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c10_trend_cycle_statespace/kalman_filter_smoother": {
       "module": "kalman_filter_smoother",
@@ -5464,7 +5705,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c10_trend_cycle_statespace/dynamic_linear": {
       "module": "dynamic_linear",
@@ -5486,7 +5728,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c10_trend_cycle_statespace/bayesian_state_space": {
       "module": "bayesian_state_space",
@@ -5508,7 +5751,8 @@
       "library": "pymc-extras",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c10_trend_cycle_statespace/multivariate_state_space": {
       "module": "multivariate_state_space",
@@ -5531,7 +5775,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c10_trend_cycle_statespace/sided_hp_filter": {
       "module": "sided_hp_filter",
@@ -5550,7 +5795,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c10_trend_cycle_statespace/bayesian_time_varying": {
       "module": "bayesian_time_varying",
@@ -5571,7 +5817,8 @@
       "library": null,
       "paper": "10.1016/j.jeconom.2018.11.006",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c10_trend_cycle_statespace/bayesian_regression_time": {
       "module": "bayesian_regression_time",
@@ -5591,7 +5838,8 @@
       "library": "pymc-extras",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c10_trend_cycle_statespace/particle_filter_log": {
       "module": "particle_filter_log",
@@ -5611,7 +5859,8 @@
       "library": "particles",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c10_trend_cycle_statespace/beast_bayesian_decomposition": {
       "module": "beast_bayesian_decomposition",
@@ -5631,7 +5880,8 @@
       "library": "rbeast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c10_trend_cycle_statespace/seasonal_trend_decomposition": {
       "module": "seasonal_trend_decomposition",
@@ -5651,7 +5901,8 @@
       "library": null,
       "paper": "10.1287/ijds.2021.0004",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c10_trend_cycle_statespace/stl_decomposition_tolerant": {
       "module": "stl_decomposition_tolerant",
@@ -5670,7 +5921,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c10_trend_cycle_statespace/nonparametric_detrending_output": {
       "module": "nonparametric_detrending_output",
@@ -5690,7 +5942,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c10_trend_cycle_statespace/beveridge_nelson": {
       "module": "beveridge_nelson",
@@ -5709,7 +5962,8 @@
       "library": null,
       "paper": "10.1016/0304-3932(81)90040-4",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c10_trend_cycle_statespace/uc_sv": {
       "module": "uc_sv",
@@ -5728,7 +5982,8 @@
       "library": "pymc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c10_trend_cycle_statespace/mstl": {
       "module": "mstl",
@@ -5747,7 +6002,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c10_trend_cycle_statespace/singular_spectrum": {
       "module": "singular_spectrum",
@@ -5766,7 +6022,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c10_trend_cycle_statespace/boosted_hp": {
       "module": "boosted_hp",
@@ -5785,7 +6042,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c10_trend_cycle_statespace/recursive_least_squares": {
       "module": "recursive_least_squares",
@@ -5804,7 +6062,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c10_trend_cycle_statespace/uc_correlated": {
       "module": "uc_correlated",
@@ -5823,7 +6082,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c10_trend_cycle_statespace/ensemble_kalman": {
       "module": "ensemble_kalman",
@@ -5842,7 +6102,8 @@
       "library": "filterpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c11_decomposition_accounting/productivity": {
       "module": "productivity",
@@ -5862,7 +6123,8 @@
       "library": null,
       "paper": "10.1007/s11123-012-0275-1",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c11_decomposition_accounting/oaxaca": {
       "module": "oaxaca",
@@ -5881,7 +6143,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c11_decomposition_accounting/price_index_numbers": {
       "module": "price_index_numbers",
@@ -5903,7 +6166,8 @@
       "library": "PriceIndexCalc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c11_decomposition_accounting/growth_accounting": {
       "module": "growth_accounting",
@@ -5922,7 +6186,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c11_decomposition_accounting/stochastic_frontier": {
       "module": "stochastic_frontier",
@@ -5941,7 +6206,8 @@
       "library": "pystoned",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c11_decomposition_accounting/dea": {
       "module": "dea",
@@ -5960,7 +6226,8 @@
       "library": "Pyfrontier",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c11_decomposition_accounting/multilateral_indices": {
       "module": "multilateral_indices",
@@ -5979,7 +6246,8 @@
       "library": "PriceIndexCalc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c11_decomposition_accounting/shift_share": {
       "module": "shift_share",
@@ -5998,7 +6266,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c11_decomposition_accounting/reweighting_decomposition": {
       "module": "reweighting_decomposition",
@@ -6017,7 +6286,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c11_decomposition_accounting/structural_decomposition": {
       "module": "structural_decomposition",
@@ -6036,7 +6306,8 @@
       "library": "pymrio",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/quantile_regression": {
       "module": "quantile_regression",
@@ -6058,7 +6329,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c12_distribution_risk/value_risk_expected": {
       "module": "value_risk_expected",
@@ -6081,7 +6353,8 @@
       "library": "riskfolio-lib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/skew_fit_fitted": {
       "module": "skew_fit_fitted",
@@ -6102,7 +6375,8 @@
       "library": null,
       "paper": "10.1111/1467-9868.00391",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c12_distribution_risk/extreme_value_theory": {
       "module": "extreme_value_theory",
@@ -6123,7 +6397,8 @@
       "library": "pyextremes",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/expectile_extreme_tail": {
       "module": "expectile_extreme_tail",
@@ -6144,7 +6419,8 @@
       "library": null,
       "paper": "10.1111/rssb.12254",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c12_distribution_risk/conditional_unconditional_expectiles": {
       "module": "conditional_unconditional_expectiles",
@@ -6164,7 +6440,8 @@
       "library": null,
       "paper": "10.2307/1911031",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c12_distribution_risk/joint_regression_esr": {
       "module": "joint_regression_esr",
@@ -6184,7 +6461,8 @@
       "library": null,
       "paper": "10.1214/19-EJS1560",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c12_distribution_risk/quantile_regression_forests": {
       "module": "quantile_regression_forests",
@@ -6204,7 +6482,8 @@
       "library": "quantile-forest",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/parametric_distribution_fitting": {
       "module": "parametric_distribution_fitting",
@@ -6226,7 +6505,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c12_distribution_risk/copula_dependence_tail": {
       "module": "copula_dependence_tail",
@@ -6247,7 +6527,8 @@
       "library": "copulae",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/regular_vine_copulas": {
       "module": "regular_vine_copulas",
@@ -6268,7 +6549,8 @@
       "library": "pyvinecopulib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/sde_scenario_generation": {
       "module": "sde_scenario_generation",
@@ -6288,7 +6570,8 @@
       "library": "sdepy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/var_backtesting": {
       "module": "var_backtesting",
@@ -6307,7 +6590,8 @@
       "library": null,
       "paper": "10.2307/2527341",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c12_distribution_risk/caviar_fhs": {
       "module": "caviar_fhs",
@@ -6327,7 +6611,8 @@
       "library": null,
       "paper": "10.1198/073500104000000370",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c12_distribution_risk/evt_workflow": {
       "module": "evt_workflow",
@@ -6347,7 +6632,8 @@
       "library": "pyextremes",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/l_moments": {
       "module": "l_moments",
@@ -6367,7 +6653,8 @@
       "library": "lmoments3",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/distributional_regression": {
       "module": "distributional_regression",
@@ -6386,7 +6673,8 @@
       "library": "pygam",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/copula_diagnostics": {
       "module": "copula_diagnostics",
@@ -6406,7 +6694,8 @@
       "library": "copulae",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c12_distribution_risk/stress_scenarios": {
       "module": "stress_scenarios",
@@ -6426,7 +6715,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c12_distribution_risk/implied_density_gar": {
       "module": "implied_density_gar",
@@ -6445,7 +6735,8 @@
       "library": "py-vollib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/small_linear_dsge": {
       "module": "small_linear_dsge",
@@ -6468,7 +6759,8 @@
       "library": "linearsolve",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/structural_simultaneous_equation": {
       "module": "structural_simultaneous_equation",
@@ -6489,7 +6781,8 @@
       "library": "modelflowib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/computable_applied_general": {
       "module": "computable_applied_general",
@@ -6508,7 +6801,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/stock_flow_consistent": {
       "module": "stock_flow_consistent",
@@ -6529,7 +6823,8 @@
       "library": "pysolve3",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/sequence_jacobian": {
       "module": "sequence_jacobian",
@@ -6550,7 +6845,8 @@
       "library": "sequence-jacobian",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/hark_lifecycle": {
       "module": "hark_lifecycle",
@@ -6570,7 +6866,8 @@
       "library": "econ-ark",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/numerical_macro": {
       "module": "numerical_macro",
@@ -6591,7 +6888,8 @@
       "library": "quantecon",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/nonlinear_perfect_foresight": {
       "module": "nonlinear_perfect_foresight",
@@ -6610,7 +6908,8 @@
       "library": "econpizza",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/dsge_perturbation": {
       "module": "dsge_perturbation",
@@ -6631,7 +6930,8 @@
       "library": "gEconpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/linear_re_solution": {
       "module": "linear_re_solution",
@@ -6651,7 +6951,8 @@
       "library": "linearsolve",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/sfc_system_dynamics": {
       "module": "sfc_system_dynamics",
@@ -6671,7 +6972,8 @@
       "library": "pysolve3",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c13_heterogeneous_agent_ge/agent_based_macro": {
       "module": "agent_based_macro",
@@ -6691,7 +6993,8 @@
       "library": "mesa",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/general_bayesian_inference": {
       "module": "general_bayesian_inference",
@@ -6713,7 +7016,8 @@
       "library": "cmdstanpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/bayesian_regression": {
       "module": "bayesian_regression",
@@ -6734,7 +7038,8 @@
       "library": "bambi",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/general_bugs_style": {
       "module": "general_bugs_style",
@@ -6753,7 +7058,8 @@
       "library": "pymc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/posterior_diagnostics": {
       "module": "posterior_diagnostics",
@@ -6772,7 +7078,8 @@
       "library": "arviz",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/mcmc_convergence_diagnostics": {
       "module": "mcmc_convergence_diagnostics",
@@ -6798,7 +7105,8 @@
       "library": "arviz",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/bayesian_visualization_extractors": {
       "module": "bayesian_visualization_extractors",
@@ -6824,7 +7132,8 @@
       "library": "arviz",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/bayesian_structural_time": {
       "module": "bayesian_structural_time",
@@ -6845,7 +7154,8 @@
       "library": "pymc-extras",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/sequential_monte_carlo": {
       "module": "sequential_monte_carlo",
@@ -6864,7 +7174,8 @@
       "library": "particles",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/loo_waic_stacking": {
       "module": "loo_waic_stacking",
@@ -6884,7 +7195,8 @@
       "library": "arviz",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/bayes_factors_rope": {
       "module": "bayes_factors_rope",
@@ -6904,7 +7216,8 @@
       "library": "arviz",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/variational_inference": {
       "module": "variational_inference",
@@ -6923,7 +7236,8 @@
       "library": "pymc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/prior_elicitation": {
       "module": "prior_elicitation",
@@ -6943,7 +7257,8 @@
       "library": "preliz",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/bart": {
       "module": "bart",
@@ -6962,7 +7277,8 @@
       "library": "pymc-bart",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c14_bayesian_toolkit/gaussian_process": {
       "module": "gaussian_process",
@@ -6981,7 +7297,8 @@
       "library": "pymc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c15_model_evaluation/diebold_mariano_backtest": {
       "module": "diebold_mariano_backtest",
@@ -7001,7 +7318,8 @@
       "library": "dieboldmariano",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c15_model_evaluation/confidence_set": {
       "module": "confidence_set",
@@ -7022,7 +7340,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c15_model_evaluation/breusch_godfrey_breusch": {
       "module": "breusch_godfrey_breusch",
@@ -7043,7 +7362,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c15_model_evaluation/arch": {
       "module": "arch",
@@ -7062,7 +7382,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c15_model_evaluation/density_forecast_evaluation": {
       "module": "density_forecast_evaluation",
@@ -7086,7 +7407,8 @@
       "library": "scoringrules",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c15_model_evaluation/accuracy_metrics": {
       "module": "accuracy_metrics",
@@ -7105,7 +7427,8 @@
       "library": "utilsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c15_model_evaluation/scoring_rules": {
       "module": "scoring_rules",
@@ -7124,7 +7447,8 @@
       "library": "scoringrules",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c15_model_evaluation/nested_predictive_tests": {
       "module": "nested_predictive_tests",
@@ -7143,7 +7467,8 @@
       "library": "dieboldmariano",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c15_model_evaluation/spa_reality_check": {
       "module": "spa_reality_check",
@@ -7162,7 +7487,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c15_model_evaluation/forecast_rationality": {
       "module": "forecast_rationality",
@@ -7181,7 +7507,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c15_model_evaluation/interval_evaluation": {
       "module": "interval_evaluation",
@@ -7200,7 +7527,8 @@
       "library": "scoringrules",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c15_model_evaluation/density_evaluation": {
       "module": "density_evaluation",
@@ -7219,7 +7547,8 @@
       "library": "scoringrules",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c15_model_evaluation/regression_diagnostics": {
       "module": "regression_diagnostics",
@@ -7238,7 +7567,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c15_model_evaluation/non_nested_tests": {
       "module": "non_nested_tests",
@@ -7257,7 +7587,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c15_model_evaluation/meta_analysis": {
       "module": "meta_analysis",
@@ -7277,7 +7608,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c16_limited_dependent/binomial_glm_recession": {
       "module": "binomial_glm_recession",
@@ -7296,7 +7628,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c16_limited_dependent/roc_auc_binary": {
       "module": "roc_auc_binary",
@@ -7315,7 +7648,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c16_limited_dependent/high_dimensional_way": {
       "module": "high_dimensional_way",
@@ -7335,7 +7669,8 @@
       "library": null,
       "paper": "10.1016/j.jeconom.2015.12.014",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c16_limited_dependent/ordered_choice": {
       "module": "ordered_choice",
@@ -7355,7 +7690,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c16_limited_dependent/count_models": {
       "module": "count_models",
@@ -7375,7 +7711,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c16_limited_dependent/tobit_censored": {
       "module": "tobit_censored",
@@ -7394,7 +7731,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c16_limited_dependent/heckman_selection": {
       "module": "heckman_selection",
@@ -7413,7 +7751,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c16_limited_dependent/fractional_beta": {
       "module": "fractional_beta",
@@ -7432,7 +7771,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c16_limited_dependent/unordered_choice": {
       "module": "unordered_choice",
@@ -7451,7 +7791,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c16_limited_dependent/classification_evaluation": {
       "module": "classification_evaluation",
@@ -7470,7 +7811,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c17_forecast_combination/ensemble_forecast_combination": {
       "module": "ensemble_forecast_combination",
@@ -7489,7 +7831,8 @@
       "library": "sktime",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c17_forecast_combination/online_probabilistic_forecast": {
       "module": "online_probabilistic_forecast",
@@ -7508,7 +7851,8 @@
       "library": null,
       "paper": "10.1016/j.jeconom.2021.11.008",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c17_forecast_combination/coherent_forecast_reconciliation": {
       "module": "coherent_forecast_reconciliation",
@@ -7527,7 +7871,8 @@
       "library": "hierarchicalforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c17_forecast_combination/hierarchical_grouped_reconciliation": {
       "module": "hierarchical_grouped_reconciliation",
@@ -7546,7 +7891,8 @@
       "library": "hierarchicalforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c17_forecast_combination/combination_weights": {
       "module": "combination_weights",
@@ -7565,7 +7911,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c17_forecast_combination/density_combination": {
       "module": "density_combination",
@@ -7585,7 +7932,8 @@
       "library": "scoringrules",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c17_forecast_combination/dynamic_model_averaging": {
       "module": "dynamic_model_averaging",
@@ -7604,7 +7952,8 @@
       "library": "pymc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c17_forecast_combination/forecast_stacking": {
       "module": "forecast_stacking",
@@ -7623,7 +7972,8 @@
       "library": "sktime",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c17_forecast_combination/temporal_hierarchy": {
       "module": "temporal_hierarchy",
@@ -7642,7 +7992,8 @@
       "library": "hierarchicalforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c18_yield_curve/nelson_siegel_svensson": {
       "module": "nelson_siegel_svensson",
@@ -7662,7 +8013,8 @@
       "library": "nelson-siegel-svensson",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c18_yield_curve/parametric_yield_curve": {
       "module": "parametric_yield_curve",
@@ -7682,7 +8034,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c18_yield_curve/arbitrage_free_affine": {
       "module": "arbitrage_free_affine",
@@ -7701,7 +8054,8 @@
       "library": null,
       "paper": "10.1093/rfs/hhq128",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c18_yield_curve/nonparametric_time_varying": {
       "module": "nonparametric_time_varying",
@@ -7720,7 +8074,8 @@
       "library": null,
       "paper": "10.1016/j.jeconom.2020.04.014",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c18_yield_curve/acm_term_premium": {
       "module": "acm_term_premium",
@@ -7739,7 +8094,8 @@
       "library": null,
       "paper": "10.1016/j.jfineco.2013.04.009",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c18_yield_curve/curve_bootstrapping": {
       "module": "curve_bootstrapping",
@@ -7758,7 +8114,8 @@
       "library": "QuantLib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c18_yield_curve/dynamic_nelson_siegel": {
       "module": "dynamic_nelson_siegel",
@@ -7777,7 +8134,8 @@
       "library": "nelson-siegel-svensson",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c18_yield_curve/shadow_short_rate": {
       "module": "shadow_short_rate",
@@ -7796,7 +8154,8 @@
       "library": "srvar-toolkit",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c18_yield_curve/bond_return_predictability": {
       "module": "bond_return_predictability",
@@ -7815,7 +8174,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c19_business_cycle_dating/harding_pagan_bbq": {
       "module": "harding_pagan_bbq",
@@ -7835,7 +8195,8 @@
       "library": null,
       "paper": "10.1016/S0304-3932(01)00108-8",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c19_business_cycle_dating/change_point_detection": {
       "module": "change_point_detection",
@@ -7855,7 +8216,8 @@
       "library": "ruptures",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c19_business_cycle_dating/bayesian_change_point": {
       "module": "bayesian_change_point",
@@ -7874,7 +8236,8 @@
       "library": null,
       "paper": "10.1080/01621459.1993.10594323",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c19_business_cycle_dating/energy_statistics_nonparametric": {
       "module": "energy_statistics_nonparametric",
@@ -7894,7 +8257,8 @@
       "library": null,
       "paper": "10.1080/01621459.2013.849605",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c19_business_cycle_dating/ms_recession_dating": {
       "module": "ms_recession_dating",
@@ -7914,7 +8278,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c19_business_cycle_dating/bry_boschan": {
       "module": "bry_boschan",
@@ -7934,7 +8299,8 @@
       "library": null,
       "paper": "10.1016/S0304-3932(01)00108-8",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c19_business_cycle_dating/online_change_detection": {
       "module": "online_change_detection",
@@ -7953,7 +8319,8 @@
       "library": "skchange",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c19_business_cycle_dating/multivariate_changepoints": {
       "module": "multivariate_changepoints",
@@ -7972,7 +8339,8 @@
       "library": "ruptures",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c19_business_cycle_dating/matrix_profile": {
       "module": "matrix_profile",
@@ -7991,7 +8359,8 @@
       "library": "stumpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/regularized_regression_lasso": {
       "module": "regularized_regression_lasso",
@@ -8013,7 +8382,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/random_forests_oob": {
       "module": "random_forests_oob",
@@ -8033,7 +8403,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/component_wise_gradient": {
       "module": "component_wise_gradient",
@@ -8053,7 +8424,8 @@
       "library": null,
       "paper": "10.1214/07-STS242",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/bayesian_averaging": {
       "module": "bayesian_averaging",
@@ -8073,7 +8445,8 @@
       "library": null,
       "paper": "10.18637/jss.v068.i04",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/grouped_level_penalized": {
       "module": "grouped_level_penalized",
@@ -8093,7 +8466,8 @@
       "library": "skglm",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/advanced_lasso": {
       "module": "advanced_lasso",
@@ -8112,7 +8486,8 @@
       "library": "skglm",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/debiased_inference": {
       "module": "debiased_inference",
@@ -8131,7 +8506,8 @@
       "library": "doubleml",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/gradient_boosting": {
       "module": "gradient_boosting",
@@ -8150,7 +8526,8 @@
       "library": "lightgbm",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/explainability": {
       "module": "explainability",
@@ -8169,7 +8546,8 @@
       "library": "shap",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/glassbox_models": {
       "module": "glassbox_models",
@@ -8188,7 +8566,8 @@
       "library": "interpret",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/conformal_prediction": {
       "module": "conformal_prediction",
@@ -8207,7 +8586,8 @@
       "library": "mapie",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/bayesian_shrinkage": {
       "module": "bayesian_shrinkage",
@@ -8226,7 +8606,8 @@
       "library": "bambi",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c20_highdim_shrinkage_ml/gam_prediction": {
       "module": "gam_prediction",
@@ -8245,7 +8626,8 @@
       "library": "pygam",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c21_systemic_risk/market_systemic_risk": {
       "module": "market_systemic_risk",
@@ -8267,7 +8649,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c21_systemic_risk/financial_network_contagion": {
       "module": "financial_network_contagion",
@@ -8287,7 +8670,8 @@
       "library": null,
       "paper": "10.1038/srep00541",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c21_systemic_risk/bayesian_interbank_network": {
       "module": "bayesian_interbank_network",
@@ -8307,7 +8691,8 @@
       "library": null,
       "paper": "10.1287/mnsc.2016.2546",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c21_systemic_risk/mes_srisk": {
       "module": "mes_srisk",
@@ -8326,7 +8711,8 @@
       "library": null,
       "paper": "10.1093/rfs/hhw088",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c21_systemic_risk/absorption_ratio": {
       "module": "absorption_ratio",
@@ -8345,7 +8731,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c21_systemic_risk/granger_networks": {
       "module": "granger_networks",
@@ -8365,7 +8752,8 @@
       "library": "networkx",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c21_systemic_risk/financial_stress_index": {
       "module": "financial_stress_index",
@@ -8384,7 +8772,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c21_systemic_risk/correlation_filtering": {
       "module": "correlation_filtering",
@@ -8403,7 +8792,8 @@
       "library": "networkx",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c22_inequality/inequality_indices_lorenz": {
       "module": "inequality_indices_lorenz",
@@ -8423,7 +8813,8 @@
       "library": "IneqPy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c22_inequality/tax_progressivity_redistribution": {
       "module": "tax_progressivity_redistribution",
@@ -8449,7 +8840,8 @@
       "library": null,
       "paper": "10.2307/2648789",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c22_inequality/drivers_inequality_change": {
       "module": "drivers_inequality_change",
@@ -8474,7 +8866,8 @@
       "library": null,
       "paper": "10.3982/ECTA6822",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c22_inequality/complex_survey_aware": {
       "module": "complex_survey_aware",
@@ -8494,7 +8887,8 @@
       "library": null,
       "paper": "10.18148/srm/2009.v3i3.369",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c22_inequality/gb2_parametric_income": {
       "module": "gb2_parametric_income",
@@ -8515,7 +8909,8 @@
       "library": null,
       "paper": "10.2307/1913469",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c22_inequality/affluence_richness_indices": {
       "module": "affluence_richness_indices",
@@ -8536,7 +8931,8 @@
       "library": null,
       "paper": "10.1111/j.1475-4991.2010.00404.x",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c22_inequality/poverty_measures": {
       "module": "poverty_measures",
@@ -8555,7 +8951,8 @@
       "library": "svy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c22_inequality/pareto_tails": {
       "module": "pareto_tails",
@@ -8574,7 +8971,8 @@
       "library": "powerlaw",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c22_inequality/segregation_indices": {
       "module": "segregation_indices",
@@ -8593,7 +8991,8 @@
       "library": "segregation",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c22_inequality/spatial_inequality": {
       "module": "spatial_inequality",
@@ -8612,7 +9011,8 @@
       "library": "inequality",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c22_inequality/mobility": {
       "module": "mobility",
@@ -8631,7 +9031,8 @@
       "library": "giddy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c22_inequality/polarisation": {
       "module": "polarisation",
@@ -8650,7 +9051,8 @@
       "library": "ineqpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c22_inequality/equivalence_scales": {
       "module": "equivalence_scales",
@@ -8669,7 +9071,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c23_real_time_revisions/real_time_revision": {
       "module": "real_time_revision",
@@ -8692,7 +9095,8 @@
       "library": null,
       "paper": "10.1111/j.1538-4616.2008.00115.x",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c23_real_time_revisions/vintage_construction": {
       "module": "vintage_construction",
@@ -8711,7 +9115,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c23_real_time_revisions/realtime_evaluation": {
       "module": "realtime_evaluation",
@@ -8730,7 +9135,8 @@
       "library": "utilsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c23_real_time_revisions/revision_diagnostics": {
       "module": "revision_diagnostics",
@@ -8749,7 +9155,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c23_real_time_revisions/vintage_access": {
       "module": "vintage_access",
@@ -8768,7 +9175,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c24_panel_var/heterogeneous_panel_var": {
       "module": "heterogeneous_panel_var",
@@ -8790,7 +9198,8 @@
       "library": null,
       "paper": "10.1016/0304-4076(94)01644-F",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c24_panel_var/gmm_panel_var": {
       "module": "gmm_panel_var",
@@ -8809,7 +9218,8 @@
       "library": "pydynpd",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c24_panel_var/panel_granger": {
       "module": "panel_granger",
@@ -8828,7 +9238,8 @@
       "library": null,
       "paper": "10.1016/j.econmod.2012.02.014",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c24_panel_var/panel_lp_pvar": {
       "module": "panel_lp_pvar",
@@ -8847,7 +9258,8 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c24_panel_var/pvar_cd_diagnostics": {
       "module": "pvar_cd_diagnostics",
@@ -8866,7 +9278,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c24_panel_var/gvar_weights": {
       "module": "gvar_weights",
@@ -8885,7 +9298,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c25_expectations_surveys/quantifying_qualitative_survey": {
       "module": "quantifying_qualitative_survey",
@@ -8907,7 +9321,8 @@
       "library": null,
       "paper": "10.2307/2553588",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c25_expectations_surveys/design_complex_survey": {
       "module": "design_complex_survey",
@@ -8930,7 +9345,8 @@
       "library": "svy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c25_expectations_surveys/small_area_estimation": {
       "module": "small_area_estimation",
@@ -8951,7 +9367,8 @@
       "library": "samplics",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c25_expectations_surveys/categorical_association_contingency": {
       "module": "categorical_association_contingency",
@@ -8973,7 +9390,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c25_expectations_surveys/density_from_bins": {
       "module": "density_from_bins",
@@ -8992,7 +9410,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c25_expectations_surveys/disagreement_uncertainty": {
       "module": "disagreement_uncertainty",
@@ -9011,7 +9430,8 @@
       "library": "scoringrules",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c25_expectations_surveys/expectations_tests": {
       "module": "expectations_tests",
@@ -9030,7 +9450,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c25_expectations_surveys/survey_weighting": {
       "module": "survey_weighting",
@@ -9049,7 +9470,8 @@
       "library": "svy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c25_expectations_surveys/agreement_measures": {
       "module": "agreement_measures",
@@ -9069,7 +9491,8 @@
       "library": "pingouin",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c26_text_as_data/textual_sentiment_pipeline": {
       "module": "textual_sentiment_pipeline",
@@ -9091,7 +9514,8 @@
       "library": "nltk",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c26_text_as_data/text_preprocessing": {
       "module": "text_preprocessing",
@@ -9110,7 +9534,8 @@
       "library": "nltk",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c26_text_as_data/topic_models": {
       "module": "topic_models",
@@ -9130,7 +9555,8 @@
       "library": "tomotopy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c26_text_as_data/matrix_factorisation_topics": {
       "module": "matrix_factorisation_topics",
@@ -9149,7 +9575,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c26_text_as_data/embeddings": {
       "module": "embeddings",
@@ -9169,7 +9596,8 @@
       "library": "gensim",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c26_text_as_data/news_indices": {
       "module": "news_indices",
@@ -9188,7 +9616,8 @@
       "library": "nltk",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c26_text_as_data/lexicon_sentiment": {
       "module": "lexicon_sentiment",
@@ -9207,7 +9636,8 @@
       "library": "vaderSentiment",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c26_text_as_data/readability": {
       "module": "readability",
@@ -9226,7 +9656,8 @@
       "library": "nltk",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c27_frequency_domain/wavelet_time_frequency": {
       "module": "wavelet_time_frequency",
@@ -9246,7 +9677,8 @@
       "library": "pycwt",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c27_frequency_domain/spectral_periodogram_quick": {
       "module": "spectral_periodogram_quick",
@@ -9267,7 +9699,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c27_frequency_domain/cross_spectral": {
       "module": "cross_spectral",
@@ -9286,7 +9719,8 @@
       "library": "spectrum",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c27_frequency_domain/wavelet_mra": {
       "module": "wavelet_mra",
@@ -9306,7 +9740,8 @@
       "library": "PyWavelets",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c27_frequency_domain/spectral_estimation": {
       "module": "spectral_estimation",
@@ -9325,7 +9760,8 @@
       "library": "spectrum",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c27_frequency_domain/frequency_granger": {
       "module": "frequency_granger",
@@ -9344,7 +9780,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c27_frequency_domain/emd_hilbert": {
       "module": "emd_hilbert",
@@ -9363,7 +9800,8 @@
       "library": "EMD-signal",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c27_frequency_domain/synchrosqueezing": {
       "module": "synchrosqueezing",
@@ -9382,7 +9820,8 @@
       "library": "ssqueezepy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c27_frequency_domain/lomb_scargle": {
       "module": "lomb_scargle",
@@ -9402,7 +9841,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c28_trade_gravity/gravity_bilateral_trade": {
       "module": "gravity_bilateral_trade",
@@ -9425,7 +9865,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c28_trade_gravity/penalized_poisson_pml": {
       "module": "penalized_poisson_pml",
@@ -9446,7 +9887,8 @@
       "library": null,
       "paper": "10.1596/1813-9450-9629",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": null
     },
     "c28_trade_gravity/economic_complexity_rca": {
       "module": "economic_complexity_rca",
@@ -9467,7 +9909,8 @@
       "library": "ecomplexity",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c28_trade_gravity/ge_gravity": {
       "module": "ge_gravity",
@@ -9486,7 +9929,8 @@
       "library": "gegravity",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c28_trade_gravity/gravity_workflow": {
       "module": "gravity_workflow",
@@ -9505,7 +9949,8 @@
       "library": "gme",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c28_trade_gravity/trade_value_added": {
       "module": "trade_value_added",
@@ -9525,7 +9970,8 @@
       "library": "pymrio",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c28_trade_gravity/trade_indices": {
       "module": "trade_indices",
@@ -9544,7 +9990,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c28_trade_gravity/ppml_hdfe": {
       "module": "ppml_hdfe",
@@ -9563,7 +10010,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c29_unsupervised_clustering/distance_dissimilarity_matrix": {
       "module": "distance_dissimilarity_matrix",
@@ -9584,7 +10032,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c29_unsupervised_clustering/partitional_clustering_rule": {
       "module": "partitional_clustering_rule",
@@ -9606,7 +10055,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c29_unsupervised_clustering/hierarchical_clustering_distance": {
       "module": "hierarchical_clustering_distance",
@@ -9628,7 +10078,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c29_unsupervised_clustering/dynamic_time_warping": {
       "module": "dynamic_time_warping",
@@ -9648,7 +10099,8 @@
       "library": "dtaidistance",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c29_unsupervised_clustering/clustering_rule_choice": {
       "module": "clustering_rule_choice",
@@ -9670,7 +10122,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c29_unsupervised_clustering/multidimensional_scaling_classical": {
       "module": "multidimensional_scaling_classical",
@@ -9691,7 +10144,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": null
     },
     "c29_unsupervised_clustering/density_clustering": {
       "module": "density_clustering",
@@ -9710,7 +10164,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c29_unsupervised_clustering/cluster_validation": {
       "module": "cluster_validation",
@@ -9729,7 +10184,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c29_unsupervised_clustering/factor_analysis": {
       "module": "factor_analysis",
@@ -9749,7 +10205,8 @@
       "library": "factor-analyzer",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c29_unsupervised_clustering/correspondence_analysis": {
       "module": "correspondence_analysis",
@@ -9768,7 +10225,8 @@
       "library": "prince",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c29_unsupervised_clustering/timeseries_clustering": {
       "module": "timeseries_clustering",
@@ -9787,7 +10245,8 @@
       "library": "tslearn",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c29_unsupervised_clustering/elastic_distances": {
       "module": "elastic_distances",
@@ -9806,7 +10265,8 @@
       "library": "dtaidistance",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c29_unsupervised_clustering/nonlinear_embedding": {
       "module": "nonlinear_embedding",
@@ -9825,7 +10285,8 @@
       "library": "umap-learn",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c29_unsupervised_clustering/biclustering": {
       "module": "biclustering",
@@ -9844,7 +10305,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c30_duration_survival/km_nelson_aalen": {
       "module": "km_nelson_aalen",
@@ -9865,7 +10327,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c30_duration_survival/cox_ph": {
       "module": "cox_ph",
@@ -9886,7 +10349,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c30_duration_survival/aft_parametric": {
       "module": "aft_parametric",
@@ -9907,7 +10371,8 @@
       "library": "lifelines",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c30_duration_survival/discrete_hazard": {
       "module": "discrete_hazard",
@@ -9927,7 +10392,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c30_duration_survival/competing_risks": {
       "module": "competing_risks",
@@ -9949,7 +10415,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c30_duration_survival/frailty": {
       "module": "frailty",
@@ -9969,7 +10436,8 @@
       "library": "lifelines",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c30_duration_survival/ph_diagnostics": {
       "module": "ph_diagnostics",
@@ -9990,7 +10458,8 @@
       "library": "lifelines",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c30_duration_survival/duration_dependence": {
       "module": "duration_dependence",
@@ -10010,7 +10479,8 @@
       "library": "lifelines",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c31_discrete_choice_demand/blp_demand": {
       "module": "blp_demand",
@@ -10031,7 +10501,8 @@
       "library": "pyblp",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c31_discrete_choice_demand/blp_instruments": {
       "module": "blp_instruments",
@@ -10051,7 +10522,8 @@
       "library": "pyblp",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c31_discrete_choice_demand/demand_elasticities": {
       "module": "demand_elasticities",
@@ -10072,7 +10544,8 @@
       "library": "pyblp",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c31_discrete_choice_demand/merger_simulation": {
       "module": "merger_simulation",
@@ -10093,7 +10566,8 @@
       "library": "pyblp",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c31_discrete_choice_demand/nested_logit": {
       "module": "nested_logit",
@@ -10113,7 +10587,8 @@
       "library": "pyblp",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c31_discrete_choice_demand/multinomial_conditional_logit": {
       "module": "multinomial_conditional_logit",
@@ -10134,7 +10609,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c31_discrete_choice_demand/mixed_logit": {
       "module": "mixed_logit",
@@ -10154,7 +10630,8 @@
       "library": "xlogit",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c31_discrete_choice_demand/choice_welfare": {
       "module": "choice_welfare",
@@ -10175,7 +10652,8 @@
       "library": "pyblp",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/propensity_score": {
       "module": "propensity_score",
@@ -10196,7 +10674,8 @@
       "library": "causallib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/matching_estimators": {
       "module": "matching_estimators",
@@ -10216,7 +10695,8 @@
       "library": "psmpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/bias_corrected_matching": {
       "module": "bias_corrected_matching",
@@ -10235,7 +10715,8 @@
       "library": "causallib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/coarsened_exact_matching": {
       "module": "coarsened_exact_matching",
@@ -10255,7 +10736,8 @@
       "library": "causallib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/ipw_aipw": {
       "module": "ipw_aipw",
@@ -10276,7 +10758,8 @@
       "library": "doubleml",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/balance_diagnostics": {
       "module": "balance_diagnostics",
@@ -10296,7 +10779,8 @@
       "library": "causallib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/subclassification": {
       "module": "subclassification",
@@ -10315,7 +10799,8 @@
       "library": "causallib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/hidden_bias": {
       "module": "hidden_bias",
@@ -10335,7 +10820,8 @@
       "library": "zepid",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c32_matching_weighting/gcomputation_tmle": {
       "module": "gcomputation_tmle",
@@ -10355,7 +10841,8 @@
       "library": "zepid",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c33_nonparametric_semiparametric/kernel_regression": {
       "module": "kernel_regression",
@@ -10375,7 +10862,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c33_nonparametric_semiparametric/bandwidth_selection": {
       "module": "bandwidth_selection",
@@ -10394,7 +10882,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c33_nonparametric_semiparametric/kernel_density": {
       "module": "kernel_density",
@@ -10415,7 +10904,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c33_nonparametric_semiparametric/conditional_quantiles": {
       "module": "conditional_quantiles",
@@ -10435,7 +10925,8 @@
       "library": "quantile-forest",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c33_nonparametric_semiparametric/series_sieve": {
       "module": "series_sieve",
@@ -10455,7 +10946,8 @@
       "library": "formulaic",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c33_nonparametric_semiparametric/partially_linear": {
       "module": "partially_linear",
@@ -10474,7 +10966,8 @@
       "library": "doubleml",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c33_nonparametric_semiparametric/single_index_varying": {
       "module": "single_index_varying",
@@ -10494,7 +10987,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c33_nonparametric_semiparametric/gam_penalised": {
       "module": "gam_penalised",
@@ -10514,7 +11008,8 @@
       "library": "pygam",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c33_nonparametric_semiparametric/specification_tests_np": {
       "module": "specification_tests_np",
@@ -10533,7 +11028,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c34_gmm_mestimation_partial_id/gmm_nonlinear": {
       "module": "gmm_nonlinear",
@@ -10553,7 +11049,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c34_gmm_mestimation_partial_id/gmm_weighting": {
       "module": "gmm_weighting",
@@ -10572,7 +11069,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c34_gmm_mestimation_partial_id/moment_selection": {
       "module": "moment_selection",
@@ -10592,7 +11090,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c34_gmm_mestimation_partial_id/minimum_distance": {
       "module": "minimum_distance",
@@ -10611,7 +11110,8 @@
       "library": "optimagic",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c34_gmm_mestimation_partial_id/empirical_likelihood": {
       "module": "empirical_likelihood",
@@ -10631,7 +11131,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c34_gmm_mestimation_partial_id/smm_indirect": {
       "module": "smm_indirect",
@@ -10651,7 +11152,8 @@
       "library": "optimagic",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c34_gmm_mestimation_partial_id/optimiser_layer": {
       "module": "optimiser_layer",
@@ -10671,7 +11173,8 @@
       "library": "optimagic",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c34_gmm_mestimation_partial_id/partial_identification": {
       "module": "partial_identification",
@@ -10692,7 +11195,8 @@
       "library": "cvxpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c35_resampling_inference/bootstrap_iid": {
       "module": "bootstrap_iid",
@@ -10712,7 +11216,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c35_resampling_inference/block_bootstrap": {
       "module": "block_bootstrap",
@@ -10732,7 +11237,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c35_resampling_inference/stationary_bootstrap": {
       "module": "stationary_bootstrap",
@@ -10751,7 +11257,8 @@
       "library": "arch",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c35_resampling_inference/sieve_bootstrap": {
       "module": "sieve_bootstrap",
@@ -10770,7 +11277,8 @@
       "library": null,
       "paper": "10.2307/3318584",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c35_resampling_inference/wild_bootstrap": {
       "module": "wild_bootstrap",
@@ -10789,7 +11297,8 @@
       "library": "wildboottest",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c35_resampling_inference/wild_cluster_bootstrap": {
       "module": "wild_cluster_bootstrap",
@@ -10808,7 +11317,8 @@
       "library": "wildboottest",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c35_resampling_inference/randomisation_inference": {
       "module": "randomisation_inference",
@@ -10828,7 +11338,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c35_resampling_inference/subsampling_jackknife": {
       "module": "subsampling_jackknife",
@@ -10848,7 +11359,8 @@
       "library": null,
       "paper": "10.1214/aos/1176325770",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c35_resampling_inference/multiple_testing": {
       "module": "multiple_testing",
@@ -10868,7 +11380,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c36_monte_carlo_design/dgp_simulators": {
       "module": "dgp_simulators",
@@ -10890,7 +11403,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c36_monte_carlo_design/size_power": {
       "module": "size_power",
@@ -10910,7 +11424,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c36_monte_carlo_design/coverage_calibration": {
       "module": "coverage_calibration",
@@ -10930,7 +11445,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c36_monte_carlo_design/global_sensitivity": {
       "module": "global_sensitivity",
@@ -10951,7 +11467,8 @@
       "library": "SALib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c36_monte_carlo_design/experimental_designs": {
       "module": "experimental_designs",
@@ -10970,7 +11487,8 @@
       "library": "pyDOE3",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c36_monte_carlo_design/power_analysis": {
       "module": "power_analysis",
@@ -10990,7 +11508,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c36_monte_carlo_design/quasi_random": {
       "module": "quasi_random",
@@ -11010,7 +11529,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c37_asset_pricing_factors/factor_regressions": {
       "module": "factor_regressions",
@@ -11030,7 +11550,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c37_asset_pricing_factors/grs_test": {
       "module": "grs_test",
@@ -11049,7 +11570,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c37_asset_pricing_factors/fama_macbeth": {
       "module": "fama_macbeth",
@@ -11068,7 +11590,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c37_asset_pricing_factors/gmm_factor_pricing": {
       "module": "gmm_factor_pricing",
@@ -11088,7 +11611,8 @@
       "library": "linearmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c37_asset_pricing_factors/portfolio_sorts": {
       "module": "portfolio_sorts",
@@ -11108,7 +11632,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c37_asset_pricing_factors/statistical_factors": {
       "module": "statistical_factors",
@@ -11128,7 +11653,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c37_asset_pricing_factors/event_study": {
       "module": "event_study",
@@ -11148,7 +11674,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c37_asset_pricing_factors/performance_analytics": {
       "module": "performance_analytics",
@@ -11169,7 +11696,8 @@
       "library": "ffn",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/mean_variance": {
       "module": "mean_variance",
@@ -11189,7 +11717,8 @@
       "library": "riskfolio-lib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/covariance_shrinkage": {
       "module": "covariance_shrinkage",
@@ -11209,7 +11738,8 @@
       "library": "skfolio",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/black_litterman": {
       "module": "black_litterman",
@@ -11229,7 +11759,8 @@
       "library": "PyPortfolioOpt",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/risk_parity": {
       "module": "risk_parity",
@@ -11249,7 +11780,8 @@
       "library": "riskfolio-lib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/hierarchical_risk_parity": {
       "module": "hierarchical_risk_parity",
@@ -11269,7 +11801,8 @@
       "library": "riskfolio-lib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/downside_optimisation": {
       "module": "downside_optimisation",
@@ -11289,7 +11822,8 @@
       "library": "riskfolio-lib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/robust_optimisation": {
       "module": "robust_optimisation",
@@ -11308,7 +11842,8 @@
       "library": "cvxpy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/walk_forward_backtest": {
       "module": "walk_forward_backtest",
@@ -11328,7 +11863,8 @@
       "library": "skfolio",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c38_portfolio_allocation/risk_attribution": {
       "module": "risk_attribution",
@@ -11348,7 +11884,8 @@
       "library": "riskfolio-lib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c39_market_microstructure/ohlc_spreads": {
       "module": "ohlc_spreads",
@@ -11367,7 +11904,8 @@
       "library": "bidask",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c39_market_microstructure/liquidity_measures": {
       "module": "liquidity_measures",
@@ -11387,7 +11925,8 @@
       "library": "frds",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c39_market_microstructure/price_impact": {
       "module": "price_impact",
@@ -11407,7 +11946,8 @@
       "library": "frds",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c39_market_microstructure/trade_classification": {
       "module": "trade_classification",
@@ -11427,7 +11967,8 @@
       "library": "frds",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c39_market_microstructure/realised_measures": {
       "module": "realised_measures",
@@ -11447,7 +11988,8 @@
       "library": null,
       "paper": "10.3982/ECTA6495",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c39_market_microstructure/intraday_patterns": {
       "module": "intraday_patterns",
@@ -11467,7 +12009,8 @@
       "library": null,
       "paper": "10.1016/S0927-5398(97)00004-2",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c39_market_microstructure/price_discovery": {
       "module": "price_discovery",
@@ -11488,7 +12031,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c40_option_implied_derivatives/bs_pricing_iv": {
       "module": "bs_pricing_iv",
@@ -11508,7 +12052,8 @@
       "library": "py-vollib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c40_option_implied_derivatives/iv_surface": {
       "module": "iv_surface",
@@ -11529,7 +12074,8 @@
       "library": "QuantLib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c40_option_implied_derivatives/risk_neutral_density": {
       "module": "risk_neutral_density",
@@ -11548,7 +12094,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c40_option_implied_derivatives/model_free_variance": {
       "module": "model_free_variance",
@@ -11568,7 +12115,8 @@
       "library": "QuantLib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c40_option_implied_derivatives/risk_neutral_moments": {
       "module": "risk_neutral_moments",
@@ -11587,7 +12135,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c40_option_implied_derivatives/implied_term_structure": {
       "module": "implied_term_structure",
@@ -11607,7 +12156,8 @@
       "library": "QuantLib",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c40_option_implied_derivatives/stochastic_volatility_models": {
       "module": "stochastic_volatility_models",
@@ -11628,7 +12178,8 @@
       "library": "stochvolmodels",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c41_credit_risk_default/merton_structural": {
       "module": "merton_structural",
@@ -11648,7 +12199,8 @@
       "library": "frds",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c41_credit_risk_default/transition_matrices": {
       "module": "transition_matrices",
@@ -11669,7 +12221,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c41_credit_risk_default/scorecards": {
       "module": "scorecards",
@@ -11690,7 +12243,8 @@
       "library": "optbinning",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c41_credit_risk_default/pd_calibration": {
       "module": "pd_calibration",
@@ -11711,7 +12265,8 @@
       "library": "scikit-learn",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c41_credit_risk_default/lgd_ead": {
       "module": "lgd_ead",
@@ -11731,7 +12286,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c41_credit_risk_default/lifetime_pd": {
       "module": "lifetime_pd",
@@ -11751,7 +12307,8 @@
       "library": "lifelines",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c41_credit_risk_default/portfolio_credit_loss": {
       "module": "portfolio_credit_loss",
@@ -11772,7 +12329,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c42_fiscal_debt_sustainability/debt_dynamics": {
       "module": "debt_dynamics",
@@ -11792,7 +12350,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c42_fiscal_debt_sustainability/debt_projections": {
       "module": "debt_projections",
@@ -11813,7 +12372,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c42_fiscal_debt_sustainability/debt_fan_charts": {
       "module": "debt_fan_charts",
@@ -11833,7 +12393,8 @@
       "library": null,
       "paper": "10.2307/30035919",
       "dataset": null,
-      "wave": "none"
+      "wave": "none",
+      "audited": true
     },
     "c42_fiscal_debt_sustainability/fiscal_reaction": {
       "module": "fiscal_reaction",
@@ -11853,7 +12414,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c42_fiscal_debt_sustainability/fiscal_multipliers": {
       "module": "fiscal_multipliers",
@@ -11873,7 +12435,8 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c42_fiscal_debt_sustainability/structural_balance": {
       "module": "structural_balance",
@@ -11893,7 +12456,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c42_fiscal_debt_sustainability/fiscal_rules": {
       "module": "fiscal_rules",
@@ -11913,7 +12477,8 @@
       "library": "scipy",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c43_microsimulation_taxbenefit/taxbenefit_engine": {
       "module": "taxbenefit_engine",
@@ -11934,7 +12499,8 @@
       "library": "OpenFisca-Core",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c43_microsimulation_taxbenefit/disposable_income": {
       "module": "disposable_income",
@@ -11954,7 +12520,8 @@
       "library": "OpenFisca-Core",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c43_microsimulation_taxbenefit/effective_tax_rates": {
       "module": "effective_tax_rates",
@@ -11974,7 +12541,8 @@
       "library": "OpenFisca-Core",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c43_microsimulation_taxbenefit/distributional_impact": {
       "module": "distributional_impact",
@@ -11993,7 +12561,8 @@
       "library": "policyengine-core",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c43_microsimulation_taxbenefit/labour_supply_response": {
       "module": "labour_supply_response",
@@ -12012,7 +12581,8 @@
       "library": "policyengine-core",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c43_microsimulation_taxbenefit/survey_reweighting": {
       "module": "survey_reweighting",
@@ -12031,7 +12601,8 @@
       "library": "svy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c44_environment_energy_climate/eeio_footprints": {
       "module": "eeio_footprints",
@@ -12052,7 +12623,8 @@
       "library": "pymrio",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c44_environment_energy_climate/index_decomposition": {
       "module": "index_decomposition",
@@ -12071,7 +12643,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c44_environment_energy_climate/iam_scenarios": {
       "module": "iam_scenarios",
@@ -12092,7 +12665,8 @@
       "library": "pyam-iamc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c44_environment_energy_climate/environmental_kuznets": {
       "module": "environmental_kuznets",
@@ -12111,7 +12685,8 @@
       "library": "pyfixest",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c44_environment_energy_climate/weather_normalisation": {
       "module": "weather_normalisation",
@@ -12131,7 +12706,8 @@
       "library": "statsmodels",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c44_environment_energy_climate/climate_macro_mapping": {
       "module": "climate_macro_mapping",
@@ -12151,7 +12727,8 @@
       "library": "pyam-iamc",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c44_environment_energy_climate/kaya_identity": {
       "module": "kaya_identity",
@@ -12171,7 +12748,8 @@
       "library": "pandas",
       "paper": null,
       "dataset": null,
-      "wave": "one"
+      "wave": "one",
+      "audited": true
     },
     "c45_causal_discovery_graphs/constraint_discovery": {
       "module": "constraint_discovery",
@@ -12191,7 +12769,8 @@
       "library": "causal-learn",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c45_causal_discovery_graphs/score_discovery": {
       "module": "score_discovery",
@@ -12211,7 +12790,8 @@
       "library": "causal-learn",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c45_causal_discovery_graphs/lingam": {
       "module": "lingam",
@@ -12231,7 +12811,8 @@
       "library": "lingam",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c45_causal_discovery_graphs/identification": {
       "module": "identification",
@@ -12252,7 +12833,8 @@
       "library": "dowhy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c45_causal_discovery_graphs/refutation": {
       "module": "refutation",
@@ -12272,7 +12854,8 @@
       "library": "dowhy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     },
     "c45_causal_discovery_graphs/independence_tests": {
       "module": "independence_tests",
@@ -12292,7 +12875,8 @@
       "library": "hyppo",
       "paper": null,
       "dataset": null,
-      "wave": "deferred"
+      "wave": "deferred",
+      "audited": null
     }
   }
 }
