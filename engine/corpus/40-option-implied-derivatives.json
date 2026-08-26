@@ -177,8 +177,7 @@
    "sources": [
     "Britten-Jones & Neuberger 2000 (Journal of Finance 55:839-866)",
     "Carr & Wu 2009 (Review of Financial Studies 22:1311)",
-    "CBOE 2019, VIX White Paper",
-    "DOI 10.1111/0022-1082.00228"
+    "CBOE 2019, VIX White Paper"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

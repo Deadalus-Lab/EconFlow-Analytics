@@ -506,8 +506,7 @@
     "the break date is estimated with wide uncertainty and should not be reported as if it were known"
    ],
    "sources": [
-    "Gregory & Hansen 1996 (Journal of Econometrics 70:99-126)",
-    "DOI 10.1016/0304-4076(69)41685-7"
+    "Gregory & Hansen 1996 (Journal of Econometrics 70:99-126)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -596,8 +595,7 @@
    "sources": [
     "Pedroni 1999 (Oxford Bulletin of Economics and Statistics 61:653-670)",
     "Kao 1999 (Journal of Econometrics 90:1-44)",
-    "Westerlund 2007 (Oxford Bulletin of Economics and Statistics 69:709)",
-    "DOI 10.1111/j.1468-0084.2007.00477.x"
+    "Westerlund 2007 (Oxford Bulletin of Economics and Statistics 69:709)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -640,8 +638,7 @@
    ],
    "sources": [
     "Hansen & Seo 2002 (Journal of Econometrics 110:293-318)",
-    "Enders & Siklos 2001 (Journal of Business and Economic Statistics 19:166)",
-    "DOI 10.1016/S0304-4076(02)00097-0"
+    "Enders & Siklos 2001 (Journal of Business and Economic Statistics 19:166)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

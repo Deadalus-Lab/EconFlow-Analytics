@@ -377,8 +377,7 @@
    "sources": [
     "Clark & West 2007 (Journal of Econometrics 138:291-311)",
     "Giacomini & White 2006 (Econometrica 74:1545)",
-    "Giacomini & Rossi 2010 (Journal of Applied Econometrics 25:595)",
-    "DOI 10.1016/j.jeconom.2006.05.023"
+    "Giacomini & Rossi 2010 (Journal of Applied Econometrics 25:595)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -554,8 +553,7 @@
    ],
    "sources": [
     "Amisano & Giacomini 2007 (Journal of Business and Economic Statistics 25:177-190)",
-    "Berkowitz 2001 (Journal of Business and Economic Statistics 19:465)",
-    "DOI 10.1198/073500106000000332"
+    "Berkowitz 2001 (Journal of Business and Economic Statistics 19:465)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

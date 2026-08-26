@@ -85,8 +85,7 @@
    "sources": [
     "Amihud 2002 (Journal of Financial Markets 5:31-56)",
     "Lesmond, Ogden & Trzcinka 1999 (Review of Financial Studies 12:1113)",
-    "Goyenko, Holden & Trzcinka 2009 (Journal of Financial Economics 92:153)",
-    "DOI 10.1016/s1386-4181(01)00024-6"
+    "Goyenko, Holden & Trzcinka 2009 (Journal of Financial Economics 92:153)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -177,8 +176,7 @@
    "sources": [
     "Lee & Ready 1991 (Journal of Finance 46:733-746)",
     "Ellis, Michaely & O'Hara 2000 (Journal of Financial and Quantitative Analysis 35:529)",
-    "Chakrabarty, Li, Nguyen & Van Ness 2007 (Journal of Financial Markets 10:277)",
-    "DOI 10.1111/j.1540-6261.1991.tb02683.x"
+    "Chakrabarty, Li, Nguyen & Van Ness 2007 (Journal of Financial Markets 10:277)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -223,8 +221,7 @@
    "sources": [
     "Zhang, Mykland & Ait-Sahalia 2005 (JASA 100:1394-1411)",
     "Barndorff-Nielsen, Hansen, Lunde & Shephard 2008 (Econometrica 76:1481)",
-    "Jacod, Li, Mykland, Podolskij & Vetter 2009 (Stochastic Processes and their Applications 119:2249)",
-    "DOI 10.3982/ECTA6495"
+    "Jacod, Li, Mykland, Podolskij & Vetter 2009 (Stochastic Processes and their Applications 119:2249)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -269,8 +266,7 @@
    "sources": [
     "Andersen & Bollerslev 1997 (Journal of Empirical Finance 4:115-158)",
     "Ait-Sahalia, Mykland & Zhang 2005 (Review of Financial Studies 18:351)",
-    "Boudt, Croux & Laurent 2011 (Journal of Empirical Finance 18:353)",
-    "DOI 10.1016/S0927-5398(97)00004-2"
+    "Boudt, Croux & Laurent 2011 (Journal of Empirical Finance 18:353)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

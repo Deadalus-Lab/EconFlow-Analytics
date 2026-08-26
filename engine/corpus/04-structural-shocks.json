@@ -789,8 +789,7 @@
    ],
    "sources": [
     "Krolzig 1997, Markov-Switching Vector Autoregressions",
-    "Hamilton 1989 (Econometrica 57:357-384)",
-    "DOI 10.1007/978-3-642-51684-9"
+    "Hamilton 1989 (Econometrica 57:357-384)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

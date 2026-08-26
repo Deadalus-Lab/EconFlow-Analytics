@@ -307,8 +307,7 @@
    "sources": [
     "Hall & Mitchell 2007 (International Journal of Forecasting 23:1-13)",
     "Geweke & Amisano 2011 (International Journal of Forecasting 27:465)",
-    "Genest & Zidek 1986 (Statistical Science 1:114)",
-    "DOI 10.1016/j.jeconom.2011.02.017"
+    "Genest & Zidek 1986 (Statistical Science 1:114)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -351,8 +350,7 @@
    ],
    "sources": [
     "Raftery, Karny & Ettler 2010 (Technometrics 52:52-66)",
-    "Koop & Korobilis 2012 (International Economic Review 53:867)",
-    "DOI 10.1198/tech.2009.08104"
+    "Koop & Korobilis 2012 (International Economic Review 53:867)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

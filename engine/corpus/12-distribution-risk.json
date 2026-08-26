@@ -745,8 +745,7 @@
    "sources": [
     "Kupiec 1995 (Journal of Derivatives 3:73-84)",
     "Christoffersen 1998 (International Economic Review 39:841)",
-    "Acerbi & Szekely 2014 (Risk 27:76)",
-    "DOI 10.2307/2527341"
+    "Acerbi & Szekely 2014 (Risk 27:76)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -790,8 +789,7 @@
    ],
    "sources": [
     "Engle & Manganelli 2004 (Journal of Business and Economic Statistics 22:367-381)",
-    "Barone-Adesi, Giannopoulos & Vosper 1999 (Journal of Futures Markets 19:583)",
-    "DOI 10.1198/073500104000000370"
+    "Barone-Adesi, Giannopoulos & Vosper 1999 (Journal of Futures Markets 19:583)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -924,8 +922,7 @@
    ],
    "sources": [
     "Rigby & Stasinopoulos 2005 (Applied Statistics 54:507-554)",
-    "Klein, Kneib, Lang & Sohn 2015 (Annals of Applied Statistics 9:1024)",
-    "DOI 10.1111/j.1467-9876.2005.00510.x"
+    "Klein, Kneib, Lang & Sohn 2015 (Annals of Applied Statistics 9:1024)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

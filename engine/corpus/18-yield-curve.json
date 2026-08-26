@@ -351,8 +351,7 @@
    ],
    "sources": [
     "Diebold & Li 2006 (Journal of Econometrics 130:337-364)",
-    "Diebold, Rudebusch & Aruoba 2006 (Journal of Econometrics 131:309)",
-    "DOI 10.1016/j.jeconom.2005.01.011"
+    "Diebold, Rudebusch & Aruoba 2006 (Journal of Econometrics 131:309)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -395,8 +394,7 @@
    ],
    "sources": [
     "Wu & Xia 2016 (Journal of Money, Credit and Banking 48:253-291)",
-    "Krippner 2013 (Economics Letters 118:135)",
-    "DOI 10.1111/jmcb.12300"
+    "Krippner 2013 (Economics Letters 118:135)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

@@ -100,8 +100,7 @@
    "sources": [
     "Holtz-Eakin, Newey & Rosen 1988 (Econometrica 56:1371-1395)",
     "Abrigo & Love 2016 (Stata Journal 16:778)",
-    "Roodman 2009 (Oxford Bulletin of Economics and Statistics 71:135)",
-    "DOI 10.2307/1913103"
+    "Roodman 2009 (Oxford Bulletin of Economics and Statistics 71:135)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -143,8 +142,7 @@
     "the test needs the time dimension to exceed the lag order comfortably in every unit"
    ],
    "sources": [
-    "Dumitrescu & Hurlin 2012 (Economic Modelling 29:1450-1460)",
-    "DOI 10.1016/j.econmod.2012.02.014"
+    "Dumitrescu & Hurlin 2012 (Economic Modelling 29:1450-1460)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

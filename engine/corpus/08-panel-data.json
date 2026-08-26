@@ -359,8 +359,7 @@
    "sources": [
     "Pesaran & Smith 1995 (Journal of Econometrics 68:79-113)",
     "Pesaran, Shin & Smith 1999 (JASA 94:621)",
-    "Pesaran 2006 (Econometrica 74:967)",
-    "DOI 10.1016/0304-4076(94)01644-F"
+    "Pesaran 2006 (Econometrica 74:967)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

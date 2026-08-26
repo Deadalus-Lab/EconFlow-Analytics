@@ -40,8 +40,7 @@
    "sources": [
     "Merton 1974 (Journal of Finance 29:449-470)",
     "Crosbie & Bohn 2003, Modeling default risk (Moody's KMV)",
-    "Bharath & Shumway 2008 (Review of Financial Studies 21:1339)",
-    "DOI 10.1111/j.1540-6261.1974.tb03058.x"
+    "Bharath & Shumway 2008 (Review of Financial Studies 21:1339)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

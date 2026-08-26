@@ -2,8 +2,8 @@
  "artifact_version": 2,
  "generated_by": "scripts/gen_artifacts.py from corpus/ -- regenerate, never edit",
  "previous": {
-  "node_specs_sha256": "c22ba99ee3684cf5048d86f9cfd0dc54ffa28e45bacdb74589d9ef7e7c32e185",
-  "method_cards_sha256": "5623bb36280c94bea0192bd59cbaeb1e010152cf04fff840af796c6e89b86511",
+  "node_specs_sha256": "758ce29823b3cb5bb2eff5dc304969412f31c4ce079fbeab801377005f8bd39a",
+  "method_cards_sha256": "49223d87e845f0423d9f1033daa131f649e8520659dd7b7cc4c8f9ebb0062dcc",
   "resealed": "2026-08-26",
   "reason": "box 2.1.1.12 -- 46 cards stop naming a distribution the register measured as not implementing their method"
  },

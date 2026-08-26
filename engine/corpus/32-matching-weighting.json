@@ -174,8 +174,7 @@
    ],
    "sources": [
     "Iacus, King & Porro 2012 (Political Analysis 20:1-24)",
-    "Blackwell, Iacus, King & Porro 2009 (Stata Journal 9:524)",
-    "DOI 10.1093/pan/mpr013"
+    "Blackwell, Iacus, King & Porro 2009 (Stata Journal 9:524)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -312,8 +311,7 @@
    "sources": [
     "Rosenbaum & Rubin 1984 (JASA 79:516-524)",
     "Cochran 1968 (Biometrics 24:295)",
-    "Imbens & Rubin 2015, ch.17",
-    "DOI 10.1080/01621459.1984.10478078"
+    "Imbens & Rubin 2015, ch.17"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -357,8 +355,7 @@
    ],
    "sources": [
     "Rosenbaum 2002, Observational Studies, 2nd ed.",
-    "VanderWeele & Ding 2017 (Annals of Internal Medicine 167:268-274)",
-    "DOI 10.7326/M16-2607"
+    "VanderWeele & Ding 2017 (Annals of Internal Medicine 167:268-274)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,

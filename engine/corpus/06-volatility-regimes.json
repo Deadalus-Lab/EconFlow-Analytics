@@ -1043,8 +1043,7 @@
    ],
    "sources": [
     "Hansen, Huang & Shek 2012 (Journal of Applied Econometrics 27:877-906)",
-    "Shephard & Sheppard 2010 (Journal of Applied Econometrics 25:197)",
-    "DOI 10.1002/jae.1234"
+    "Shephard & Sheppard 2010 (Journal of Applied Econometrics 25:197)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -1087,8 +1086,7 @@
    ],
    "sources": [
     "Barndorff-Nielsen & Shephard 2006 (Journal of Financial Econometrics 4:1-30)",
-    "Lee & Mykland 2008 (Review of Financial Studies 21:2535)",
-    "DOI 10.1093/rfs/hhm056"
+    "Lee & Mykland 2008 (Review of Financial Studies 21:2535)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -1131,8 +1129,7 @@
    ],
    "sources": [
     "Inclan & Tiao 1994 (JASA 89:913-923)",
-    "Sanso, Arago & Carrion 2004 (Revista de Economia Financiera 4:32)",
-    "DOI 10.1080/01621459.1994.10476824"
+    "Sanso, Arago & Carrion 2004 (Revista de Economia Financiera 4:32)"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
