@@ -84,6 +84,7 @@ import ast
 import json
 import math
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import cache
 from importlib import import_module
@@ -92,6 +93,16 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
+from tests.conformance.fixtures import (
+    FIXTURE_SIGIL,
+    PRODUCE_SIGIL,
+    FixtureError,
+    build,
+    build_fixture,
+    fixture,
+    moved_builder,
+)
 
 ENGINE_ROOT = Path(__file__).resolve().parent.parent.parent
 ORACLE = ENGINE_ROOT / "tests" / "oracle"
@@ -213,6 +224,11 @@ class Case:
     tolerance_class: str
     rtol: float
     atol: float
+    #: The datasets this case reaches for, and the producer functions its
+    #: ``$produce`` chains name. Both are resolved when the case is LOADED, so a
+    #: case naming a dataset that does not exist is refused rather than skipped.
+    fixtures: tuple[str, ...] = ()
+    produce_chain: tuple[str, ...] = ()
 
 
 # --------------------------------------------------------------------------- #
@@ -408,6 +424,164 @@ def _require_the_tolerance_to_bite(expected: Any, tolerance_class: str, rtol: fl
         )
 
 
+def _require_the_case_to_name_the_declared_payload(
+    namespace: str, fn: str, expected: Any, unchecked_keys: tuple[str, ...]
+) -> None:
+    """RULE 5: where the node DECLARES its payload, the case must name exactly it.
+
+    Until node-specs.json carried ``output_keys`` there was nothing to check a
+    case's key set against, so step 1 of the comparison was a claim the case made
+    ahead of the body -- it turned red the first time a body ran, which is useful
+    but late. Where the node declares its keys, the two sets a case writes down
+    can be compared against the contract WHEN THE CASE IS LOADED, before anything
+    runs and long before a body exists.
+
+    EXACT EQUALITY, IN BOTH DIRECTIONS, for the same reason step 1 is exact: a
+    field named by neither set is a silent hole, and a field named by the case
+    that the node does not carry is a stale exemption. ``expected`` and
+    ``unchecked_keys`` together claim to name the WHOLE payload, and
+    ``output_keys.keys`` is the whole payload -- so if the two disagree, one of
+    them is wrong and the file should say which.
+
+    A NODE WHOSE STATUS IS ``undeclared`` IS PASSED OVER, not defaulted. That is
+    the debt in ``engine.undeclared_output_keys``; a rule that refused those cases
+    would refuse 1314 nodes' worth of oracle work to enforce a field nobody has
+    filled in yet.
+    """
+    if namespace == ENGINE_NAMESPACE:
+        return
+    record = _node_specs()[fn]["output_keys"]
+    if record["status"] != "declared":
+        return
+    declared = set(record["keys"])
+    if not isinstance(expected, dict):
+        raise Inadmissible(
+            f"RULE 5: node-specs.json declares '{fn}' to return a mapping with the "
+            f"fields {sorted(declared)}, and `expected` is a "
+            f"{type(expected).__name__}. One of the two is wrong about the payload."
+        )
+    named = set(expected) | set(unchecked_keys)
+    if named != declared:
+        raise Inadmissible(
+            f"RULE 5: `expected` and `unchecked_keys` together name {sorted(named)}, "
+            f"and node-specs.json declares '{fn}' to return {sorted(declared)}. "
+            f"Named by the case and not declared: {sorted(named - declared)}; "
+            f"declared and named by neither: {sorted(declared - named)}. The two "
+            f"sets claim to name the whole payload, so a difference is a "
+            f"disagreement about the contract rather than a detail."
+        )
+
+
+# --------------------------------------------------------------------------- #
+# the fixture and produce value forms
+# --------------------------------------------------------------------------- #
+
+
+def _sigil(value: Any) -> tuple[str, Any] | None:
+    """``{"$fixture": name}`` / ``{"$produce": {...}}`` -> the pair, else ``None``.
+
+    A mapping carrying a sigil BESIDE other keys is an error rather than a
+    literal. Reading it as data would silently pass a dict where a series was
+    meant, and the case would then be refused by the wire contract for a reason
+    that says nothing about the mistake actually made.
+    """
+    if not isinstance(value, dict):
+        return None
+    present = sorted(set(value) & {FIXTURE_SIGIL, PRODUCE_SIGIL})
+    if not present:
+        return None
+    if len(present) > 1 or len(value) != 1:
+        raise Inadmissible(
+            f"{present} appear(s) in a mapping with keys {sorted(value)}. A value "
+            f"form is the WHOLE value: exactly one sigil and no other key."
+        )
+    return present[0], value[present[0]]
+
+
+def _refuse_a_buried_sigil(value: Any, where: str, top: bool = True) -> None:
+    """A sigil below the top level of an argument's value is refused, not ignored.
+
+    Only the value of an argument is a value form. A ``$fixture`` inside a list or
+    a nested mapping would be passed through as data, and the case would read as
+    though it reached for a dataset while quietly handing the node a dictionary.
+    """
+    if isinstance(value, dict):
+        if not top and set(value) & {FIXTURE_SIGIL, PRODUCE_SIGIL}:
+            raise Inadmissible(
+                f"argument '{where}' buries a value form inside its value. A "
+                f"{FIXTURE_SIGIL} is the whole value of an argument or it is data."
+            )
+        for item in value.values():
+            _refuse_a_buried_sigil(item, where, top=False)
+    elif isinstance(value, list):
+        for item in value:
+            _refuse_a_buried_sigil(item, where, top=False)
+
+
+def _scan_inputs(inputs: dict[str, Any], depth: int = 0) -> tuple[list[str], list[str]]:
+    """Resolve every value form at LOAD time. Returns (dataset names, producer fns).
+
+    THE CHAIN IS CAPPED AT DEPTH 1, deliberately and not as an oversight. A
+    producer's own inputs must be literals or ``$fixture`` and never ``$produce``.
+    A deeper chain is a graph, and a graph in a case file is a second execution
+    engine written inside the harness that exists to check the first one. Raising
+    the cap is a later reviewed diff, and this refuses it in the meantime with a
+    message that says so.
+    """
+    from econflow_engine.loader import MANIFEST
+
+    datasets: list[str] = []
+    chain: list[str] = []
+    for name, value in inputs.items():
+        found = _sigil(value)
+        if found is None:
+            # ONLY A VALUE THAT IS NOT ITSELF A VALUE FORM IS WALKED. A `$produce`
+            # payload carries its own `inputs` mapping, whose values are top-level
+            # value forms in their own right; walking into it would report every
+            # legitimate inner `$fixture` as a buried one, and the depth cap below
+            # -- the rule that actually governs a chain -- would never be reached.
+            _refuse_a_buried_sigil(value, name)
+            continue
+        kind, payload = found
+        if kind == FIXTURE_SIGIL:
+            if not isinstance(payload, str):
+                raise Inadmissible(
+                    f"argument '{name}': {FIXTURE_SIGIL} names a dataset file stem "
+                    f"as a string, and carries a {type(payload).__name__}."
+                )
+            try:
+                fixture(payload)
+            except FixtureError as refusal:
+                raise Inadmissible(f"argument '{name}': {refusal}") from refusal
+            datasets.append(payload)
+            continue
+        if depth >= 1:
+            raise Inadmissible(
+                f"argument '{name}': a {PRODUCE_SIGIL} chain is capped at depth 1, "
+                f"so a producer's own inputs are literals or {FIXTURE_SIGIL} and "
+                f"never another {PRODUCE_SIGIL}."
+            )
+        if not isinstance(payload, dict) or set(payload) != {"fn", "inputs"}:
+            raise Inadmissible(
+                f"argument '{name}': {PRODUCE_SIGIL} takes exactly `fn` and "
+                f"`inputs`; this one carries "
+                f"{sorted(payload) if isinstance(payload, dict) else type(payload).__name__}."
+            )
+        producer = str(payload["fn"])
+        if producer not in MANIFEST:
+            raise Inadmissible(
+                f"argument '{name}': {PRODUCE_SIGIL} names '{producer}', which is "
+                f"not one of the {len(MANIFEST)} nodes in the manifest."
+            )
+        if not isinstance(payload["inputs"], dict):
+            raise Inadmissible(f"argument '{name}': a producer's `inputs` is a mapping.")
+        chain.append(producer)
+        inner_datasets, inner_chain = _scan_inputs(payload["inputs"], depth + 1)
+        datasets.extend(inner_datasets)
+        chain.extend(inner_chain)
+    return datasets, chain
+
+
 # --------------------------------------------------------------------------- #
 # loading
 # --------------------------------------------------------------------------- #
@@ -525,6 +699,10 @@ def _load_case(path: Path) -> Case:
     _require_a_real_number(raw["expected"])
     _require_a_published_locator(str(raw["citation"]))
     _require_the_tolerance_to_bite(raw["expected"], tolerance_class, rtol, atol)
+    _require_the_case_to_name_the_declared_payload(
+        namespace, fn, raw["expected"], unchecked_keys
+    )
+    datasets, chain = _scan_inputs(inputs)
 
     return Case(
         id=relative.as_posix().removesuffix(".json"),
@@ -537,6 +715,8 @@ def _load_case(path: Path) -> Case:
         tolerance_class=tolerance_class,
         rtol=rtol,
         atol=atol,
+        fixtures=tuple(datasets),
+        produce_chain=tuple(chain),
     )
 
 
@@ -561,6 +741,132 @@ _LOADED = _load_all()
 _ADMISSIBLE = [case for _, case in _LOADED if isinstance(case, Case)]
 
 
+#: The builder a case's ``$fixture`` forms go through. A parameter rather than a
+#: hard call, so the perturbation control below can hand in a moved dataset and
+#: re-run the SAME code path -- not a copy of it that could drift.
+Builder = Callable[[str], Any]
+
+
+def _materialise(
+    case: Case, builder: Builder, opened: list[str]
+) -> tuple[str, Any]:
+    """Turn a case's ``inputs`` into the call the engine actually receives.
+
+    DELIVERY GOES THROUGH THE PRODUCTION DOOR, and that is the whole design. In
+    the wrapper namespace the object is put in the REAL session registry and the
+    returned handle is substituted into ``inputs``; ``run_method`` is then called
+    unchanged, so ``validate_wire`` sees a handle string of the shape the contract
+    validates, ``adapt_args`` resolves it, and ``_AS_KIND`` converts it. A fixture
+    injected past those three would prove that the harness can build a frame, and
+    nothing whatever about the path a caller uses.
+
+    IN THE ENGINE NAMESPACE THE OBJECT IS SUBSTITUTED DIRECTLY. An engine helper
+    takes Python objects and knows nothing about handles; wrapping one in a handle
+    there would be a ceremony with no reader.
+
+    Returns ``("ok", inputs)``, or a state a case cannot run in: ``not-implemented``
+    when a producer's body is unwritten, ``refused`` when a producer was refused.
+    """
+    from econflow_engine.mcp.registry import registry_put
+
+    prepared: dict[str, Any] = {}
+    for name, value in case.inputs.items():
+        found = _sigil(value)
+        if found is None:
+            prepared[name] = value
+            continue
+        kind, payload = found
+        if kind == FIXTURE_SIGIL:
+            obj = builder(str(payload))
+            if case.namespace == ENGINE_NAMESPACE:
+                prepared[name] = obj
+            else:
+                handle = registry_put(obj, meta={"fixture": payload})
+                opened.append(handle)
+                prepared[name] = handle
+            continue
+        state, produced = _run_producer(payload, builder, opened)
+        if state != "ok":
+            return state, produced
+        prepared[name] = produced
+    return "ok", prepared
+
+
+def _run_producer(
+    spec: dict[str, Any], builder: Builder, opened: list[str]
+) -> tuple[str, Any]:
+    """Run one depth-1 producer through the real gateway and hand on its result.
+
+    A PRODUCER IS A REAL NODE, RUN THE REAL WAY. Its result reaches the case as
+    the handle the gateway registered where the node registers one, and as the
+    payload where it does not -- which is exactly what a caller chaining two nodes
+    receives. Every wrapper body is a stub today, so every chain case reports
+    ``not-implemented`` and skips, and that is the correct outcome rather than a
+    gap: the producer lands in 2.2, and the case turns green with it.
+    """
+    from econflow_engine.mcp.gateway import run_method
+    from econflow_engine.mcp.registry import registry_put
+
+    inner: dict[str, Any] = {}
+    for name, value in dict(spec["inputs"]).items():
+        found = _sigil(value)
+        if found is None:
+            inner[name] = value
+            continue
+        obj = builder(str(found[1]))
+        handle = registry_put(obj, meta={"fixture": found[1]})
+        opened.append(handle)
+        inner[name] = handle
+    response = run_method(str(spec["fn"]), inner)
+    if response.handle is not None:
+        opened.append(response.handle)
+    if response.state != "succeeded":
+        return response.state, f"producer {spec['fn']}: {response.message}"
+    return "ok", response.handle if response.handle is not None else response.payload
+
+
+def _run_case(case: Case, builder: Builder) -> tuple[str, Any]:
+    """One case, start to finish, with every handle it opened closed again.
+
+    THE HANDLES THIS CASE OPENED ARE DROPPED INDIVIDUALLY, not by clearing the
+    store. ``MAX_ENTRIES`` is 512 with oldest-first eviction, so a corpus that
+    left its fixtures behind would silently evict a handle a later case still
+    holds -- the bound has to be respected. Clearing the WHOLE registry would
+    respect it too, and would also delete handles belonging to whichever sibling
+    suite happens to share the process; ``registry_clear(handle)`` per handle
+    achieves the bound without reaching outside this case.
+    """
+    from econflow_engine.mcp.gateway import run_method
+    from econflow_engine.mcp.registry import registry_clear
+
+    opened: list[str] = []
+    try:
+        state, prepared = _materialise(case, builder, opened)
+        if state != "ok":
+            return state, prepared
+        if case.namespace == ENGINE_NAMESPACE:
+            helper = getattr(import_module(f"econflow_engine.{case.module}"), case.fn)
+            # BOUND THROUGH THE SIGNATURE, not splatted as keywords. A case names its
+            # inputs, and `to_mcp` is a singledispatch generic that dispatches on
+            # args[0] and refuses a keyword-only call; binding turns the named
+            # mapping into the call the function actually accepts.
+            try:
+                bound = signature(helper).bind(**prepared)
+                return "succeeded", helper(*bound.args, **bound.kwargs)
+            except Exception as exc:
+                return "raised", f"{type(exc).__name__}: {exc}"
+        response = run_method(case.fn, prepared)
+        if response.handle is not None:
+            opened.append(response.handle)
+        return (
+            response.state,
+            response.payload if response.state == "succeeded" else response.message,
+        )
+    finally:
+        for handle in opened:
+            registry_clear(handle)
+
+
 @cache
 def _outcomes() -> dict[str, tuple[str, Any]]:
     """Run every admissible case ONCE. ``(state, payload-or-message)`` per case.
@@ -569,28 +875,7 @@ def _outcomes() -> dict[str, tuple[str, Any]]:
     accounting test below sees the same outcomes the per-case tests do whatever
     order ``pytest-randomly`` chooses.
     """
-    from econflow_engine.mcp.gateway import run_method
-
-    results: dict[str, tuple[str, Any]] = {}
-    for case in _ADMISSIBLE:
-        if case.namespace == ENGINE_NAMESPACE:
-            helper = getattr(import_module(f"econflow_engine.{case.module}"), case.fn)
-            # BOUND THROUGH THE SIGNATURE, not splatted as keywords. A case names its
-            # inputs, and `to_mcp` is a singledispatch generic that dispatches on
-            # args[0] and refuses a keyword-only call; binding turns the named
-            # mapping into the call the function actually accepts.
-            try:
-                bound = signature(helper).bind(**case.inputs)
-                results[case.id] = ("succeeded", helper(*bound.args, **bound.kwargs))
-            except Exception as exc:
-                results[case.id] = ("raised", f"{type(exc).__name__}: {exc}")
-            continue
-        response = run_method(case.fn, case.inputs)
-        results[case.id] = (
-            response.state,
-            response.payload if response.state == "succeeded" else response.message,
-        )
-    return results
+    return {case.id: _run_case(case, build_fixture) for case in _ADMISSIBLE}
 
 
 # --------------------------------------------------------------------------- #
@@ -755,7 +1040,15 @@ def test_the_literal_callable_surface_is_the_measured_one() -> None:
 
 
 def test_every_skip_is_an_unwritten_body() -> None:
-    """``skipped == n_cases - implemented_cases``, and no other skip is admissible."""
+    """``skipped == n_cases - implemented_cases``, and no other skip is admissible.
+
+    WIDENED FOR THE CHAIN FORM. A case used to count as implemented on ``case.fn``
+    alone. A ``$produce`` chain runs a PRODUCER first, so a case whose own body is
+    written but whose producer is a stub skips -- and the old accounting would
+    have called that an inadmissible skip and turned red on a case behaving
+    exactly as designed. Implemented now means ``case.fn`` AND every function in
+    its chain, which is the set of bodies the case actually needs.
+    """
     implemented = _implemented_node_functions()
     declared = int(_read(INVENTORY)["engine"]["n_implemented"])
     assert len(implemented) == declared, (
@@ -763,7 +1056,10 @@ def test_every_skip_is_an_unwritten_body() -> None:
         f"engine.n_implemented in .github/inventory.json says {declared}"
     )
     implemented_cases = [
-        c for c in _ADMISSIBLE if c.namespace == ENGINE_NAMESPACE or c.fn in implemented
+        c
+        for c in _ADMISSIBLE
+        if (c.namespace == ENGINE_NAMESPACE or c.fn in implemented)
+        and all(producer in implemented for producer in c.produce_chain)
     ]
     skipped = [c for c in _ADMISSIBLE if _outcomes()[c.id][0] == "not-implemented"]
     assert len(skipped) == len(_ADMISSIBLE) - len(implemented_cases), (
@@ -771,3 +1067,250 @@ def test_every_skip_is_an_unwritten_body() -> None:
         f"expected. A case skips because its body is unwritten and for no other "
         f"reason: skipped={sorted(c.id for c in skipped)}"
     )
+
+
+# --------------------------------------------------------------------------- #
+# the fixture form
+# --------------------------------------------------------------------------- #
+
+
+def _cases_that_ran_on_a_fixture() -> list[Case]:
+    return [
+        case
+        for case in _ADMISSIBLE
+        if case.fixtures and _outcomes()[case.id][0] == "succeeded"
+    ]
+
+
+def test_the_harness_reaches_past_the_literal_surface_today() -> None:
+    """THE ANTI-VACUITY FLOOR FOR THE FIXTURE FORM, and it is NOT zero.
+
+    Every wrapper body is a stub, so every wrapper-namespace fixture case reports
+    ``not-implemented`` and skips. A floor of zero over that corpus would be
+    satisfied by a fixture form that had never once built an object, which is the
+    same shape of failure as a harness whose every case skips.
+
+    THE ENGINE NAMESPACE IS WHAT CLOSES IT. An engine-namespace fixture
+    materialises to the object itself and the helper it feeds is already written,
+    so at least one case builds a dataset and compares a real result on the day
+    this form lands. The floor lives in .github/inventory.json where lowering it
+    is a reviewed one-line diff.
+    """
+    floor = int(_read(INVENTORY)["suite"]["min_fixture_cases"])
+    ran = _cases_that_ran_on_a_fixture()
+    assert floor > 0, (
+        "suite.min_fixture_cases is zero, which every corpus satisfies, including "
+        "one in which no dataset was ever built"
+    )
+    assert len(ran) >= floor, (
+        f"{len(ran)} case(s) built a dataset and ran against implemented code, "
+        f"below the floor {floor} in .github/inventory.json."
+    )
+
+
+def test_a_case_that_ran_moves_when_its_fixture_moves() -> None:
+    """THE PROOF THAT THE DATA REACHED THE BODY, and there is no other.
+
+    A case can be green for two reasons: the body computed the published number
+    from the dataset, or the body ignored the dataset and returned something that
+    happens to match. Nothing about a passing run separates the two. So every case
+    that ran is RE-RUN with every numeric leaf of its dataset moved past what its
+    own tolerance class promises to tolerate, and the comparison must now REFUSE
+    the result. If the payload does not move when the data moves, the fixture
+    never reached the body.
+
+    The sibling of ``_require_the_tolerance_to_bite``, which asks the same
+    question of ``expected``: is this comparison capable of failing at all?
+    """
+    ran = _cases_that_ran_on_a_fixture()
+    assert ran, (
+        "no case built a dataset and ran, so this control examined nothing. It is "
+        "the only evidence that a fixture reaches the body rather than sitting "
+        "beside it."
+    )
+    for case in ran:
+        state, payload = _run_case(case, moved_builder(case.rtol, case.atol))
+        assert state == "succeeded", (
+            f"{case.id}: the moved dataset did not run ({state} -- {payload}). The "
+            f"control moves values, never shapes, so a refusal here is a defect in "
+            f"the move rather than a verdict on the case."
+        )
+        reason = disagreement(
+            payload, case.expected, case.unchecked_keys, case.rtol, case.atol
+        )
+        assert reason is not None, (
+            f"{case.id}: every numeric leaf of {list(case.fixtures)} was moved past "
+            f"the '{case.tolerance_class}' tolerance and the payload still matches "
+            f"the published value. The body is not reading the dataset."
+        )
+
+
+def test_a_wrapper_fixture_case_is_refused_by_nothing_before_its_stub() -> None:
+    """THE 894 ARE REACHABLE TODAY, AND THIS IS THE MEASUREMENT RATHER THAN A HOPE.
+
+    ``make_tool`` runs ``validate_wire`` and then ``adapt_args`` BEFORE it calls
+    the body, so a wrapper-namespace fixture case exercises the whole delivery
+    path -- handle shape, ``resolve_handle``, ``_AS_KIND`` -- and only then meets
+    the stub. A handle the contract will not accept therefore surfaces as
+    ``refused`` and never as ``not-implemented``, which makes the distinction
+    between those two states the evidence that the path works.
+
+    So a wrapper fixture case must report ``not-implemented`` while bodies are
+    stubs. A ``refused`` means the dataset does not fit the argument it was
+    written for, and that is a defect in the case rather than a body that is
+    merely outstanding.
+    """
+    from econflow_engine.mcp.registry import registry_list
+
+    wrapper_cases = [
+        c for c in _ADMISSIBLE if c.namespace != ENGINE_NAMESPACE and c.fixtures
+    ]
+    for case in wrapper_cases:
+        state, message = _outcomes()[case.id]
+        assert state in {"succeeded", "not-implemented"}, (
+            f"{case.id}: {state} -- {message}. The dataset reached the wire "
+            f"contract and was turned away before the body was ever called."
+        )
+    assert not any(
+        entry.get("meta", {}).get("fixture") for entry in registry_list().values()
+    ), "a fixture handle outlived the case that opened it; the store is bounded"
+
+
+def test_the_reach_of_a_fixture_is_the_measured_one() -> None:
+    """HOW FAR THE FORM GOES, counted off the contract and printed in one place.
+
+    Four disjoint tiers over the 1456 nodes, and the numbers are read from
+    node-specs.json rather than written here twice. The 19 ``path`` nodes are NOT
+    reachable under this design and are named rather than rounded away: a path is
+    the ticket of a dataset somebody uploaded, and no file in this tree can hold
+    one. The 440 raw-handle nodes split into handles holding plain data, which a
+    dataset reaches, and handles holding a fitted object, which need a producer --
+    a split the contract does not record, so it is deliberately NOT asserted here.
+    """
+    specs = _read(ARTIFACTS / "node-specs.json")
+    pointer = frozenset(specs["vocabulary"]["pointer_handle_kinds"])
+    data_handles = frozenset(
+        {
+            "series_handle",
+            "irregular_series_handle",
+            "multiseries_handle",
+            "df_handle",
+            "matrix_handle",
+            "exog_handle",
+        }
+    )
+    tiers = {"literal": 0, "data-handle": 0, "raw-handle": 0, "path": 0}
+    for node in specs["nodes"]:
+        kinds = {a["kind"] for a in node["arguments"] if a["required"]}
+        if "path" in kinds:
+            tiers["path"] += 1
+        elif kinds & (pointer - data_handles):
+            tiers["raw-handle"] += 1
+        elif kinds & data_handles:
+            tiers["data-handle"] += 1
+        else:
+            tiers["literal"] += 1
+    assert tiers["literal"] == _literal_callable_nodes()
+    assert tiers == {"literal": 103, "data-handle": 894, "raw-handle": 440, "path": 19}
+    assert sum(tiers.values()) == len(specs["nodes"]) == 1456
+
+
+def test_a_case_naming_a_field_the_node_does_not_declare_is_inadmissible() -> None:
+    """RULE 5's POSITIVE CONTROL, and it is observable on a COMMITTED case.
+
+    The Benjamini-Hochberg case names exactly the four fields node-specs.json
+    declares for ``rs_multiple_testing``. Rename one of them and the case must
+    turn Inadmissible -- not skip, not pass, and not wait for a body.
+    """
+    declared = _node_specs()["rs_multiple_testing"]["output_keys"]
+    assert declared["status"] == "declared"
+    assert set(declared["keys"]) == {"p_adjusted", "rejected", "n_rejected", "method"}
+    with pytest.raises(Inadmissible, match="RULE 5"):
+        _require_the_case_to_name_the_declared_payload(
+            "c35_resampling_inference",
+            "rs_multiple_testing",
+            {"n_rejected": 4},
+            ("p_adjusted", "rejected", "procedure"),
+        )
+
+
+def test_a_case_matching_the_declared_payload_is_admitted() -> None:
+    """RULE 5's NEGATIVE CONTROL. The rule must admit the set that is correct."""
+    _require_the_case_to_name_the_declared_payload(
+        "c35_resampling_inference",
+        "rs_multiple_testing",
+        {"n_rejected": 4},
+        ("p_adjusted", "rejected", "method"),
+    )
+
+
+def test_rule_five_passes_over_a_node_that_declares_nothing() -> None:
+    """The debt is not a licence and not a refusal: an undeclared node is skipped."""
+    undeclared = next(
+        fn for fn, node in _node_specs().items()
+        if node["output_keys"]["status"] == "undeclared"
+    )
+    _require_the_case_to_name_the_declared_payload(
+        "c00_data_utilities", undeclared, {"anything": 2.5}, ()
+    )
+
+
+def test_a_value_form_beside_another_key_is_refused() -> None:
+    """A sigil is the WHOLE value of an argument, or the mapping is data."""
+    with pytest.raises(Inadmissible, match="WHOLE value"):
+        _sigil({FIXTURE_SIGIL: "anscombe_1973_data_set_i", "freq": "Q"})
+
+
+def test_a_value_form_buried_inside_a_value_is_refused() -> None:
+    """Reading it as data would let a case LOOK as though it reached for a dataset."""
+    with pytest.raises(Inadmissible, match="buries a value form"):
+        _refuse_a_buried_sigil({"outer": {FIXTURE_SIGIL: "whatever"}}, "data")
+
+
+def test_a_case_naming_a_dataset_that_does_not_exist_is_refused_at_load() -> None:
+    """Refused when the case is LOADED, so it cannot masquerade as a skip."""
+    with pytest.raises(Inadmissible, match="no dataset"):
+        _scan_inputs({"data": {FIXTURE_SIGIL: "a_table_nobody_transcribed"}})
+
+
+def test_a_produce_chain_deeper_than_one_is_refused() -> None:
+    """The cap is deliberate: a deeper chain is a graph, and a graph in a case file
+    is a second execution engine written inside the harness that checks the first."""
+    with pytest.raises(Inadmissible, match="capped at depth 1"):
+        _scan_inputs(
+            {
+                "fit": {
+                    PRODUCE_SIGIL: {
+                        "fn": "rs_multiple_testing",
+                        "inputs": {
+                            "inner": {
+                                PRODUCE_SIGIL: {"fn": "rs_multiple_testing", "inputs": {}}
+                            }
+                        },
+                    }
+                }
+            }
+        )
+
+
+def test_a_produce_chain_naming_no_real_node_is_refused() -> None:
+    with pytest.raises(Inadmissible, match="not one of"):
+        _scan_inputs(
+            {"fit": {PRODUCE_SIGIL: {"fn": "no_such_node_exists", "inputs": {}}}}
+        )
+
+
+def test_every_dataset_in_the_tree_loads_and_builds() -> None:
+    """A dataset no case names yet is still held to every rule.
+
+    A file admitted only when something points at it is a file that rots quietly
+    until the day somebody needs it, which is the day its citation turns out not
+    to carry a locator.
+    """
+    from tests.conformance.fixtures import fixture_names
+
+    names = fixture_names()
+    assert names, "no dataset under tests/fixtures/; the fixture form reaches nothing"
+    for name in names:
+        built = build(fixture(name))
+        assert built is not None, name

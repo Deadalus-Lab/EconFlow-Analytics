@@ -1029,11 +1029,14 @@ _SCAFFOLD_CLASSES: tuple[tuple[str, str, tuple[tuple[str, tuple[str, ...]], ...]
         "Class B -- the shape of the result, and that the wire can carry it.",
         (
             (
-                "test_the_result_carries_every_output_key_field_of_the_card",
+                "test_the_result_carries_exactly_the_declared_output_keys",
                 (
-                    "assert every output_key_fields name of the card, a to_mcp walk",
-                    "with no serialisation stub in the payload, and a to_json",
-                    "round-trip.",
+                    "assert set(payload) == set(output_keys.keys) for this fn in",
+                    "node-specs.json -- EXACT, because that field is the whole key",
+                    "set rather than the card's partial prose. Where the status is",
+                    "`undeclared`, declare it in corpus/ in this same change and",
+                    "lower engine.undeclared_output_keys. Then a to_mcp walk with no",
+                    "serialisation stub in the payload, and a to_json round-trip.",
                 ),
             ),
             (

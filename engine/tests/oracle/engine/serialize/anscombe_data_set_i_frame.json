@@ -1,0 +1,25 @@
+{
+  "fn": "to_mcp",
+  "inputs": {
+    "value": {
+      "$fixture": "anscombe_1973_data_set_i"
+    }
+  },
+  "expected": [
+    {"x": 10.0, "y": 8.04},
+    {"x": 8.0, "y": 6.95},
+    {"x": 13.0, "y": 7.58},
+    {"x": 9.0, "y": 8.81},
+    {"x": 11.0, "y": 8.33},
+    {"x": 14.0, "y": 9.96},
+    {"x": 6.0, "y": 7.24},
+    {"x": 4.0, "y": 4.26},
+    {"x": 12.0, "y": 10.84},
+    {"x": 7.0, "y": 4.82},
+    {"x": 5.0, "y": 5.68}
+  ],
+  "unchecked_keys": [],
+  "tolerance_class": "exact",
+  "citation": "Anscombe, F. J. (1973), Graphs in Statistical Analysis, The American Statistician 27(1), 17-21, DOI 10.1080/00031305.1973.10478966 -- the eleven (x, y) pairs of data set 1, read from the unnumbered table on p. 19 captioned 'Four data sets, each comprising 11 (x, y) pairs'.",
+  "notes": "THE FIRST CASE TO REACH FOR A DATASET RATHER THAN WRITE ITS INPUTS OUT. The sibling case anscombe_data_set_i_pairs.json hands to_mcp the same eleven pairs as a nested list literal; this one hands it the pandas frame that tests/fixtures/anscombe_1973_data_set_i.json builds, and the two together are what make the fixture form more than plumbing -- the same published table, arriving by both routes, has to serialise to what the source prints either way. WHAT THIS CASE CHECKS THAT THE DATASET FILE DOES NOT ALREADY CONTAIN. The file holds `values` as eleven two-element rows and `columns` as the pair of names; the payload holds eleven MAPPINGS from name to value. Nothing in the file is written in that form, so the pairing of each column name to its own column, the row order, and the float reading of a column the source prints without decimals are all produced by the builder and by to_mcp rather than copied. A builder that transposed the table, ordered the columns the other way, or read x as an integer turns this case red. WHAT IT DOES NOT CHECK, stated because the omission is easy to miss: to_mcp emits a frame as a list of row records and carries no index, so the eleven-row range index this dataset declares is exercised only insofar as building the frame at all requires it to be the right length. It is not compared against anything here. AND WHAT IT CLAIMS ABOUT NO METHOD AT ALL: Anscombe's point is that his four sets share every regression summary, so these pairs are evidence about transport and shape and never about estimation."
+}
