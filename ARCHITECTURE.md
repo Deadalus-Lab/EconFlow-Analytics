@@ -60,7 +60,7 @@ Run from `engine/`.
 | Frozen parity verdicts | **4855** | `python3 -c "import json;print(json.load(open('artifacts/parity-fixtures.json'))['n_cases'])"` |
 | Recommendation fixtures | **114** | `python3 -c "import json;print(json.load(open('artifacts/recommend-fixtures.json'))['source']['n_fixtures'])"` |
 | Decision trees | **10** | `python3 -c "import json;print(len(json.load(open('artifacts/method-trees.json'))['trees']))"` |
-| Python files with an SPDX header | **814** | `find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 \| xargs -0 grep -l 'SPDX-License-Identifier' \| wc -l` |
+| Python files with an SPDX header | **816** | `find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 \| xargs -0 grep -l 'SPDX-License-Identifier' \| wc -l` |
 
 The catalogue's own headline counts — wrapper modules, categories, methods, cards, implementations
 written — are published in [`README.md`](README.md) instead, each beside its own command.

@@ -243,12 +243,26 @@ echo "== 11. doctests, counted rather than exit-coded =="
 $RUN python -m tests.controls.doctest_gate ||
   fail "the doctest gate failed; see the collected counts above"
 
+echo "== 11b. a published table reaches the body it is delivered to =="
+# BOX 2.1.1.4. A `{"$fixture": "<name>"}` value in an oracle case builds a
+# published table and delivers it through registry_put -> adapt_args ->
+# resolve_handle. Nothing about a green case proves the body READ it: a body
+# returning a constant passes any comparison whose expected value happens to
+# match. Every wrapper body is a stub, so no real body can be watched reading a
+# dataset either -- the proof is carried by four planted controls driven down
+# the real path against a real node's contract. Two MUST be flagged (a constant,
+# and a payload that reads only the frame's length) and two MUST NOT (a sum over
+# the values, and a payload that declares no dependence on them).
+$RUN python -m tests.controls.fixture_reach ||
+  fail "the fixture-reach harness failed; a planted control reached the wrong verdict"
+
 echo "== 12. the planted control sets are the size the manifest claims =="
 # The counts are EXACT, not floors. A harness quietly left with fewer controls
 # than it claims is indistinguishable from one that has stopped proving itself,
 # and both of the harnesses above are only as good as their controls. Deleting
 # one is therefore a visible one-line diff in .github/inventory.json.
-for pair in "determinism_controls:determinism.py" "property_controls:property_controls.py"; do
+for pair in "determinism_controls:determinism.py" "property_controls:property_controls.py" \
+  "fixture_controls:fixture_reach.py"; do
   key="${pair%%:*}"
   module="tests/controls/${pair#*:}"
   planted="$(grep -cE '"""(POSITIVE|NEGATIVE)\.' "$module" || true)"
