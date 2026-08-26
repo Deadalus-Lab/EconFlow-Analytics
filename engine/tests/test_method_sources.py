@@ -100,77 +100,27 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 #: This figure moves only when rows are actually examined.
 AUDITED_ROWS = 424
 
-#: EVERY (row, distribution) PAIR AN AUDIT MEASURED AS NOT IMPLEMENTING THE ROW'S
-#: METHOD, and the reason this is a table rather than prose in a note: the
-#: measurement is expensive, it is not visible anywhere in the tree, and nothing
-#: else would notice a row being pointed back at a source that was already
-#: refuted. A register row becomes a wrapper docstring's "Reference
-#: implementation:" line, so a silent reversion sends a reader to code that
-#: cannot compute the method.
+#: HOW MANY (row, distribution) REFUTATIONS THE REGISTER CARRIES, and it is a
+#: COUNT here for the reason ``AUDITED_ROWS`` above is one: "no row names a
+#: refuted source" is a sentence a register with the column deleted from all 598
+#: rows satisfies perfectly, and box 2.1.1.12 reproduced exactly that -- dropping
+#: the column from ``AUTHORED_COLUMNS`` in scripts/gen_artifacts.py took the
+#: figure from 52 to 0 while ``--check`` printed success. An exact count falls the
+#: moment a measurement is lost.
 #:
-#: The pairs are the register's own history, not a transcription: the wave-one
-#: half is every row that was `selected` before the source-selection box and
-#: carries no library after it, less the one that moved because its distribution
-#: publishes no licence rather than because it lacked the method. The deferred
-#: half is this audit's own moves.
+#: THE PAIRS THEMSELVES LIVE ON THE REGISTER ROW, in its ``refuted`` column, and
+#: they used to be a 52-entry dict literal in this file. They are data about the
+#: world -- which distribution was checked and found not to implement a module's
+#: method -- and the person who needs them is the author of that module's body in
+#: phase 2.2, who reads the register and not this suite. A wrapper docstring's
+#: "Reference implementation:" line comes from that row, so a silent reversion
+#: sends a reader to code that cannot compute the method.
 #:
 #: A row may name a REFUTED distribution again only with a new measurement
-#: showing the distribution gained the method -- in which case the pair is
-#: deleted here, in a diff that says which release added it.
-REFUTED_SOURCES: dict[str, str] = {
-    "c01_preparation_prechecks/bubble_tests": "arch",
-    "c01_preparation_prechecks/cross_sectional_dependence": "statsmodels",
-    "c03_multivariate_nowcasting/shadow_rate_var": "srvar-toolkit",
-    "c04_structural_shocks/ms_var": "statsmodels",
-    "c05_cointegration/gregory_hansen": "arch",
-    "c05_cointegration/panel_cointegration": "statsmodels",
-    "c05_cointegration/threshold_ecm": "statsmodels",
-    "c06_volatility_regimes/icss_variance_breaks": "ruptures",
-    "c06_volatility_regimes/jump_tests": "arch",
-    "c06_volatility_regimes/realised_garch": "arch",
-    "c07_causality_policy/quantile_treatment_effects": "econml",
-    "c08_panel_data/heterogeneous_panel": "linearmodels",
-    "c09_cross_section_networks/connectedness": "diebold-yilmaz",
-    "c09_cross_section_networks/spatial_weights_diagnostics": "esda",
-    "c10_trend_cycle_statespace/beveridge_nelson": "statsmodels",
-    "c12_distribution_risk/caviar_fhs": "arch",
-    "c12_distribution_risk/distributional_regression": "pygam",
-    "c12_distribution_risk/implied_density_gar": "py-vollib",
-    "c12_distribution_risk/var_backtesting": "arch",
-    "c15_model_evaluation/density_evaluation": "scoringrules",
-    "c15_model_evaluation/nested_predictive_tests": "dieboldmariano",
-    "c17_forecast_combination/density_combination": "scoringrules",
-    "c17_forecast_combination/dynamic_model_averaging": "pymc",
-    "c18_yield_curve/dynamic_nelson_siegel": "nelson-siegel-svensson",
-    "c18_yield_curve/shadow_short_rate": "srvar-toolkit",
-    "c19_business_cycle_dating/bry_boschan": "scipy",
-    "c19_business_cycle_dating/online_change_detection": "skchange",
-    "c21_systemic_risk/mes_srisk": "arch",
-    "c22_inequality/polarisation": "ineqpy",
-    "c24_panel_var/gmm_panel_var": "pydynpd",
-    "c24_panel_var/panel_granger": "statsmodels",
-    "c25_expectations_surveys/disagreement_uncertainty": "scoringrules",
-    "c26_text_as_data/news_indices": "nltk",
-    "c26_text_as_data/readability": "nltk",
-    "c27_frequency_domain/cross_spectral": "spectrum",
-    "c29_unsupervised_clustering/elastic_distances": "dtaidistance",
-    "c32_matching_weighting/bias_corrected_matching": "causallib",
-    "c32_matching_weighting/coarsened_exact_matching": "causallib",
-    "c32_matching_weighting/hidden_bias": "zepid",
-    "c32_matching_weighting/subclassification": "causallib",
-    "c35_resampling_inference/sieve_bootstrap": "arch",
-    "c35_resampling_inference/subsampling_jackknife": "arch",
-    "c38_portfolio_allocation/robust_optimisation": "cvxpy",
-    "c39_market_microstructure/intraday_patterns": "arch",
-    "c39_market_microstructure/liquidity_measures": "frds",
-    "c39_market_microstructure/realised_measures": "arch",
-    "c39_market_microstructure/trade_classification": "frds",
-    "c40_option_implied_derivatives/bs_pricing_iv": "py-vollib",
-    "c40_option_implied_derivatives/model_free_variance": "QuantLib",
-    "c41_credit_risk_default/merton_structural": "frds",
-    "c42_fiscal_debt_sustainability/debt_fan_charts": "arch",
-    "c44_environment_energy_climate/climate_macro_mapping": "pyam-iamc",
-}
+#: showing the distribution gained the method -- in which case the entry is
+#: deleted from the row, in a diff that says which release added it.
+REFUTED_PAIRS = 52
+
 
 
 def _normalise(name: str) -> str:
@@ -397,10 +347,10 @@ def _refuted_faults(rows: dict[str, dict[str, Any]]) -> list[str]:
     requires it to speak.
     """
     return [
-        f"{key} names {rows[key]['library']}, measured not to implement its method"
-        for key, refuted in REFUTED_SOURCES.items()
-        if key in rows and rows[key]["library"]
-        and _normalise(rows[key]["library"]) == _normalise(refuted)
+        f"{key} names {row['library']}, measured not to implement its method"
+        for key, row in rows.items()
+        if row["library"]
+        and _normalise(row["library"]) in {_normalise(r) for r in row["refuted"]}
     ]
 
 
@@ -429,26 +379,43 @@ def test_the_refutation_check_flags_a_row_put_back_on_its_refuted_source(
     the distribution measured not to implement its method -- and requires the
     same function to name it.
     """
-    key, refuted = next(iter(REFUTED_SOURCES.items()))
+    key = next(k for k, r in rows.items() if r["refuted"])
     planted = {k: dict(r) for k, r in rows.items()}
-    planted[key]["library"] = refuted
+    planted[key]["library"] = planted[key]["refuted"][0]
 
     faults = _refuted_faults(planted)
     assert len(faults) == 1, faults
     assert key in faults[0], faults
 
 
-def test_every_refuted_pair_names_a_row_the_register_still_carries(
+def test_the_register_counts_the_refutations_it_carries(
     rows: dict[str, dict[str, Any]],
 ) -> None:
-    """A table of pairs keyed on modules that no longer exist checks nothing.
+    """A COUNT, NOT AN ABSENCE, and box 2.1.1.12 measured why it has to be.
 
-    Renaming a wrapper module would leave its entry above matching no row, and
-    the guard would go on passing while covering one row fewer -- which is the
-    quiet way an anti-vacuity table stops being one.
+    ``refuted`` is an authored column, and an authored column missing from
+    ``AUTHORED_COLUMNS`` in scripts/gen_artifacts.py is DELETED from all 598 rows
+    by the next ``--build`` -- after which ``--check`` compares the emptied
+    register against an equally empty rebuild and reports that everything
+    reproduces. Reproduced deliberately on a scratch copy: 52 pairs went to 0 and
+    ``--check`` exited 0 printing success. The rule above is satisfied perfectly
+    by that register. This is the assertion that is not.
     """
-    orphans = sorted(k for k in REFUTED_SOURCES if k not in rows)
-    assert orphans == [], orphans
+    carried = sum(len(r["refuted"]) for r in rows.values())
+    assert carried == REFUTED_PAIRS, carried
+
+
+def test_every_refutation_names_a_distribution(
+    rows: dict[str, dict[str, Any]],
+) -> None:
+    """A list of blanks counts as 52 while recording nothing checkable, and the
+    count above cannot tell the difference. Each entry is a distribution name a
+    reader can look up, and the column is a LIST on every row -- a bare string
+    would be iterated character by character by ``_refuted_faults``."""
+    for key, row in rows.items():
+        assert isinstance(row["refuted"], list), key
+        for name in row["refuted"]:
+            assert isinstance(name, str) and name.strip(), key
 
 
 def test_wave_one_libraries_resolve_in_the_lockfile(

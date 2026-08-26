@@ -115,6 +115,12 @@ DERIVED_COLUMNS: Final = frozenset(
 #: received. ``audited`` reads the same way for the same reason -- a row nobody
 #: has examined must not read as one somebody passed. A new authored column
 #: belongs HERE and nowhere else.
+#: ``refuted`` is the one whose default is a container rather than ``None``, and
+#: the reason is that an empty list is a COMPLETE statement where ``None`` would
+#: not be: nothing has been measured as not implementing this row's method. That
+#: is different from ``audited``, where absence means nobody looked. It is a LIST
+#: because a row may be pointed at more than one distribution over its life, and
+#: a string would make the second measurement overwrite the first.
 AUTHORED_COLUMNS: Final[dict[str, Any]] = {
     "status": "planned",
     "library": None,
@@ -122,6 +128,7 @@ AUTHORED_COLUMNS: Final[dict[str, Any]] = {
     "dataset": None,
     "wave": None,
     "audited": None,
+    "refuted": [],
 }
 
 #: Emitted key order. Not correctness -- readability. A stable order keeps a
@@ -450,7 +457,11 @@ def sync_method_sources(categories: list[dict[str, Any]], out: Path) -> tuple[in
     for key, row in modules.items():
         carried = previous.get(key, {})
         for column, default in AUTHORED_COLUMNS.items():
-            row[column] = carried.get(column, default)
+            # COPIED, never the shared object. A container default assigned
+            # straight from the table above would give all 598 rows the same
+            # list, so appending to one row's would append to every row's.
+            fallback = list(default) if isinstance(default, list) else default
+            row[column] = carried.get(column, fallback)
 
     register["modules"] = modules
     register["n_modules"] = len(modules)
