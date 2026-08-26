@@ -274,14 +274,23 @@ def test_v2_declares_its_version_and_its_producer() -> None:
 #: well as in ``corpus/_provenance.json`` is what makes the provenance block
 #: checkable at all -- a block edited to name a digest that never existed is
 #: worse than no block, and with one home nothing would notice.
+#:
+#: MOVED ON 2026-08-26 BY BOX 2.1.1.2, and the pair here moved with the corpus
+#: record in the same commit -- that is the whole point of two homes. The digests
+#: below are the box 2.1.15 output, which this re-seal superseded; the pair they
+#: replaced is not kept, because the field records one generation and not a
+#: history. This re-seal differs from 2.1.15 in one way worth naming: 2.1.15
+#: moved no ``contract_hash`` at all, while this one moves exactly two, so a
+#: reviewer who reads "re-seal" here must not read it as "nothing in the
+#: catalogue changed".
 SUPERSEDED = {
-    "node_specs_sha256": "c3b3d1086762e65ba3cdcf98cf023d417c7987b9b22d1547ef9a2e54f5c43749",
-    "method_cards_sha256": "24156d4194c9960305771f5018f9b2f9b1cde308ba18df608539f11807d05635",
+    "node_specs_sha256": "419a288b93d613ebfbf2bf16d55aa9f879a2e5a33600c5fadbd40d3bd2d078e2",
+    "method_cards_sha256": "e3d7c551349a0faf56fa6e4cc63831f7ec83c92b6cb48a80f11861a66a4d8768",
 }
 
 
 def test_both_artifacts_record_the_digests_this_reseal_superseded() -> None:
-    """Box 2.1.15. The re-seal happens IN PLACE, so the only trace it leaves is
+    """Box 2.1.1.2. The re-seal happens IN PLACE, so the only trace it leaves is
     this block: same filenames, same sidecar count, ``wrapper_file`` untouched.
     Both artifacts carry the same record, because one re-seal produced both."""
     import hashlib
@@ -292,7 +301,7 @@ def test_both_artifacts_record_the_digests_this_reseal_superseded() -> None:
         "one re-seal, one record: the two artifacts disagree about what they superseded"
     )
     previous = blocks["node-specs.json"]
-    assert previous["reason"] == "box 2.1.15"
+    assert previous["reason"] == "box 2.1.1.2"
     assert re.match(r"^\d{4}-\d{2}-\d{2}$", previous["resealed"]), previous["resealed"]
     for key, digest in SUPERSEDED.items():
         assert previous[key] == digest

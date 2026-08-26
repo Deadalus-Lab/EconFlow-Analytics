@@ -1305,7 +1305,7 @@
     "nber_recession_flag"
    ],
    "when": "the official NBER peak->trough recession intervals as numeric data -> recession-shading bands (frontend) or a 0/1 recession-dummy regressor aligned to a series",
-   "when_not": "DRAWING the bands (nberShade/ymdShade/romerLines — frontend); non-US or data-driven turning-point dating (the NBER chronology is fixed); Romer dates (not exposed)",
+   "when_not": "DRAWING the bands (nberShade/ymdShade/romerLines — frontend); DATING turning points from data — these two functions date nothing, they clip and test intervals the caller already has, so a chronology has to exist before either is called; Romer dates (not exposed)",
    "alternatives": [
     {
      "alt": "the reader/data nodes + #78",
@@ -1320,16 +1320,18 @@
     "recessions: records df start/end = peak->trough (yyyymmdd int by default, or Date); overlap-clipped to [from,to]",
     "flags: records df date/in_recession 0/1 + n_recession_periods",
     "metadata: n_recessions/n, from/to (yyyymmdd), as_date",
-    "vintage: publisher/retrieved/sha256 of the chronology snapshot the answer was computed from"
+    "vintage: n_intervals + the first and last date read off the chronology THAT ARRIVED — the engine holds no snapshot to describe, so this echoes the caller's input rather than a publisher, a retrieval date or a digest of anything shipped"
    ],
    "chart_kind": "line",
    "interpretation_traps": [
     "the window is INCLUSIVE at both ends (Start=peak & End=trough are inside the recession); the day after the trough => 0",
     "a recession-free [from,to] => 0 rows (valid, NOT an error)",
-    "20200101 is a yyyymmdd INTEGER, NOT a year; from=2020 errors (not an 8-digit date)"
+    "20200101 is a yyyymmdd INTEGER, NOT a year; from=2020 errors (not an 8-digit date)",
+    "the committee dates peaks and troughs to a MONTH, and separately to a QUARTER — it publishes no day. Every day-of-month in a redistributed recession dataset was chosen by whoever repackaged it, not by the NBER, so two chronologies claiming the same recession can disagree on its edges by up to a month. These functions take dates at day precision because their windows and their output are day-precision; that is a convention of the argument, never a claim that the underlying date is known to the day",
+    "the answer is only ever as good as the chronology handed in: supply a different one and every interval, flag and count moves with it. Nothing here validates the chronology against the committee's, because nothing here has the committee's to compare against"
    ],
    "sources": [
-    "NBER Business Cycle Dating Committee — US business cycle expansions and contractions (nber.org)"
+    "NBER Business Cycle Dating Committee — US business cycle expansions and contractions (nber.org). Where a caller GETS a chronology, not something this engine ships or retrieves; the committee's own notice grants copying provided the source is attributed, so attribution is the form that use takes"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -8487,6 +8489,12 @@
     "dates": [
      "PROVIDER/DATASET/SERIES"
     ],
+    "chronology": [
+     {
+      "peak": "2007-12-01",
+      "trough": "2009-06-01"
+     }
+    ],
     "as_date": false
    },
    "arguments": [
@@ -8497,6 +8505,19 @@
      "description": "Vector of dates (ISO 'YYYY-MM-DD' strings or yyyymmdd) — e.g. the time index of a series; a per-date 0/1 recession dummy is returned.",
      "pointer_handle": false,
      "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chronology",
+     "kind": "raw",
+     "required": false,
+     "description": "The peak->trough chronology each date is tested against: records carrying a peak and a trough date apiece (ISO 'YYYY-MM-DD' or integer yyyymmdd). The caller supplies it — this engine ships no chronology and reaches no network, so whoever wants the official US dates reads them from the NBER Business Cycle Dating Committee and passes them here. Reaches the body UNTOUCHED: the wire layer validates nothing about a raw argument, so shape, pairing and ordering are the body gate's to check, and an omitted chronology is refused there by name rather than by the adapter.",
+     "pointer_handle": false,
+     "json_type": "string",
      "enum": null,
      "allowed_vars": null,
      "default": null,
@@ -8523,9 +8544,28 @@
    "card_id": 119,
    "register": null,
    "input_example": {
+    "chronology": [
+     {
+      "peak": "2007-12-01",
+      "trough": "2009-06-01"
+     }
+    ],
     "as_date": false
    },
    "arguments": [
+    {
+     "name": "chronology",
+     "kind": "raw",
+     "required": false,
+     "description": "The peak->trough chronology to clip: records carrying a peak and a trough date apiece (ISO 'YYYY-MM-DD' or integer yyyymmdd). The caller supplies it — this engine ships no chronology and reaches no network, so whoever wants the official US dates reads them from the NBER Business Cycle Dating Committee and passes them here. Reaches the body UNTOUCHED: the wire layer validates nothing about a raw argument, so shape, pairing and ordering are the body gate's to check, and an omitted chronology is refused there by name rather than by the adapter.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
     {
      "name": "from",
      "kind": "string",

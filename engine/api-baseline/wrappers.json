@@ -4322,6 +4322,12 @@
      "default": null
     },
     {
+     "name": "chronology",
+     "kind": "keyword-only",
+     "annotation": "Any | None",
+     "default": "None"
+    },
+    {
      "name": "as_date",
      "kind": "keyword-only",
      "annotation": "bool | None",
@@ -4332,6 +4338,12 @@
   },
   "econflow_engine.wrappers.c00_data_utilities.nber_recession_chronology.nber_recessions": {
    "parameters": [
+    {
+     "name": "chronology",
+     "kind": "keyword-only",
+     "annotation": "Any | None",
+     "default": "None"
+    },
     {
      "name": "from_",
      "kind": "keyword-only",

@@ -2,10 +2,10 @@
  "artifact_version": 2,
  "generated_by": "scripts/gen_artifacts.py from corpus/ -- regenerate, never edit",
  "previous": {
-  "node_specs_sha256": "c3b3d1086762e65ba3cdcf98cf023d417c7987b9b22d1547ef9a2e54f5c43749",
-  "method_cards_sha256": "24156d4194c9960305771f5018f9b2f9b1cde308ba18df608539f11807d05635",
-  "resealed": "2026-08-23",
-  "reason": "box 2.1.15"
+  "node_specs_sha256": "419a288b93d613ebfbf2bf16d55aa9f879a2e5a33600c5fadbd40d3bd2d078e2",
+  "method_cards_sha256": "e3d7c551349a0faf56fa6e4cc63831f7ec83c92b6cb48a80f11861a66a4d8768",
+  "resealed": "2026-08-26",
+  "reason": "box 2.1.1.2"
  },
  "engine": {
   "n_nodes": 1456,
@@ -7677,7 +7677,7 @@
    "category": "00-data-utilities",
    "card_id": 119,
    "register": null,
-   "contract_hash": "c2-e9b5cd34da633f8f58a56f394187e7f81301bd5f4a440f75c4c2032dd90100ed",
+   "contract_hash": "c2-94b78e3831ae716f401603ade6f998cb231d8ed898c8ab65d5c9e531b3c6eef1",
    "executability": {
     "status": "executable",
     "reason_code": null,
@@ -7695,6 +7695,12 @@
     "dates": [
      "PROVIDER/DATASET/SERIES"
     ],
+    "chronology": [
+     {
+      "peak": "2007-12-01",
+      "trough": "2009-06-01"
+     }
+    ],
     "as_date": false
    },
    "arguments": [
@@ -7705,6 +7711,19 @@
      "description": "Vector of dates (ISO 'YYYY-MM-DD' strings or yyyymmdd) — e.g. the time index of a series; a per-date 0/1 recession dummy is returned.",
      "pointer_handle": false,
      "json_type": "array",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
+    {
+     "name": "chronology",
+     "kind": "raw",
+     "required": false,
+     "description": "The peak->trough chronology each date is tested against: records carrying a peak and a trough date apiece (ISO 'YYYY-MM-DD' or integer yyyymmdd). The caller supplies it — this engine ships no chronology and reaches no network, so whoever wants the official US dates reads them from the NBER Business Cycle Dating Committee and passes them here. Reaches the body UNTOUCHED: the wire layer validates nothing about a raw argument, so shape, pairing and ordering are the body gate's to check, and an omitted chronology is refused there by name rather than by the adapter.",
+     "pointer_handle": false,
+     "json_type": "string",
      "enum": null,
      "allowed_vars": null,
      "default": null,
@@ -7732,7 +7751,7 @@
    "category": "00-data-utilities",
    "card_id": 119,
    "register": null,
-   "contract_hash": "c2-892922b69fccc26cc6fe777e1f17fb27cf6dda80eec7ef5881eb7693ec062bda",
+   "contract_hash": "c2-8439d5e702d803a0c5137e3250fa062a8c7c8de4257ae29abd0914e3a1483167",
    "executability": {
     "status": "executable",
     "reason_code": null,
@@ -7747,9 +7766,28 @@
     "stochastic_unseeded": false
    },
    "input_example": {
+    "chronology": [
+     {
+      "peak": "2007-12-01",
+      "trough": "2009-06-01"
+     }
+    ],
     "as_date": false
    },
    "arguments": [
+    {
+     "name": "chronology",
+     "kind": "raw",
+     "required": false,
+     "description": "The peak->trough chronology to clip: records carrying a peak and a trough date apiece (ISO 'YYYY-MM-DD' or integer yyyymmdd). The caller supplies it — this engine ships no chronology and reaches no network, so whoever wants the official US dates reads them from the NBER Business Cycle Dating Committee and passes them here. Reaches the body UNTOUCHED: the wire layer validates nothing about a raw argument, so shape, pairing and ordering are the body gate's to check, and an omitted chronology is refused there by name rather than by the adapter.",
+     "pointer_handle": false,
+     "json_type": "string",
+     "enum": null,
+     "allowed_vars": null,
+     "default": null,
+     "has_default": false,
+     "default_json_type": null
+    },
     {
      "name": "from",
      "kind": "string",

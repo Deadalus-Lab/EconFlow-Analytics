@@ -2,13 +2,13 @@
  "artifact_version": 2,
  "generated_by": "scripts/gen_artifacts.py from corpus/ -- regenerate, never edit",
  "previous": {
-  "node_specs_sha256": "c3b3d1086762e65ba3cdcf98cf023d417c7987b9b22d1547ef9a2e54f5c43749",
-  "method_cards_sha256": "24156d4194c9960305771f5018f9b2f9b1cde308ba18df608539f11807d05635",
-  "resealed": "2026-08-23",
-  "reason": "box 2.1.15"
+  "node_specs_sha256": "419a288b93d613ebfbf2bf16d55aa9f879a2e5a33600c5fadbd40d3bd2d078e2",
+  "method_cards_sha256": "e3d7c551349a0faf56fa6e4cc63831f7ec83c92b6cb48a80f11861a66a4d8768",
+  "resealed": "2026-08-26",
+  "reason": "box 2.1.1.2"
  },
  "source": {
-  "node_specs_sha256": "419a288b93d613ebfbf2bf16d55aa9f879a2e5a33600c5fadbd40d3bd2d078e2",
+  "node_specs_sha256": "cefd10bfc382076bca1b2c5b01772f7cd6b886719adf34ae7fa7369aed4e9404",
   "n_cards": 600,
   "n_categories": 46,
   "n_nodes_covered": 1456,
@@ -5878,7 +5878,7 @@
     "nber_recession_flag"
    ],
    "when": "the official NBER peak->trough recession intervals as numeric data -> recession-shading bands (frontend) or a 0/1 recession-dummy regressor aligned to a series",
-   "when_not": "DRAWING the bands (nberShade/ymdShade/romerLines — frontend); non-US or data-driven turning-point dating (the NBER chronology is fixed); Romer dates (not exposed)",
+   "when_not": "DRAWING the bands (nberShade/ymdShade/romerLines — frontend); DATING turning points from data — these two functions date nothing, they clip and test intervals the caller already has, so a chronology has to exist before either is called; Romer dates (not exposed)",
    "alternatives": [
     {
      "alt": "the reader/data nodes + #78",
@@ -5893,21 +5893,23 @@
     "recessions: records df start/end = peak->trough (yyyymmdd int by default, or Date); overlap-clipped to [from,to]",
     "flags: records df date/in_recession 0/1 + n_recession_periods",
     "metadata: n_recessions/n, from/to (yyyymmdd), as_date",
-    "vintage: publisher/retrieved/sha256 of the chronology snapshot the answer was computed from"
+    "vintage: n_intervals + the first and last date read off the chronology THAT ARRIVED — the engine holds no snapshot to describe, so this echoes the caller's input rather than a publisher, a retrieval date or a digest of anything shipped"
    ],
    "chart_kind": "line",
    "interpretation_traps": [
     "the window is INCLUSIVE at both ends (Start=peak & End=trough are inside the recession); the day after the trough => 0",
     "a recession-free [from,to] => 0 rows (valid, NOT an error)",
-    "20200101 is a yyyymmdd INTEGER, NOT a year; from=2020 errors (not an 8-digit date)"
+    "20200101 is a yyyymmdd INTEGER, NOT a year; from=2020 errors (not an 8-digit date)",
+    "the committee dates peaks and troughs to a MONTH, and separately to a QUARTER — it publishes no day. Every day-of-month in a redistributed recession dataset was chosen by whoever repackaged it, not by the NBER, so two chronologies claiming the same recession can disagree on its edges by up to a month. These functions take dates at day precision because their windows and their output are day-precision; that is a convention of the argument, never a claim that the underlying date is known to the day",
+    "the answer is only ever as good as the chronology handed in: supply a different one and every interval, flag and count moves with it. Nothing here validates the chronology against the committee's, because nothing here has the committee's to compare against"
    ],
    "sources": [
-    "NBER Business Cycle Dating Committee — US business cycle expansions and contractions (nber.org)"
+    "NBER Business Cycle Dating Committee — US business cycle expansions and contractions (nber.org). Where a caller GETS a chronology, not something this engine ships or retrieves; the committee's own notice grants copying provided the source is attributed, so attribution is the form that use takes"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
    "validation_notes": null,
-   "embed_text": "[#119] US NBER recession chronology — recession-shading intervals + a per-date 0/1 recession dummy\nCategory: 00-data-utilities\nNodes: nber_recessions · nber_recession_flag\nWHEN: the official NBER peak->trough recession intervals as numeric data -> recession-shading bands (frontend) or a 0/1 recession-dummy regressor aligned to a series\nNOT when: DRAWING the bands (nberShade/ymdShade/romerLines — frontend); non-US or data-driven turning-point dating (the NBER chronology is fixed); Romer dates (not exposed)\nAlternatives: the reader/data nodes + #78 (you need the series itself/transformations, not a recession reference) · nber_recession_flag (you want a 0/1 dummy per date rather than intervals for shading)\nOutput: recessions: records df start/end = peak->trough (yyyymmdd int by default, or Date); overlap-clipped to [from,to] · flags: records df date/in_recession 0/1 + n_recession_periods · metadata: n_recessions/n, from/to (yyyymmdd), as_date · vintage: publisher/retrieved/sha256 of the chronology snapshot the answer was computed from\nPitfalls: the window is INCLUSIVE at both ends (Start=peak & End=trough are inside the recession); the day after the trough => 0 · a recession-free [from,to] => 0 rows (valid, NOT an error) · 20200101 is a yyyymmdd INTEGER, NOT a year; from=2020 errors (not an 8-digit date)\nSources: NBER Business Cycle Dating Committee — US business cycle expansions and contractions (nber.org)"
+   "embed_text": "[#119] US NBER recession chronology — recession-shading intervals + a per-date 0/1 recession dummy\nCategory: 00-data-utilities\nNodes: nber_recessions · nber_recession_flag\nWHEN: the official NBER peak->trough recession intervals as numeric data -> recession-shading bands (frontend) or a 0/1 recession-dummy regressor aligned to a series\nNOT when: DRAWING the bands (nberShade/ymdShade/romerLines — frontend); DATING turning points from data — these two functions date nothing, they clip and test intervals the caller already has, so a chronology has to exist before either is called; Romer dates (not exposed)\nAlternatives: the reader/data nodes + #78 (you need the series itself/transformations, not a recession reference) · nber_recession_flag (you want a 0/1 dummy per date rather than intervals for shading)\nOutput: recessions: records df start/end = peak->trough (yyyymmdd int by default, or Date); overlap-clipped to [from,to] · flags: records df date/in_recession 0/1 + n_recession_periods · metadata: n_recessions/n, from/to (yyyymmdd), as_date · vintage: n_intervals + the first and last date read off the chronology THAT ARRIVED — the engine holds no snapshot to describe, so this echoes the caller's input rather than a publisher, a retrieval date or a digest of anything shipped\nPitfalls: the window is INCLUSIVE at both ends (Start=peak & End=trough are inside the recession); the day after the trough => 0 · a recession-free [from,to] => 0 rows (valid, NOT an error) · 20200101 is a yyyymmdd INTEGER, NOT a year; from=2020 errors (not an 8-digit date) · the committee dates peaks and troughs to a MONTH, and separately to a QUARTER — it publishes no day. Every day-of-month in a redistributed recession dataset was chosen by whoever repackaged it, not by the NBER, so two chronologies claiming the same recession can disagree on its edges by up to a month. These functions take dates at day precision because their windows and their output are day-precision; that is a convention of the argument, never a claim that the underlying date is known to the day · the answer is only ever as good as the chronology handed in: supply a different one and every interval, flag and count moves with it. Nothing here validates the chronology against the committee's, because nothing here has the committee's to compare against\nSources: NBER Business Cycle Dating Committee — US business cycle expansions and contractions (nber.org). Where a caller GETS a chronology, not something this engine ships or retrieves; the committee's own notice grants copying provided the source is attributed, so attribution is the form that use takes"
   },
   {
    "id": 120,

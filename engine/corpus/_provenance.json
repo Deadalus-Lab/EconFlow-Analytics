@@ -7,7 +7,7 @@
   "therefore leaves no trace of its own, which is the reason this file exists.",
   "",
   "The two digests below are the bytes that were sealed BEFORE this re-seal, read",
-  "from the committed tree on 2026-08-23 with",
+  "from the committed tree on 2026-08-26 with",
   "  git show HEAD:engine/artifacts/node-specs.sha256",
   "  git show HEAD:engine/artifacts/method-cards.sha256",
   "They are authored rather than computed, because a generator that reads git",
@@ -16,10 +16,22 @@
   "second, independent home, so a digest edited to something that never existed is",
   "caught rather than believed.",
   "",
-  "This block is emitted onto BOTH artifacts, identically. One re-seal, one record."
+  "This block is emitted onto BOTH artifacts, identically. One re-seal, one record.",
+  "",
+  "RE-SEALED AGAIN ON 2026-08-26 FOR BOX 2.1.1.2, and this record now supersedes the",
+  "box 2.1.15 pair rather than the pair that preceded IT -- the field holds one",
+  "generation, not a history, so the digests above are the 2.1.15 output and the",
+  "2.1.15 record itself is gone. That is the intended shape: the question this file",
+  "answers is 'what did the bytes on disk replace', and only the immediately",
+  "preceding generation answers it. UNLIKE 2.1.15, THIS RE-SEAL MOVED THE",
+  "CATALOGUE. Box 2.1.15 changed no contract_hash; this one moves exactly two --",
+  "nber_recessions and nber_recession_flag, which gain an optional `chronology`",
+  "argument, and `arguments` is inside the contract hash's canonical form. The",
+  "other 1454 are byte-identical, proved by dumping all 1456 `fn\\thash` pairs on",
+  "either side of the rebuild and diffing them: four lines, two functions."
  ],
- "node_specs_sha256": "c3b3d1086762e65ba3cdcf98cf023d417c7987b9b22d1547ef9a2e54f5c43749",
- "method_cards_sha256": "24156d4194c9960305771f5018f9b2f9b1cde308ba18df608539f11807d05635",
- "resealed": "2026-08-23",
- "reason": "box 2.1.15"
+ "node_specs_sha256": "419a288b93d613ebfbf2bf16d55aa9f879a2e5a33600c5fadbd40d3bd2d078e2",
+ "method_cards_sha256": "e3d7c551349a0faf56fa6e4cc63831f7ec83c92b6cb48a80f11861a66a4d8768",
+ "resealed": "2026-08-26",
+ "reason": "box 2.1.1.2"
 }
