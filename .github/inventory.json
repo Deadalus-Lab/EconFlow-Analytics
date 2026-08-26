@@ -41,7 +41,7 @@
     "categories": 46,
     "methods": 1456,
     "generators": 4,
-    "infra_py_files": 28,
+    "infra_py_files": 29,
     "test_files": 24,
     "test_helpers": 1,
     "py_packages": 117,
@@ -58,8 +58,8 @@
   },
   "spdx": {
     "_comment": "TWO VALUES, NOT ONE, AND THAT IS THE WHOLE MECHANISM. py_files_total counts the Python files under src/ + scripts/ + tests/; py_files_with_header counts those that declare SPDX-License-Identifier. Asserting both means a file added without a header turns the gate red, where a single figure would simply have moved. This pair is also the one figure a licence change touches everywhere at once, so a reviewer sees it move in a reviewed one-line diff rather than inferring it. It counts a WIDER set than engine.wrappers: alongside the wrapper modules it takes in one __init__.py per wrapper package, the generated tier, the infrastructure modules, the scripts and the tests. engine.test_files is narrower again -- only test_*.py. Reproduce any part by narrowing the py_files_total command below to a single directory; do not restate a breakdown here, because the last one rotted within a day of being written. BOTH FELL BY TWO ON 2026-08-22, together as the pair requires: the replication fixtures were removed by owner decision, and the two Python files that read them went with them. Those two files were written and deleted inside the same uncommitted work, so the commit diff shows neither: what a reviewer sees is the 11 deleted files under engine/fixtures/replications/ and this pair two lower. Each carried an SPDX header, so the two figures moved by the same two files and stayed equal, which is the outcome that proves nothing lost a header in the process. BOTH ROSE BY 28 ON 2026-08-24, together as the pair requires, when the six clusters of box 2.1 merged onto one branch: 783 -> 811, moved by the same files and still equal. The rise breaks down by cluster and the six deltas account for it in full. Boxes 2.1.1/2.1.2/2.1.3 add 2, the register and licence suites; boxes 2.1.15/2.1.12/2.1.11 add 2, the chart-map and serialize suites; boxes 2.1.4/2.1.13 add 13, the five-module gates package with its five suites, tests/support.py and two planted controls; boxes 2.1.6/2.1.5/2.1.7 add 1, the wrapper-generator suite; boxes 2.1.9/2.1.8 add 0, because the oracle cases are JSON; boxes 2.1.14/2.1.16/2.1.17/2.1.18 add 11, ten control modules and the property suite. Those six sum to 29 and the measured rise is 28: engine/tests/controls/__init__.py is authored by two of them and counted once. engine.test_files rose 9 -> 20 across the same merge.",
-    "py_files_total": 817,
-    "py_files_with_header": 817,
+    "py_files_total": 818,
+    "py_files_with_header": 818,
     "min_scanned": 740,
     "_comment_min_scanned": "THE ANTI-VACUITY FLOOR FOR ci.yml's SPDX SCAN, AND A DIFFERENT QUANTITY FROM py_files_total. That pair is an exact-equality assertion; this is a floor whose only job is to prove the loop scanned a whole tree rather than a fragment. It lived as a literal `-lt 740` inside .github/workflows/ci.yml, which made it the one asserted quantity with a second home -- harmless while the tree is far above it, and not harmless the day somebody lowers a number. It is read from here now, by the same python3 -c form every other floor in that workflow uses. WHY 740 AND NOT SOMETHING ELSE: it sits BELOW the 811 the glob matches today and ABOVE the 715 that remain if the generated tier is ever dropped from the glob by accident, so losing a whole tier turns the scan red -- the one thing a floor placed below 715 could not do. Both figures, from engine/: `find src scripts tests -name '*.py' -not -path '*__pycache__*' | wc -l` and the same command with `-not -path 'src/econflow_engine/generated/*'` added."
   },
