@@ -1,0 +1,27 @@
+{
+  "shape": "frame",
+  "index": {
+    "kind": "range",
+    "start": 1
+  },
+  "columns": [
+    "x",
+    "y"
+  ],
+  "values": [
+    [10.0, 8.04],
+    [8.0, 6.95],
+    [13.0, 7.58],
+    [9.0, 8.81],
+    [11.0, 8.33],
+    [14.0, 9.96],
+    [6.0, 7.24],
+    [4.0, 4.26],
+    [12.0, 10.84],
+    [7.0, 4.82],
+    [5.0, 5.68]
+  ],
+  "dtype": "float",
+  "citation": "Anscombe, F. J. (1973), Graphs in Statistical Analysis, The American Statistician 27(1), 17-21, DOI 10.1080/00031305.1973.10478966 -- the eleven (x, y) pairs of data set 1, read from the unnumbered table on p. 19 captioned 'Four data sets, each comprising 11 (x, y) pairs'.",
+  "notes": "The x column is printed once in the source and shared by data sets 1 to 3; the y column here is the one headed '1'. The row order is the order the table prints. THE INDEX IS A SPECIFICATION, NOT A TRANSCRIPTION: the source numbers its rows 1 to 11 and prints no other label, so the index is declared as a range starting at 1 and the eleven integers are produced by the builder rather than copied into this file. `dtype` is float because the table prints x to no decimal places and y to two; reading x as an integer would make the two columns disagree about what a value of this table is. WHAT THIS DATASET IS FOR AND WHAT IT IS NOT: Anscombe's point is that his four sets share every regression summary, so these pairs are evidence about transport and shape and never about estimation. A case that used them to check a fitted coefficient would be claiming something the source deliberately does not support."
+}
