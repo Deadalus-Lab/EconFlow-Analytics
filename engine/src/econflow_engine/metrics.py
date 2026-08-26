@@ -31,9 +31,10 @@ the agreement they appeared to have was an accident of an unrelated setting.
 from __future__ import annotations
 
 import ast
+from dataclasses import dataclass
 from pathlib import Path
 
-__all__ = ["find_manifest", "is_stub"]
+__all__ = ["StubLedger", "find_manifest", "is_stub", "stub_ledger"]
 
 MANIFEST_RELATIVE_PATH = Path(".github") / "inventory.json"
 
@@ -70,6 +71,60 @@ def is_stub(function: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
     raised = body[0].exc
     name = getattr(raised, "func", raised)
     return isinstance(name, ast.Name) and name.id == "NotImplementedError"
+
+
+@dataclass(frozen=True, slots=True)
+class StubLedger:
+    """What one walk of the wrapper tree found.
+
+    ``implemented`` pairs each module with the name of a public function whose
+    body is not the emitted stub; ``stubs`` counts the public functions that
+    still are one. Three answers from one walk, because the three sites that
+    spend them -- ``engine.n_implemented``, the conformance accounting and the
+    double-run gate -- must not be able to disagree about the same tree.
+
+    A ``dataclass`` AND NOT A ``NamedTuple``, measured rather than preferred:
+    ``tests/conftest.py`` installs beartype's import hook over this package, and
+    under ``from __future__ import annotations`` it reads a ``NamedTuple``'s
+    field annotations as forward references and refuses
+    ``tuple[tuple[Path, str], ...]`` with "not valid Python attribute name". The
+    frozen slotted dataclass is this package's existing shape for a small record
+    and it takes the same annotation without complaint.
+    """
+
+    implemented: tuple[tuple[Path, str], ...]
+    stubs: int
+
+
+def stub_ledger(wrappers: Path) -> StubLedger:
+    """Walk the wrapper tree once and count what carries a body.
+
+    PUBLIC FUNCTIONS ONLY, and by ``ast.walk`` rather than by the module's
+    top level: that is what the published one-liner and the ``assert.sh``
+    heredoc do, and this is the definition they are held to.
+
+    A tree that is not there is a hard failure rather than an empty ledger. Zero
+    implemented functions and zero stubs is exactly what a walk over the wrong
+    directory returns, and it reads as a green count of a tree nobody examined.
+    """
+    if not wrappers.is_dir():
+        raise NotADirectoryError(f"no wrapper tree at {wrappers}; the walk cannot start.")
+    implemented: list[tuple[Path, str]] = []
+    stubs = 0
+    for path in sorted(wrappers.rglob("*.py")):
+        if path.name == "__init__.py":
+            continue
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
+                continue
+            if node.name.startswith("_"):
+                continue
+            if is_stub(node):
+                stubs += 1
+            else:
+                implemented.append((path, node.name))
+    return StubLedger(tuple(implemented), stubs)
 
 
 def find_manifest(start: Path) -> Path:

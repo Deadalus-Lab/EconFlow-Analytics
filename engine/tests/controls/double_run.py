@@ -113,7 +113,6 @@ the file count in place of the word.
 
 from __future__ import annotations
 
-import ast
 import hashlib
 import json
 import pathlib
@@ -121,7 +120,7 @@ import sys
 from collections.abc import Callable, Iterator
 from typing import Any
 
-from econflow_engine.metrics import find_manifest, is_stub
+from econflow_engine.metrics import find_manifest, stub_ledger
 from econflow_engine.serialize import to_json
 from tests.controls.determinism import CONTROLS
 
@@ -154,22 +153,14 @@ def is_nondeterministic(fn: Callable[[], Any]) -> tuple[bool, str, str]:
 def implemented_methods() -> Iterator[str]:
     """Every wrapper function whose body is NOT the emitted raise.
 
-    ``is_stub`` is ``econflow_engine.metrics``', which is also what the
-    ``n_implemented`` walk in ``.github/actions/assert-inventory/assert.sh``
-    is held to. Two predicates answering "is this a stub?" differently would let
-    a method be implemented by one measure and not by the other, and this
-    harness compares its own count against that one.
+    The walk is ``econflow_engine.metrics.stub_ledger``, which is also what the
+    ``n_implemented`` figure in ``.github/actions/assert-inventory/assert.sh``
+    is held to. Two walks answering "is this a stub?" differently would let a
+    method be implemented by one measure and not by the other, and this harness
+    compares its own count against that one.
     """
-    for path in sorted(WRAPPERS.rglob("*.py")):
-        if path.name == "__init__.py":
-            continue
-        tree = ast.parse(path.read_text(encoding="utf-8"))
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
-                continue
-            if node.name.startswith("_") or is_stub(node):
-                continue
-            yield f"{path.relative_to(ENGINE_ROOT)}::{node.name}"
+    for path, name in stub_ledger(WRAPPERS).implemented:
+        yield f"{path.relative_to(ENGINE_ROOT)}::{name}"
 
 
 def inventory(section: str, key: str) -> int:

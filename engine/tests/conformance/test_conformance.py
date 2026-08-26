@@ -80,7 +80,6 @@ the case is LOADED rather than when it is run:
 
 from __future__ import annotations
 
-import ast
 import json
 import math
 import re
@@ -94,7 +93,7 @@ from typing import Any
 
 import pytest
 
-from econflow_engine.metrics import find_manifest, is_stub
+from econflow_engine.metrics import find_manifest, stub_ledger
 from tests.conformance.fixtures import (
     FIXTURE_SIGIL,
     PRODUCE_SIGIL,
@@ -293,23 +292,13 @@ def _implemented_node_functions() -> frozenset[str]:
     """The wrapper functions whose body is NOT the emitted stub.
 
     The same walk ``.github/actions/assert-inventory/assert.sh`` runs for
-    ``engine.n_implemented``, and it now asks the same predicate:
-    ``econflow_engine.metrics.is_stub``. The shell copy stays a copy because a
-    heredoc cannot import the package, and the agreement test in
-    ``tests/test_stub_definition.py`` runs it and compares the answers.
+    ``engine.n_implemented``, and it is now literally the same walk:
+    ``econflow_engine.metrics.stub_ledger``. The shell copy stays a copy because
+    a heredoc cannot import the package, and ``tests/test_stub_definition.py``
+    runs it against planted trees and compares its answers with this one's.
     """
-    written: set[str] = set()
-    for path in sorted((ENGINE_ROOT / "src" / "econflow_engine" / "wrappers").rglob("*.py")):
-        if path.name == "__init__.py":
-            continue
-        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
-                continue
-            if node.name.startswith("_"):
-                continue
-            if not is_stub(node):
-                written.add(node.name)
-    return frozenset(written)
+    ledger = stub_ledger(ENGINE_ROOT / "src" / "econflow_engine" / "wrappers")
+    return frozenset(name for _, name in ledger.implemented)
 
 
 # --------------------------------------------------------------------------- #
