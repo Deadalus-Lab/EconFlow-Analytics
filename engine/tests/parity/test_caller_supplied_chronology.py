@@ -141,4 +141,4 @@ def test_the_body_still_refuses_every_call_because_it_is_a_stub(fn: str) -> None
             nber_recession_flag: WITH["nber_recession_flag"]}
     fnobj = nber_recessions if fn == "nber_recessions" else nber_recession_flag
     with pytest.raises(NotImplementedError, match=fn):
-        fnobj(**body[fnobj])  # type: ignore[operator]
+        fnobj(**body[fnobj])
