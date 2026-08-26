@@ -229,6 +229,19 @@ RUN uv sync --locked --all-extras
 # layer whenever the inputs hash the same, and a test that did not execute
 # reports success — which is the one thing this repository refuses everywhere.
 FROM builder AS test
+
+# README.md IS A TEST INPUT AND NOTHING ELSE, WHICH IS WHY IT ARRIVES HERE AND
+# NOT IN THE BUILDER. The published "Methods carrying an implementation" row
+# states the definition of an implemented body as a shell one-liner, and
+# tests/test_stub_definition.py runs that line against the same tree the module
+# walks, so the two spellings cannot drift apart unnoticed. That test needs the
+# file. Measured 2026-08-26: with it absent this stage failed on
+# `FileNotFoundError: '/app/README.md'` while the suite passed outside the image,
+# because the run at the foot of this stage reads a tree assembled by COPY rather
+# than the working tree. Copying it in the builder would carry a published
+# document into the runtime image, which ships an engine and not its prose.
+COPY README.md ./
+
 WORKDIR /app/engine
 RUN ./run_verifications.sh
 
