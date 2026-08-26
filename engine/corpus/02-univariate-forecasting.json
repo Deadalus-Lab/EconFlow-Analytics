@@ -907,6 +907,10 @@
     "y": "<series_handle>",
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1065,6 +1069,10 @@
    "input_example": {
     "model": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -1153,6 +1161,10 @@
    "input_example": {
     "model": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -1178,6 +1190,10 @@
    "input_example": {
     "p": 1,
     "q": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1295,6 +1311,10 @@
    "input_example": {
     "q": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1399,6 +1419,10 @@
     "x": "<series_handle>",
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1452,6 +1476,10 @@
     "y": "<series_handle>",
     "q": 1,
     "k": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1529,6 +1557,10 @@
     "x": "<series_handle>",
     "d": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1566,6 +1598,10 @@
    },
    "input_example": {
     "x": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1629,6 +1665,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1664,6 +1704,10 @@
    "register": null,
    "input_example": {
     "x": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1716,6 +1760,10 @@
    "input_example": {
     "x": "<series_handle>",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1846,6 +1894,10 @@
    "input_example": {
     "y": "<series_handle>",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2016,6 +2068,10 @@
     "y": "<series_handle>",
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2151,6 +2207,10 @@
    "input_example": {
     "data": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2269,6 +2329,10 @@
    "input_example": {
     "data": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2362,6 +2426,10 @@
    "input_example": {
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2453,6 +2521,10 @@
    "register": null,
    "input_example": {
     "y": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2557,6 +2629,10 @@
    "input_example": {
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2660,6 +2736,10 @@
    "input_example": {
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2740,6 +2820,10 @@
     "data": "<df_handle>",
     "formula": "y ~ x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2819,6 +2903,10 @@
    "input_example": {
     "data": "<df_handle>",
     "formula": "y ~ x"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2906,6 +2994,10 @@
    },
    "input_example": {
     "df": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3017,6 +3109,10 @@
     "horizon": 1,
     "units": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -3104,6 +3200,10 @@
    "register": null,
    "input_example": {
     "y": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3193,6 +3293,10 @@
    "input_example": {
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -3228,6 +3332,10 @@
    "register": null,
    "input_example": {
     "data": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3368,6 +3476,10 @@
    "input_example": {
     "data": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3406,6 +3518,10 @@
    "register": null,
    "input_example": {
     "data": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3524,6 +3640,10 @@
    "input_example": {
     "data": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3641,6 +3761,15 @@
      0.95
     ]
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "forecast",
+     "intervals",
+     "method",
+     "residuals"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -3748,6 +3877,10 @@
     ],
     "season_length": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -3833,6 +3966,10 @@
      0.95
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3906,6 +4043,15 @@
      0
     ],
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "effect",
+     "params",
+     "counterfactual",
+     "significance"
+    ]
    },
    "arguments": [
     {
@@ -4014,6 +4160,15 @@
      0.95
     ],
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "fan",
+     "paths",
+     "scenario_paths",
+     "n_simulations"
+    ]
    },
    "arguments": [
     {
@@ -4125,6 +4280,15 @@
     ],
     "model": "lightgbm",
     "difference": 0
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "forecast",
+     "feature_importance",
+     "cv_score",
+     "n_series"
+    ]
    },
    "arguments": [
     {
@@ -4269,6 +4433,15 @@
     "aggregate": "mean",
     "seed": 1
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "forecast",
+     "replicate_forecasts",
+     "n_replicates",
+     "variance_reduction"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -4386,6 +4559,15 @@
     "window_length": 12,
     "model": "gradient_boosting"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "forecast",
+     "models",
+     "horizon_scores",
+     "strategy"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -4491,6 +4673,15 @@
      0.95
     ]
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "intervals",
+     "coverage_guarantee",
+     "empirical_coverage",
+     "width"
+    ]
+   },
    "arguments": [
     {
      "name": "fit",
@@ -4578,6 +4769,15 @@
     "n_folds": 5,
     "metric": "mase",
     "season_length": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "selected",
+     "cv_scores",
+     "selection_stability",
+     "forecast"
+    ]
    },
    "arguments": [
     {

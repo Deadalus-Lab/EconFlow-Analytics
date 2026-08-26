@@ -376,6 +376,10 @@
     "cov_type": "hac",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -456,6 +460,10 @@
     "fit": "<raw_handle>",
     "annualise": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -493,6 +501,10 @@
     "returns": "<multiseries_handle>",
     "factors": "<multiseries_handle>",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -548,6 +560,15 @@
     "shanken": true,
     "intercept": true,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "lambda",
+     "t_shanken",
+     "t_naive",
+     "r_squared_cs"
+    ]
    },
    "arguments": [
     {
@@ -630,6 +651,10 @@
     "weighting": "hansen_jagannathan",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -709,6 +734,10 @@
    "input_example": {
     "fit": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -734,6 +763,10 @@
     "characteristic": "<df_handle>",
     "n_portfolios": 5,
     "weighting": "equal"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -817,6 +850,10 @@
     "n_1": 5,
     "n_2": 5,
     "conditional": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -911,6 +948,10 @@
     "criterion": "bai_ng_icp2",
     "standardise": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -997,6 +1038,10 @@
     "returns": "<df_handle>",
     "k_max": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -1044,6 +1089,10 @@
      -5,
      5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1147,6 +1196,10 @@
     "test": "patell",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1219,6 +1272,10 @@
     "returns": "<series_handle>",
     "frequency": "monthly",
     "autocorrelation_adjust": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1302,6 +1359,10 @@
     "returns": "<series_handle>",
     "top_n": 5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -1338,6 +1399,10 @@
    "input_example": {
     "weights": "<df_handle>",
     "cost_bps": 10.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

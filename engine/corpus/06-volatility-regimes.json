@@ -1242,6 +1242,10 @@
     "crit": 1e-09,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1361,6 +1365,10 @@
     "object": "<raw_handle>",
     "p": 0.99
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1432,6 +1440,10 @@
     "n_ahead": 10,
     "ci": 0.9,
     "time_shock": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1538,6 +1550,10 @@
     "data": "<matrix_handle>",
     "out_sample": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spec",
@@ -1607,6 +1623,10 @@
     "n_ahead": 1,
     "n_roll": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1661,6 +1681,10 @@
      "<raw_handle_2>"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "specs",
@@ -1686,6 +1710,10 @@
     "data": "<matrix_handle>",
     "forecast_length": 50,
     "refit_every": 25
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1786,6 +1814,10 @@
     "n_start": 0,
     "m_sim": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1851,6 +1883,10 @@
     "uspec": "<raw_handle>",
     "VAR": false,
     "lag": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1935,6 +1971,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1962,6 +2002,10 @@
      1
     ],
     "each": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2017,6 +2061,10 @@
     "draws": 300,
     "burnin": 100,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2110,6 +2158,10 @@
     "fit": "<raw_handle>",
     "gof_groups": 20
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -2149,6 +2201,10 @@
     "spec": "<raw_handle>",
     "data": "<series_handle>",
     "out_sample": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2220,6 +2276,10 @@
     "n_ahead": 10,
     "n_roll": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -2272,6 +2332,10 @@
     "forecast_length": 500,
     "refit_every": 25,
     "calculate_VaR": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2387,6 +2451,10 @@
     "n_start": 0,
     "m_sim": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -2453,6 +2521,10 @@
     "archm": false,
     "archpow": 1,
     "variance_targeting": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2611,6 +2683,10 @@
     "q": 1,
     "maxeval": 10000
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2753,6 +2829,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2835,6 +2915,10 @@
     "object": "<raw_handle>",
     "t_sim": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2882,6 +2966,10 @@
     "type": "HAR",
     "insanityFilter": true,
     "h": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3031,6 +3119,10 @@
     "windowType": "rolling",
     "insanityFilter": true,
     "h": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3222,6 +3314,10 @@
     "errorTermSD": 0.001,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "len",
@@ -3308,6 +3404,10 @@
     "makeReturns": true,
     "cor": false,
     "J": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3406,6 +3506,10 @@
     "makeReturns": true,
     "kernelParam": 1,
     "J": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3524,6 +3628,10 @@
     "marketClose": "16:00:00",
     "tz": "GMT"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3640,6 +3748,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3671,6 +3783,10 @@
     "runs": 5,
     "iterlim": 100,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3768,6 +3884,10 @@
     "ahead": 5,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3820,6 +3940,10 @@
     "x": "<series_handle>",
     "m": 1,
     "d": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3914,6 +4038,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3946,6 +4074,10 @@
     "nboot": 10,
     "sanitize": false,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4058,6 +4190,10 @@
     "K": 1,
     "low_freq": "date",
     "gamma": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4176,6 +4312,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -4225,6 +4365,10 @@
     "low_freq": 1,
     "n_intraday": 288,
     "corr": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4434,6 +4578,10 @@
     "spec": "<raw_handle>",
     "data": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spec",
@@ -4473,6 +4621,10 @@
     "spec": "<raw_handle>",
     "data": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spec",
@@ -4510,6 +4662,10 @@
     "fit": "<raw_handle>",
     "nahead": 1,
     "do_cumulative": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4562,6 +4718,10 @@
     "do_es": true,
     "nahead": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -4613,6 +4773,10 @@
     "nsim": 1,
     "nahead": 1,
     "nburn": 500
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4678,6 +4842,10 @@
    "input_example": {
     "K": 2,
     "do_mix": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4754,6 +4922,10 @@
    "input_example": {
     "fit": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -4781,6 +4953,10 @@
     "data": "<df_handle>",
     "k": 2,
     "p": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4845,6 +5021,10 @@
     "fit": "<raw_handle>",
     "level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -4880,6 +5060,10 @@
    "register": null,
    "input_example": {
     "fit": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4923,6 +5107,10 @@
     "thDelay": 0,
     "nthresh": 1,
     "trim": 0.15
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5068,6 +5256,10 @@
     "nthresh": 1,
     "trim": 0.15
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5198,6 +5390,10 @@
     "thDelay": 0,
     "trim": 0.1,
     "nboot": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5333,6 +5529,10 @@
     "d": 1,
     "sig": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5409,6 +5609,10 @@
     "object": "<raw_handle>",
     "steps": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -5454,6 +5658,10 @@
     "priorsigma": 1,
     "thin": 1,
     "ess_min": 20
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5632,6 +5840,10 @@
     "sigma": 0.2,
     "rho": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "len",
@@ -5727,6 +5939,10 @@
     "estimate_every": 1,
     "rolling": false,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5907,6 +6123,10 @@
     "solver": "nloptr",
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -6041,6 +6261,10 @@
     "nsim": 0,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6122,6 +6346,10 @@
     "nboot": 100,
     "ci": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6202,6 +6430,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6225,6 +6457,10 @@
    "input_example": {
     "object": "<raw_handle>",
     "correlation": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6266,6 +6502,10 @@
     "garch_model": "garch",
     "garch_distribution": "norm",
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6427,6 +6667,10 @@
     "nsim": 1000,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6511,6 +6755,10 @@
     "q": 1,
     "truncation": 1000,
     "distribution": "t"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6611,6 +6859,15 @@
     "lambda_": 0.94,
     "initial": "sample_variance"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "variance",
+     "lambda_",
+     "half_life",
+     "forecast"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -6669,6 +6926,10 @@
     "model": "realised_garch",
     "leverage": true,
     "distribution": "t"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6756,6 +7017,10 @@
     "deseasonalise": true,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "prices",
@@ -6837,6 +7102,15 @@
     "method": "icss",
     "max_breaks": 10,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "break_dates",
+     "segment_variances",
+     "n_breaks",
+     "persistence_before_after"
+    ]
    },
    "arguments": [
     {
@@ -6924,6 +7198,15 @@
     "k_regimes": 2,
     "switching_variance": true,
     "n_starts": 10
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "transition_probabilities",
+     "params",
+     "smoothed_probabilities",
+     "expected_duration"
+    ]
    },
    "arguments": [
     {
@@ -7019,6 +7302,15 @@
     "draws": 5000,
     "warmup": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "latent_volatility",
+     "hurst",
+     "diagnostics"
+    ]
    },
    "arguments": [
     {

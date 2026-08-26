@@ -704,6 +704,10 @@
     "iter": 3000,
     "seed": 42
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "X_data",
@@ -842,6 +846,10 @@
     "exact": false,
     "order_by_pip": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -898,6 +906,10 @@
     "seed": 42,
     "standardize": true,
     "intercept": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1042,6 +1054,10 @@
     "seed": 20240720,
     "nlambda": 100,
     "alpha": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1200,6 +1216,10 @@
     "standardize": true,
     "intercept": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1311,6 +1331,10 @@
     "mstop_max": 200,
     "cv_B": 25,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1467,6 +1491,10 @@
     "y": "<matrix_handle>",
     "mstop": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1575,6 +1603,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1627,6 +1659,10 @@
    "input_example": {
     "object": "<raw_handle>",
     "newx": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1712,6 +1748,10 @@
     "y": "<matrix_handle>",
     "nlambda": 100,
     "alpha": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1844,6 +1884,10 @@
     "probability": false,
     "classification": false,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1992,6 +2036,10 @@
     "newdata": "<matrix_handle>",
     "seed": 42
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2092,6 +2140,15 @@
     "method": "sqrt_lasso",
     "robust_loadings": true,
     "n_folds": 10
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "coefficients",
+     "selected",
+     "lambda_",
+     "penalty_loadings"
+    ]
    },
    "arguments": [
     {
@@ -2204,6 +2261,10 @@
     "method": "double_selection",
     "n_folds": 5,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2332,6 +2393,15 @@
     "early_stopping": 50,
     "validation_fraction": 0.2,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "predictions",
+     "feature_importance",
+     "best_iteration",
+     "cv_score"
+    ]
    },
    "arguments": [
     {
@@ -2469,6 +2539,15 @@
     "method": "shap",
     "n_repeats": 10
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "shap_values",
+     "importance",
+     "partial_dependence",
+     "interaction"
+    ]
+   },
    "arguments": [
     {
      "name": "fit",
@@ -2569,6 +2648,15 @@
     "max_bins": 256,
     "seed": 1
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "shape_functions",
+     "interactions",
+     "predictions",
+     "accuracy"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -2666,6 +2754,15 @@
     "levels": [
      0.9,
      0.95
+    ]
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "intervals",
+     "coverage",
+     "width",
+     "adaptivity"
     ]
    },
    "arguments": [
@@ -2771,6 +2868,15 @@
     "draws": 2000,
     "warmup": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "posterior",
+     "inclusion_probability",
+     "shrinkage",
+     "convergence"
+    ]
    },
    "arguments": [
     {
@@ -2884,6 +2990,15 @@
     "distribution": "normal",
     "n_splines": 20,
     "selection": "gcv"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "fitted",
+     "partial_effects",
+     "edf",
+     "gcv"
+    ]
    },
    "arguments": [
     {

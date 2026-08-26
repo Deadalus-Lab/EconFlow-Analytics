@@ -707,6 +707,10 @@
     "selection": "AIC",
     "grid": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -800,6 +804,10 @@
     "case": 1,
     "n_replications": 40000
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -867,6 +875,10 @@
     "case": 1,
     "n_replications": 40000
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -917,6 +929,10 @@
     "object": "<raw_handle>",
     "case": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -956,6 +972,10 @@
     "formula": "y ~ x",
     "data": "<df_handle>",
     "order": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1008,6 +1028,10 @@
     "type": "lr",
     "se": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1058,6 +1082,10 @@
     "object": "<raw_handle>",
     "case": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1097,6 +1125,10 @@
     "m": 0.25,
     "trend": false,
     "signif_level": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1240,6 +1272,10 @@
     "trend": false,
     "signif_level": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1337,6 +1373,10 @@
     "x": "<matrix_handle>",
     "y": "<series_handle>",
     "demeaning": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1472,6 +1512,10 @@
     "y": "<series_handle>",
     "demeaning": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1573,6 +1617,10 @@
     "x": "<matrix_handle>",
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1668,6 +1716,10 @@
     "simulate": false,
     "sims": 1000,
     "range": 20
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1823,6 +1875,10 @@
     "object": "<raw_handle>",
     "order": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1875,6 +1931,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1903,6 +1963,10 @@
     "B": 99,
     "seed": 1,
     "grid_search": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2014,6 +2078,10 @@
     "r_constant": false,
     "unr_constant": false,
     "grid_search": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2171,6 +2239,10 @@
     "order": 2,
     "grid_search": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2250,6 +2322,10 @@
     "constrained": false,
     "grid_search": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2325,6 +2401,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2353,6 +2433,10 @@
     "x": "...",
     "maxlag": 4,
     "case": 3
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2445,6 +2529,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2471,6 +2559,10 @@
     "data": "<matrix_handle>",
     "lag": 1,
     "r": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2574,6 +2666,10 @@
     "vecm": "<raw_handle>",
     "n_ahead": 5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "vecm",
@@ -2610,6 +2706,10 @@
    "input_example": {
     "data": "<matrix_handle>",
     "lag_max": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2666,6 +2766,10 @@
     "vecm": "<raw_handle>",
     "cval": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "vecm",
@@ -2720,6 +2824,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "K": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2806,6 +2914,10 @@
    "input_example": {
     "z": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "z",
@@ -2879,6 +2991,10 @@
     "z": "<raw_handle>",
     "r": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "z",
@@ -2918,6 +3034,15 @@
     "model": "level",
     "trim": 0.15,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "statistic",
+     "break_date",
+     "critical_values",
+     "model"
+    ]
    },
    "arguments": [
     {
@@ -3013,6 +3138,10 @@
     "fit": "<raw_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3076,6 +3205,10 @@
     "fit": "<raw_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3118,6 +3251,10 @@
     "trend": "c",
     "nboot": 0,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3273,6 +3410,15 @@
     "seed": 1,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "threshold",
+     "adjustment",
+     "linearity_test",
+     "regime_share"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -3395,6 +3541,10 @@
     "kernel": "bartlett",
     "leads_lags": 2,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

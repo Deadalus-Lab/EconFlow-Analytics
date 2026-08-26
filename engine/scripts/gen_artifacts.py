@@ -129,7 +129,7 @@ AUTHORED_COLUMNS: Final[dict[str, Any]] = {
 NODE_KEYS: Final = (
     "fn", "route", "category", "card_id", "register", "contract_hash",
     "executability", "memory_class", "cacheability", "input_example",
-    "arguments", "export",
+    "output_keys", "arguments", "export",
 )
 ARG_KEYS: Final = (
     "name", "kind", "materialize", "required", "description", "pointer_handle",
@@ -251,6 +251,11 @@ def build_node_specs(
                 "executability": dict(EXECUTABLE),
                 "memory_class": authored.get("memory_class") or memory_class_of(authored),
                 "input_example": authored["input_example"],
+                # SUBSCRIPTED, NEVER `.get`. `ordered` below is a projection: a key
+                # the source does not carry is dropped without a word, so a node
+                # authored without `output_keys` would leave the artifact silently
+                # and every consumer would read its absence as "nothing to declare".
+                "output_keys": authored["output_keys"],
                 "arguments": [ordered(a, ARG_KEYS) for a in authored["arguments"]],
             }
             if authored.get("export") is not None:
@@ -270,6 +275,82 @@ def build_node_specs(
         "vocabulary": vocabulary,
         "nodes": nodes,
     }
+
+
+#: An ``output_key_fields`` entry that OPENS WITH A FIELD NAME. 1997 of the 2623
+#: committed entries match; the other 626 are prose sentences about the output and
+#: name no field at all. Only the matching ones are read, and the non-matching ones
+#: are never guessed at -- a sentence turned into a field name by a regular
+#: expression is a payload key nobody wrote down.
+FIELD_ENTRY: Final = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*\S")
+
+
+def check_output_key_containment(
+    cards: list[dict[str, Any]], nodes: list[dict[str, Any]]
+) -> int:
+    """A card's named fields must appear among its declared nodes' ``output_keys``.
+
+    ONE-WAY, AND THAT DIRECTION IS THE WHOLE DESIGN. The card's prose is the older
+    document and the weaker claim: it says "key fields", which may be partial, and
+    626 of its entries are sentences rather than names. ``output_keys`` is the
+    newer and stronger one -- the payload's whole key set for one function. So a
+    field the card names must be declared somewhere among that card's declared
+    functions, and a declared key the card never mentioned is fine.
+
+    THE CARDS WHOSE FUNCTIONS ARE ALL ``undeclared`` ARE SKIPPED RATHER THAN
+    FAILED. That is the debt, counted by ``engine.undeclared_output_keys``, and a
+    gate that turned the debt red would have to be switched off on the day it was
+    written. It refuses a CONTRADICTION -- a card naming a field its own declared
+    node does not carry -- which is a different thing from an absence.
+
+    A MULTI-FUNCTION CARD IS CHECKED AGAINST THE UNION OF ITS DECLARED FUNCTIONS,
+    never against each one separately. Card 308 is why: it names four fields and
+    carries two functions, and the evidence in this tree covers one of them. The
+    union is the only claim the catalogue actually supports.
+
+    RETURNS THE NUMBER OF CARDS ACTUALLY COMPARED, and refuses zero. A corpus in
+    which nothing is declared makes every card skip, and this function would then
+    return having examined 600 cards and compared none -- reporting success over
+    an empty loop, which is the one failure every gate in this tree is written to
+    refuse. The count is also what tests/test_gen_artifacts.py asserts against
+    ``artifacts.n_cards``, so the denominator is a measurement rather than a claim.
+    """
+    keys_of_fn = {
+        n["fn"]: n["output_keys"] for n in nodes if n["output_keys"]["status"] == "declared"
+    }
+    compared = 0
+    faults: list[str] = []
+    for card in cards:
+        declared_fns = sorted(fn for fn in card["tool_fns"] if fn in keys_of_fn)
+        if not declared_fns:
+            continue
+        compared += 1
+        named = {
+            match.group(1)
+            for entry in (card["output_key_fields"] or [])
+            if (match := FIELD_ENTRY.match(entry))
+        }
+        union = {key for fn in declared_fns for key in keys_of_fn[fn]["keys"]}
+        absent = sorted(named - union)
+        if absent:
+            faults.append(
+                f"  card #{card['id']} names {absent}, and its declared node(s) "
+                f"{declared_fns} carry none of them"
+            )
+    if faults:
+        raise SystemExit(
+            "gen_artifacts: a card names an output field its own declared node does "
+            "not carry.\n" + "\n".join(faults) + "\n"
+            "    The card's prose and the node's `output_keys` describe the same "
+            "payload. Reconcile them in corpus/; do not widen this check."
+        )
+    if not compared:
+        raise SystemExit(
+            f"gen_artifacts: not one of {len(cards)} card(s) has a node with declared "
+            "`output_keys`, so the containment check compared nothing and passed. A "
+            "gate that examines an empty set is worse than no gate."
+        )
+    return compared
 
 
 def build_method_cards(
@@ -297,6 +378,7 @@ def build_method_cards(
             f"  nodes named by no card : {orphan_nodes}\n"
             f"  card tool_fns with no node: {orphan_cards}"
         )
+    check_output_key_containment(cards, node_specs["nodes"])
 
     return {
         "artifact_version": 2,

@@ -490,6 +490,10 @@
     "object": "<raw_handle>",
     "weak_exo": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -559,6 +563,10 @@
     "data": "<df_handle>",
     "bias_correct": false,
     "L": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -656,6 +664,10 @@
     "formula": "y ~ x",
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -723,6 +735,10 @@
     "predictor": "<raw_handle>",
     "ci": true,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -808,6 +824,10 @@
     "link": "logit",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -875,6 +895,10 @@
     "fit": "<raw_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -916,6 +940,10 @@
     "family": "negative_binomial",
     "zeros": "none",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1028,6 +1056,10 @@
     "fit": "<raw_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1068,6 +1100,15 @@
     "x": "<df_handle>",
     "model": "censored",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "marginal_effects",
+     "sigma",
+     "censored_share"
+    ]
    },
    "arguments": [
     {
@@ -1168,6 +1209,15 @@
     "method": "two_step",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "lambda_",
+     "rho",
+     "exclusion"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -1264,6 +1314,15 @@
     "model": "fractional",
     "link": "logit",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "marginal_effects",
+     "precision",
+     "boundary_share"
+    ]
    },
    "arguments": [
     {
@@ -1367,6 +1426,15 @@
     "model": "multinomial",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "marginal_effects",
+     "predicted_probabilities",
+     "iia_test"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -1449,6 +1517,10 @@
     "threshold": 0.5,
     "n_bins": 10,
     "decompose": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

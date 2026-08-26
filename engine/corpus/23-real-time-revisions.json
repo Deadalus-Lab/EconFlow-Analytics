@@ -250,6 +250,10 @@
     "n_releases": 3,
     "degree": 5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -312,6 +316,10 @@
    "input_example": {
     "df": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -335,6 +343,10 @@
    "input_example": {
     "df": "<df_handle>",
     "interval": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -418,6 +430,10 @@
     "significance": 0.05,
     "robust": true,
     "test_all": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -511,6 +527,10 @@
     "h": 0,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -603,6 +623,15 @@
     "data": "<df_handle>",
     "publication_lags": "<df_handle>"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "vintages",
+     "ragged_edge",
+     "publication_lags",
+     "coverage"
+    ]
+   },
    "arguments": [
     {
      "name": "data",
@@ -666,6 +695,15 @@
     "forecasts": "<df_handle>",
     "vintages": "<df_handle>",
     "fixed_lag": 12
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "metrics",
+     "convention",
+     "revision_contribution",
+     "sensitivity"
+    ]
    },
    "arguments": [
     {
@@ -745,6 +783,15 @@
     "span_length": 8,
     "threshold": 3.0
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "sliding_spans",
+     "revision_history",
+     "unstable_periods",
+     "concurrent_vs_final"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -811,6 +858,15 @@
      "b"
     ],
     "format": "long"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "vintages",
+     "vintage_dates",
+     "source",
+     "coverage"
+    ]
    },
    "arguments": [
     {

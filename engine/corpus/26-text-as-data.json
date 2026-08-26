@@ -381,6 +381,10 @@
     "df": "<df_handle>",
     "do_clean": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -420,6 +424,10 @@
     "sentiment": "<raw_handle>",
     "lag": 1,
     "do_ignore_zeros": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -543,6 +551,10 @@
     "h": 0,
     "do_intercept": true,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -695,6 +707,10 @@
    "input_example": {
     "corpus": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "corpus",
@@ -764,6 +780,15 @@
     "min_df": 0.01,
     "max_df": 0.95,
     "weighting": "tfidf"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "dtm",
+     "vocabulary",
+     "keywords",
+     "preprocessing"
+    ]
    },
    "arguments": [
     {
@@ -898,6 +923,10 @@
     "n_seeds": 1,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "dtm",
@@ -1014,6 +1043,10 @@
     "measure": "c_v",
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "dtm",
@@ -1090,6 +1123,15 @@
     "method": "nmf",
     "init": "nndsvd",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "components",
+     "document_scores",
+     "explained_variance",
+     "reconstruction_error"
+    ]
    },
    "arguments": [
     {
@@ -1182,6 +1224,10 @@
     "min_count": 5,
     "epochs": 10,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1306,6 +1352,10 @@
     ],
     "top_n": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -1360,6 +1410,15 @@
     "normalise_by": "article_count",
     "frequency": "monthly",
     "standardise": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "index",
+     "raw_counts",
+     "normalisation",
+     "term_contributions"
+    ]
    },
    "arguments": [
     {
@@ -1475,6 +1534,15 @@
     "negation": true,
     "normalise": "word_count"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "sentiment",
+     "components",
+     "negation_adjusted",
+     "coverage"
+    ]
+   },
    "arguments": [
     {
      "name": "documents",
@@ -1573,6 +1641,15 @@
     "documents": "<df_handle>",
     "text": "...",
     "standardise_length": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "indices",
+     "lexical",
+     "syntactic",
+     "n_words"
+    ]
    },
    "arguments": [
     {

@@ -707,6 +707,10 @@
     "realized": "<series_handle>",
     "evaluated": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "realized",
@@ -759,6 +763,10 @@
    "input_example": {
     "realized": "<series_handle>",
     "evaluated": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -818,6 +826,10 @@
     "e2": "<series_handle>",
     "h": 1,
     "power": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -917,6 +929,10 @@
     "h": 1,
     "initial": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1004,6 +1020,10 @@
     "lags": 12,
     "demean": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1053,6 +1073,10 @@
    "input_example": {
     "formula": "y ~ x",
     "order": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1120,6 +1144,10 @@
     "formula": "y ~ x",
     "studentize": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -1171,6 +1199,10 @@
     "alpha": 0.15,
     "B": 1000,
     "min_k": 3
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1276,6 +1308,10 @@
    "input_example": {
     "formula": "y ~ x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -1345,6 +1381,10 @@
     "sd": 1,
     "location": 0,
     "scale": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1452,6 +1492,10 @@
     "y": "<raw_handle>",
     "dat": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1517,6 +1561,10 @@
    "input_example": {
     "y": "<raw_handle>",
     "dat": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1616,6 +1664,10 @@
     "sd": 1,
     "location": 0,
     "scale": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1723,6 +1775,10 @@
     "y": "<raw_handle>",
     "dat": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1773,6 +1829,10 @@
     "y": "<raw_handle>",
     "dat": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1810,6 +1870,10 @@
     "actual": "<df_handle>",
     "forecast": "<df_handle>",
     "season_length": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1902,6 +1966,15 @@
     "rule": "crps",
     "weight": "none"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "scores",
+     "decomposition",
+     "tail_weighted",
+     "skill"
+    ]
+   },
    "arguments": [
     {
      "name": "actual",
@@ -1993,6 +2066,10 @@
     "test": "clark_west",
     "horizon": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2105,6 +2182,10 @@
     "seed": 1,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "losses",
@@ -2213,6 +2294,15 @@
     "horizon": 1,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "mz_test",
+     "bias",
+     "encompassing",
+     "efficiency"
+    ]
+   },
    "arguments": [
     {
      "name": "actual",
@@ -2308,6 +2398,15 @@
     ],
     "decompose": true
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "coverage",
+     "winkler",
+     "wis",
+     "width"
+    ]
+   },
    "arguments": [
     {
      "name": "actual",
@@ -2385,6 +2484,15 @@
     "predictive_cdf": "<matrix_handle>",
     "test": "berkowitz",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "log_score_difference",
+     "berkowitz",
+     "pit",
+     "autocorrelation"
+    ]
    },
    "arguments": [
     {
@@ -2468,6 +2576,15 @@
     "influence": true,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "heteroskedasticity",
+     "functional_form",
+     "normality",
+     "influence"
+    ]
+   },
    "arguments": [
     {
      "name": "fit",
@@ -2533,6 +2650,10 @@
     "test": "j",
     "correction": "bic",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2621,6 +2742,10 @@
     "model": "random",
     "method": "dersimonian_laird",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2719,6 +2844,10 @@
     "standard_errors": "<series_handle>",
     "method": "pet_peese",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

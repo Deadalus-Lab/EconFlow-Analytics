@@ -410,6 +410,10 @@
     "discrete": true,
     "cutoff": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -501,6 +505,10 @@
     "extremality": 1,
     "discrete": true,
     "cutoff": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -635,6 +643,10 @@
     "discrete": true,
     "cutoff": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -746,6 +758,10 @@
     "code_origin": "...",
     "code_destination": "...",
     "robust": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -879,6 +895,10 @@
     "code_destination": "...",
     "robust": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -987,6 +1007,10 @@
     "code_destination": "...",
     "uie": false,
     "robust": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1131,6 +1155,10 @@
     "distance": "...",
     "robust": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -1215,6 +1243,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "multiway": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1350,6 +1382,10 @@
     "tol": 1e-08,
     "hdfetol": 0.0001
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1459,6 +1495,10 @@
     "post": false,
     "seed": 1,
     "hdfetol": 0.0001
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1624,6 +1664,10 @@
     "plugin": false,
     "hdfetol": 0.0001
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1762,6 +1806,15 @@
     "elasticity": 1.0,
     "tol": 1e-10
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "counterfactual_trade",
+     "multilateral_resistance",
+     "welfare",
+     "convergence"
+    ]
+   },
    "arguments": [
     {
      "name": "data",
@@ -1872,6 +1925,15 @@
     "include_intranational": false,
     "cluster": "pair",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "panel",
+     "estimates",
+     "zeros",
+     "fixed_effects"
+    ]
    },
    "arguments": [
     {
@@ -2028,6 +2090,10 @@
     "io_table": "<raw_handle>",
     "decomposition": "koopman_wang_wei"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io_table",
@@ -2081,6 +2147,10 @@
    "input_example": {
     "io_table": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io_table",
@@ -2119,6 +2189,15 @@
     "country": "...",
     "product": "...",
     "exports": "..."
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "rca",
+     "normalised_rca",
+     "grubel_lloyd",
+     "lafay"
+    ]
    },
    "arguments": [
     {
@@ -2216,6 +2295,15 @@
     ],
     "check_separation": true,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "absorbed",
+     "separation",
+     "cluster"
+    ]
    },
    "arguments": [
     {

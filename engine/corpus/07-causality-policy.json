@@ -1653,6 +1653,10 @@
     "time_var": "...",
     "quietly": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -1735,6 +1739,10 @@
     "logit": false,
     "boot": 1999,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1870,6 +1878,10 @@
     "multmed": true,
     "normalized": true,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2026,6 +2038,10 @@
     "normalized": true,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2180,6 +2196,10 @@
     "boot": 1999,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2304,6 +2324,10 @@
     "effects_equal": false,
     "ci_level": 95,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2536,6 +2560,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2585,6 +2613,10 @@
    "input_example": {
     "object": "<raw_handle>",
     "level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2651,6 +2683,10 @@
     "fml": "y ~ x",
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fml",
@@ -2714,6 +2750,10 @@
     "object": "<raw_handle>",
     "type": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2776,6 +2816,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2828,6 +2872,10 @@
     "formula": "y ~ x",
     "instruments": "y ~ x",
     "data": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2929,6 +2977,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2958,6 +3010,10 @@
     "numPrePeriods": 1,
     "numPostPeriods": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3056,6 +3112,10 @@
     "alpha": 0.05,
     "gridPoints": 1000,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3240,6 +3300,10 @@
     "alpha": 0.05,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "betahat",
@@ -3409,6 +3473,10 @@
     "method": "OLS",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -3490,6 +3558,10 @@
     "bwselect": "mserd",
     "level": 95,
     "conventional": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3674,6 +3746,10 @@
     "bwselect": "mserd",
     "level": 95,
     "conventional": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3860,6 +3936,14 @@
     "alpha": 0.05,
     "seed": 1
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "summary",
+     "effect",
+     "series"
+    ]
+   },
    "arguments": [
     {
      "name": "data",
@@ -3944,6 +4028,10 @@
     "q": 1,
     "alpha": 0.05,
     "reduce": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4086,6 +4174,10 @@
     "MP": "<raw_handle>",
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "MP",
@@ -4175,6 +4267,10 @@
     "biters": 1000,
     "cband": true,
     "alp": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4378,6 +4474,10 @@
    "input_example": {
     "forest": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "forest",
@@ -4441,6 +4541,10 @@
     "num_trees": 2000,
     "min_node_size": 5,
     "honesty": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4545,6 +4649,10 @@
    "input_example": {
     "foo": "<df_handle>",
     "predictors_op": "mean"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4703,6 +4811,10 @@
     "tname": "...",
     "idname": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -4814,6 +4926,10 @@
     ],
     "use_other_treat_as_covariate": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -4904,6 +5020,10 @@
     "n_folds": 5,
     "n_rep": 1,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5034,6 +5154,10 @@
     "n_rep": 1,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -5146,6 +5270,10 @@
    "input_example": {
     "data": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -5172,6 +5300,10 @@
     "data": "<raw_handle>",
     "time_window": "<raw_handle>",
     "predictors": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5226,6 +5358,10 @@
     "optimization_window": "<raw_handle>",
     "genoud": false,
     "include_fit": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5321,6 +5457,10 @@
    "input_example": {
     "data": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -5344,6 +5484,10 @@
    "input_example": {
     "data": "<raw_handle>",
     "placebo": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5380,6 +5524,10 @@
    "register": null,
    "input_example": {
     "data": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5418,6 +5566,10 @@
     "data": "<raw_handle>",
     "placebo": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -5454,6 +5606,10 @@
    "input_example": {
     "data": "<raw_handle>",
     "placebo": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5497,6 +5653,10 @@
     "CV": true,
     "se": false,
     "nboots": 200
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5691,6 +5851,14 @@
     "data": "<df_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "coef_table",
+     "diagnostics",
+     "confint"
+    ]
+   },
    "arguments": [
     {
      "name": "formula",
@@ -5740,6 +5908,10 @@
    "input_example": {
     "forest": "<raw_handle>",
     "estimate_variance": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5791,6 +5963,10 @@
     "y": "<raw_handle>",
     "x": "<raw_handle>",
     "c": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5917,6 +6093,10 @@
    "input_example": {
     "rdd_object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "rdd_object",
@@ -5960,6 +6140,10 @@
     "y": "<raw_handle>",
     "x": "<raw_handle>",
     "cutpoint": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6023,6 +6207,10 @@
    "input_example": {
     "rdd_object": "<raw_handle>",
     "order": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6088,6 +6276,10 @@
    "register": null,
    "input_example": {
     "rdd_object": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6159,6 +6351,10 @@
     "x": "<raw_handle>",
     "c": 0,
     "level": 95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6312,6 +6508,10 @@
     "object": "<raw_handle>",
     "adjust": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6358,6 +6558,10 @@
     "unit_co": "<raw_handle>",
     "constant": false,
     "cointegrated_data": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6515,6 +6719,10 @@
     "data": "<raw_handle>",
     "solver": "CLARABEL"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -6568,6 +6776,10 @@
     "data": "<raw_handle>",
     "sims": 200,
     "solver": "CLARABEL"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6674,6 +6886,10 @@
     "dataprep_object": "<raw_handle>",
     "genoud": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "dataprep_object",
@@ -6727,6 +6943,10 @@
     "synth_object": "<raw_handle>",
     "dataprep_object": "<raw_handle>",
     "round_digit": 3
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6784,6 +7004,10 @@
     "i_unit": "...",
     "i_time": 0.5,
     "generate_placebos": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6888,6 +7112,10 @@
     "decay_exponent": 2,
     "max_depth": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "forest",
@@ -6938,6 +7166,10 @@
     "object": "<raw_handle>",
     "cluster": "<raw_handle>",
     "fix": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7006,6 +7238,10 @@
    "input_example": {
     "object": "<raw_handle>",
     "sandwich": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7099,6 +7335,10 @@
     "object": "<raw_handle>",
     "sandwich": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -7161,6 +7401,10 @@
     "order_by": "<raw_handle>",
     "pairwise": false,
     "fix": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7281,6 +7525,10 @@
     "nboot": 999,
     "seed": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7421,6 +7669,10 @@
     "estimator": "sun_abraham",
     "control_group": "not_yet_treated",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7576,6 +7828,10 @@
     "time": "...",
     "treatment": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -7653,6 +7909,10 @@
     "cutoff": 0.0,
     "method": "cjm",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7736,6 +7996,15 @@
     "n_permutations": 1000,
     "seed": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "effect",
+     "window",
+     "balance",
+     "p_value"
+    ]
    },
    "arguments": [
     {
@@ -7855,6 +8124,15 @@
     "shape_test": "none",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "bins",
+     "n_bins",
+     "conf_band",
+     "shape_tests"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -7967,6 +8245,15 @@
     "nboot": 999,
     "seed": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "p_value",
+     "conf_int",
+     "n_clusters",
+     "over_rejection_diagnostic"
+    ]
    },
    "arguments": [
     {
@@ -8095,6 +8382,10 @@
     "test": "clr",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -8205,6 +8496,10 @@
     "estimator": "liml",
     "fuller_alpha": 1.0,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8324,6 +8619,10 @@
     "nboot": 999,
     "seed": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8457,6 +8756,10 @@
     "nboot": 999,
     "seed": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8603,6 +8906,10 @@
     "n_folds": 5,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -8743,6 +9050,10 @@
     "method": "blp",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -8798,6 +9109,10 @@
     "data": "<df_handle>",
     "policy_class": "tree",
     "max_depth": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8881,6 +9196,10 @@
     "outcome": "...",
     "treatment": "...",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8969,6 +9288,10 @@
     "base_period": -1,
     "bin_endpoints": true,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9114,6 +9437,10 @@
     "fit": "<raw_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -9151,6 +9478,15 @@
     "fit": "<raw_handle>",
     "type": "average_marginal_effect",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "marginal_effects",
+     "contrasts",
+     "predictions",
+     "at"
+    ]
    },
    "arguments": [
     {
@@ -9254,6 +9590,10 @@
     "tolerance": 1e-08,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -9346,6 +9686,10 @@
      "b"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -9386,6 +9730,15 @@
     "format": "markdown",
     "stars": false,
     "digits": 3
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "table",
+     "notes",
+     "statistics",
+     "format"
+    ]
    },
    "arguments": [
     {

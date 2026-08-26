@@ -265,7 +265,7 @@ def test_v2_declares_its_version_and_its_producer() -> None:
 
 
 #: THE DIGESTS THIS RE-SEAL SUPERSEDED, recorded here as a second, independent
-#: home. Read from the committed tree on 2026-08-23 with
+#: home. Read from the committed tree on 2026-08-26 with
 #: ``git show HEAD:engine/artifacts/node-specs.sha256`` and
 #: ``git show HEAD:engine/artifacts/method-cards.sha256``. They cannot be read
 #: that way from the suite: ``.dockerignore`` excludes ``.git/`` and
@@ -290,9 +290,10 @@ SUPERSEDED = {
 
 
 def test_both_artifacts_record_the_digests_this_reseal_superseded() -> None:
-    """Box 2.1.1.2. The re-seal happens IN PLACE, so the only trace it leaves is
-    this block: same filenames, same sidecar count, ``wrapper_file`` untouched.
-    Both artifacts carry the same record, because one re-seal produced both."""
+    """Boxes 2.1.1.2 and 2.1.1.5. The re-seal happens IN PLACE, so the only trace it
+    leaves is this block: same filenames, same sidecar count, ``wrapper_file``
+    untouched. Both artifacts carry the same record, because one re-seal produced
+    both."""
     import hashlib
     import re
 
@@ -301,7 +302,10 @@ def test_both_artifacts_record_the_digests_this_reseal_superseded() -> None:
         "one re-seal, one record: the two artifacts disagree about what they superseded"
     )
     previous = blocks["node-specs.json"]
-    assert previous["reason"] == "box 2.1.1.2"
+    assert previous["reason"] == (
+        "boxes 2.1.1.2 and 2.1.1.5 -- the chronology becomes a caller-supplied "
+        "argument, and every node declares its payload key set"
+    )
     assert re.match(r"^\d{4}-\d{2}-\d{2}$", previous["resealed"]), previous["resealed"]
     for key, digest in SUPERSEDED.items():
         assert previous[key] == digest
@@ -475,3 +479,136 @@ def test_the_register_admits_exactly_one_source_kind_per_row() -> None:
         assert sum(bool(row[k]) for k in kinds) <= 1, (
             "a row names more than one of a library, a paper and a dataset; "
             "the register permits one", row)
+
+
+# --------------------------------------------------------------------------
+# output_keys: what a node's payload contains, and the debt of not saying
+# --------------------------------------------------------------------------
+
+INVENTORY = ENGINE_ROOT.parent / ".github" / "inventory.json"
+
+
+def _inventory(section: str, key: str) -> int:
+    manifest = json.loads(INVENTORY.read_bytes().decode("utf-8"))
+    return int(manifest[section][key])
+
+
+def test_every_node_declares_an_output_keys_record() -> None:
+    """``status`` has NO DEFAULT, and ``keys`` agrees with it.
+
+    An absent record would read to every consumer as "nothing to declare", which
+    is the same silence as "declared, and the payload is empty" -- two different
+    claims sharing one text. The generator subscripts the corpus rather than
+    calling ``.get``, so a node authored without one is a KeyError at build time;
+    this asserts the property on the EMITTED artifact, where a consumer reads it.
+    """
+    nodes = read("node-specs.json")["nodes"]
+    assert len(nodes) == _inventory("artifacts", "n_nodes")
+    for node in nodes:
+        record = node["output_keys"]
+        assert set(record) == {"status", "keys"}, node["fn"]
+        if record["status"] == "declared":
+            assert isinstance(record["keys"], list) and record["keys"], node["fn"]
+            assert len(set(record["keys"])) == len(record["keys"]), node["fn"]
+        else:
+            assert record["status"] == "undeclared", node["fn"]
+            assert record["keys"] is None, node["fn"]
+
+
+def test_the_undeclared_output_key_debt_is_the_measured_one() -> None:
+    """A DEBT COUNTER THAT MUST REACH ZERO, and not an allowlist.
+
+    Exact equality in both directions is what separates the two. An allowlist
+    would only refuse a NEW undeclared node; exact equality also refuses a node
+    that quietly stops being declared, and it forces the number down in a reviewed
+    one-line diff as the payloads are written. Same shape and same reasoning as
+    ``engine.unresolved_sources``.
+    """
+    nodes = read("node-specs.json")["nodes"]
+    undeclared = [n["fn"] for n in nodes if n["output_keys"]["status"] == "undeclared"]
+    declared = [n["fn"] for n in nodes if n["output_keys"]["status"] == "declared"]
+    owed = _inventory("engine", "undeclared_output_keys")
+    assert len(undeclared) + len(declared) == len(nodes)
+    assert declared, "no node declares its payload; the containment gate compares nothing"
+    assert len(undeclared) == owed, (
+        f"{len(undeclared)} node(s) have not written down what their payload "
+        f"contains, and engine.undeclared_output_keys says {owed}. Re-run the "
+        f"command in the 'commands' block and move the number in its own diff -- "
+        f"DOWNWARD, which is the only direction this constant is meant to travel."
+    )
+
+
+def test_the_containment_check_compares_the_cards_it_can() -> None:
+    """The denominator is a MEASUREMENT, so the gate cannot pass over an empty set.
+
+    ``check_output_key_containment`` returns how many cards it actually compared
+    -- those with at least one declared function -- and refuses zero. Asserting
+    that count against the committed catalogue is what stops the gate decaying
+    into a loop that skips every card and reports success.
+    """
+    cards = read("method-cards.json")["cards"]
+    nodes = read("node-specs.json")["nodes"]
+    assert len(cards) == _inventory("artifacts", "n_cards")
+    compared = G.check_output_key_containment(cards, nodes)
+    declared = sum(1 for n in nodes if n["output_keys"]["status"] == "declared")
+    assert 0 < compared <= len(cards)
+    assert compared <= declared, (
+        "more cards were compared than there are declared nodes to compare them "
+        "against; the two counts describe the same declarations"
+    )
+
+
+def test_a_card_naming_a_field_its_declared_node_lacks_is_refused() -> None:
+    """THE POSITIVE CONTROL. Planted, because a gate nobody watched fail is a hope.
+
+    The containment direction is one-way on purpose -- a declared key the card
+    never mentioned is fine -- so the only thing this can catch is a card naming a
+    field its own declared node does not carry. That contradiction is planted here
+    rather than argued about.
+    """
+    nodes = read("node-specs.json")["nodes"]
+    declared = next(n for n in nodes if n["output_keys"]["status"] == "declared")
+    card = {
+        "id": 9999,
+        "tool_fns": [declared["fn"]],
+        "output_key_fields": ["a_field_no_node_carries: and its description"],
+    }
+    with pytest.raises(SystemExit, match="a_field_no_node_carries"):
+        G.check_output_key_containment([card], nodes)
+
+
+def test_the_containment_check_never_parses_a_prose_entry() -> None:
+    """THE NEGATIVE CONTROL. 626 of the 2623 entries are sentences, not names.
+
+    A sentence turned into a field name by a regular expression is a payload key
+    nobody wrote down, so an entry that does not open with ``name: value`` is
+    passed over rather than guessed at. Without this the gate would invent a field
+    and then demand that a node declare it.
+    """
+    nodes = read("node-specs.json")["nodes"]
+    declared = next(n for n in nodes if n["output_keys"]["status"] == "declared")
+    card = {
+        "id": 9999,
+        "tool_fns": [declared["fn"]],
+        "output_key_fields": [
+            "The frame carries one row per observation and one column per series.",
+            "Whether the test rejected at the requested level.",
+        ],
+    }
+    assert G.check_output_key_containment([card], nodes) == 1
+
+
+def test_the_prose_share_of_the_card_entries_is_the_measured_one() -> None:
+    """The split the seeding rule rests on, asserted rather than remembered.
+
+    ``FIELD_ENTRY`` reads 1997 of the 2623 committed entries and never the other
+    626, and the decision to seed 142 nodes rather than 543 rests on that split. A
+    catalogue edit that turned most of the prose into parseable names would make
+    the debt mechanically closable, and this says so loudly instead of leaving the
+    seeding rule looking arbitrary for ever.
+    """
+    cards = read("method-cards.json")["cards"]
+    entries = [e for c in cards for e in (c["output_key_fields"] or [])]
+    parseable = [e for e in entries if G.FIELD_ENTRY.match(e)]
+    assert len(entries) == 2623, len(entries)
+    assert len(parseable) == 1997, len(parseable)

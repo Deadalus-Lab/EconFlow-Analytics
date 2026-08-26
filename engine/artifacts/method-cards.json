@@ -5,10 +5,10 @@
   "node_specs_sha256": "419a288b93d613ebfbf2bf16d55aa9f879a2e5a33600c5fadbd40d3bd2d078e2",
   "method_cards_sha256": "e3d7c551349a0faf56fa6e4cc63831f7ec83c92b6cb48a80f11861a66a4d8768",
   "resealed": "2026-08-26",
-  "reason": "box 2.1.1.2"
+  "reason": "boxes 2.1.1.2 and 2.1.1.5 -- the chronology becomes a caller-supplied argument, and every node declares its payload key set"
  },
  "source": {
-  "node_specs_sha256": "cefd10bfc382076bca1b2c5b01772f7cd6b886719adf34ae7fa7369aed4e9404",
+  "node_specs_sha256": "c22ba99ee3684cf5048d86f9cfd0dc54ffa28e45bacdb74589d9ef7e7c32e185",
   "n_cards": 600,
   "n_categories": 46,
   "n_nodes_covered": 1456,

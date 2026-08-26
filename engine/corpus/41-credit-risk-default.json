@@ -337,6 +337,10 @@
     "horizon": 1.0,
     "barrier": "short_plus_half_long"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "equity_value",
@@ -430,6 +434,10 @@
     "distance_to_default": "<series_handle>",
     "mapping": "normal"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "distance_to_default",
@@ -486,6 +494,10 @@
     "date": "...",
     "estimator": "duration",
     "horizon": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -579,6 +591,10 @@
     "transition_matrix": "<matrix_handle>",
     "method": "qo"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "transition_matrix",
@@ -620,6 +636,10 @@
    "input_example": {
     "transition_matrix": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "transition_matrix",
@@ -646,6 +666,10 @@
     "monotonic_trend": "auto",
     "max_bins": 10,
     "min_bin_size": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -731,6 +755,10 @@
     "y": "<series_handle>",
     "smoothing": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -797,6 +825,10 @@
     "y": "...",
     "base_points": 600.0,
     "pdo": 20.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -874,6 +906,10 @@
     "y": "<series_handle>",
     "score": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -912,6 +948,10 @@
     "pd": "<series_handle>",
     "n_bins": 10,
     "strategy": "quantile"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -981,6 +1021,10 @@
     "grade_pd": "<series_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1046,6 +1090,10 @@
     "data": "<df_handle>",
     "lgd": "...",
     "model": "fractional"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1132,6 +1180,10 @@
     "ccf": "...",
     "model": "fractional"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1204,6 +1256,10 @@
     "event": "...",
     "horizon": 10,
     "model": "cox"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1299,6 +1355,10 @@
     "fit": "<raw_handle>",
     "scenarios": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1351,6 +1411,10 @@
     "exposure": "<series_handle>",
     "asset_correlation": 1.0,
     "confidence": 0.999
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1432,6 +1496,10 @@
     "n_simulations": 100000,
     "confidence": 0.999,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1533,6 +1601,10 @@
    "register": null,
    "input_example": {
     "exposure": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

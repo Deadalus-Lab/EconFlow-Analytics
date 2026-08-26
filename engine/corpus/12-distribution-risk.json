@@ -1077,6 +1077,10 @@
     "data": "<matrix_handle>",
     "dim": 2
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1153,6 +1157,10 @@
     "data": "<matrix_handle>",
     "N": 200,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1252,6 +1260,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1281,6 +1293,10 @@
     "var": true,
     "bias": false,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1468,6 +1484,10 @@
     "var": true,
     "bias": false,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1664,6 +1684,10 @@
     "bias": false,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1808,6 +1832,10 @@
     "B": 0,
     "misspec": true,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1966,6 +1994,10 @@
     "early_stopping": 10,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -2077,6 +2109,10 @@
     "object": "<raw_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2118,6 +2154,10 @@
     "n_steps": 100,
     "n_paths": 200,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2221,6 +2261,10 @@
     "time_units": "days",
     "period_basis": "year"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2321,6 +2365,10 @@
     "do_ci": true,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2388,6 +2436,10 @@
     "type": "GP",
     "nint": 10,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2472,6 +2524,10 @@
     ],
     "dec": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2523,6 +2579,10 @@
     "data": "<df_handle>",
     "lambda": 1,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2641,6 +2701,10 @@
     "niter": 200,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2711,6 +2775,10 @@
     "discrete": false,
     "boot": 200,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2794,6 +2862,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2906,6 +2978,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2930,6 +3006,10 @@
     "returns": "<matrix_handle>",
     "weights": 0.5,
     "p": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2998,6 +3078,10 @@
     "MAR": 0,
     "p": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -3048,6 +3132,10 @@
     "returns": "<matrix_handle>",
     "p": 0.95,
     "invert": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3136,6 +3224,10 @@
     "period_col": "period",
     "value_col": "value"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -3186,6 +3278,10 @@
     "returns": "<matrix_handle>",
     "p": 0.95,
     "invert": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3270,6 +3366,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3312,6 +3412,10 @@
     "h": 0,
     "boot_replications": 200,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3467,6 +3571,10 @@
     "boot_replications": 200,
     "seed": 42
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -3577,6 +3685,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3608,6 +3720,10 @@
     "ntree": 200,
     "nodesize": 5,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3702,6 +3818,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3756,6 +3876,10 @@
     "fit": "<raw_handle>",
     "n": 512
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3795,6 +3919,10 @@
     "probs": 0.5,
     "quantiles": 0.5,
     "maxit": 2000
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3888,6 +4016,10 @@
     "fit": "<raw_handle>",
     "prob": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3942,6 +4074,10 @@
     "data": "<matrix_handle>",
     "separate": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3995,6 +4131,10 @@
     "indeptest": false,
     "level": 0.05,
     "rotations": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4135,6 +4275,10 @@
     "N": 1,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -4186,6 +4330,10 @@
     "var_forecast": "<series_handle>",
     "confidence": 0.99,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4280,6 +4428,10 @@
     "specification": "asymmetric_slope",
     "n_starts": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -4364,6 +4516,10 @@
     "horizon": 1,
     "n_simulations": 10000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4459,6 +4615,10 @@
     "x": "<series_handle>",
     "min_exceedances": 30
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4517,6 +4677,10 @@
     ],
     "interval": "profile",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4632,6 +4796,10 @@
     "distribution": "gev",
     "n_moments": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4696,6 +4864,10 @@
      50.0,
      100.0
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4789,6 +4961,15 @@
     "model_scale": true,
     "model_shape": false,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "fitted_distribution",
+     "quantiles",
+     "diagnostics"
+    ]
    },
    "arguments": [
     {
@@ -4890,6 +5071,10 @@
     "nboot": 999,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "u",
@@ -4967,6 +5152,10 @@
     "method": "nonparametric",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "u",
@@ -5022,6 +5211,10 @@
     "method": "historical",
     "severity": 3.0,
     "n_scenarios": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5105,6 +5298,10 @@
     "exposures": "<series_handle>",
     "target_loss": 1.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "factors",
@@ -5165,6 +5362,15 @@
      0.95
     ],
     "risk_premium": 0.0
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "implied_quantiles",
+     "gar_conditioning",
+     "risk_premium_adjustment",
+     "comparison"
+    ]
    },
    "arguments": [
     {

@@ -428,6 +428,10 @@
     "risk_free": 0.0,
     "covariance": "ledoit_wolf"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -538,6 +542,10 @@
     ],
     "covariance": "ledoit_wolf"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -610,6 +618,10 @@
     "returns": "<df_handle>",
     "method": "ledoit_wolf"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -681,6 +693,10 @@
    "input_example": {
     "returns": "<df_handle>",
     "method": "james_stein"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -758,6 +774,10 @@
     ],
     "tau": 0.05,
     "risk_aversion": 2.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -862,6 +882,10 @@
     "market_weights": "<series_handle>",
     "risk_aversion": 2.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "covariance",
@@ -915,6 +939,10 @@
      0.0,
      1.0
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -988,6 +1016,10 @@
     "weights": "<series_handle>",
     "covariance": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "weights",
@@ -1026,6 +1058,10 @@
     "linkage": "ward",
     "distance": "correlation",
     "risk_measure": "variance"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1105,6 +1141,10 @@
     "linkage": "ward",
     "risk_measure": "variance"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -1182,6 +1222,10 @@
      0.0,
      1.0
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1273,6 +1317,10 @@
      1.0
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -1330,6 +1378,15 @@
     "bounds": [
      0.0,
      1.0
+    ]
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "weights",
+     "worst_case_return",
+     "uncertainty_size",
+     "status"
     ]
    },
    "arguments": [
@@ -1422,6 +1479,10 @@
     "cost_bps": 10.0,
     "expanding": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -1511,6 +1572,10 @@
     "backtest": "<raw_handle>",
     "frequency": "daily"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "backtest",
@@ -1553,6 +1618,10 @@
     "returns": "<df_handle>",
     "risk_measure": "volatility",
     "confidence": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1622,6 +1691,10 @@
     "weights": "<series_handle>",
     "returns": "<df_handle>",
     "factors": "<multiseries_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

@@ -381,6 +381,10 @@
     "max_iter": 100,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -493,6 +497,10 @@
     "fit": "<raw_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -530,6 +538,15 @@
     "moments": "<matrix_handle>",
     "kind": "hac",
     "kernel": "bartlett"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "weighting_matrix",
+     "bandwidth",
+     "condition_number",
+     "kernel"
+    ]
    },
    "arguments": [
     {
@@ -621,6 +638,10 @@
     ],
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -671,6 +692,10 @@
     "data": "<df_handle>",
     "moments": "y ~ x",
     "criterion": "bic"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -744,6 +769,10 @@
     "mapping": "y ~ x",
     "weighting": "efficient",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -843,6 +872,10 @@
     "max_iter": 100,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -925,6 +958,10 @@
     "restriction": "y ~ x",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -982,6 +1019,10 @@
     "seed": 1,
     "weighting": "efficient",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1093,6 +1134,10 @@
     "seed": 1,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1186,6 +1231,10 @@
     ],
     "algorithm": "lbfgsb",
     "n_starts": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1299,6 +1348,10 @@
     ],
     "method": "central"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "objective",
@@ -1367,6 +1420,10 @@
     "outcome": "<series_handle>",
     "selection": "<series_handle>",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1459,6 +1516,10 @@
     "selection": "<series_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "outcome",
@@ -1537,6 +1598,10 @@
     "method": "subsampling",
     "nboot": 999,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

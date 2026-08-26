@@ -327,6 +327,10 @@
     "interest_rate": "<series_handle>",
     "growth_rate": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "debt_ratio",
@@ -404,6 +408,10 @@
     "interest_rate": "<series_handle>",
     "growth_rate": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "debt_ratio",
@@ -465,6 +473,10 @@
      2.0
     ],
     "horizon": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -542,6 +554,10 @@
     "baseline": "<raw_handle>",
     "shock_size": 1.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "baseline",
@@ -592,6 +608,10 @@
     "debt_ratio": 1.0,
     "interest_rate": 1.0,
     "growth_rate": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -653,6 +673,10 @@
      0.9
     ],
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -767,6 +791,10 @@
     "fan": "<raw_handle>",
     "threshold": 1.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fan",
@@ -807,6 +835,10 @@
     "debt_ratio": "<series_handle>",
     "cov_type": "hac",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -902,6 +934,10 @@
     "debt_ratio": "<series_handle>",
     "model": "threshold",
     "n_regimes": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1000,6 +1036,10 @@
     "lags": 4,
     "cumulative": true,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1108,6 +1148,10 @@
     "lags": 4,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "output",
@@ -1214,6 +1258,10 @@
     "output_gap": "<series_handle>",
     "elasticity": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "balance",
@@ -1279,6 +1327,10 @@
     "output_gap": "<series_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "revenue",
@@ -1342,6 +1394,10 @@
     "debt_ratio": "<series_handle>",
     "debt_limit": 0.6,
     "deficit_limit": 0.03
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1435,6 +1491,10 @@
     "interest_rate": 1.0,
     "growth_rate": 1.0,
     "multiplier": 0.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

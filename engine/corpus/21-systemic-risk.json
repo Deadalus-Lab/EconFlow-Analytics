@@ -425,6 +425,10 @@
     "l": "<matrix_handle>",
     "a": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "l",
@@ -526,6 +530,10 @@
    "input_example": {
     "exposures": "<matrix_handle>",
     "buffer": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -649,6 +657,10 @@
    "input_example": {
     "rowsums": "<matrix_handle>",
     "colsums": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -810,6 +822,10 @@
     "a": "<matrix_handle>",
     "model": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "l",
@@ -950,6 +966,10 @@
    "input_example": {
     "returns": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -986,6 +1006,10 @@
    "input_example": {
     "returns": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "returns",
@@ -1009,6 +1033,10 @@
    "input_example": {
     "returns": "<matrix_handle>",
     "state_variables": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1046,6 +1074,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1073,6 +1105,15 @@
     "prudential_ratio": 0.08,
     "horizon": 126,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "mes",
+     "srisk",
+     "lrmes",
+     "ranking"
+    ]
    },
    "arguments": [
     {
@@ -1190,6 +1231,15 @@
     "window": 500,
     "short_window": 15
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "absorption_ratio",
+     "delta_ar",
+     "eigenvalues",
+     "centrality"
+    ]
+   },
    "arguments": [
     {
      "name": "returns",
@@ -1254,6 +1304,10 @@
     "lags": 1,
     "adjust": "fdr",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1335,6 +1389,10 @@
    "input_example": {
     "adjacency": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "adjacency",
@@ -1373,6 +1431,15 @@
     "transform": "empirical_cdf",
     "recursive": true,
     "correlation_window": 250
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "index",
+     "subindices",
+     "correlation_contribution",
+     "components"
+    ]
    },
    "arguments": [
     {
@@ -1455,6 +1522,15 @@
     "method": "mst",
     "threshold": 0.5,
     "metric": "sqrt_2_1_minus_rho"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "graph",
+     "tree_length",
+     "centrality",
+     "stability"
+    ]
    },
    "arguments": [
     {

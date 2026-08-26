@@ -279,6 +279,57 @@
     "input_example": {
      "type": "object"
     },
+    "output_keys": {
+     "description": "The payload's field names for THIS function. `status` has no default: a node whose payload nobody has written down reads `undeclared`, which is a debt counted by engine.undeclared_output_keys and not a permission. It is deliberately absent from this object's `required` list until that count reaches zero -- adding it there while 1314 nodes are undeclared would refuse the artifact this schema describes. `keys` is the whole key set, not a subset: method-cards.json's `output_key_fields` is prose that says 'key fields' and may be partial, and this is the field a comparison can be exact against.",
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "status",
+      "keys"
+     ],
+     "properties": {
+      "status": {
+       "enum": [
+        "declared",
+        "undeclared"
+       ]
+      },
+      "keys": {
+       "type": [
+        "array",
+        "null"
+       ],
+       "minItems": 1,
+       "uniqueItems": true,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
+      }
+     },
+     "oneOf": [
+      {
+       "properties": {
+        "status": {
+         "const": "declared"
+        },
+        "keys": {
+         "type": "array"
+        }
+       }
+      },
+      {
+       "properties": {
+        "status": {
+         "const": "undeclared"
+        },
+        "keys": {
+         "type": "null"
+        }
+       }
+      }
+     ]
+    },
     "arguments": {
      "type": "array",
      "items": {

@@ -622,6 +622,10 @@
     "model": "...",
     "data": "<multiseries_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -720,6 +724,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "mm_shock": 1e-05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -835,6 +843,10 @@
     "seed": 2025,
     "simConvergence": 1e-05,
     "simIterLimit": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -974,6 +986,10 @@
     "numberOfPeriods": 300,
     "priceAdjustmentVelocity": 0.15,
     "ts": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1223,6 +1239,10 @@
     "demean": true,
     "maxit": 500
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "obs_eqs",
@@ -1356,6 +1376,10 @@
     "object": "<raw_handle>",
     "horizon": 12
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1394,6 +1418,10 @@
     "periods": 20,
     "se": true,
     "level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1483,6 +1511,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1514,6 +1546,10 @@
     ],
     "params": "...",
     "tol": 1e-06
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1624,6 +1660,10 @@
     "rows": "...",
     "tol": 1,
     "rtol": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1738,6 +1778,10 @@
     "periods": 1,
     "max_iter": 350,
     "tol": 1e-10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1868,6 +1912,10 @@
     "tol": 1e-08,
     "rhtol": false,
     "hidden_tol": 0.1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2017,6 +2065,10 @@
     "calibration": "<df_handle>",
     "tol": 1e-09
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -2086,6 +2138,10 @@
      "b"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "steady_state",
@@ -2137,6 +2193,10 @@
     "shock": "...",
     "persistence": 0.9,
     "horizon": 50
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2204,6 +2264,10 @@
     "model": "buffer_stock",
     "n_grid": 100,
     "horizon": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2275,6 +2339,10 @@
     "n_periods": 1000,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solution",
@@ -2340,6 +2408,10 @@
     "n_states": 7,
     "method": "rouwenhorst",
     "n_std": 3.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2424,6 +2496,10 @@
     "state_cost": "<matrix_handle>",
     "beta": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "transition",
@@ -2502,6 +2578,10 @@
     "beta": 0.95,
     "method": "policy_iteration"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "rewards",
@@ -2571,6 +2651,15 @@
     "horizon": 100,
     "tol": 1e-08,
     "max_iter": 100
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "path",
+     "binding_periods",
+     "converged",
+     "linear_comparison"
+    ]
    },
    "arguments": [
     {
@@ -2665,6 +2754,10 @@
     "order": 1,
     "check_determinacy": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -2733,6 +2826,10 @@
     "draws": 10000,
     "warmup": 5000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2823,6 +2920,10 @@
     "solution": "<raw_handle>",
     "method": "rank"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solution",
@@ -2867,6 +2968,10 @@
     "B": "<matrix_handle>",
     "n_forward": 1,
     "method": "klein"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2949,6 +3054,10 @@
     "n_periods": 1000,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solution",
@@ -3013,6 +3122,10 @@
     "parameters": "<df_handle>",
     "n_periods": 100,
     "tol": 1e-10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3090,6 +3203,10 @@
     "solution": "<raw_handle>",
     "tolerance": 1e-08
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "solution",
@@ -3130,6 +3247,10 @@
     "n_periods": 500,
     "n_seeds": 30,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3223,6 +3344,10 @@
     "n_seeds": 10,
     "method": "surrogate",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

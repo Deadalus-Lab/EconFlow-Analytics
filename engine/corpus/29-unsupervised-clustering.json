@@ -873,6 +873,10 @@
     "x": "<matrix_handle>",
     "orientation": "rows_are_objects"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -950,6 +954,10 @@
     "p": 2,
     "orientation": "rows_are_objects"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1025,6 +1033,10 @@
     "x": "<matrix_handle>",
     "orientation": "rows_are_objects"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1095,6 +1107,10 @@
     "x": "<matrix_handle>",
     "window_type": "none",
     "orientation": "rows_are_objects"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1216,6 +1232,10 @@
     "query": "<series_handle>",
     "reference": "<series_handle>",
     "window_type": "none"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1340,6 +1360,10 @@
    "input_example": {
     "d": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "d",
@@ -1423,6 +1447,10 @@
    "input_example": {
     "tree": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "tree",
@@ -1474,6 +1502,10 @@
    "input_example": {
     "d": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "d",
@@ -1524,6 +1556,10 @@
    },
    "input_example": {
     "d": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1602,6 +1638,10 @@
     "nstart": 25,
     "iter_max": 50,
     "seed": 1234
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1806,6 +1846,10 @@
     "iter_max": 50,
     "seed": 1234
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1919,6 +1963,10 @@
     "k": 1,
     "stand": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2006,6 +2054,10 @@
      1
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2077,6 +2129,10 @@
     "x": "<matrix_handle>",
     "top": 3,
     "seed": 1234
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2173,6 +2229,10 @@
     "top": 3,
     "seed": 1234
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2267,6 +2327,10 @@
     "x": "<matrix_handle>",
     "seed": 1234
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2348,6 +2412,10 @@
     "x": "<matrix_handle>",
     "newdata": "<matrix_handle>",
     "seed": 1234
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2442,6 +2510,10 @@
    "input_example": {
     "d": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "d",
@@ -2490,6 +2562,10 @@
    "register": null,
    "input_example": {
     "d": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2565,6 +2641,10 @@
    "register": null,
    "input_example": {
     "d": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2643,6 +2723,15 @@
     "method": "hdbscan",
     "min_cluster_size": 5,
     "metric": "euclidean"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "labels",
+     "n_clusters",
+     "noise_share",
+     "persistence"
+    ]
    },
    "arguments": [
     {
@@ -2753,6 +2842,15 @@
     "nboot": 100,
     "seed": 1
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "indices",
+     "stability",
+     "gap",
+     "recommended_k"
+    ]
+   },
    "arguments": [
     {
      "name": "x",
@@ -2859,6 +2957,10 @@
     "method": "minres",
     "criterion": "parallel"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2952,6 +3054,10 @@
     "whiten": true,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3033,6 +3139,15 @@
     "n_components": 2,
     "correction": "benzecri"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "coordinates",
+     "inertia",
+     "contributions",
+     "quality"
+    ]
+   },
    "arguments": [
     {
      "name": "x",
@@ -3108,6 +3223,15 @@
     "warping_window": 0.1,
     "normalise": true,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "labels",
+     "centroids",
+     "inertia",
+     "distance"
+    ]
    },
    "arguments": [
     {
@@ -3206,6 +3330,15 @@
     "normalise": true,
     "use_pruning": true
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "distance_matrix",
+     "alignment",
+     "measure",
+     "lower_bound_pruning"
+    ]
+   },
    "arguments": [
     {
      "name": "series",
@@ -3296,6 +3429,15 @@
     "perplexity": 30.0,
     "metric": "euclidean",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "embedding",
+     "trustworthiness",
+     "parameters",
+     "n_components"
+    ]
    },
    "arguments": [
     {
@@ -3426,6 +3568,10 @@
     "n_clusters": 3,
     "normalise": "log",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

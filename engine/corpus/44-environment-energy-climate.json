@@ -325,6 +325,10 @@
     "io_table": "<raw_handle>",
     "extension": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io_table",
@@ -375,6 +379,10 @@
     "io_table": "<raw_handle>",
     "extension": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io_table",
@@ -411,6 +419,10 @@
    "input_example": {
     "io_table": "<raw_handle>",
     "extension": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -463,6 +475,15 @@
     "total": "...",
     "method": "lmdi_i",
     "form": "additive"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "contributions",
+     "residual",
+     "cumulative",
+     "method"
+    ]
    },
    "arguments": [
     {
@@ -547,6 +568,10 @@
    "register": null,
    "input_example": {
     "data": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -640,6 +665,10 @@
     "method": "ratio",
     "convergence_year": 2050
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -723,6 +752,10 @@
     "dimension": "region",
     "method": "sum"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -799,6 +832,15 @@
     "time": "...",
     "form": "quadratic",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "turning_point",
+     "in_sample",
+     "fixed_effects"
+    ]
    },
    "arguments": [
     {
@@ -935,6 +977,10 @@
     "base_cooling": 22.0,
     "frequency": "monthly"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "temperature",
@@ -1005,6 +1051,10 @@
     "cdd": "<series_handle>",
     "estimate_base": false,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1097,6 +1147,10 @@
     "horizon": 30,
     "component": "both"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "scenario",
@@ -1164,6 +1218,10 @@
     "temperature": "<series_handle>",
     "function": "nordhaus"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "temperature",
@@ -1222,6 +1280,10 @@
     "output": "<series_handle>",
     "energy": "<series_handle>",
     "method": "lmdi"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1304,6 +1366,10 @@
     "carrier": "...",
     "stage": "...",
     "value": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

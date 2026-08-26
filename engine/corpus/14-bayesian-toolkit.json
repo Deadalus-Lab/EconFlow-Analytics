@@ -714,6 +714,10 @@
     "prob": 0.5,
     "prob_outer": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -795,6 +799,10 @@
     "prob": 0.5,
     "prob_outer": 0.9
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -874,6 +882,10 @@
    "input_example": {
     "ratio": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "ratio",
@@ -897,6 +909,10 @@
    "input_example": {
     "rhat": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "rhat",
@@ -919,6 +935,10 @@
    "register": null,
    "input_example": {
     "x": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -958,6 +978,10 @@
     "yrep": "<matrix_handle>",
     "prob": 0.5,
     "prob_outer": 0.9
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1050,6 +1074,10 @@
     "prob": 0.5,
     "prob_outer": 0.9
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1140,6 +1168,10 @@
     "yrep": "<matrix_handle>",
     "stat": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1208,6 +1240,10 @@
     "rhat_threshold": 1.01,
     "neff_ratio_threshold": 0.1,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1357,6 +1393,10 @@
    "input_example": {
     "formula": "y ~ x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -1382,6 +1422,10 @@
    "input_example": {
     "prior": "...",
     "class": "b"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1420,6 +1464,10 @@
     "object": "<raw_handle>",
     "quantile_lower": 0.025,
     "quantile_upper": 0.975
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1490,6 +1538,10 @@
     "ar_lags": 0,
     "niter": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1679,6 +1731,10 @@
     "quantile_upper": 0.975,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1780,6 +1836,10 @@
    "input_example": {
     "chains": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "chains",
@@ -1804,6 +1864,10 @@
     "chains": "<raw_handle>",
     "confidence": 0.95,
     "prob": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1854,6 +1918,10 @@
    "input_example": {
     "chains": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "chains",
@@ -1877,6 +1945,10 @@
    "input_example": {
     "chains": "<raw_handle>",
     "confidence": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1915,6 +1987,10 @@
     "chains": "<raw_handle>",
     "frac1": 0.1,
     "frac2": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1967,6 +2043,10 @@
     "eps": 0.1,
     "pvalue": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "chain",
@@ -2017,6 +2097,10 @@
     "chains": "<raw_handle>",
     "prob": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "chains",
@@ -2055,6 +2139,10 @@
     "q": 0.025,
     "r": 0.005,
     "s": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2129,6 +2217,10 @@
     "rhat_threshold": 1.1,
     "ess_min": 100,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2310,6 +2402,10 @@
     "x": "<raw_handle>",
     "include_mcse": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2348,6 +2444,10 @@
    "input_example": {
     "model_code": "...",
     "model_name": "anon_model"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2390,6 +2490,10 @@
     "chains": 2,
     "iter": 1000,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2498,6 +2602,10 @@
     "rhat_max": 1.01,
     "ess_min": 400,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2629,6 +2737,10 @@
     "model_code": "...",
     "model_name": "anon_model"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model_code",
@@ -2672,6 +2784,10 @@
     "nParticles": 1000,
     "thresh": 1,
     "d": 0.99
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2865,6 +2981,10 @@
     "pointwise": true,
     "scale": "log"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fits",
@@ -2938,6 +3058,10 @@
     "method": "stacking",
     "nboot": 1000
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fits",
@@ -3006,6 +3130,10 @@
     "parameter": "...",
     "null_value": 0.0,
     "method": "savage_dickey"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3078,6 +3206,10 @@
     ],
     "hdi_prob": 0.94
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -3146,6 +3278,15 @@
     "n_iterations": 20000,
     "draws": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "approximation",
+     "elbo",
+     "psis_k",
+     "comparison"
+    ]
    },
    "arguments": [
     {
@@ -3243,6 +3384,10 @@
     "draws": 1000,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -3312,6 +3457,10 @@
      2.0
     ],
     "family": "auto"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3402,6 +3551,15 @@
     "warmup": 1000,
     "response": "continuous",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "posterior_predictive",
+     "variable_inclusion",
+     "partial_dependence",
+     "convergence"
+    ]
    },
    "arguments": [
     {
@@ -3515,6 +3673,10 @@
     "n_inducing": 100,
     "draws": 1000,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

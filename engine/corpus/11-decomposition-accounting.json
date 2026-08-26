@@ -487,6 +487,18 @@
     "n_bootstrap": 100,
     "seed": 42
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "twofold",
+     "twofold_variables",
+     "threefold",
+     "threefold_variables",
+     "x_means",
+     "y",
+     "n"
+    ]
+   },
    "arguments": [
     {
      "name": "formula",
@@ -551,6 +563,10 @@
     "start": "...",
     "end": "...",
     "interval": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -640,6 +656,10 @@
     "matched": false,
     "interval": false,
     "prec": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -748,6 +768,10 @@
     "end": "...",
     "window": 13
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -844,6 +868,10 @@
     "end": "...",
     "window": 13,
     "interval": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -970,6 +998,10 @@
     "tech_reg": true,
     "scaled": true,
     "shadow": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1169,6 +1201,10 @@
     "tech_reg": true,
     "scaled": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1306,6 +1342,15 @@
     "inputs": "<multiseries_handle>",
     "index": "tornqvist"
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "tfp_growth",
+     "contributions",
+     "shares",
+     "index"
+    ]
+   },
    "arguments": [
     {
      "name": "output",
@@ -1378,6 +1423,15 @@
     "frontier": "production",
     "distribution": "half_normal",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "efficiency",
+     "lambda_",
+     "one_sided_test"
+    ]
    },
    "arguments": [
     {
@@ -1479,6 +1533,10 @@
     "orientation": "input",
     "decompose": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "inputs",
@@ -1567,6 +1625,15 @@
     "method": "geks",
     "window": 13,
     "splice": "movement"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "index",
+     "method",
+     "window",
+     "churn"
+    ]
    },
    "arguments": [
     {
@@ -1698,6 +1765,10 @@
     "time": "...",
     "dynamic": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1796,6 +1867,10 @@
     "nboot": 999,
     "seed": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1933,6 +2008,15 @@
     "table_start": "<raw_handle>",
     "table_end": "<raw_handle>",
     "form": "average_polar"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "contributions",
+     "residual",
+     "decomposition_form",
+     "by_sector"
+    ]
    },
    "arguments": [
     {

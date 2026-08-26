@@ -461,6 +461,10 @@
     "value": "...",
     "h": 8
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -590,6 +594,10 @@
     "type": "cs",
     "base": "<matrix_handle>",
     "comb": "ols"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -753,6 +761,10 @@
     "hard_threshold": null,
     "allow_quantile_crossing": false,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -971,6 +983,10 @@
     "windowSize": 84,
     "seed": 42
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1112,6 +1128,15 @@
     "method": "inverse_mse",
     "constrain": true
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "weights",
+     "combined",
+     "improvement",
+     "method"
+    ]
+   },
    "arguments": [
     {
      "name": "actual",
@@ -1194,6 +1219,10 @@
     "densities": "<matrix_handle>",
     "pool": "linear"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "densities",
@@ -1262,6 +1291,10 @@
     "densities": "<matrix_handle>",
     "forgetting": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "actual",
@@ -1314,6 +1347,15 @@
     "forgetting_weights": 0.99,
     "forgetting_variance": 0.95,
     "mode": "averaging"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "weights",
+     "combined",
+     "selected",
+     "forgetting"
+    ]
    },
    "arguments": [
     {
@@ -1396,6 +1438,15 @@
     "meta_learner": "constrained_ls",
     "n_folds": 5
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "meta_model",
+     "weights",
+     "cv_predictions",
+     "improvement"
+    ]
+   },
    "arguments": [
     {
      "name": "actual",
@@ -1465,6 +1516,15 @@
     "h": 1,
     "base_model": "auto_ets",
     "reconciliation": "wls_struct"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "reconciled",
+     "levels",
+     "weights",
+     "improvement"
+    ]
    },
    "arguments": [
     {

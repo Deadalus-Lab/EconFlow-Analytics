@@ -334,6 +334,10 @@
     "model": "black_scholes",
     "dividend": 0.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spot",
@@ -461,6 +465,10 @@
     "option_type": "<series_handle>",
     "model": "black_scholes"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "price",
@@ -573,6 +581,10 @@
     "model": "svi",
     "enforce_no_arbitrage": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "strikes",
@@ -674,6 +686,10 @@
      2.0
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "surface",
@@ -724,6 +740,10 @@
     "surface": "<raw_handle>",
     "grid_size": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "surface",
@@ -765,6 +785,15 @@
     "rate": 1.0,
     "smoothing": "svi",
     "grid_size": 500
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "density",
+     "cdf",
+     "quantiles",
+     "negative_mass"
+    ]
    },
    "arguments": [
     {
@@ -877,6 +906,10 @@
     "time_to_expiry": 1.0,
     "rate": 1.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "strikes",
@@ -967,6 +1000,10 @@
     "realised_variance": "<series_handle>",
     "horizon": 21
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "implied_variance",
@@ -1020,6 +1057,10 @@
     "forward": 1.0,
     "time_to_expiry": 1.0,
     "rate": 1.0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1116,6 +1157,10 @@
      2.0
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "maturities",
@@ -1162,6 +1207,10 @@
      0.75,
      0.95
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1224,6 +1273,10 @@
     "forward": "<series_handle>",
     "model": "heston",
     "n_starts": 5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1339,6 +1392,10 @@
      2.0
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -1391,6 +1448,10 @@
     "n_steps": 252,
     "scheme": "qe",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

@@ -736,6 +736,10 @@
     "x": "<matrix_handle>",
     "k": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -787,6 +791,10 @@
     "shape1": 0.5,
     "shape2": 0.5,
     "shape3": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -850,6 +858,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -910,6 +922,10 @@
     "data1": "<df_handle>",
     "formula2": "y ~ x",
     "data2": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1000,6 +1016,10 @@
     "formula": "y ~ x",
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -1048,6 +1068,10 @@
    "register": null,
    "input_example": {
     "z": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1112,6 +1136,10 @@
     "x": "<matrix_handle>",
     "z": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1163,6 +1191,10 @@
     "shape2": 0.5,
     "shape3": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "shape1",
@@ -1211,6 +1243,10 @@
    "register": null,
    "input_example": {
     "x": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1263,6 +1299,10 @@
     "z": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1358,6 +1398,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1435,6 +1479,10 @@
     "z": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1527,6 +1575,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1576,6 +1628,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1612,6 +1668,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "y": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1675,6 +1735,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1725,6 +1789,10 @@
     "x": "<matrix_handle>",
     "p": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1774,6 +1842,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1797,6 +1869,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "z": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1847,6 +1923,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "k": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1942,6 +2022,10 @@
     "x": "<matrix_handle>",
     "quantile": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2029,6 +2113,10 @@
    "input_example": {
     "formula": "y ~ x",
     "data": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2134,6 +2222,10 @@
     "Nboot": 100,
     "confidence": 0.95,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2276,6 +2368,10 @@
     "income": "...",
     "ids": "...",
     "weights": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2475,6 +2571,10 @@
     "income": "...",
     "ids": "...",
     "weights": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2716,6 +2816,10 @@
     "relative": 0.6,
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "income",
@@ -2837,6 +2941,15 @@
     ],
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "alpha",
+     "threshold",
+     "top_shares",
+     "goodness_of_fit"
+    ]
+   },
    "arguments": [
     {
      "name": "income",
@@ -2940,6 +3053,15 @@
     "index": "dissimilarity",
     "bias_correct": true,
     "nboot": 500
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "index",
+     "decomposition",
+     "se",
+     "n_units"
+    ]
    },
    "arguments": [
     {
@@ -3064,6 +3186,10 @@
     "region": "<series_handle>",
     "index": "theil"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "income",
@@ -3146,6 +3272,15 @@
     "destination": "<series_handle>",
     "n_groups": 5,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "rank_rank",
+     "ige",
+     "transition_matrix",
+     "upward_mobility"
+    ]
    },
    "arguments": [
     {
@@ -3238,6 +3373,10 @@
     "alpha": 1.0,
     "n_groups": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "income",
@@ -3321,6 +3460,15 @@
     "scale": "oecd_modified",
     "elasticity": 0.5,
     "sensitivity": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "equivalised",
+     "scale_values",
+     "sensitivity",
+     "elasticity"
+    ]
    },
    "arguments": [
     {

@@ -1076,6 +1076,10 @@
     "component": "trend",
     "threshold": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1145,6 +1149,10 @@
     "mcmc_burnin": 200,
     "mcmc_chains": 1,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1289,6 +1297,10 @@
     "mu": "<raw_handle>",
     "sd_y": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1367,6 +1379,10 @@
     "y": "<series_handle>",
     "sd_y": "<raw_handle>",
     "sd_level": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1457,6 +1473,10 @@
    },
    "input_example": {
     "init": 0.5
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1581,6 +1601,10 @@
     "seed": 1,
     "thin": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -1675,6 +1699,10 @@
     "n_ahead": 8,
     "level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1726,6 +1754,10 @@
    "input_example": {
     "y": "<series_handle>",
     "seasonal": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1779,6 +1811,10 @@
     "y": "<series_handle>",
     "seasonal": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1830,6 +1866,10 @@
    "input_example": {
     "y": "<series_handle>",
     "seasonal": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1893,6 +1933,10 @@
    "input_example": {
     "x": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1941,6 +1985,10 @@
    "register": null,
    "input_example": {
     "x": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1993,6 +2041,10 @@
    "input_example": {
     "df": "<df_handle>",
     "series_name": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2060,6 +2112,10 @@
     "x": "<series_handle>",
     "lambda": 1600
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -2097,6 +2153,10 @@
     "object": "<raw_handle>",
     "n_ahead": 8,
     "level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2167,6 +2227,10 @@
     "y": "<series_handle>",
     "seasonal": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2219,6 +2283,10 @@
     "y": "<series_handle>",
     "seasonal": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2270,6 +2338,10 @@
    "input_example": {
     "y": "<series_handle>",
     "seasonal": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2337,6 +2409,10 @@
     "m": 1,
     "maxit": 5000,
     "allow_nonconvergence": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2417,6 +2493,10 @@
     "object": "<raw_handle>",
     "n_ahead": 0,
     "level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2504,6 +2584,10 @@
     "object": "<raw_handle>",
     "tidy": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -2541,6 +2625,10 @@
     "object": "<raw_handle>",
     "alpha": 0.05,
     "nboot": 1000
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2624,6 +2712,10 @@
     "df": "<df_handle>",
     "standardize": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -2673,6 +2765,10 @@
    "input_example": {
     "y": "<series_handle>",
     "drift": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2766,6 +2862,10 @@
     "y": "<series_handle>",
     "drift": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -2829,6 +2929,10 @@
     "y": "<series_handle>",
     "root": false,
     "drift": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2938,6 +3042,10 @@
     "y": "<series_handle>",
     "drift": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -3003,6 +3111,10 @@
    "input_example": {
     "y": "<series_handle>",
     "drift": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3071,6 +3183,10 @@
     "span": 0.75,
     "degree": 2,
     "cv": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3182,6 +3298,10 @@
     "span": 0.75,
     "degree": 2,
     "cv": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3310,6 +3430,10 @@
     "rw_sd_value": 0.02,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -3430,6 +3554,10 @@
     "Np": 500,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "model",
@@ -3500,6 +3628,10 @@
     "t_degree": 1,
     "inner": 2,
     "outer": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3620,6 +3752,10 @@
     "confidence": 0.95,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -3721,6 +3857,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3763,6 +3903,10 @@
     "niter": 2000,
     "nthin": 1,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3884,6 +4028,10 @@
     "newdata": "<df_handle>",
     "n_ahead": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3934,6 +4082,10 @@
     "object": "<raw_handle>",
     "data_test": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -3970,6 +4122,10 @@
    "input_example": {
     "object": "<raw_handle>",
     "exponentiate": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4030,6 +4186,10 @@
     "chains": 1,
     "iter": 400,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4218,6 +4378,10 @@
     "filter": false,
     "delta": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -4285,6 +4449,15 @@
     "warmup": 1000,
     "trend": "local_level",
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "trend",
+     "volatility",
+     "credible_bands",
+     "convergence"
+    ]
    },
    "arguments": [
     {
@@ -4371,6 +4544,10 @@
     "robust": true,
     "iterate": 2
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -4447,6 +4624,15 @@
     "y": "<series_handle>",
     "n_components": 3
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "components",
+     "eigenvalues",
+     "grouping",
+     "window_length"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -4511,6 +4697,10 @@
     "lamb": 1600.0,
     "stopping": "bic",
     "max_iter": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4583,6 +4773,10 @@
     "x": "<multiseries_handle>",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -4649,6 +4843,10 @@
     "cycle_order": 2,
     "restrict_correlation": false,
     "profile_rho": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4718,6 +4916,10 @@
     "filter_type": "square_root",
     "ensemble_size": 100,
     "smooth": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

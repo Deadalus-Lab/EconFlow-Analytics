@@ -424,6 +424,10 @@
     "x": "<series_handle>",
     "taper": 0.1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -464,6 +468,10 @@
     "fast": true,
     "demean": false,
     "detrend": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -568,6 +576,10 @@
     "taper": 0.1,
     "n_freq": 500
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -666,6 +678,10 @@
     "make_pval": true,
     "n_sim": 10,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -871,6 +887,10 @@
     "n_sim": 10,
     "seed": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -1034,6 +1054,15 @@
     "detrend": "linear",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "coherence",
+     "phase",
+     "gain",
+     "conf_band"
+    ]
+   },
    "arguments": [
     {
      "name": "x",
@@ -1134,6 +1163,10 @@
     "transform": "modwt",
     "boundary": "reflection"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1226,6 +1259,10 @@
     "wavelet": "la8",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1311,6 +1348,15 @@
     "n_tapers": 5,
     "time_bandwidth": 4.0,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "spectrum",
+     "frequencies",
+     "conf_int",
+     "resolution"
+    ]
    },
    "arguments": [
     {
@@ -1423,6 +1469,15 @@
     "lags": 4,
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "causality_spectrum",
+     "band_statistics",
+     "critical_values",
+     "significant_bands"
+    ]
+   },
    "arguments": [
     {
      "name": "y",
@@ -1516,6 +1571,15 @@
     "noise_strength": 0.2,
     "hilbert": true,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "imfs",
+     "residual",
+     "instantaneous_frequency",
+     "n_modes"
+    ]
    },
    "arguments": [
     {
@@ -1626,6 +1690,15 @@
     "wavelet": "morlet",
     "extract_ridges": 0
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "transform",
+     "ridges",
+     "components",
+     "invertible"
+    ]
+   },
    "arguments": [
     {
      "name": "x",
@@ -1710,6 +1783,10 @@
     "normalisation": "standard",
     "false_alarm": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1781,6 +1858,10 @@
      2.0
     ],
     "method": "welch"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

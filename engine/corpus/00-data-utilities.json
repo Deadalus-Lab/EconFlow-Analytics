@@ -2294,6 +2294,10 @@
     "sources": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "n_preview": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "sources",
@@ -2367,6 +2371,10 @@
    "input_example": {
     "file": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "file",
@@ -2404,6 +2412,10 @@
    },
    "input_example": {
     "file": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2443,6 +2455,10 @@
    "input_example": {
     "file": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "file",
@@ -2478,6 +2494,10 @@
    "register": null,
    "input_example": {
     "x": "<df_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2530,6 +2550,10 @@
     "financial": true,
     "adjust_from": "none",
     "adjust_to": "none"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2677,6 +2701,10 @@
     "adjust_from": "none",
     "adjust_to": "none"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "from",
@@ -2816,6 +2844,10 @@
     "adjust_from": "none",
     "adjust_to": "none"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "from",
@@ -2953,6 +2985,10 @@
     "adjust_from": "none",
     "adjust_to": "none"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "holidays",
@@ -3070,6 +3106,10 @@
     "financial": true,
     "adjust_from": "none",
     "adjust_to": "none"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3213,6 +3253,10 @@
     "include_lowest": true,
     "dummies": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3337,6 +3381,10 @@
     "right": true,
     "dummies": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3457,6 +3505,10 @@
     "dedupe_breaks": false,
     "dummies": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3574,6 +3626,10 @@
    "input_example": {
     "x": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3617,6 +3673,10 @@
     "x": "<matrix_handle>",
     "cutoff": 0.9,
     "exact": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3699,6 +3759,10 @@
     "cutoff": 0.9,
     "exact": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "cor_matrix",
@@ -3750,6 +3814,10 @@
     "by": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3839,6 +3907,10 @@
     "na_rm": true,
     "fill": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -3904,6 +3976,10 @@
     "diff": 1,
     "log": false,
     "rho": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4023,6 +4099,10 @@
     "logdiff": false,
     "scale": 100,
     "power": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4152,6 +4232,10 @@
     "x": "<series_handle>",
     "n": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4228,6 +4312,10 @@
     "x": "<df_handle>",
     "higher": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4292,6 +4380,10 @@
     "na_rm": true,
     "mean": 0,
     "sd": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4385,6 +4477,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4461,6 +4557,10 @@
     "na_rm": true,
     "mean": 0,
     "theta": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4551,6 +4651,10 @@
     "x": "<series_handle>",
     "demean": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4600,6 +4704,10 @@
    "input_example": {
     "x": "<series_handle>",
     "y": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4651,6 +4759,10 @@
     "data": "<matrix_handle>",
     "conf_level": 0.95,
     "continuity": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4787,6 +4899,10 @@
     "data": "<matrix_handle>",
     "use": "pairwise.complete.obs"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -4840,6 +4956,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -4876,6 +4996,10 @@
    "input_example": {
     "x": "<series_handle>",
     "width": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4960,6 +5084,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5046,6 +5174,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "family",
@@ -5131,6 +5263,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "family",
@@ -5206,6 +5342,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5289,6 +5429,10 @@
     ],
     "desc": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5339,6 +5483,10 @@
     "df": "<df_handle>",
     "keep_all": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5388,6 +5536,10 @@
    "input_example": {
     "df": "<df_handle>",
     "column": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5466,6 +5618,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5505,6 +5661,10 @@
     "by": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5576,6 +5736,10 @@
     "columns": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5668,6 +5832,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5736,6 +5904,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -5787,6 +5959,10 @@
     "columns": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5840,6 +6016,10 @@
    "input_example": {
     "df": "<df_handle>",
     "n": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5935,6 +6115,10 @@
    "input_example": {
     "df": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "df",
@@ -6015,6 +6199,10 @@
     "include_differenciation": false,
     "include_rho": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "hfserie",
@@ -6090,6 +6278,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -6133,6 +6325,10 @@
     "lfserie": "<series_handle>",
     "include_differenciation": false,
     "include_rho": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6211,6 +6407,10 @@
     "k": 1.345,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6275,6 +6475,10 @@
     "center": true,
     "scale": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6329,6 +6533,10 @@
     ],
     "na_rm": false,
     "adaptive": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6443,6 +6651,10 @@
     "n": 1,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6550,6 +6762,10 @@
      1
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6619,6 +6835,10 @@
     "trim": 0.1,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6668,6 +6888,10 @@
    "input_example": {
     "x": "<series_handle>",
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6739,6 +6963,10 @@
      1,
      1
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6866,6 +7094,10 @@
     "calendar": "none",
     "nyse_type": "all"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "year",
@@ -6938,6 +7170,10 @@
    "input_example": {
     "pattern": ".*"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "pattern",
@@ -6964,6 +7200,10 @@
     "x": "<raw_handle>",
     "ordered": false,
     "only_labelled": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7034,6 +7274,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "skip": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7145,6 +7389,10 @@
     "user_na": false,
     "skip": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -7254,6 +7502,10 @@
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "skip": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -7348,6 +7600,10 @@
     "data": "<df_handle>",
     "version": 14
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -7402,6 +7658,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7455,6 +7715,10 @@
    "input_example": {
     "x": "<series_handle>",
     "smooth": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7522,6 +7786,10 @@
     "x": "<series_handle>",
     "find_frequency": false,
     "seed": 42
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7606,6 +7874,10 @@
     "x": "<series_handle>",
     "bins": 4
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7647,6 +7919,10 @@
     "simplify_vector": true,
     "simplify_dataframe": true,
     "simplify_matrix": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7726,6 +8002,10 @@
     "txt": "...",
     "flatten": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "txt",
@@ -7763,6 +8043,10 @@
     "x": "<df_handle>",
     "pagesize": 500
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7799,6 +8083,10 @@
    "input_example": {
     "txt": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "txt",
@@ -7823,6 +8111,10 @@
     "x": "<raw_handle>",
     "auto_unbox": true,
     "pretty": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7935,6 +8227,10 @@
    "input_example": {
     "x": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -7979,6 +8275,10 @@
    "input_example": {
     "x": "<raw_handle>",
     "months": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8036,6 +8336,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8082,6 +8386,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "tz": "UTC"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8133,6 +8441,10 @@
    },
    "input_example": {
     "x": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8194,6 +8506,10 @@
     "components": "<matrix_handle>",
     "weights": "<series_handle>",
     "tol": 1e-06
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8259,6 +8575,10 @@
     "deflator": "<series_handle>",
     "base": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "nominal",
@@ -8310,6 +8630,10 @@
     "periods": 1,
     "annualize": false,
     "log": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8388,6 +8712,10 @@
     "population": "<series_handle>",
     "scale": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8438,6 +8766,10 @@
     "x": "<series_handle>",
     "base_period": 1,
     "base_value": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8497,6 +8829,10 @@
     ],
     "as_date": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "dates",
@@ -8551,6 +8887,10 @@
      }
     ],
     "as_date": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8620,6 +8960,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -8671,6 +9015,10 @@
    "input_example": {
     "y": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -8711,6 +9059,10 @@
     "x": "<matrix_handle>",
     "stat": "median",
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8766,6 +9118,10 @@
     "x": "<matrix_handle>",
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8807,6 +9163,10 @@
     ],
     "type": 7,
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -8878,6 +9238,10 @@
     "stat": "median",
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -8934,6 +9298,10 @@
     "scale": true,
     "biplot_scale": 1,
     "pc_biplot": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9025,6 +9393,10 @@
     "center": true,
     "scale": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9076,6 +9448,10 @@
     "center": true,
     "scale": true,
     "cum_var_threshold": 0.9
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9142,6 +9518,10 @@
     "center": true,
     "scale": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9205,6 +9585,10 @@
     "x": "<matrix_handle>",
     "lshort": true,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9278,6 +9662,10 @@
     "lex_order": false,
     "indicator": false,
     "max_levels": 200
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9384,6 +9772,10 @@
     "intercept": true,
     "max_levels": 30,
     "max_columns": 200
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9550,6 +9942,10 @@
     "max_levels": 30,
     "max_columns": 200
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -9676,6 +10072,10 @@
     "raw": false,
     "name": "x"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -9766,6 +10166,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -9817,6 +10221,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "delim": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9882,6 +10290,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -9930,6 +10342,10 @@
    "register": null,
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -9999,6 +10415,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -10051,6 +10471,10 @@
     "center": true,
     "scale": true,
     "online": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -10170,6 +10594,10 @@
     "scale": false,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10288,6 +10716,10 @@
     "intercept": true,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10391,6 +10823,10 @@
     "width": 1,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10468,6 +10904,10 @@
     "width": 1,
     "p": 0.5,
     "online": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -10560,6 +11000,10 @@
     "center": true,
     "scale": true,
     "online": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -10665,6 +11109,10 @@
     "center": true,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10756,6 +11204,10 @@
     "center": true,
     "online": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -10845,6 +11297,10 @@
     "x": "<matrix_handle>",
     "k": 1,
     "constant": 1.4826
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -10945,6 +11401,10 @@
     "x": "<matrix_handle>",
     "k": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11018,6 +11478,10 @@
     "x": "<matrix_handle>",
     "k": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11090,6 +11554,10 @@
    "input_example": {
     "x": "<matrix_handle>",
     "k": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11168,6 +11636,10 @@
      0.5
     ],
     "type": 7
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11268,6 +11740,10 @@
     "x": "<matrix_handle>",
     "k": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11355,6 +11831,10 @@
     "n": 5,
     "base": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11420,6 +11900,10 @@
    "input_example": {
     "x": "<series_handle>",
     "big_mark": ""
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11490,6 +11974,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11546,6 +12034,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11624,6 +12116,10 @@
      0.5
     ],
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11724,6 +12220,10 @@
     "step": 1,
     "complete": false,
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -11841,6 +12341,10 @@
     "complete": false,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -11957,6 +12461,10 @@
     "after": 0,
     "complete": false,
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12102,6 +12610,10 @@
     "x": "<series_handle>",
     "to": "annual"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -12157,6 +12669,10 @@
     "formula": "y ~ x",
     "to": "quarterly",
     "h": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12274,6 +12790,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12323,6 +12843,10 @@
    "input_example": {
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12361,6 +12885,10 @@
     "cols": [
      "PROVIDER/DATASET/SERIES"
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12433,6 +12961,10 @@
     ],
     "key": "data"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12485,6 +13017,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "values_drop_na": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12608,6 +13144,10 @@
     "names_prefix": "",
     "names_sep": "_",
     "names_sort": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12747,6 +13287,10 @@
     "data": "<df_handle>",
     "replace": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -12786,6 +13330,10 @@
     "too_few": "error",
     "too_many": "error",
     "cols_remove": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -12951,6 +13499,10 @@
     "remove": true,
     "na_rm": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -13043,6 +13595,10 @@
     ],
     "keep_empty": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -13105,6 +13661,10 @@
    "input_example": {
     "x": "<series_handle>",
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13183,6 +13743,10 @@
     "series1": "<series_handle>",
     "series2": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series1",
@@ -13235,6 +13799,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13276,6 +13844,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13313,6 +13885,10 @@
     "x": "<series_handle>",
     "by": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13349,6 +13925,10 @@
    "input_example": {
     "x": "<series_handle>",
     "extend": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13412,6 +13992,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13449,6 +14033,10 @@
     "x": "<series_handle>",
     "center": true,
     "scale": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13500,6 +14088,10 @@
     "x": "<series_handle>",
     "spark": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13535,6 +14127,10 @@
    "register": null,
    "input_example": {
     "x": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13580,6 +14176,10 @@
     "data": "<df_handle>",
     "index": "...",
     "regular": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13646,6 +14246,10 @@
     "x": "<df_handle>",
     "full": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -13682,6 +14286,10 @@
    "input_example": {
     "x": "<df_handle>",
     "full": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13741,6 +14349,10 @@
      "PROVIDER/DATASET/SERIES"
     ],
     "by_key": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -13840,6 +14452,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -13938,6 +14554,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -14001,6 +14621,10 @@
     "x": "<series_handle>",
     "lambda_lower": -1,
     "lambda_upper": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14068,6 +14692,10 @@
     "x": "<series_handle>",
     "lambda_lower": -1,
     "lambda_upper": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14150,6 +14778,10 @@
     "difference": 1,
     "log": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14214,6 +14846,10 @@
     "lag": 1,
     "difference": 1,
     "log": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14290,6 +14926,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14314,6 +14954,10 @@
     "data": "<df_handle>",
     "date_col": "...",
     "by": "auto"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14422,6 +15066,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14449,6 +15097,10 @@
     "v": 1,
     "offset": 0.85,
     "sigma": 6
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14586,6 +15238,10 @@
     "x": "<series_handle>",
     "n": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -14622,6 +15278,10 @@
    "input_example": {
     "x": "<series_handle>",
     "n": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14675,6 +15335,10 @@
    "input_example": {
     "x": "<series_handle>",
     "n": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14735,6 +15399,10 @@
     "x": "<series_handle>",
     "y": "<series_handle>",
     "n": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14801,6 +15469,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -14827,6 +15499,10 @@
     "path": "store://<bucket>/uploads/0000000000000000000000000000000000000000000000000000000000000000.parquet",
     "col_names": true,
     "skip": 0
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14908,6 +15584,10 @@
     "colNames": true,
     "rowNames": false,
     "detectDates": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -14999,6 +15679,10 @@
     "overwrite": true,
     "as_table": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -15054,6 +15738,10 @@
     "x": "<irregular_series_handle>",
     "n": 60
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -15090,6 +15778,10 @@
    "input_example": {
     "x": "<irregular_series_handle>",
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15149,6 +15841,10 @@
    "input_example": {
     "x": "<irregular_series_handle>",
     "y": "<irregular_series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15218,6 +15914,10 @@
     "x": "<irregular_series_handle>",
     "k": 1,
     "na_rm": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15314,6 +16014,10 @@
     "k": 1,
     "OHLC": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -15388,6 +16092,10 @@
     "overlap": 1,
     "anchor": "latest"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series",
@@ -15460,6 +16168,10 @@
     "method": "regression",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "target",
@@ -15527,6 +16239,10 @@
     "components": "<multiseries_handle>",
     "prices": "<multiseries_handle>",
     "method": "annual_overlap"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15596,6 +16312,10 @@
     "components": "<multiseries_handle>",
     "nominal": "<multiseries_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "aggregate",
@@ -15646,6 +16366,10 @@
     "series": "<multiseries_handle>",
     "factors": "<multiseries_handle>",
     "basis": "market"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15714,6 +16438,10 @@
     "series": "<multiseries_handle>",
     "method": "sum"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series",
@@ -15771,6 +16499,15 @@
     "leap_year": true,
     "easter": false,
     "easter_window": 8
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "regressors",
+     "trading_day",
+     "leap_year",
+     "easter"
+    ]
    },
    "arguments": [
     {
@@ -15863,6 +16600,10 @@
     "n_imputations": 5,
     "max_iter": 10,
     "seed": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -15961,6 +16702,10 @@
     "variances": "<matrix_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "estimates",
@@ -16014,6 +16759,15 @@
     "trend_order": 0,
     "constant": true,
     "steps": 0
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "terms",
+     "out_of_sample",
+     "names",
+     "rank"
+    ]
    },
    "arguments": [
     {
@@ -16119,6 +16873,10 @@
     "grid_size": 512,
     "bounded": "none"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -16205,6 +16963,10 @@
    "input_example": {
     "x": "<series_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -16256,6 +17018,10 @@
     "schema": "...",
     "coerce": false,
     "lazy": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -16320,6 +17086,10 @@
     "data": "<df_handle>",
     "strict": false
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -16366,6 +17136,10 @@
     ],
     "method": "jarowinkler",
     "threshold": 0.85
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -16472,6 +17246,10 @@
     "threshold": 0.9,
     "resolution": "first"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -16557,6 +17335,10 @@
     "contrasts": "treatment",
     "na_action": "drop"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -16630,6 +17412,10 @@
     "design": "<raw_handle>",
     "data": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "design",
@@ -16668,6 +17454,10 @@
     "transform": "clr",
     "zero_replacement": "multiplicative",
     "delta": 1e-06
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -16754,6 +17544,10 @@
     "data": "<df_handle>",
     "transform": "clr"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -16807,6 +17601,10 @@
    "input_example": {
     "source": "store://<bucket>/uploads/<sha256>.parquet",
     "collect": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -16896,6 +17694,10 @@
    "register": null,
    "input_example": {
     "source": "store://<bucket>/uploads/<sha256>.parquet"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

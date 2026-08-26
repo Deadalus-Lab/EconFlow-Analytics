@@ -478,6 +478,10 @@
     "series": "<series_handle>",
     "dates": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "series",
@@ -514,6 +518,10 @@
    "input_example": {
     "fit": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -540,6 +548,10 @@
     "y": "<series_handle>",
     "mincycle": 5,
     "minphase": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -608,6 +620,10 @@
     "mcmc": 500,
     "threshold": 0.5,
     "seed": 20240719
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -715,6 +731,10 @@
     "Q": 5,
     "know_mean": false,
     "shape": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -888,6 +908,10 @@
     "X": "<matrix_handle>",
     "alpha": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "X",
@@ -957,6 +981,10 @@
     "min_size": 30,
     "alpha": 1,
     "seed": 20240101
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1066,6 +1094,10 @@
     "threshold": 0.5,
     "n_starts": 10
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1171,6 +1203,10 @@
     "k_regimes": 2,
     "factor_order": 2
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1236,6 +1272,10 @@
     "min_cycle": 15,
     "smoothing": "spencer",
     "end_censor": 6
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1325,6 +1365,10 @@
      2
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "y",
@@ -1376,6 +1420,15 @@
     "method": "bocpd",
     "hazard": 0.01,
     "burn_in": 50
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "detections",
+     "run_length_posterior",
+     "delay",
+     "false_alarm_rate"
+    ]
    },
    "arguments": [
     {
@@ -1459,6 +1512,15 @@
     "model": "rbf",
     "method": "pelt",
     "min_size": 5
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "change_points",
+     "penalty",
+     "cost_path",
+     "segment_summaries"
+    ]
    },
    "arguments": [
     {
@@ -1564,6 +1626,15 @@
     "n_motifs": 3,
     "n_discords": 3,
     "normalise": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "profile",
+     "motifs",
+     "discords",
+     "window"
+    ]
    },
    "arguments": [
     {

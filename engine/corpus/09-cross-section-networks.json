@@ -1170,6 +1170,10 @@
     "trend": false,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "Data",
@@ -1346,6 +1350,10 @@
     ],
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -1414,6 +1422,10 @@
     "n_ahead": 8,
     "type": "gfevd",
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1494,6 +1506,10 @@
     "x": "<irregular_series_handle>",
     "nlag": 1,
     "nfore": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1587,6 +1603,10 @@
     "FEVD": "<matrix_handle>",
     "digit": 2
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "FEVD",
@@ -1622,6 +1642,10 @@
    "register": null,
    "input_example": {
     "nfore": 10
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1712,6 +1736,10 @@
     "x": "<irregular_series_handle>",
     "nlag": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -1753,6 +1781,10 @@
     "fm_restricted": false,
     "center": true,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1841,6 +1873,10 @@
     "n_folds": 1,
     "path_length": 10,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2015,6 +2051,10 @@
     "spillover_table": "<raw_handle>",
     "which": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spillover_table",
@@ -2051,6 +2091,10 @@
    "input_example": {
     "est": "<raw_handle>",
     "n_ahead": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2101,6 +2145,10 @@
    "input_example": {
     "spillover_table": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spillover_table",
@@ -2137,6 +2185,10 @@
    "input_example": {
     "est": "<raw_handle>",
     "n_ahead": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2188,6 +2240,10 @@
     "partition": "<raw_handle>",
     "n_ahead": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "partition",
@@ -2223,6 +2279,10 @@
    "register": null,
    "input_example": {
     "spillover_table": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2260,6 +2320,10 @@
    "input_example": {
     "spillover_table": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spillover_table",
@@ -2295,6 +2359,10 @@
    "register": null,
    "input_example": {
     "spillover_table": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2334,6 +2402,10 @@
    "input_example": {
     "est": "<raw_handle>",
     "n_ahead": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2400,6 +2472,10 @@
     "est": "<raw_handle>",
     "n_ahead": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "est",
@@ -2464,6 +2540,10 @@
    "input_example": {
     "data": "<multiseries_handle>",
     "n_ahead": 100
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2543,6 +2623,10 @@
     "data": "<multiseries_handle>",
     "n_ahead": 100
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2618,6 +2702,10 @@
    "input_example": {
     "spillover_table": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spillover_table",
@@ -2655,6 +2743,10 @@
     "out": "<raw_handle>",
     "sheet": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "out",
@@ -2691,6 +2783,10 @@
    "input_example": {
     "out": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "out",
@@ -2713,6 +2809,10 @@
    "register": null,
    "input_example": {
     "out": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2737,6 +2837,10 @@
    "input_example": {
     "out": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "out",
@@ -2760,6 +2864,10 @@
    "input_example": {
     "out": "<raw_handle>",
     "sheet": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2797,6 +2905,10 @@
    "input_example": {
     "out": "<raw_handle>",
     "sheet": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2838,6 +2950,10 @@
     "weight_matrix": "<matrix_handle>",
     "p": 2,
     "ic": "AIC"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -2925,6 +3041,10 @@
     "data": "<df_handle>",
     "weight_matrix": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -2961,6 +3081,10 @@
    "input_example": {
     "out": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "out",
@@ -2985,6 +3109,10 @@
     "data": "<df_handle>",
     "weight_matrix": "<matrix_handle>",
     "p": 2
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3071,6 +3199,10 @@
    "input_example": {
     "graph": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "graph",
@@ -3113,6 +3245,10 @@
     "graph": "<raw_handle>",
     "resolution": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "graph",
@@ -3148,6 +3284,10 @@
    "register": null,
    "input_example": {
     "graph": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3202,6 +3342,10 @@
    },
    "input_example": {
     "adjmatrix": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3262,6 +3406,10 @@
    "input_example": {
     "edges": "<df_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "edges",
@@ -3301,6 +3449,10 @@
     "Z": "<matrix_handle>",
     "RS_label": "<matrix_handle>",
     "X": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3403,6 +3555,10 @@
    "input_example": {
     "io": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io",
@@ -3440,6 +3596,10 @@
     "io": "<raw_handle>",
     "i": 1,
     "j": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3490,6 +3650,10 @@
    "input_example": {
     "io": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io",
@@ -3512,6 +3676,10 @@
    "register": null,
    "input_example": {
     "Z": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3536,6 +3704,10 @@
    "input_example": {
     "io": "<raw_handle>",
     "crit": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3586,6 +3758,10 @@
    "input_example": {
     "Z": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "Z",
@@ -3608,6 +3784,10 @@
    "register": null,
    "input_example": {
     "io": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3661,6 +3841,10 @@
      "PROVIDER/DATASET/SERIES"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io",
@@ -3699,6 +3883,10 @@
     "w": "<raw_handle>",
     "c": "<raw_handle>",
     "d": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3762,6 +3950,10 @@
    "input_example": {
     "A": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "A",
@@ -3785,6 +3977,10 @@
    "input_example": {
     "L": "<matrix_handle>",
     "e": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3823,6 +4019,10 @@
     "L": "<matrix_handle>",
     "e": "<raw_handle>",
     "c": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3874,6 +4074,10 @@
     "L": "<matrix_handle>",
     "d": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "L",
@@ -3910,6 +4114,10 @@
    "input_example": {
     "A": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "A",
@@ -3933,6 +4141,10 @@
    "input_example": {
     "L": "<matrix_handle>",
     "w": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -3971,6 +4183,10 @@
     "X": "<matrix_handle>",
     "d": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "X",
@@ -4007,6 +4223,10 @@
    "input_example": {
     "A": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "A",
@@ -4029,6 +4249,10 @@
    "register": null,
    "input_example": {
     "L": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4053,6 +4277,10 @@
    "input_example": {
     "X": "<matrix_handle>",
     "d": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4090,6 +4318,10 @@
    "input_example": {
     "L": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "L",
@@ -4112,6 +4344,10 @@
    "register": null,
    "input_example": {
     "L": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4136,6 +4372,10 @@
    "input_example": {
     "L": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "L",
@@ -4159,6 +4399,10 @@
    "input_example": {
     "L": "<matrix_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "L",
@@ -4181,6 +4425,10 @@
    "register": null,
    "input_example": {
     "L": "<matrix_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4212,6 +4460,10 @@
     "iter_in": 100,
     "iter_out": 2,
     "seed": 2025
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4397,6 +4649,10 @@
     "LYtrans": true,
     "rowstand": true
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -4573,6 +4829,10 @@
     "NSIM": 200,
     "seed": 2025
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -4625,6 +4885,10 @@
      0.5,
      0.5
     ]
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -4714,6 +4978,16 @@
     "style": "W",
     "initial_value": 0.2,
     "q": 2
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "coefficients",
+     "coef_table",
+     "spatial_lag",
+     "vcov",
+     "nonstationary"
+    ]
    },
    "arguments": [
     {
@@ -4844,6 +5118,10 @@
     "W": "<matrix_handle>",
     "threshold": 0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "W",
@@ -4915,6 +5193,10 @@
     "W": "<matrix_handle>",
     "lag": true,
     "spatial_error": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5078,6 +5360,10 @@
     "W": "<matrix_handle>",
     "model": "pooling"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -5195,6 +5481,10 @@
     "data": "<df_handle>",
     "W": "<matrix_handle>",
     "lag": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5346,6 +5636,10 @@
      0.5
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -5411,6 +5705,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -5450,6 +5748,10 @@
     "formula": "y ~ x",
     "data": "<df_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5555,6 +5857,10 @@
     "data": "<df_handle>",
     "spatial_weights": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "formula",
@@ -5658,6 +5964,10 @@
     "formula": "y ~ x",
     "data": "<df_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5772,6 +6082,10 @@
    "input_example": {
     "object": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "object",
@@ -5807,6 +6121,10 @@
    "register": null,
    "input_example": {
     "obj": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5858,6 +6176,10 @@
     "x": "<raw_handle>",
     "y": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -5893,6 +6215,10 @@
    "register": null,
    "input_example": {
     "object": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -5958,6 +6284,10 @@
    "input_example": {
     "nrow": 1,
     "ncol": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6028,6 +6358,10 @@
     "d1": 0.5,
     "d2": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "coords",
@@ -6077,6 +6411,10 @@
    "input_example": {
     "x": "<raw_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6144,6 +6482,10 @@
    "input_example": {
     "fx": "<raw_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6217,6 +6559,10 @@
     "coords": "<matrix_handle>",
     "k": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "coords",
@@ -6254,6 +6600,10 @@
    },
    "input_example": {
     "neighbours": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6298,6 +6648,10 @@
    "input_example": {
     "spatial_weights": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "spatial_weights",
@@ -6334,6 +6688,10 @@
    "input_example": {
     "x": "<raw_handle>",
     "spatial_weights": "<raw_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -6402,6 +6760,10 @@
     "x": "<raw_handle>",
     "spatial_weights": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "x",
@@ -6468,6 +6830,10 @@
    "input_example": {
     "neighbours": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "neighbours",
@@ -6497,6 +6863,15 @@
     "model": "gwr",
     "kernel": "bisquare",
     "adaptive": true
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "local_params",
+     "bandwidth",
+     "local_r2",
+     "condition_number"
+    ]
    },
    "arguments": [
     {
@@ -6612,6 +6987,15 @@
     "distance": "<series_handle>",
     "constraint": "doubly",
     "family": "poisson"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "params",
+     "fitted_flows",
+     "constraint_type",
+     "distance_decay"
+    ]
    },
    "arguments": [
     {
@@ -6729,6 +7113,15 @@
     "adjust": "fdr",
     "seed": 1,
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "global",
+     "local",
+     "significance",
+     "quadrants"
+    ]
    },
    "arguments": [
     {
@@ -6857,6 +7250,15 @@
     "discretisation": "quantile",
     "alpha": 0.05
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "transition_matrix",
+     "spatial_effect",
+     "steady_state",
+     "mobility"
+    ]
+   },
    "arguments": [
     {
      "name": "data",
@@ -6942,6 +7344,15 @@
     ],
     "extensive": true,
     "method": "areal"
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "interpolated",
+     "mass_preserved",
+     "method",
+     "source_target_overlap"
+    ]
    },
    "arguments": [
     {
@@ -7037,6 +7448,10 @@
    "input_example": {
     "path": "store://<bucket>/uploads/<sha256>.parquet"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "path",
@@ -7088,6 +7503,10 @@
     "io_table": "<raw_handle>",
     "kind": "output"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "io_table",
@@ -7129,6 +7548,10 @@
    "input_example": {
     "adjacency": "<matrix_handle>",
     "method": "ase"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -7198,6 +7621,10 @@
    "input_example": {
     "adjacency": "<matrix_handle>",
     "communities": true
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {

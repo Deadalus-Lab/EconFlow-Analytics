@@ -281,6 +281,10 @@
     "period": "...",
     "country": "generic"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "population",
@@ -354,6 +358,10 @@
      "b"
     ]
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "simulation",
@@ -403,6 +411,10 @@
    "input_example": {
     "period": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "period",
@@ -440,6 +452,10 @@
     "population": "<df_handle>",
     "period": "...",
     "include_housing": false
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -495,6 +511,10 @@
     ],
     "period": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "household",
@@ -546,6 +566,10 @@
     "period": "...",
     "increment": 100.0
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "population",
@@ -596,6 +620,10 @@
     "population": "<df_handle>",
     "period": "...",
     "transition": "zero_to_full"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -652,6 +680,15 @@
     "reform": "<raw_handle>",
     "equivalence_scale": "oecd_modified",
     "n_groups": 10
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "decile_impact",
+     "winners_losers",
+     "budget_cost",
+     "poverty_inequality"
+    ]
    },
    "arguments": [
     {
@@ -736,6 +773,15 @@
     "intensive_elasticity": 0.2,
     "extensive_elasticity": 0.3
    },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "labour_supply_change",
+     "revenue_with_behaviour",
+     "elasticities_used",
+     "decomposition"
+    ]
+   },
    "arguments": [
     {
      "name": "baseline",
@@ -818,6 +864,15 @@
      5.0
     ],
     "max_iter": 100
+   },
+   "output_keys": {
+    "status": "declared",
+    "keys": [
+     "weights",
+     "convergence",
+     "weight_ratio",
+     "margins_achieved"
+    ]
    },
    "arguments": [
     {

@@ -388,6 +388,10 @@
     "event": "<series_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "time",
@@ -451,6 +455,10 @@
     "time": "<series_handle>",
     "event": "<series_handle>",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -516,6 +524,10 @@
     "event": "<series_handle>",
     "group": "<series_handle>",
     "weighting": "logrank"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -590,6 +602,10 @@
     "event": "...",
     "ties": "efron",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -696,6 +712,10 @@
     "fit": "<raw_handle>",
     "what": "survival"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -755,6 +775,10 @@
     "stop": "...",
     "event": "...",
     "id": "..."
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -849,6 +873,10 @@
     "event": "...",
     "distribution": "weibull",
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -946,6 +974,10 @@
     "event": "...",
     "criterion": "aic"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1026,6 +1058,10 @@
     "what": "survival",
     "q": 0.5
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1096,6 +1132,10 @@
     "event": "...",
     "id": "..."
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "data",
@@ -1163,6 +1203,10 @@
     "duration": "...",
     "link": "cloglog",
     "baseline": "dummies"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1263,6 +1307,10 @@
     "event": "<series_handle>",
     "conf_level": 0.95
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "time",
@@ -1329,6 +1377,10 @@
     "time": "...",
     "event": "...",
     "cause": 1
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1410,6 +1462,10 @@
     "event": "...",
     "cause": 1,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1502,6 +1558,10 @@
     "group": "<series_handle>",
     "cause": 1
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "time",
@@ -1569,6 +1629,10 @@
     "event": "...",
     "cluster": "...",
     "frailty": "gamma"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1662,6 +1726,10 @@
    "input_example": {
     "fit": "<raw_handle>"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1685,6 +1753,10 @@
    "input_example": {
     "fit": "<raw_handle>",
     "transform": "km"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1728,6 +1800,10 @@
     "fit": "<raw_handle>",
     "transform": "km",
     "alpha": 0.05
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1784,6 +1860,10 @@
     "fit": "<raw_handle>",
     "kind": "martingale"
    },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
+   },
    "arguments": [
     {
      "name": "fit",
@@ -1827,6 +1907,10 @@
     "event": "<series_handle>",
     "n_intervals": 6,
     "conf_level": 0.95
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
@@ -1903,6 +1987,10 @@
    "input_example": {
     "time": "<series_handle>",
     "event": "<series_handle>"
+   },
+   "output_keys": {
+    "status": "undeclared",
+    "keys": null
    },
    "arguments": [
     {
