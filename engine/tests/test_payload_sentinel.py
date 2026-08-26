@@ -27,9 +27,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from econflow_engine.metrics import find_repo_root
 from tests.support import ENGINE_ROOT, INVENTORY
 
-ASSERT_SH = ENGINE_ROOT.parent / ".github" / "actions" / "assert-inventory" / "assert.sh"
+REPO_ROOT = find_repo_root(Path(__file__))
+ASSERT_SH = REPO_ROOT / ".github" / "actions" / "assert-inventory" / "assert.sh"
 STUB_RAISE = "    raise NotImplementedError("
 
 
@@ -86,7 +88,7 @@ def _mirror(tmp_path: Path) -> Path:
     """A writable hardlink mirror of engine/, with the workspace lock beside it."""
     root = tmp_path / "root"
     root.mkdir()
-    os.link(ENGINE_ROOT.parent / "uv.lock", root / "uv.lock")
+    os.link(REPO_ROOT / "uv.lock", root / "uv.lock")
     engine = root / "engine"
     shutil.copytree(
         ENGINE_ROOT,

@@ -354,26 +354,32 @@ only_mutate = [
 # a mutant's verdict must not depend on the order the tests happened to take.
 pytest_add_cli_args = ["-p", "no:randomly"]
 
-# THE 24 TESTS BELOW CANNOT EXECUTE UNDER mutants/ BY CONSTRUCTION, AND NOTHING
-# IN also_copy CAN CHANGE THAT. mutmut runs the suite from `engine/mutants/`,
-# which inserts one directory level. Every harness that locates the manifest as
-# `ENGINE_ROOT.parent / ".github" / "inventory.json"` therefore resolves to
-# `engine/.github/inventory.json` -- one level ABOVE the sandbox `also_copy`
-# fills, so no entry there can satisfy it, and a second copy of the manifest
-# inside engine/ is exactly what a single-homed manifest forbids.
+# THREE SELECTORS, AND NONE OF THEM IS A MANIFEST READ. Twenty of the twenty-two
+# that used to sit here were, and box 2.1.1.7 removed the reason for every one:
+# mutmut runs the suite from `engine/mutants/`, which inserts one directory level,
+# so a harness locating the manifest as `ENGINE_ROOT.parent / ".github" /
+# "inventory.json"` resolved one level ABOVE the sandbox and could not run there at
+# all. `econflow_engine.metrics.find_manifest` walks up to the directory holding
+# both the manifest and `engine/` instead of counting `..`, which finds the same
+# one file from inside the sandbox and from outside it.
 #
-# THE SELECTION IS MEASURED, NOT CURATED. It is the exact set that fails a
-# baseline run inside mutants/, and nothing else: run the suite there and
-# deselect what it reports. Keeping the criterion mechanical is the point --
-# a hand-picked list of "relevant tests" would be taste, and taste is how a
-# mutation score gets quietly improved. 340 tests still judge every mutant.
+# THE SELECTION IS STILL MEASURED, NOT CURATED, and the criterion has not changed:
+# it is the exact set that fails a baseline run inside mutants/, arrived at by
+# running the suite there and deselecting what it reports. The list shrank because
+# the failures went away, not because anything was excused. Keeping the criterion
+# mechanical is the point -- a hand-picked list of "relevant tests" would be taste,
+# and taste is how a mutation score gets quietly improved.
 #
-# NOTHING IS WEAKENED. Every deselected harness runs in full on every commit
-# through run_verifications.sh and assert-inventory/assert.sh; none of them can
-# kill a mutant of the three target modules, because each asserts agreement with
-# the manifest or with the environment rather than a numerical answer.
+# THE PREVIOUS LIST HAD STOPPED BEING THAT MEASURED SET, and re-running it is what
+# showed it. At 0100fb0, with its own twenty-two selectors in place, a baseline run
+# inside mutants/ reported `14 failed, 420 passed, 1 skipped, 27 deselected` -- so
+# `mutmut run` aborted on the baseline and the nightly mutation job could not have
+# produced a figure at all. Thirteen of those fourteen were harnesses that adopted
+# the manifest read after the list was last measured on 2026-08-24; the fourteenth
+# is the sentinel named below. The 340 the previous comment quoted was the collected
+# count on that date and the suite has grown since.
 #
-# TWO ENTRIES ARE NOT MANIFEST READS.
+# WHY THESE THREE REMAIN.
 # tests/test_thread_pinning.py asserts environment variables that
 # run_verifications.sh exports, so it fails under a bare pytest anywhere.
 # tests/test_gates_primitives.py::test_in_range_blocks_a_non_number_in_the_shipped_function
@@ -382,51 +388,27 @@ pytest_add_cli_args = ["-p", "no:randomly"]
 # mutmut's trampoline, `as_shipped` no longer reaches the original, and beartype
 # raises BeartypeCallHintParamViolation instead of GateError. That is an
 # instrumentation artifact of mutmut 3.7.0, not a defect in gates/primitives.py.
+# tests/test_payload_sentinel.py::test_the_resting_tree_is_green_and_still_says_owed
+# runs the real assert.sh over the tree it is POINTED AT and requires exit 0, and
+# inside the sandbox that tree is the sandbox. assert.sh:239 reads `../uv.lock`,
+# relative to that tree, so from mutants/ it looks for engine/uv.lock; the file is
+# not there and :244 sets fail=1. THE CONTRADICTION IS ACROSS THE TWO INVOCATIONS,
+# NOT WITHIN ONE -- placing engine/uv.lock does satisfy the sandbox run, and it
+# then turns the NORMAL run red, because there assert.sh is pointed at engine/ and
+# :235 tests `uv.lock` in that same directory and :236 refuses it: the workspace
+# lock belongs at the repository root. (:235 from the sandbox tests
+# mutants/uv.lock, which is a different file and is not the one at issue.) No
+# arrangement of the tree satisfies both invocations at once, which is what
+# "cannot execute here by construction" means here, and it is a different reason
+# from the manifest read the walk fixed. The suite's other two sentinel fixtures
+# assert exit 1 and both run here unchanged.
 pytest_add_cli_args_test_selection = [
     "--deselect",
     "tests/test_thread_pinning.py",
     "--deselect",
-    "tests/conformance/test_conformance.py::test_every_skip_is_an_unwritten_body",
-    "--deselect",
-    "tests/conformance/test_conformance.py::test_the_harness_compares_something_today",
-    "--deselect",
-    "tests/test_chart_map.py::test_every_card_declares_a_chart_kind_from_the_closed_set",
-    "--deselect",
-    "tests/test_chart_map.py::test_every_node_resolves_to_a_declared_chart_kind",
-    "--deselect",
-    "tests/test_cli.py::test_list_prints_every_node_one_per_line",
-    "--deselect",
-    "tests/test_gate_discipline.py::test_the_walk_parsed_every_wrapper_module_the_manifest_declares",
-    "--deselect",
     "tests/test_gates_primitives.py::test_in_range_blocks_a_non_number_in_the_shipped_function",
     "--deselect",
-    "tests/test_gates_registry.py::test_every_declared_precondition_gate_is_in_the_closed_vocabulary",
-    "--deselect",
-    "tests/test_gates_registry.py::test_every_gate_name_declared_by_a_real_card_resolves",
-    "--deselect",
-    "tests/test_gates_registry.py::test_the_card_join_actually_reached_the_catalogue",
-    "--deselect",
-    "tests/test_gen_wrappers.py::test_every_generated_docstring_carries_the_whole_anatomy",
-    "--deselect",
-    "tests/test_gen_wrappers.py::test_every_implemented_body_still_carries_its_generated_docstring",
-    "--deselect",
-    "tests/test_gen_wrappers.py::test_every_scaffold_the_generator_can_emit_parses_and_fits_the_line_limit",
-    "--deselect",
-    "tests/test_gen_wrappers.py::test_no_wrapper_docstring_offers_a_doctest_example",
-    "--deselect",
-    "tests/test_gen_wrappers.py::test_the_check_denominators_have_no_default",
-    "--deselect",
-    "tests/test_gen_wrappers.py::test_the_committed_tree_carries_one_marker_region_per_module",
-    "--deselect",
-    "tests/test_method_sources.py::test_no_forbidden_distribution_is_named_or_locked",
-    "--deselect",
-    "tests/test_method_sources.py::test_the_register_counts_the_same_modules_the_wrapper_tree_holds",
-    "--deselect",
-    "tests/test_method_sources.py::test_wave_one_libraries_resolve_in_the_lockfile",
-    "--deselect",
-    "tests/test_seed_enforcement.py::test_r1_walk_parsed_every_wrapper_module_the_manifest_declares",
-    "--deselect",
-    "tests/test_seed_enforcement.py::test_r2_declares_how_many_bodies_it_actually_examined",
+    "tests/test_payload_sentinel.py::test_the_resting_tree_is_green_and_still_says_owed",
 ]
 
 # WITHOUT THESE THE RUN DOES NOT START, and the failure names a missing file
@@ -459,4 +441,14 @@ also_copy = [
     "corpus",
     "METHOD-SOURCES.json",
     ".python-version",
+    # engine/sbom.cdx.json, added by box 2.1.1.7. tests/test_payload_sentinel.py
+    # runs the real assert.sh over the tree it is pointed at, and inside the
+    # sandbox that tree is the sandbox: without this the run reports
+    # `FAIL sbom_components expected 115, measured no-sbom` and the resting-tree
+    # fixture goes red over a file that was simply never copied in. The workspace
+    # lockfile is the one thing that cannot join this list -- it lives at the
+    # REPOSITORY root and mutmut's destination is always `mutants/<path>`, so an
+    # entry for it would plant a second lockfile inside engine/. assert.sh already
+    # says so and exits 0: `OWED py_packages  no uv.lock at the repository root`.
+    "sbom.cdx.json",
 ]

@@ -34,7 +34,7 @@ import ast
 from dataclasses import dataclass
 from pathlib import Path
 
-__all__ = ["StubLedger", "find_manifest", "is_stub", "stub_ledger"]
+__all__ = ["StubLedger", "find_manifest", "find_repo_root", "is_stub", "stub_ledger"]
 
 MANIFEST_RELATIVE_PATH = Path(".github") / "inventory.json"
 
@@ -127,8 +127,8 @@ def stub_ledger(wrappers: Path) -> StubLedger:
     return StubLedger(tuple(implemented), stubs)
 
 
-def find_manifest(start: Path) -> Path:
-    """The one ``.github/inventory.json``, found by walking up from ``start``.
+def find_repo_root(start: Path) -> Path:
+    """The repository root, found by walking up from ``start``.
 
     ``start`` is any path inside the tree; a module's ``__file__`` is the usual
     argument, and the file itself is simply the first candidate that cannot
@@ -136,12 +136,14 @@ def find_manifest(start: Path) -> Path:
 
     WHY A WALK AND NOT ``ENGINE_ROOT.parent``. mutmut runs the suite from
     ``engine/mutants/``, which inserts one directory level, so every harness
-    that spelled the manifest as a fixed number of ``..`` resolved to
-    ``engine/.github/inventory.json`` -- a path one level ABOVE the sandbox,
-    which nothing in ``also_copy`` can fill and which a single-homed manifest
-    forbids anyone to create. Twelve modules carried that spelling and six of
-    them could not be deselected, including the gate the mutation job itself
-    runs from inside the sandbox.
+    that spelled a root-anchored path as a fixed number of ``..`` resolved to
+    ``engine/<whatever>`` -- one level ABOVE the sandbox, which nothing in
+    ``also_copy`` can fill and which a single-homed manifest forbids anyone to
+    create. Thirteen modules spelled the manifest that way and six of them could
+    not be deselected, including the gate the mutation job itself runs from
+    inside the sandbox. Two more spelled ``uv.lock`` and ``assert.sh`` the same
+    way, which is why this returns the root rather than only the manifest: the
+    defect is the fixed number of ``..``, not the file it was counted towards.
 
     BOUNDED TWICE. The walk accepts only a directory holding both the manifest
     and an ``engine/`` directory, so it cannot stop at some other ``.github`` on
@@ -151,18 +153,22 @@ def find_manifest(start: Path) -> Path:
     as ``/app/.github/inventory.json`` beside ``/app/engine``, which the suite
     at ``/app/engine`` reaches in three levels.
 
-    A MANIFEST THAT CANNOT BE FOUND IS A HARD FAILURE, never a default and never
-    a zero. A gate whose floor silently read 0 is a gate that has not started,
-    and one that has not started must never report as one that passed.
+    A ROOT THAT CANNOT BE FOUND IS A HARD FAILURE, never a default and never a
+    zero. A gate whose floor silently read 0 is a gate that has not started, and
+    one that has not started must never report as one that passed.
     """
     origin = start.resolve()
     for candidate in [origin, *origin.parents][:_MAX_LEVELS_SEARCHED]:
-        manifest = candidate / MANIFEST_RELATIVE_PATH
-        if manifest.is_file() and (candidate / "engine").is_dir():
-            return manifest
+        if (candidate / MANIFEST_RELATIVE_PATH).is_file() and (candidate / "engine").is_dir():
+            return candidate
     raise FileNotFoundError(
         f"no {MANIFEST_RELATIVE_PATH} beside an engine/ directory within "
         f"{_MAX_LEVELS_SEARCHED} levels of {start}. Every asserted floor in this "
         "repository is read from that one file, so a gate that cannot find it "
         "has not started and must not report as one that passed."
     )
+
+
+def find_manifest(start: Path) -> Path:
+    """The one ``.github/inventory.json``, found by walking up from ``start``."""
+    return find_repo_root(start) / MANIFEST_RELATIVE_PATH
