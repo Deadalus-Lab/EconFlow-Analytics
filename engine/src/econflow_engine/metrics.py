@@ -31,6 +31,7 @@ the agreement they appeared to have was an accident of an unrelated setting.
 from __future__ import annotations
 
 import ast
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -96,12 +97,31 @@ class StubLedger:
     stubs: int
 
 
+def _public_functions(tree: ast.AST) -> Iterator[ast.FunctionDef | ast.AsyncFunctionDef]:
+    """Every public function in a module, wherever it sits.
+
+    BOTH HALVES ARE THE DEFINITION AND NEITHER IS INCIDENTAL. ``ast.walk``
+    rather than the module's top level, so a public method on a class and a
+    public function nested inside another are both reached; and the leading
+    underscore is the only thing that makes a function private. The published
+    one-liner and the ``assert.sh`` heredoc spell exactly this, and
+    ``tests/test_stub_definition.py`` holds all three to one answer.
+
+    It is a function of its own so the ledger below reads as one loop over
+    modules rather than two nested loops with three exits.
+    """
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef) and not node.name.startswith(
+            "_"
+        ):
+            yield node
+
+
 def stub_ledger(wrappers: Path) -> StubLedger:
     """Walk the wrapper tree once and count what carries a body.
 
-    PUBLIC FUNCTIONS ONLY, and by ``ast.walk`` rather than by the module's
-    top level: that is what the published one-liner and the ``assert.sh``
-    heredoc do, and this is the definition they are held to.
+    Public functions only, reached by ``_public_functions`` above, which carries
+    the definition the three text spellings are held to.
 
     A tree that is not there is a hard failure rather than an empty ledger. Zero
     implemented functions and zero stubs is exactly what a walk over the wrong
@@ -115,11 +135,7 @@ def stub_ledger(wrappers: Path) -> StubLedger:
         if path.name == "__init__.py":
             continue
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
-                continue
-            if node.name.startswith("_"):
-                continue
+        for node in _public_functions(tree):
             if is_stub(node):
                 stubs += 1
             else:

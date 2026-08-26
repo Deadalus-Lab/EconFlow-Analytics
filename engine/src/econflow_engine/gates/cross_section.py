@@ -134,73 +134,99 @@ def _refuse(message: str, code: GateDetailCode) -> GateError:
     return refusal(message, code)
 
 
-def _groups_of(x: object, arg: str, label: str) -> dict[str, np.ndarray]:  # noqa: C901
-    """Reduce any accepted container to named numeric vectors. Total by design."""
+def _groups_from_frame(x: pd.DataFrame, arg: str, label: str) -> dict[str, np.ndarray]:
+    """Named numeric columns, refusing a frame that offers none."""
+    names = _fill_names(list(x.columns), x.shape[1], arg, "[[", "]]")
+    for name, column in zip(names, (x[c] for c in x.columns), strict=True):
+        _reject_time_series(column, f"{arg}${name}", label)
+    numeric = [
+        (name, x[col]) for name, col in zip(names, x.columns, strict=True)
+        if pd.api.types.is_numeric_dtype(x[col]) and not pd.api.types.is_bool_dtype(x[col])
+    ]
+    if not numeric:
+        raise _refuse(
+            f'{label}cross-section-only gate -- "{arg}" (DataFrame) has no numeric '
+            "column to check.",
+            "precondition-shape",
+        )
+    return {name: np.asarray(col, dtype=float) for name, col in numeric}
+
+
+def _groups_from_series(x: pd.Series, arg: str, label: str) -> dict[str, np.ndarray]:
+    """The one vector a Series carries, refusing a non-numeric dtype."""
+    if not pd.api.types.is_numeric_dtype(x):
+        raise _refuse(
+            f'{label}cross-section-only gate -- the Series "{arg}" is not numeric '
+            f"(dtype: {x.dtype}).",
+            "precondition-shape",
+        )
+    return {arg: np.asarray(x, dtype=float)}
+
+
+def _groups_from_matrix(x: np.ndarray, arg: str, label: str) -> dict[str, np.ndarray]:
+    """One vector per column of a 2-D array."""
+    if not np.issubdtype(x.dtype, np.number):
+        raise _refuse(
+            f'{label}cross-section-only gate -- the matrix "{arg}" is not numeric '
+            f"(dtype: {x.dtype}).",
+            "precondition-shape",
+        )
+    if x.shape[1] < 1:
+        raise _refuse(
+            f'{label}cross-section-only gate -- the matrix "{arg}" has no columns.',
+            "precondition-shape",
+        )
+    names = _fill_names(None, x.shape[1], arg, "[,", "]")
+    return {names[j]: np.asarray(x[:, j], dtype=float) for j in range(x.shape[1])}
+
+
+def _groups_from_mapping(x: Mapping[object, object], arg: str, label: str) -> dict[str, np.ndarray]:
+    """One vector per key, refusing an empty mapping."""
+    if not x:
+        raise _refuse(
+            f'{label}cross-section-only gate -- the mapping "{arg}" is empty.',
+            "precondition-shape",
+        )
+    return {str(k): _one_numeric_vector(v, str(k), arg, label) for k, v in x.items()}
+
+
+def _groups_from_sequence(
+    x: list[object] | tuple[object, ...], arg: str, label: str
+) -> dict[str, np.ndarray]:
+    """A flat sequence of numbers is one vector; a sequence of vectors is many."""
+    if not x:
+        raise _refuse(
+            f'{label}cross-section-only gate -- the list "{arg}" is empty.',
+            "precondition-shape",
+        )
+    if all(isinstance(v, int | float | np.floating | np.integer) for v in x):
+        return {arg: np.asarray(x, dtype=float)}
+    names = _fill_names(None, len(x), arg, "[[", "]]")
+    return {names[j]: _one_numeric_vector(v, names[j], arg, label) for j, v in enumerate(x)}
+
+
+def _groups_of(x: object, arg: str, label: str) -> dict[str, np.ndarray]:
+    """Reduce any accepted container to named numeric vectors. Total by design.
+
+    ONE ARM PER ACCEPTED CONTAINER, each a function of its own. The arms were
+    inline until 2026-08-26 and the dispatch scored 25 against a threshold of 15,
+    not because any arm is intricate but because six of them sit in one body.
+    Each is independent -- it returns its vectors or it raises -- so the split
+    costs nothing and the reader sees the accepted set at a glance. Every refusal
+    message and every ``precondition-shape`` code is carried unchanged.
+    """
     _reject_time_series(x, arg, label)
 
     if isinstance(x, pd.DataFrame):
-        names = _fill_names(list(x.columns), x.shape[1], arg, "[[", "]]")
-        for name, column in zip(names, (x[c] for c in x.columns), strict=True):
-            _reject_time_series(column, f"{arg}${name}", label)
-        numeric = [
-            (name, x[col]) for name, col in zip(names, x.columns, strict=True)
-            if pd.api.types.is_numeric_dtype(x[col]) and not pd.api.types.is_bool_dtype(x[col])
-        ]
-        if not numeric:
-            raise _refuse(
-                f'{label}cross-section-only gate -- "{arg}" (DataFrame) has no numeric '
-                "column to check.",
-                "precondition-shape",
-            )
-        return {name: np.asarray(col, dtype=float) for name, col in numeric}
-
+        return _groups_from_frame(x, arg, label)
     if isinstance(x, pd.Series):
-        if not pd.api.types.is_numeric_dtype(x):
-            raise _refuse(
-                f'{label}cross-section-only gate -- the Series "{arg}" is not numeric '
-                f"(dtype: {x.dtype}).",
-                "precondition-shape",
-            )
-        return {arg: np.asarray(x, dtype=float)}
-
+        return _groups_from_series(x, arg, label)
     if isinstance(x, np.ndarray) and x.ndim == 2:
-        if not np.issubdtype(x.dtype, np.number):
-            raise _refuse(
-                f'{label}cross-section-only gate -- the matrix "{arg}" is not numeric '
-                f"(dtype: {x.dtype}).",
-                "precondition-shape",
-            )
-        if x.shape[1] < 1:
-            raise _refuse(
-                f'{label}cross-section-only gate -- the matrix "{arg}" has no columns.',
-                "precondition-shape",
-            )
-        names = _fill_names(None, x.shape[1], arg, "[,", "]")
-        return {names[j]: np.asarray(x[:, j], dtype=float) for j in range(x.shape[1])}
-
+        return _groups_from_matrix(x, arg, label)
     if isinstance(x, Mapping):
-        if not x:
-            raise _refuse(
-                f'{label}cross-section-only gate -- the mapping "{arg}" is empty.',
-                "precondition-shape",
-            )
-        return {
-            str(k): _one_numeric_vector(v, str(k), arg, label) for k, v in x.items()
-        }
-
+        return _groups_from_mapping(x, arg, label)
     if isinstance(x, list | tuple):
-        if not x:
-            raise _refuse(
-                f'{label}cross-section-only gate -- the list "{arg}" is empty.',
-                "precondition-shape",
-            )
-        if all(isinstance(v, int | float | np.floating | np.integer) for v in x):
-            return {arg: np.asarray(x, dtype=float)}
-        names = _fill_names(None, len(x), arg, "[[", "]]")
-        return {
-            names[j]: _one_numeric_vector(v, names[j], arg, label) for j, v in enumerate(x)
-        }
-
+        return _groups_from_sequence(x, arg, label)
     if isinstance(x, np.ndarray) and x.ndim == 1 and np.issubdtype(x.dtype, np.number):
         return {arg: np.asarray(x, dtype=float)}
 
@@ -294,6 +320,57 @@ def _diagnose(
     return GroupDiagnostics(name, statistic, p_value, lag, n, n_na, True)
 
 
+def _check_gate_arguments(gate_alpha: object, ordered: object, lb_lag: object) -> None:
+    """Checks 2 to 5: the CALLER'S OWN arguments, before any data is read.
+
+    THESE ARE ``gate-argument`` AND NOT ``precondition-*``, and the split is the
+    line between a defect the caller's data can fix and one only the wrapper
+    author can. Lifted out of ``gate_cross_section_only`` on 2026-08-26, where
+    five refusals about the gate's own parameters sat above the checks about the
+    caller's numbers and pushed the dispatch to 16 against a threshold of 15.
+    Every message and every code is carried unchanged.
+
+    EVERY PARAMETER IS ``object`` AND THAT IS THE WHOLE POINT. This function
+    exists to refuse the values a type hint would reject, so a hint here refuses
+    them first and in the wrong currency: with ``ordered: bool`` the dev-only
+    beartype wrapper raised ``BeartypeCallHintParamViolation`` for
+    ``ordered=1`` before the explicit check could raise ``GateError``, and four
+    tests that call ``as_shipped()`` to strip beartype from the public gate went
+    red -- they strip it there, not here. A gate's argument checks are its own
+    and are written out, never delegated to an annotation.
+    """
+    if not isinstance(gate_alpha, float | int) or isinstance(gate_alpha, bool):
+        raise _refuse(
+            'gate_cross_section_only: "gate_alpha" must be ONE number in (0, 1).',
+            "gate-argument",
+        )
+    if not 0 < float(gate_alpha) < 1:
+        raise _refuse(
+            'gate_cross_section_only: "gate_alpha" must be ONE number in (0, 1).',
+            "gate-argument",
+        )
+    if not isinstance(ordered, bool):
+        raise _refuse(
+            'gate_cross_section_only: "ordered" must be ONE True/False (an EXPLICIT '
+            "declaration: do the rows carry ORDER meaning?).",
+            "gate-argument",
+        )
+    if lb_lag is None:
+        return
+    if isinstance(lb_lag, bool) or not isinstance(lb_lag, int) or lb_lag < 1:
+        raise _refuse(
+            'gate_cross_section_only: "lb_lag" must be None or ONE positive integer.',
+            "gate-argument",
+        )
+    if not ordered:
+        raise _refuse(
+            'gate_cross_section_only: "lb_lag" was given TOGETHER with ordered=False -- '
+            "CONTRADICTORY: with ordered=False the Ljung-Box precheck does not run, so "
+            '"lb_lag" would be a silent no-op. Declare ordered=True or omit "lb_lag".',
+            "gate-argument",
+        )
+
+
 def gate_cross_section_only(
     x: object,
     arg: str = "x",
@@ -330,35 +407,7 @@ def gate_cross_section_only(
     arg = _one_string(arg, "arg")
     fn = _one_string(fn, "fn")
     label = _prefix(fn)
-    if not isinstance(gate_alpha, float | int) or isinstance(gate_alpha, bool):
-        raise _refuse(
-            'gate_cross_section_only: "gate_alpha" must be ONE number in (0, 1).',
-            "gate-argument",
-        )
-    if not 0 < float(gate_alpha) < 1:
-        raise _refuse(
-            'gate_cross_section_only: "gate_alpha" must be ONE number in (0, 1).',
-            "gate-argument",
-        )
-    if not isinstance(ordered, bool):
-        raise _refuse(
-            'gate_cross_section_only: "ordered" must be ONE True/False (an EXPLICIT '
-            "declaration: do the rows carry ORDER meaning?).",
-            "gate-argument",
-        )
-    if lb_lag is not None:
-        if isinstance(lb_lag, bool) or not isinstance(lb_lag, int) or lb_lag < 1:
-            raise _refuse(
-                'gate_cross_section_only: "lb_lag" must be None or ONE positive integer.',
-                "gate-argument",
-            )
-        if not ordered:
-            raise _refuse(
-                'gate_cross_section_only: "lb_lag" was given TOGETHER with ordered=False -- '
-                "CONTRADICTORY: with ordered=False the Ljung-Box precheck does not run, so "
-                '"lb_lag" would be a silent no-op. Declare ordered=True or omit "lb_lag".',
-                "gate-argument",
-            )
+    _check_gate_arguments(gate_alpha, ordered, lb_lag)
 
     groups = _groups_of(x, arg, label)
     diagnostics = tuple(
