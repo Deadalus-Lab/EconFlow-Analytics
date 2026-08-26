@@ -144,11 +144,36 @@ _DOI = re.compile(r"\b10\.\d{4,9}/\S+")
 #:
 #: The token set is unchanged -- table, page, row, ISBN, p., pp. -- because
 #: widening it is a separate decision from making it bite.
+#:
+#: WHAT COUNTS AS THE POSITION IS WIDER THAN A DIGIT, and requiring a digit was
+#: too tight to publish against. The Journal of Finance numbers its tables in
+#: roman, appendix tables are letter-labelled, and book front matter is
+#: roman-paginated -- so `Table III`, `Table A.1`, `Appendix Table B2`, `p. iv`
+#: and `pp. xii-xiv` are all locators a real oracle case will carry.
+#:
+#: THE LETTER FORM IS CASE-SENSITIVE AND THE TOKENS ARE NOT, which is why the
+#: flag is scoped with (?i:...) rather than passed for the whole pattern. A table
+#: is labelled with a CAPITAL -- `Table A` -- while "the table a reader can open"
+#: is prose, and a blanket re.IGNORECASE cannot tell them apart.
+_ROMAN = (
+    #: Written out rather than [ivxlcdm]+, which case-insensitively matches "did",
+    #: "mid", "lid" and "civil". The trailing (?![MDCLXVI]) is what stops the
+    #: nullable parse: every part of a roman numeral is optional, so the empty
+    #: match would otherwise succeed at the word start and admit any word at all.
+    r"(?=[MDCLXVI])M*(?:C[MD]|D?C{0,3})(?:X[CL]|L?X{0,3})"
+    r"(?:I[XV]|V?I{0,3})(?![MDCLXVI])\b"
+)
 _LOCATOR = re.compile(
-    r"\b(?:tables?|pages?|rows?)\s+\d"  # Table 3 · Table 26.1 · pages 12-14 · row 2
-    r"|\bpp?\.\s*\d"  # p. 295 · p.966 · pp. 12-14
-    r"|\bisbn\b[\s:]*[\dX-]{10,}",  # ISBN 978-0-521-81099-3
-    re.IGNORECASE,
+    # Table 3 · Table 26.1 · Table A.1 · Table B2 · Table III · pages 12-14 · row 2
+    r"\b(?i:tables?|pages?|rows?)\s+(?:\d|[A-Z](?:\.?\d+)?\b|(?i:" + _ROMAN + r"))"
+    # p. 295 · p.966 · pp. 12-14 · p. iv · pp. xii-xiv
+    r"|\b(?i:pp?)\.\s*(?:\d|(?i:" + _ROMAN + r"))"
+    # ISBN: nine digits and then a digit or the X check character, separators
+    # allowed between them. The old arm asked only for ten characters drawn from
+    # [0-9X-], so `ISBN ----------` was a locator. Ten DIGITS is what is checked
+    # now; only a checksum would also refuse `ISBN 0000000000`, and that is a
+    # validator rather than a pattern.
+    r"|\b(?i:isbn)\b[\s:]*(?:[\s-]*\d){9}[\s-]*[\dXx]"
 )
 
 pytestmark = pytest.mark.conformance
@@ -1311,6 +1336,19 @@ _NO_LOCATOR = (
     "Jones (1999) -- arrows and pages of nothing",
     "Brown (2011), tabled at the meeting, paged through by hand",
     "Anonymous, no locator at all",
+    # THE ROMAN ARM MUST NOT ADMIT ORDINARY WORDS. Every one of these is spelt
+    # entirely from the roman letters, so a naive [ivxlcdm]+ takes it, and the
+    # nullable parse of a well-formed numeral takes ANY word that follows.
+    "Green (2001), the table did not survive review",
+    "Green (2001), the table mid-way through the report",
+    "Green (2001), the table lid was closed",
+    "Green (2001), a table civil servants use",
+    # The letter arm is case-sensitive precisely so this stays prose.
+    "Green (2001), the table a reader can open",
+    "Green (2001), the rows are unlabelled",
+    # An ISBN is its digits. Ten characters drawn from [0-9X-] is not an ISBN.
+    "Some Book, ISBN ----------",
+    "Some Book, ISBN -- -- -- --",
 )
 
 #: WHAT IT MUST STILL ADMIT. The first two are the forms the committed cases use
@@ -1324,6 +1362,20 @@ _HAS_LOCATOR = (
     "Author (Year), p.966",
     "Author (Year), pages 12-14",
     "Author (Year), ISBN 978-0-521-81099-3",
+    # ISBN-10 ends on a check character that may be X, so the arm counts nine
+    # digits and then a digit OR an X rather than ten digits.
+    "Bloggs (1990), ISBN 0-8044-2957-X",
+    # THE FORMS A DIGIT-ONLY RULE REFUSED. The Journal of Finance numbers tables
+    # in roman, appendix tables carry a letter, and book front matter is
+    # roman-paginated; all three appear in citations this harness must accept.
+    "Author (Year), Table III",
+    "Author (Year), Table IV",
+    "Author (Year), Table XIV",
+    "Author (Year), Table A.1",
+    "Author (Year), Appendix Table B2",
+    "Author (Year), p. iv",
+    "Author (Year), pp. xii-xiv",
+    "Author (Year), pp. II-IV",
 )
 
 
