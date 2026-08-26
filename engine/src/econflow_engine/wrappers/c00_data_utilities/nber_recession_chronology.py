@@ -6,7 +6,7 @@
 
 Category 00-data-utilities; module ``nber_recession_chronology``.
 
-Reference implementation: not yet selected; see engine/METHOD-SOURCES.json.
+Reference implementation: pandas.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
