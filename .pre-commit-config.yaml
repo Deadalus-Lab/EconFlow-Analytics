@@ -271,6 +271,22 @@ repos:
         pass_filenames: false
         always_run: true
 
+      # THE SIBLING OF private-refs, AND DELIBERATELY NOT AN EXTENSION OF IT. That
+      # one walks the TRACKED SET from git's index and FLAGS the name of the skills
+      # directory; this one walks that directory and RESOLVES what the skills cite.
+      # Opposite traversal, opposite polarity, one path in common -- folding them
+      # would put a flag-rule and a read-rule for that path in one script, and the
+      # first reader to simplify it would delete the wrong half. PRE-COMMIT ONLY,
+      # AND IT CANNOT DO OTHERWISE: the skills are ignored by git, so a clone and
+      # every CI job hold none of them. The script says so and exits 0 there
+      # rather than reporting a pass it did not earn.
+      - id: skill-citations
+        name: no skill cites a path that is not in the tree
+        entry: .github/scripts/check-skill-citations.sh
+        language: script
+        pass_filenames: false
+        always_run: true
+
       # PRE-PUSH, NOT PRE-COMMIT, AND THE REASON IS MEASURED. This one walks 1050
       # files and takes 8.2 s against 10-360 ms for its six siblings. A hook that
       # makes every commit wait eight seconds is a hook people start passing -n to,
