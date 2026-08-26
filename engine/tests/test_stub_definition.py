@@ -85,6 +85,18 @@ CASES: dict[str, tuple[bool, str]] = {
     "attribute_raise": (False, "errors.NotImplementedError is not the built-in name"),
     "returns_a_value": (False, "an ordinary implemented body"),
     "two_statement_body": (False, "two statements, neither of them a raise"),
+    "outer_with_a_nested_function": (False, "the body that carries the nested case below"),
+    "nested_public_stub": (
+        True,
+        "REACHABLE ONLY BY ast.walk. Defined inside another function's body, so a "
+        "spelling that iterated module.body instead would never see it",
+    ),
+    "method_body": (
+        False,
+        "REACHABLE ONLY BY ast.walk. A method hangs off a ClassDef, which is not a "
+        "FunctionDef, so module.body skips the class and everything in it",
+    ),
+    "method_stub": (True, "the same, in the stub direction"),
 }
 
 #: Planted alongside the cases and counted by nothing: every spelling skips a
@@ -162,6 +174,28 @@ def two_statement_body(x: int) -> int:
     """A body."""
     y = x + 1
     return y
+
+
+def outer_with_a_nested_function(x: int) -> int:
+    """A body that defines a public function inside itself."""
+
+    def nested_public_stub(y: int) -> int:
+        """A stub one level down, invisible to a top-level walk."""
+        raise NotImplementedError("nested_public_stub")
+
+    return nested_public_stub(x)
+
+
+class PublicHelper:
+    """A class in a wrapper module. Its methods hang off a ClassDef."""
+
+    def method_body(self, x: int) -> int:
+        """A body on a class."""
+        return x + 1
+
+    def method_stub(self, x: int) -> int:
+        """A stub on a class."""
+        raise NotImplementedError("method_stub")
 
 
 def {PRIVATE_NAMES[0]}(x: int) -> int:
@@ -297,7 +331,11 @@ def test_the_ledger_counts_the_planted_tree_and_skips_what_it_must(planted: Path
     assert ledger.stubs == sum(1 for stub, _ in CASES.values() if stub)
     for private in PRIVATE_NAMES:
         assert private not in names, f"{private} reached the implemented list"
-    assert ledger.stubs == 5, "a private stub or the __init__.py stub was counted"
+    assert ledger.stubs == 7, "a private stub or the __init__.py stub was counted"
+    assert "method_body" in names, (
+        "a top-level-only walk reached this ledger: a method hangs off a ClassDef and "
+        "only ast.walk descends into it"
+    )
 
 
 @pytest.mark.parametrize("source", ["readme", "manifest"])
