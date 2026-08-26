@@ -437,17 +437,33 @@ jobs:
           }
           echo "$present mutation target(s) present"
 
+      # `continue-on-error` HERE AND NOWHERE ELSE IN THIS JOB. `mutmut run`'s exit
+      # status is not the verdict and is not read as one: the floors asserted in
+      # the next step are the gate, and they are read from the stats FILE. What is
+      # measured about this command, over this tree on 2026-08-26, is that it exits
+      # 0 with 394 of 939 mutants surviving -- so a green exit here says nothing
+      # about the kill rate either, in the direction that matters least.
       - name: Run mutmut over the configured targets
         working-directory: ${{ env.ENGINE_DIR }}
         continue-on-error: true
         run: uv run --locked mutmut run
 
-      # `export-cicd-stats` EXITS 0 WITHOUT WRITING ITS FILE when no run has
-      # happened, printing "No previous mutation data found" -- so its exit
-      # status proves nothing and mutation_gate.py reads the FILE instead.
+      # THIS STEP MUST BE ABLE TO FAIL, and it carried `continue-on-error: true`
+      # until box 2.1.1.7. With both steps silenced the only failure-capable
+      # steps left in the job were the target-presence check and the synthetic
+      # zero-mutant control below, and NEITHER of them looks at the real run --
+      # so a baseline that aborted before generating a single mutant reported a
+      # green nightly. It did: at 0100fb0 the baseline inside mutants/ failed 14
+      # tests and mutmut never started, for as long as that was true.
+      #
+      # An aborted baseline is invisible in `mutmut run`'s exit code, which is
+      # non-zero either way; it is visible HERE, because `export-cicd-stats`
+      # EXITS 0 WITHOUT WRITING ITS FILE when no run has happened, printing
+      # "No previous mutation data found". So its exit status proves nothing,
+      # the `cat` under `set -euo pipefail` is what turns the absence into a
+      # failure, and mutation_gate.py reads the FILE rather than any exit code.
       - name: Export the stats and assert the floors
         working-directory: ${{ env.ENGINE_DIR }}
-        continue-on-error: true
         run: |
           set -euo pipefail
           uv run --locked mutmut export-cicd-stats
