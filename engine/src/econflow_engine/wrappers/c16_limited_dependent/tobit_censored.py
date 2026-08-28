@@ -6,7 +6,7 @@
 
 Category 16-limited-dependent; module ``tobit_censored``.
 
-Reference implementation: statsmodels.
+Reference implementation: 10.2307/1907382.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

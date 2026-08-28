@@ -8,7 +8,7 @@
   "reason": "box 2.1.1.12 -- 46 cards stop naming a distribution the register measured as not implementing their method"
  },
  "source": {
-  "node_specs_sha256": "6165f21bda5798372c3b51bcca59cb4eb1e3ecbee82cb51773ad2fcfd76c68c1",
+  "node_specs_sha256": "7bd43f38d4660d51cd31074f147c10c963e490ad5e99eb6d1c69bae11556a934",
   "n_cards": 600,
   "n_categories": 46,
   "n_nodes_covered": 1456,
@@ -26963,12 +26963,13 @@
     "Cameron & Trivedi 2013, Regression Analysis of Count Data, 2nd ed.",
     "Mullahy 1986 (Journal of Econometrics 33:341-365)",
     "Lambert 1992 (Technometrics 34:1)",
+    "Vuong 1989 (Econometrica 57:307-333), doi:10.2307/1912557 -- the source for the promised vuong output field; statsmodels 0.14.6 carries no Vuong test",
     "statsmodels"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
    "validation_notes": null,
-   "embed_text": "[#524] Count models: Poisson, negative binomial, generalised Poisson, zero-inflated and hurdle\nCategory: 16-limited-dependent\nNodes: ld_count_model · ld_overdispersion_test\nWHEN: the outcome is a non-negative count, where a linear model predicts impossible values and misstates the variance\nNOT when: the counts are large enough to be treated as continuous; the outcome is a rate with a known exposure and no count structure\nAlternatives: Poisson (mean equals variance) · negative binomial (overdispersion) · zero-inflated or hurdle (more zeros than the count distribution allows)\nOutput: params: coefficients, interpretable as semi-elasticities · dispersion: the overdispersion parameter · zero_inflation: the inflation equation, where fitted · vuong: comparison of zero-inflated against the plain model\nPitfalls: OVERDISPERSION DOES NOT BIAS POISSON COEFFICIENTS but makes its standard errors far too small; the choice between robust Poisson and negative binomial is about inference, not consistency · zero-inflated and hurdle models mean different things: hurdle treats all zeros as one process, zero-inflation mixes structural and sampling zeros · an exposure variable belongs in the model as an offset with coefficient one, not as a regressor\nSources: Cameron & Trivedi 2013, Regression Analysis of Count Data, 2nd ed. · Mullahy 1986 (Journal of Econometrics 33:341-365) · Lambert 1992 (Technometrics 34:1) · statsmodels"
+   "embed_text": "[#524] Count models: Poisson, negative binomial, generalised Poisson, zero-inflated and hurdle\nCategory: 16-limited-dependent\nNodes: ld_count_model · ld_overdispersion_test\nWHEN: the outcome is a non-negative count, where a linear model predicts impossible values and misstates the variance\nNOT when: the counts are large enough to be treated as continuous; the outcome is a rate with a known exposure and no count structure\nAlternatives: Poisson (mean equals variance) · negative binomial (overdispersion) · zero-inflated or hurdle (more zeros than the count distribution allows)\nOutput: params: coefficients, interpretable as semi-elasticities · dispersion: the overdispersion parameter · zero_inflation: the inflation equation, where fitted · vuong: comparison of zero-inflated against the plain model\nPitfalls: OVERDISPERSION DOES NOT BIAS POISSON COEFFICIENTS but makes its standard errors far too small; the choice between robust Poisson and negative binomial is about inference, not consistency · zero-inflated and hurdle models mean different things: hurdle treats all zeros as one process, zero-inflation mixes structural and sampling zeros · an exposure variable belongs in the model as an offset with coefficient one, not as a regressor\nSources: Cameron & Trivedi 2013, Regression Analysis of Count Data, 2nd ed. · Mullahy 1986 (Journal of Econometrics 33:341-365) · Lambert 1992 (Technometrics 34:1) · Vuong 1989 (Econometrica 57:307-333), doi:10.2307/1912557 -- the source for the promised vuong output field; statsmodels 0.14.6 carries no Vuong test · statsmodels"
   },
   {
    "id": 525,
@@ -27007,15 +27008,16 @@
     "Tobit is inconsistent under heteroskedasticity or non-normality, unlike ordinary least squares which is merely inefficient"
    ],
    "sources": [
-    "Tobin 1958 (Econometrica 26:24-36)",
-    "Amemiya 1984 (Journal of Econometrics 24:3-61)",
+    "Tobin 1958 (Econometrica 26:24-36), doi:10.2307/1907382",
+    "Amemiya 1984 (Journal of Econometrics 24:3-61), doi:10.1016/0304-4076(84)90074-5 -- eqs. (3)-(6), the standard Tobit model with its censored and truncated likelihoods",
+    "McDonald & Moffitt 1980 (Review of Economics and Statistics 62:318-321), doi:10.2307/1924766 -- the three marginal-effect scales",
     "Wooldridge 2010, ch.17",
-    "statsmodels.discrete.truncated_model"
+    "a paper implementation: statsmodels 0.14.6 carries no Tobit and no censored-normal regression, so the likelihood above has no library to call"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
    "validation_notes": null,
-   "embed_text": "[#525] Truncated and censored regression: Tobit and variants\nCategory: 16-limited-dependent\nNodes: ld_tobit\nWHEN: the outcome is observed only above or below a limit, or piles up at a corner -- hours worked, expenditure, bounded scores\nNOT when: the limit is a genuine behavioural corner rather than a censoring of a latent variable; there is no censoring at all\nAlternatives: Tobit (the latent variable is censored at a known limit) · truncated regression (observations beyond the limit are absent entirely) · two-part model (participation and amount are separate decisions)\nOutput: params: latent-variable coefficients · marginal_effects: on the latent variable, on the observed outcome and on the uncensored subpopulation -- three different things · sigma: the latent error standard deviation · censored_share: proportion at the limit\nPitfalls: TOBIT COEFFICIENTS ARE FOR THE LATENT VARIABLE, not the observed outcome; reporting them as marginal effects overstates the effect on what is actually observed · Tobit forces the same parameters to govern participation and amount, which the two-part model relaxes -- and that restriction is testable and frequently rejected · Tobit is inconsistent under heteroskedasticity or non-normality, unlike ordinary least squares which is merely inefficient\nSources: Tobin 1958 (Econometrica 26:24-36) · Amemiya 1984 (Journal of Econometrics 24:3-61) · Wooldridge 2010, ch.17 · statsmodels.discrete.truncated_model"
+   "embed_text": "[#525] Truncated and censored regression: Tobit and variants\nCategory: 16-limited-dependent\nNodes: ld_tobit\nWHEN: the outcome is observed only above or below a limit, or piles up at a corner -- hours worked, expenditure, bounded scores\nNOT when: the limit is a genuine behavioural corner rather than a censoring of a latent variable; there is no censoring at all\nAlternatives: Tobit (the latent variable is censored at a known limit) · truncated regression (observations beyond the limit are absent entirely) · two-part model (participation and amount are separate decisions)\nOutput: params: latent-variable coefficients · marginal_effects: on the latent variable, on the observed outcome and on the uncensored subpopulation -- three different things · sigma: the latent error standard deviation · censored_share: proportion at the limit\nPitfalls: TOBIT COEFFICIENTS ARE FOR THE LATENT VARIABLE, not the observed outcome; reporting them as marginal effects overstates the effect on what is actually observed · Tobit forces the same parameters to govern participation and amount, which the two-part model relaxes -- and that restriction is testable and frequently rejected · Tobit is inconsistent under heteroskedasticity or non-normality, unlike ordinary least squares which is merely inefficient\nSources: Tobin 1958 (Econometrica 26:24-36), doi:10.2307/1907382 · Amemiya 1984 (Journal of Econometrics 24:3-61), doi:10.1016/0304-4076(84)90074-5 -- eqs. (3)-(6), the standard Tobit model with its censored and truncated likelihoods · McDonald & Moffitt 1980 (Review of Economics and Statistics 62:318-321), doi:10.2307/1924766 -- the three marginal-effect scales · Wooldridge 2010, ch.17 · a paper implementation: statsmodels 0.14.6 carries no Tobit and no censored-normal regression, so the likelihood above has no library to call"
   },
   {
    "id": 526,
@@ -27054,14 +27056,14 @@
     "the two-step estimator's standard errors must be corrected for the estimated first stage"
    ],
    "sources": [
-    "Heckman 1979 (Econometrica 47:153-161)",
-    "Puhani 2000 (Journal of Economic Surveys 14:53)",
-    "statsmodels"
+    "Heckman 1979 (Econometrica 47:153-161), doi:10.2307/1912352",
+    "Puhani 2000 (Journal of Economic Surveys 14:53), doi:10.1111/1467-6419.00104",
+    "a paper implementation: statsmodels 0.14.6 carries no sample-selection estimator, so the estimator, its corrected covariance and its diagnostics have no library to call; the library supplies only the probit and the least-squares fit they are built on"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
    "validation_notes": null,
-   "embed_text": "[#526] Heckman sample selection, two-step and full information\nCategory: 16-limited-dependent\nNodes: ld_heckman\nWHEN: the outcome is observed only for a selected subsample, and that selection is related to the outcome\nNOT when: selection is on observables only, where weighting suffices; no exclusion restriction exists\nAlternatives: two-step Heckman (transparent, easy to diagnose) · full-information maximum likelihood (efficient if the joint normality holds) · inverse probability weighting (selection is on observables)\nOutput: params: outcome and selection equation coefficients · lambda_: the inverse Mills ratio coefficient, which measures the selection · rho: correlation between the two errors · exclusion: whether an exclusion restriction was used\nPitfalls: WITHOUT AN EXCLUSION RESTRICTION the model is identified only by the nonlinearity of the inverse Mills ratio, which is weak and makes the estimates extremely fragile -- this is the single most common failure · a significant lambda means selection matters; an insignificant one does not license using the selected subsample if the exclusion restriction is weak · the two-step estimator's standard errors must be corrected for the estimated first stage\nSources: Heckman 1979 (Econometrica 47:153-161) · Puhani 2000 (Journal of Economic Surveys 14:53) · statsmodels"
+   "embed_text": "[#526] Heckman sample selection, two-step and full information\nCategory: 16-limited-dependent\nNodes: ld_heckman\nWHEN: the outcome is observed only for a selected subsample, and that selection is related to the outcome\nNOT when: selection is on observables only, where weighting suffices; no exclusion restriction exists\nAlternatives: two-step Heckman (transparent, easy to diagnose) · full-information maximum likelihood (efficient if the joint normality holds) · inverse probability weighting (selection is on observables)\nOutput: params: outcome and selection equation coefficients · lambda_: the inverse Mills ratio coefficient, which measures the selection · rho: correlation between the two errors · exclusion: whether an exclusion restriction was used\nPitfalls: WITHOUT AN EXCLUSION RESTRICTION the model is identified only by the nonlinearity of the inverse Mills ratio, which is weak and makes the estimates extremely fragile -- this is the single most common failure · a significant lambda means selection matters; an insignificant one does not license using the selected subsample if the exclusion restriction is weak · the two-step estimator's standard errors must be corrected for the estimated first stage\nSources: Heckman 1979 (Econometrica 47:153-161), doi:10.2307/1912352 · Puhani 2000 (Journal of Economic Surveys 14:53), doi:10.1111/1467-6419.00104 · a paper implementation: statsmodels 0.14.6 carries no sample-selection estimator, so the estimator, its corrected covariance and its diagnostics have no library to call; the library supplies only the probit and the least-squares fit they are built on"
   },
   {
    "id": 527,
@@ -27097,7 +27099,8 @@
    "interpretation_traps": [
     "BETA REGRESSION IS UNDEFINED AT EXACTLY ZERO OR ONE; the common fix of squeezing the data slightly is an arbitrary transformation that changes results, so a fractional or inflated model is usually better",
     "the fractional response estimator is a quasi-likelihood and is consistent under correct mean specification alone, which is why it is robust",
-    "coefficients are on the link scale and must be converted to marginal effects before interpretation"
+    "coefficients are on the link scale and must be converted to marginal effects before interpretation",
+    "THE zero_one_inflated_beta MODEL IS REFUSED, not fitted: no implementation of the mixture exists to call, so a boundary mass has to be carried by the fractional model instead"
    ],
    "sources": [
     "Papke & Wooldridge 1996 (Journal of Applied Econometrics 11:619-632)",
@@ -27106,8 +27109,11 @@
    ],
    "precondition_tools": null,
    "precondition_gates": null,
-   "validation_notes": null,
-   "embed_text": "[#527] Fractional response and beta regression\nCategory: 16-limited-dependent\nNodes: ld_fractional_response\nWHEN: the outcome is a proportion or a share bounded in the unit interval, where a linear model predicts outside it\nNOT when: the outcome is a count of successes out of a known total (use a binomial model); the bounds are not structural\nAlternatives: fractional response (Papke-Wooldridge) (zeros and ones are present) · beta regression (the outcome is strictly inside the unit interval) · zero-one inflated beta (there is a mass at the boundaries)\nOutput: params: coefficients on the link scale · marginal_effects: on the proportion scale, which is what is interpretable · precision: the beta precision parameter, where fitted · boundary_share: proportion at exactly zero or one\nPitfalls: BETA REGRESSION IS UNDEFINED AT EXACTLY ZERO OR ONE; the common fix of squeezing the data slightly is an arbitrary transformation that changes results, so a fractional or inflated model is usually better · the fractional response estimator is a quasi-likelihood and is consistent under correct mean specification alone, which is why it is robust · coefficients are on the link scale and must be converted to marginal effects before interpretation\nSources: Papke & Wooldridge 1996 (Journal of Applied Econometrics 11:619-632) · Ferrari & Cribari-Neto 2004 (Journal of Applied Statistics 31:799) · statsmodels.othermod.betareg"
+   "validation_notes": [
+    "model='zero_one_inflated_beta' must refuse with a GateError until a source is chosen: no zero-or-one-inflated beta mixture exists in statsmodels 0.14.6, whose statsmodels.othermod.betareg defines only BetaModel, BetaResults and BetaResultsWrapper, and no primary source for the mixture has been selected",
+    "the enum value stays because the node signature is frozen; dropping it is a contract change and an owner decision, and a branch quietly returning a plain beta fit under this name would be worse than a refusal"
+   ],
+   "embed_text": "[#527] Fractional response and beta regression\nCategory: 16-limited-dependent\nNodes: ld_fractional_response\nWHEN: the outcome is a proportion or a share bounded in the unit interval, where a linear model predicts outside it\nNOT when: the outcome is a count of successes out of a known total (use a binomial model); the bounds are not structural\nAlternatives: fractional response (Papke-Wooldridge) (zeros and ones are present) · beta regression (the outcome is strictly inside the unit interval) · zero-one inflated beta (there is a mass at the boundaries)\nOutput: params: coefficients on the link scale · marginal_effects: on the proportion scale, which is what is interpretable · precision: the beta precision parameter, where fitted · boundary_share: proportion at exactly zero or one\nPitfalls: BETA REGRESSION IS UNDEFINED AT EXACTLY ZERO OR ONE; the common fix of squeezing the data slightly is an arbitrary transformation that changes results, so a fractional or inflated model is usually better · the fractional response estimator is a quasi-likelihood and is consistent under correct mean specification alone, which is why it is robust · coefficients are on the link scale and must be converted to marginal effects before interpretation · THE zero_one_inflated_beta MODEL IS REFUSED, not fitted: no implementation of the mixture exists to call, so a boundary mass has to be carried by the fractional model instead\nSources: Papke & Wooldridge 1996 (Journal of Applied Econometrics 11:619-632) · Ferrari & Cribari-Neto 2004 (Journal of Applied Statistics 31:799) · statsmodels.othermod.betareg"
   },
   {
    "id": 528,
@@ -27143,7 +27149,8 @@
    "interpretation_traps": [
     "MULTINOMIAL LOGIT COEFFICIENTS ARE RELATIVE TO A BASE ALTERNATIVE and change entirely when the base changes; only the marginal effects and predicted probabilities are invariant",
     "the marginal effect of a covariate on one alternative can have the opposite sign to its coefficient, because the probabilities must sum to one",
-    "an alternative chosen by very few observations produces unstable, sometimes divergent, coefficients"
+    "an alternative chosen by very few observations produces unstable, sometimes divergent, coefficients",
+    "THE multinomial_probit MODEL IS REFUSED, not fitted: no implementation exists to call, so a substitution structure that the logit's independence assumption misstates has to be addressed another way"
    ],
    "sources": [
     "McFadden 1974, Conditional logit analysis of qualitative choice behavior (Frontiers in Econometrics)",
@@ -27152,8 +27159,11 @@
    ],
    "precondition_tools": null,
    "precondition_gates": null,
-   "validation_notes": null,
-   "embed_text": "[#528] Multinomial and conditional logit for unordered outcomes\nCategory: 16-limited-dependent\nNodes: ld_unordered_choice\nWHEN: the outcome is one of several unordered alternatives -- sector, tenure, mode\nNOT when: the alternatives are ordered (-> ordered choice); IIA fails and substitution structure matters\nAlternatives: multinomial logit (chooser-varying regressors) · conditional logit (alternative-varying regressors) · multinomial probit (IIA must be relaxed without a nesting structure)\nOutput: params: coefficients relative to a base alternative · marginal_effects: per alternative, which are what is interpretable · predicted_probabilities: fitted choice probabilities · iia_test: Hausman-McFadden test\nPitfalls: MULTINOMIAL LOGIT COEFFICIENTS ARE RELATIVE TO A BASE ALTERNATIVE and change entirely when the base changes; only the marginal effects and predicted probabilities are invariant · the marginal effect of a covariate on one alternative can have the opposite sign to its coefficient, because the probabilities must sum to one · an alternative chosen by very few observations produces unstable, sometimes divergent, coefficients\nSources: McFadden 1974, Conditional logit analysis of qualitative choice behavior (Frontiers in Econometrics) · Train 2009, Discrete Choice Methods with Simulation · statsmodels"
+   "validation_notes": [
+    "model='multinomial_probit' must refuse with a GateError: statsmodels 0.14.6 carries no multinomial probit, established by a regex sweep of the installed package, by the statsmodels.api namespace and by the rendered discrete-model documentation for that version",
+    "the enum value stays because the node signature is frozen; dropping it is a contract change and an owner decision. The blocker is not a missing source -- Train 2009 above documents the simulated-likelihood estimator -- but the seed argument it needs, which this node does not declare and which would contradict the node's recorded cacheability"
+   ],
+   "embed_text": "[#528] Multinomial and conditional logit for unordered outcomes\nCategory: 16-limited-dependent\nNodes: ld_unordered_choice\nWHEN: the outcome is one of several unordered alternatives -- sector, tenure, mode\nNOT when: the alternatives are ordered (-> ordered choice); IIA fails and substitution structure matters\nAlternatives: multinomial logit (chooser-varying regressors) · conditional logit (alternative-varying regressors) · multinomial probit (IIA must be relaxed without a nesting structure)\nOutput: params: coefficients relative to a base alternative · marginal_effects: per alternative, which are what is interpretable · predicted_probabilities: fitted choice probabilities · iia_test: Hausman-McFadden test\nPitfalls: MULTINOMIAL LOGIT COEFFICIENTS ARE RELATIVE TO A BASE ALTERNATIVE and change entirely when the base changes; only the marginal effects and predicted probabilities are invariant · the marginal effect of a covariate on one alternative can have the opposite sign to its coefficient, because the probabilities must sum to one · an alternative chosen by very few observations produces unstable, sometimes divergent, coefficients · THE multinomial_probit MODEL IS REFUSED, not fitted: no implementation exists to call, so a substitution structure that the logit's independence assumption misstates has to be addressed another way\nSources: McFadden 1974, Conditional logit analysis of qualitative choice behavior (Frontiers in Econometrics) · Train 2009, Discrete Choice Methods with Simulation · statsmodels"
   },
   {
    "id": 529,

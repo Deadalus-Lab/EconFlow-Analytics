@@ -65,6 +65,17 @@ def ld_fractional_response(
         None declared. The ``precondition_gates`` field of this method card is empty; the checks a
         body must run are named here once the field carries them.
 
+    Validation:
+        Documented on the method card:
+
+        - model='zero_one_inflated_beta' must refuse with a GateError until a source is chosen: no
+          zero-or-one-inflated beta mixture exists in statsmodels 0.14.6, whose
+          statsmodels.othermod.betareg defines only BetaModel, BetaResults and BetaResultsWrapper,
+          and no primary source for the mixture has been selected
+        - the enum value stays because the node signature is frozen; dropping it is a contract
+          change and an owner decision, and a branch quietly returning a plain beta fit under this
+          name would be worse than a refusal
+
     .. gen_wrappers: end of generated docstring
 
     Examples:

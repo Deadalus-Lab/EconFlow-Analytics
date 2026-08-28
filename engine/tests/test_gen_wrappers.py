@@ -237,17 +237,17 @@ def test_the_generated_sections_keep_their_order(
 def test_the_validation_section_is_rendered_from_the_card_and_not_from_a_constant(
     plan_and_context: tuple[dict[Path, str], dict[str, Any]],
 ) -> None:
-    """The fifteen authored sentences, followed from their cards into docstrings.
+    """The nineteen authored sentences, followed from their cards into docstrings.
 
     THE OTHER HALF OF A PIN THAT ALREADY EXISTS. tests/test_gates_registry.py
-    holds these sentences to five cards by count and by digest, so a reword or a
+    holds these sentences to their cards by count and by digest, so a reword or a
     deletion on the CARD side is loud. Nothing there says they reach a wrapper
     docstring: ``validation_section`` returning ``[]`` empties the section from
-    all five modules and every count in this file goes on passing.
+    every one of those modules and every count in this file goes on passing.
 
     THEY ARE THE ONLY POSITIVE CONTROL THE SECTION PAIR HAS. ``precondition_gates``
     is empty on all 600 cards, so the Gates section renders the same sentence
-    everywhere and would be indistinguishable from a constant. These fifteen are
+    everywhere and would be indistinguishable from a constant. These nineteen are
     the only prose in the tier that can have arrived only by being read off a
     card.
     """
@@ -257,7 +257,7 @@ def test_the_validation_section_is_rendered_from_the_card_and_not_from_a_constan
         for card in G.read_artifact("method-cards.json")["cards"]
         if card.get("validation_notes")
     ]
-    assert len(cards) == 5, "the corpus moved; re-measure before editing this test"
+    assert len(cards) == 7, "the corpus moved; re-measure before editing this test"
 
     seen = 0
     for card in cards:
@@ -277,20 +277,22 @@ def test_the_validation_section_is_rendered_from_the_card_and_not_from_a_constan
             # THE EXPECTED SIDE SHARES NO TRANSFORM WITH THE EMITTER, and routing
             # it through ``docsafe`` is exactly the mistake: with ``docsafe``
             # returning "" both sides collapse to "", every bullet renders as a
-            # bare "- ", and ``"" in home`` passes on all fifteen. Measured over
+            # bare "- ", and ``"" in home`` passes on all nineteen. Measured over
             # the corpus: no note carries a backslash or a triple quote, so
             # ``docsafe`` is a no-op on every one of them and dropping it here
-            # compares the same bytes -- while a regression in it now shows.
+            # compares the same bytes -- while a regression in it now shows. The
+            # two 2026-08-28 cards were re-measured against this and carry none
+            # either.
             want = " ".join(str(note).split())
             assert want, "an empty note asserts nothing"
             for where, home in homes.items():
                 assert want in home, f"card #{card['id']}: {note!r} is absent from {where}"
             seen += 1
-    assert seen == 15
+    assert seen == 19
     carrying = [
         path for path, source in plan.items() if "\n    Validation:\n" in source
     ]
-    assert len(carrying) == 5, sorted(p.name for p in carrying)
+    assert len(carrying) == 7, sorted(p.name for p in carrying)
 
 
 def test_no_wrapper_docstring_offers_a_doctest_example(

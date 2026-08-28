@@ -50,8 +50,35 @@
     "planned rows is asserted against engine.unresolved_sources, so a SECOND",
     "unresolved row turns that suite red instead of joining this one in silence.",
     "",
-    "It is REBUILT from the sealed cards rather than edited alongside them,",
-    "so it cannot drift from the catalogue it describes."
+    "THE ROW HAS TWO HALVES AND ONLY ONE IS REBUILT. The identity half --",
+    "module, category, package, cards, methods, node_fns -- is derived from the",
+    "sealed cards on every generation and cannot drift. The source half --",
+    "status, library, paper, dataset, wave, audited, refuted -- is AUTHORED",
+    "here and carried forward verbatim by sync_method_sources in",
+    "scripts/gen_artifacts.py, which is what makes this file the place a source",
+    "is chosen. This paragraph used to say the register was rebuilt from the",
+    "sealed cards and so could not drift from the catalogue it describes. That",
+    "was false of the half that decides anything, and two rows proved it:",
+    "c16_limited_dependent/tobit_censored and",
+    "c16_limited_dependent/heckman_selection named statsmodels here while cards",
+    "525 and 526 recorded, from a sweep of the installed 0.14.6, that it ships",
+    "neither estimator. Both were corrected on 2026-08-28 to the paper their",
+    "card cites.",
+    "",
+    "OWED: A CHECK OF A SELECTED ROW AGAINST ITS CARDS' SOURCES. Nothing reads",
+    "the authored half against the sources a card carries, which is how those",
+    "two rows contradicted their cards while every gate stayed green.",
+    "gen_wrappers --check compares a docstring against this register, and",
+    "tests/test_method_sources.py asks whether a DOI is well formed and whether",
+    "a wave matches uv.lock; neither opens a card. It is not written here",
+    "because this change corrects two rows, and the check has a question of its",
+    "own to settle first: what counts as agreement when a card names a",
+    "distribution in prose that the register refutes by measurement -- the",
+    "existing card-source rule matches a bare package name and deliberately",
+    "lets a bibliography line through. What discharges it is an assertion that",
+    "every selected row's named source is reachable from at least one of its",
+    "cards' sources, run over all 598 rows, naming each disagreement rather",
+    "than counting it."
   ],
   "n_modules": 598,
   "n_node_fns": 1456,
@@ -8121,12 +8148,14 @@
         "ld_tobit"
       ],
       "status": "selected",
-      "library": "statsmodels",
-      "paper": null,
+      "library": null,
+      "paper": "10.2307/1907382",
       "dataset": null,
-      "wave": "one",
+      "wave": "none",
       "audited": true,
-      "refuted": []
+      "refuted": [
+        "statsmodels"
+      ]
     },
     "c16_limited_dependent/heckman_selection": {
       "module": "heckman_selection",
@@ -8142,12 +8171,14 @@
         "ld_heckman"
       ],
       "status": "selected",
-      "library": "statsmodels",
-      "paper": null,
+      "library": null,
+      "paper": "10.2307/1912352",
       "dataset": null,
-      "wave": "one",
+      "wave": "none",
       "audited": true,
-      "refuted": []
+      "refuted": [
+        "statsmodels"
+      ]
     },
     "c16_limited_dependent/fractional_beta": {
       "module": "fractional_beta",

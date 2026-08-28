@@ -59,9 +59,10 @@ INVENTORY = find_manifest(Path(__file__))
 CARDS_WITH_DECLARED_GATES_FLOOR = 0
 
 
-#: sha256 over the fifteen validation_notes sentences in card order, newline
-#: joined. Measured, with the command in the test that reads it.
-SENTENCES_SHA256 = "3210a469ea080e47d4448dd7818d387640a40d95b60b7bebe6d61d04138f3336"
+#: sha256 over the nineteen validation_notes sentences in card order, newline
+#: joined. Measured, with the command in the test that reads it. It was fifteen
+#: until 2026-08-28, when cards 527 and 528 were authored with two notes each.
+SENTENCES_SHA256 = "1780c197d3665ab345762a692b93e9248ca9589c2dc45ff89aac20918d2af2b4"
 
 
 def read(name: str) -> Any:
@@ -290,19 +291,23 @@ def test_the_sentences_the_gate_displaced_are_still_documented() -> None:
     ``validation_notes``. Nothing else in the tree would notice if a later edit
     dropped them: they reach no hash, no schema count and no wire, so they would
     vanish inside a re-seal diff no reviewer reads. This pins them to the exact
-    five cards that carried them, with the count they carried.
+    cards that carry them, with the count each one carries.
 
     IT IS AN EQUALITY, AND A CARD AUTHORED WITH NOTES TURNS IT RED ON PURPOSE.
     ``validation_notes`` is a field any card may use, so this map will need
     extending -- and the extension is the point. Adding a card here is a one-line
     diff that says a note was authored; a card silently LEAVING is the same
     one-line diff, and a reviewer sees both. A floor would only catch the second
-    kind and would let the fifteen be replaced by fifteen others.
+    kind and would let the sentences be replaced by others.
+
+    IT HAS BEEN EXTENDED ONCE, on 2026-08-28: cards 527 and 528 each carry two
+    sentences saying that ``zero_one_inflated_beta`` and ``multinomial_probit``
+    must refuse, because no implementation of either exists to call.
     """
     cards = {int(card["id"]): card for card in read("method-cards.json")["cards"]}
     #: card id -> how many notes it carries. Extend this when a card is authored
     #: with notes; never shrink it to match a card that lost some.
-    carried = {96: 3, 97: 3, 98: 3, 99: 3, 100: 3}
+    carried = {96: 3, 97: 3, 98: 3, 99: 3, 100: 3, 527: 2, 528: 2}
 
     documented = {
         card_id: len(card["validation_notes"] or ())
@@ -324,8 +329,8 @@ def test_the_sentences_the_gate_displaced_are_still_documented() -> None:
                 "validation_notes; a gate NAME belongs in precondition_gates"
             )
 
-    # THE COUNT IS NOT THE CONTENT. Everything above passes if all fifteen
-    # sentences are replaced by fifteen different ones, and "summarised, reworded
+    # THE COUNT IS NOT THE CONTENT. Everything above passes if all nineteen
+    # sentences are replaced by nineteen different ones, and "summarised, reworded
     # for brevity, or dropped" is exactly what these were protected from. The
     # digest is over the sentences in card order, so a reword is as loud as a
     # deletion. Editing one deliberately means recomputing it, in a diff that
@@ -338,11 +343,12 @@ def test_the_sentences_the_gate_displaced_are_still_documented() -> None:
         for card_id in sorted(cards)
         for note in (cards[card_id]["validation_notes"] or ())
     ]
-    assert len(sentences) == 15, len(sentences)
+    assert len(sentences) == 19, len(sentences)
     digest = hashlib.sha256("\n".join(sentences).encode("utf-8")).hexdigest()
     assert digest == SENTENCES_SHA256, (
-        f"the fifteen sentences digest to {digest}, not {SENTENCES_SHA256}; one has "
-        "been reworded or reordered. They were moved verbatim out of "
-        "precondition_gates and are the documented refusals a user would otherwise "
-        "meet undocumented -- if the edit is deliberate, recompute the constant."
+        f"the nineteen sentences digest to {digest}, not {SENTENCES_SHA256}; one has "
+        "been reworded or reordered. Fifteen were moved verbatim out of "
+        "precondition_gates and four were authored on cards 527 and 528; all "
+        "nineteen are the documented refusals a user would otherwise meet "
+        "undocumented -- if the edit is deliberate, recompute the constant."
     )

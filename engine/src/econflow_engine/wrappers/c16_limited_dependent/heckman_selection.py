@@ -6,7 +6,7 @@
 
 Category 16-limited-dependent; module ``heckman_selection``.
 
-Reference implementation: statsmodels.
+Reference implementation: 10.2307/1912352.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.

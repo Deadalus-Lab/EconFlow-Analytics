@@ -252,6 +252,7 @@
     "Cameron & Trivedi 2013, Regression Analysis of Count Data, 2nd ed.",
     "Mullahy 1986 (Journal of Econometrics 33:341-365)",
     "Lambert 1992 (Technometrics 34:1)",
+    "Vuong 1989 (Econometrica 57:307-333), doi:10.2307/1912557 -- the source for the promised vuong output field; statsmodels 0.14.6 carries no Vuong test",
     "statsmodels"
    ],
    "precondition_tools": null,
@@ -294,10 +295,11 @@
     "Tobit is inconsistent under heteroskedasticity or non-normality, unlike ordinary least squares which is merely inefficient"
    ],
    "sources": [
-    "Tobin 1958 (Econometrica 26:24-36)",
-    "Amemiya 1984 (Journal of Econometrics 24:3-61)",
+    "Tobin 1958 (Econometrica 26:24-36), doi:10.2307/1907382",
+    "Amemiya 1984 (Journal of Econometrics 24:3-61), doi:10.1016/0304-4076(84)90074-5 -- eqs. (3)-(6), the standard Tobit model with its censored and truncated likelihoods",
+    "McDonald & Moffitt 1980 (Review of Economics and Statistics 62:318-321), doi:10.2307/1924766 -- the three marginal-effect scales",
     "Wooldridge 2010, ch.17",
-    "statsmodels.discrete.truncated_model"
+    "a paper implementation: statsmodels 0.14.6 carries no Tobit and no censored-normal regression, so the likelihood above has no library to call"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -339,9 +341,9 @@
     "the two-step estimator's standard errors must be corrected for the estimated first stage"
    ],
    "sources": [
-    "Heckman 1979 (Econometrica 47:153-161)",
-    "Puhani 2000 (Journal of Economic Surveys 14:53)",
-    "statsmodels"
+    "Heckman 1979 (Econometrica 47:153-161), doi:10.2307/1912352",
+    "Puhani 2000 (Journal of Economic Surveys 14:53), doi:10.1111/1467-6419.00104",
+    "a paper implementation: statsmodels 0.14.6 carries no sample-selection estimator, so the estimator, its corrected covariance and its diagnostics have no library to call; the library supplies only the probit and the least-squares fit they are built on"
    ],
    "precondition_tools": null,
    "precondition_gates": null,
@@ -380,7 +382,8 @@
    "interpretation_traps": [
     "BETA REGRESSION IS UNDEFINED AT EXACTLY ZERO OR ONE; the common fix of squeezing the data slightly is an arbitrary transformation that changes results, so a fractional or inflated model is usually better",
     "the fractional response estimator is a quasi-likelihood and is consistent under correct mean specification alone, which is why it is robust",
-    "coefficients are on the link scale and must be converted to marginal effects before interpretation"
+    "coefficients are on the link scale and must be converted to marginal effects before interpretation",
+    "THE zero_one_inflated_beta MODEL IS REFUSED, not fitted: no implementation of the mixture exists to call, so a boundary mass has to be carried by the fractional model instead"
    ],
    "sources": [
     "Papke & Wooldridge 1996 (Journal of Applied Econometrics 11:619-632)",
@@ -389,7 +392,10 @@
    ],
    "precondition_tools": null,
    "precondition_gates": null,
-   "validation_notes": null
+   "validation_notes": [
+    "model='zero_one_inflated_beta' must refuse with a GateError until a source is chosen: no zero-or-one-inflated beta mixture exists in statsmodels 0.14.6, whose statsmodels.othermod.betareg defines only BetaModel, BetaResults and BetaResultsWrapper, and no primary source for the mixture has been selected",
+    "the enum value stays because the node signature is frozen; dropping it is a contract change and an owner decision, and a branch quietly returning a plain beta fit under this name would be worse than a refusal"
+   ]
   },
   {
    "id": 528,
@@ -424,7 +430,8 @@
    "interpretation_traps": [
     "MULTINOMIAL LOGIT COEFFICIENTS ARE RELATIVE TO A BASE ALTERNATIVE and change entirely when the base changes; only the marginal effects and predicted probabilities are invariant",
     "the marginal effect of a covariate on one alternative can have the opposite sign to its coefficient, because the probabilities must sum to one",
-    "an alternative chosen by very few observations produces unstable, sometimes divergent, coefficients"
+    "an alternative chosen by very few observations produces unstable, sometimes divergent, coefficients",
+    "THE multinomial_probit MODEL IS REFUSED, not fitted: no implementation exists to call, so a substitution structure that the logit's independence assumption misstates has to be addressed another way"
    ],
    "sources": [
     "McFadden 1974, Conditional logit analysis of qualitative choice behavior (Frontiers in Econometrics)",
@@ -433,7 +440,10 @@
    ],
    "precondition_tools": null,
    "precondition_gates": null,
-   "validation_notes": null
+   "validation_notes": [
+    "model='multinomial_probit' must refuse with a GateError: statsmodels 0.14.6 carries no multinomial probit, established by a regex sweep of the installed package, by the statsmodels.api namespace and by the rendered discrete-model documentation for that version",
+    "the enum value stays because the node signature is frozen; dropping it is a contract change and an owner decision. The blocker is not a missing source -- Train 2009 above documents the simulated-likelihood estimator -- but the seed argument it needs, which this node does not declare and which would contradict the node's recorded cacheability"
+   ]
   },
   {
    "id": 529,

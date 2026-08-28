@@ -119,7 +119,7 @@ AUDITED_ROWS = 424
 #: A row may name a REFUTED distribution again only with a new measurement
 #: showing the distribution gained the method -- in which case the entry is
 #: deleted from the row, in a diff that says which release added it.
-REFUTED_PAIRS = 52
+REFUTED_PAIRS = 54
 
 
 
@@ -271,7 +271,7 @@ def test_every_paper_is_a_doi(rows: dict[str, dict[str, Any]]) -> None:
     during the research resolved to entirely different papers, so the register
     holds resolvable identifiers and the prose lives in the cards."""
     papers = [(k, r["paper"]) for k, r in rows.items() if r["paper"]]
-    assert len(papers) == 131, len(papers)
+    assert len(papers) == 133, len(papers)
     assert [k for k, doi in papers if not DOI.match(doi)] == []
 
 
