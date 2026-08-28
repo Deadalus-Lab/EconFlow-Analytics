@@ -675,8 +675,22 @@
     "data": "<df_handle>"
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "coefficients",
+     "coeftable",
+     "fitted_probabilities",
+     "obs_kept",
+     "pseudo_r2",
+     "loglik",
+     "aic",
+     "bic",
+     "deviance",
+     "nobs",
+     "link",
+     "family",
+     "fixef_names"
+    ]
    },
    "arguments": [
     {

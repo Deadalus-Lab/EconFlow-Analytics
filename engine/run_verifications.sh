@@ -251,6 +251,13 @@ echo "== 11. doctests, counted AND run =="
 # floor that reads engine.n_implemented, and proves itself on three controls: a
 # deliberately wrong example that MUST fail, a correct one that MUST pass, and a
 # prose-only docstring that must collect 0 without erroring.
+# COUNTING WAS NOT ENOUGH AND THE COUNTED-ONLY FORM SHIPPED A FALSE EXAMPLE. The
+# wrapper tier was collected and never executed, so the floor proved an example
+# EXISTED and never that it was TRUE; the first 2.2 body landed asserting -0.1116
+# for a coefficient of -0.0376 and this step printed "all passing" over it.
+# Nothing else reaches those docstrings -- pyproject.toml sets testpaths to
+# tests/ and adds no --doctest-modules, and step 4 above runs plain pytest -- so
+# the gate now RUNS the wrapper tier's examples as well as counting them.
 $RUN python -m tests.controls.doctest_gate ||
   fail "the doctest gate failed; see the collected counts above"
 
@@ -259,8 +266,9 @@ echo "== 11b. a published table reaches the body it is delivered to =="
 # published table and delivers it through registry_put -> adapt_args ->
 # resolve_handle. Nothing about a green case proves the body READ it: a body
 # returning a constant passes any comparison whose expected value happens to
-# match. Every wrapper body is a stub, so no real body can be watched reading a
-# dataset either -- the proof is carried by four planted controls driven down
+# match. One wrapper body exists now and the rest of the tier is still stubs, so
+# a single real body cannot be made to reach the wrong verdict on demand and
+# cannot answer for this either -- the proof is carried by four planted controls driven down
 # the real path against a real node's contract. Two MUST be flagged (a constant,
 # and a payload that reads only the frame's length) and two MUST NOT (a sum over
 # the values, and a payload that declares no dependence on them).

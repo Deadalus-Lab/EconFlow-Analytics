@@ -37,7 +37,7 @@ from typing import Any
 
 import pytest
 
-from econflow_engine.metrics import find_manifest
+from econflow_engine.metrics import find_manifest, stub_ledger
 from econflow_engine.naming import category_package, wrapper_module_name
 
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
@@ -295,20 +295,100 @@ def test_the_validation_section_is_rendered_from_the_card_and_not_from_a_constan
     assert len(carrying) == 7, sorted(p.name for p in carrying)
 
 
-def test_no_wrapper_docstring_offers_a_doctest_example(
+def _implemented_pairs() -> set[tuple[str, str]]:
+    """The written bodies, keyed on THE MODULE AND THE NAME rather than the name.
+
+    ``stub_ledger`` yields ``(path, name)`` and this used to throw the path away.
+    A public function in module B whose name equals an implemented node in module
+    A was then classified as a body: excluded from the rule that no stub may carry
+    an example, and required by the other direction to carry one it has no way to
+    make true. ``tests/test_double_run_methods.py`` calls that same collision "the
+    dangerous half" and refuses it in the double-run gate; the pair key is what
+    refuses it here.
+    """
+    return {
+        (str(path.relative_to(WRAPPERS)), name)
+        for path, name in stub_ledger(WRAPPERS).implemented
+    }
+
+
+def _split_stubs_from_bodies(
+    wrapper_functions: list[tuple[str, ast.FunctionDef]],
+    implemented: set[tuple[str, str]],
+) -> tuple[list[tuple[str, ast.FunctionDef]], list[tuple[str, ast.FunctionDef]]]:
+    """Split the walked functions on the pair key. Shared with the control below."""
+    stubs = [
+        (label, node) for label, node in wrapper_functions if (label, node.name) not in implemented
+    ]
+    bodies = [
+        (label, node) for label, node in wrapper_functions if (label, node.name) in implemented
+    ]
+    return stubs, bodies
+
+
+def test_a_helper_colliding_with_another_module_s_body_is_read_as_a_stub(
     wrapper_functions: list[tuple[str, ast.FunctionDef]],
 ) -> None:
-    """Zero examples in the tier, and the parser that box 2.1.18 will use says so.
+    """THE CONTROL FOR THE PAIR KEY, and the collision is planted rather than hoped for.
+
+    Keyed on the bare name, an author's public helper in module B that happens to
+    share a name with module A's written body is classified as a BODY. It is then
+    dropped from the no-example-on-a-stub check and added to the every-body-
+    carries-an-example check -- a helper that can never satisfy the second and is
+    no longer watched by the first. Both halves are asserted here, and the
+    collision is asserted to be real under the old key so this cannot pass by
+    finding no collision at all.
+    """
+    implemented = _implemented_pairs()
+    assert implemented, "no body is written; this control would compare nothing"
+    body_label, body_name = sorted(implemented)[0]
+    impostor_label = next(label for label, _ in wrapper_functions if label != body_label)
+    impostor = ast.parse(f'def {body_name}() -> None:\n    """A helper, no example."""\n').body[0]
+    assert isinstance(impostor, ast.FunctionDef)
+
+    assert body_name in {name for _, name in implemented}, "the collision is not real"
+
+    stubs, bodies = _split_stubs_from_bodies(
+        [*wrapper_functions, (impostor_label, impostor)], implemented
+    )
+    assert (impostor_label, impostor) in stubs
+    assert (impostor_label, impostor) not in bodies
+    assert (body_label, body_name) in {(label, node.name) for label, node in bodies}
+
+
+def test_no_stub_docstring_offers_a_doctest_example(
+    wrapper_functions: list[tuple[str, ast.FunctionDef]],
+) -> None:
+    """No example on a body that RAISES, and the parser box 2.1.18 uses says so.
 
     An example against a body that raises NotImplementedError is a failure, and
     1456 of them would arrive on the day ``--doctest-modules`` is switched on.
     The example is written with the body, which is the only point at which one
     can be true.
+
+    THE RULE IS ABOUT STUBS AND USED TO BE WORDED AS "ZERO IN THE TIER", which
+    was the same statement while every body was a stub and stopped being one with
+    the first body written in phase 2.2. That body arrives with the example this
+    docstring has always asked for, and reading the old wording as a ceiling
+    would have made writing one a failure. The set that must carry none is
+    therefore narrowed to the stubs, by the SAME walk
+    ``.github/actions/assert-inventory/assert.sh`` counts ``n_implemented`` with,
+    and the count of examined functions is asserted below so that a narrowing to
+    nothing cannot pass.
+
+    THE OTHER DIRECTION IS ASSERTED TOO: an implemented body that carries NO
+    example is refused here, because ``tests/controls/doctest_gate.py`` floors
+    the collected count at ``engine.n_implemented`` and a body without one turns
+    that gate red with nothing naming the cause.
     """
     parser = doctest.DocTestParser()
+    stubs, bodies = _split_stubs_from_bodies(wrapper_functions, _implemented_pairs())
+    assert len(bodies) == inventory("engine", "n_implemented")
+    assert len(stubs) + len(bodies) == len(wrapper_functions)
+
     offenders = [
         f"{label}::{node.name}"
-        for label, node in wrapper_functions
+        for label, node in stubs
         if parser.get_examples(ast.get_docstring(node, clean=False) or "")
     ]
     modules = sorted(WRAPPERS.rglob("*.py"))
@@ -318,6 +398,12 @@ def test_no_wrapper_docstring_offers_a_doctest_example(
         if parser.get_examples(ast.get_docstring(ast.parse(path.read_text("utf-8"))) or "")
     ]
     assert not offenders, offenders[:20]
+    exampleless = [
+        f"{label}::{node.name}"
+        for label, node in bodies
+        if not parser.get_examples(ast.get_docstring(node, clean=False) or "")
+    ]
+    assert not exampleless, exampleless[:20]
     # THE POSITIVE CONTROL, AND THE CEILING ABOVE RESTS ENTIRELY ON IT. "zero
     # examples found" and "the parser was never looking" print the same result,
     # and the doctest floor in tests/controls/doctest_gate.py sits at 0, so it

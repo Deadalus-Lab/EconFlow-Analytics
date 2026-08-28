@@ -55,12 +55,12 @@ Run from `engine/`.
 |---|---:|---|
 | Generated-tier modules | **96** | `find src/econflow_engine/generated -name '*.py' \| wc -l` |
 | Generators | **4** | `find scripts -maxdepth 1 -name 'gen_*.py' -type f \| wc -l` |
-| Infrastructure modules | **29** | `find src -name '*.py' -not -path '*__pycache__*' -not -path 'src/econflow_engine/wrappers/*' -not -path 'src/econflow_engine/generated/*' \| wc -l` |
-| Test modules | **25** | `find tests -name 'test_*.py' -not -path '*__pycache__*' \| wc -l` |
+| Infrastructure modules | **30** | `find src -name '*.py' -not -path '*__pycache__*' -not -path 'src/econflow_engine/wrappers/*' -not -path 'src/econflow_engine/generated/*' \| wc -l` |
+| Test modules | **29** | `find tests -name 'test_*.py' -not -path '*__pycache__*' \| wc -l` |
 | Frozen parity verdicts | **4855** | `python3 -c "import json;print(json.load(open('artifacts/parity-fixtures.json'))['n_cases'])"` |
 | Recommendation fixtures | **114** | `python3 -c "import json;print(json.load(open('artifacts/recommend-fixtures.json'))['source']['n_fixtures'])"` |
 | Decision trees | **10** | `python3 -c "import json;print(len(json.load(open('artifacts/method-trees.json'))['trees']))"` |
-| Python files with an SPDX header | **819** | `find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 \| xargs -0 grep -l 'SPDX-License-Identifier' \| wc -l` |
+| Python files with an SPDX header | **826** | `find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 \| xargs -0 grep -l 'SPDX-License-Identifier' \| wc -l` |
 
 The catalogue's own headline counts — wrapper modules, categories, methods, cards, implementations
 written — are published in [`README.md`](README.md) instead, each beside its own command.
