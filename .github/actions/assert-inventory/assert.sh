@@ -174,18 +174,23 @@ case "$measured_written:$measured_stubs" in
 esac
 check n_implemented "$EXP_N_IMPLEMENTED" "$measured_written"
 
-# THE ARGUMENTS A METHOD IS RUN WITH, WHICH NOTHING IN THIS TREE SUPPLIES YET.
-# The double-run gate hashes a method's output twice, and it cannot call one
+# THE ARGUMENTS A METHOD IS RUN WITH, WHICH THIS DIRECTORY IS ONE OF TWO SOURCES
+# OF. The double-run gate hashes a method's output twice, and it cannot call one
 # without arguments. parity-fixtures.json holds argument-adapter verdicts and
-# node-specs.json holds argument kinds; neither is a call. This constant reads
-# "unmeasured" and therefore OWED, deliberately: the directory below does not
-# exist, so the count does not come back zero -- it comes back not at all, which
-# is the difference between a measurement and the absence of one. The shape of a
-# payload, where it goes and what produces it are written down in
-# engine/tests/controls/double_run.py, so that the first body author in 2.2 reads
-# the contract rather than inventing one against a red gate. NOT a bare `find`
-# with its error swallowed: a missing tree must say so in the report, exactly as
-# the absent lockfile and the absent SBOM do below.
+# node-specs.json holds argument kinds; neither is a call. Two things in the tree
+# ARE: a file under engine/tests/payloads/, which this constant counts, and an
+# admissible oracle case under engine/tests/oracle/, which it does not -- the
+# gate takes the union and this figure measures one half of it. That is why the
+# checks below are worded as a premise about bodies rather than as a claim that
+# no method can be run. This constant reads "unmeasured" and therefore OWED,
+# deliberately: the directory below does not exist, so the count does not come
+# back zero -- it comes back not at all, which is the difference between a
+# measurement and the absence of one. The shape of a payload, where it goes and
+# what produces it are written down in engine/tests/controls/double_run.py, so
+# that the first body author in 2.2 reads the contract rather than inventing one
+# against a red gate. NOT a bare `find` with its error swallowed: a missing tree
+# must say so in the report, exactly as the absent lockfile and the absent SBOM
+# do below.
 #
 # THE WORD IS CONDITIONAL ON A PREMISE THIS SCRIPT MEASURES, AND THE LINE STAYS.
 # A hard failure needed no premise: it could only ever be cleared by landing the
@@ -196,9 +201,9 @@ check n_implemented "$EXP_N_IMPLEMENTED" "$measured_written"
 #   the two counts must account for the whole catalogue -- a walk that stopped
 #     finding wrapper files would otherwise report an empty implemented set, and
 #     the premise would read true for the worst reason available;
-#   no method may carry a body -- the double-run gate cannot skip a method it was
-#     never given arguments for, so an empty implemented set is the one state in
-#     which the absent payload tree costs nothing.
+#   no method may carry a body -- an empty implemented set is the one state in
+#     which the absent payload tree provably costs nothing, because there is
+#     nothing for either half of the union to be missing a call for.
 if [ "$EXP_INVOCATION_PAYLOADS" = "unmeasured" ] && [ ! -d tests/payloads ]; then
   measured_catalogue=$((measured_written + measured_stubs))
   if [ "$measured_catalogue" != "$EXP_METHODS" ]; then
@@ -211,9 +216,12 @@ if [ "$EXP_INVOCATION_PAYLOADS" = "unmeasured" ] && [ ! -d tests/payloads ]; the
   elif [ "$measured_written" -ne 0 ]; then
     printf '  FAIL  %-24s %s method(s) carry a body: %s\n' \
       invocation_payloads "$measured_written" "$measured_names"
-    echo "        A method with a body has no committed arguments to be run with, so"
-    echo "        the double-run gate would skip it and report success. Land its"
-    echo "        payload under engine/tests/payloads/ and replace"
+    echo "        A body may already be double-run: the gate reaches one through an"
+    echo "        admissible oracle case as well as through engine/tests/payloads/,"
+    echo "        and it refuses to go green while skipping any implemented method."
+    echo "        What is stale here is the WORD, whose premise was that no method"
+    echo "        carries a body. Retire it in its own reviewed diff: land the"
+    echo "        payload of any body that has no oracle case, then replace"
     echo "        engine.invocation_payloads with the count its command returns."
     fail=1
   else

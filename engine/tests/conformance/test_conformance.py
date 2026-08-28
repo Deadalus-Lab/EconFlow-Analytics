@@ -895,6 +895,45 @@ def _run_case(case: Case, builder: Builder) -> tuple[str, Any]:
             registry_clear(handle)
 
 
+# --------------------------------------------------------------------------- #
+# the seam the determinism gate reuses
+# --------------------------------------------------------------------------- #
+#
+# BOX 2.1.14's METHOD LEG BINDS A CALL EXACTLY AS THIS HARNESS BINDS A CASE, and
+# these two functions are how it does so without a second copy of the binding.
+# The alternative was for `tests/controls/double_run.py` to re-implement
+# `_materialise` -- fixture substitution through `registry_put`, `$produce` at
+# depth 1, per-handle cleanup -- and a second implementation of that would be
+# free to disagree with this one in silence, which is the defect this tree keeps
+# finding rather than a hypothetical. There is one definition of how a committed
+# call reaches a node, and it is `_run_case`.
+
+
+def admissible_calls() -> list[Case]:
+    """Every admissible oracle case, as calls other gates may re-run.
+
+    A case carries ``fn`` and ``inputs``, and that pair IS an invocation payload:
+    the determinism gate reuses it rather than requiring a second file saying the
+    same thing. Returned as a NEW LIST so a caller cannot add to or remove from
+    the corpus this module's own parametrisation reads. That is the whole extent
+    of the protection: the ``Case`` objects are shared, and ``Case`` is frozen
+    only at the top level -- ``inputs`` is a plain mutable dict, so a caller that
+    writes into it edits the case every other reader sees. Copy it before
+    changing it.
+    """
+    return list(_ADMISSIBLE)
+
+
+def run_call(case: Case) -> tuple[str, Any]:
+    """Run one call through the production door and report ``(state, payload)``.
+
+    The comparison fields of ``case`` -- ``expected``, ``tolerance_class`` and the
+    two tolerances -- are NOT read here. A caller that only needs the call may
+    leave them empty, which is what a payload file with no published number does.
+    """
+    return _run_case(case, build_fixture)
+
+
 @cache
 def _outcomes() -> dict[str, tuple[str, Any]]:
     """Run every admissible case ONCE. ``(state, payload-or-message)`` per case.

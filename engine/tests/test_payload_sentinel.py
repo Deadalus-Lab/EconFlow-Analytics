@@ -1,22 +1,32 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""The conditional OWED sentinel on ``engine.invocation_payloads``, in three states.
+"""``engine.invocation_payloads``, in every state its gate can reach.
 
 WHY THIS SUITE EXISTS, AND WHY IT IS NOT OPTIONAL. A hard ``unmeasured`` failure
 needs no test: it can only be cleared by landing the artifact, so nothing can
-make it wrong. Once the sentinel is CONDITIONAL its green rests on a counter
+make it wrong. Once the sentinel became CONDITIONAL its green rested on a counter
 instead, and a counter can be wrong in the quiet direction -- a wrapper walk that
 stops finding files reports an empty implemented set, the premise reads true, and
 the gate goes green having examined nothing. That is the shape ARCHITECTURE.md
 11.1 refuses and the shape this tree has hit six times.
 
-So each of the three branches is exercised against a real run of the real script.
-Two of them read the real manifest, as it stands or with one constant moved, which
-is why they cost nothing. The third needs a wrapper body, and gets one from a
-HARDLINK MIRROR of ``engine/``: hardlinks make the copy 0.04 s and leave every count
-identical -- ``find -type f`` is true of a hardlink and false of a symlink, and
-``rglob`` does not descend a symlinked directory, so neither of the cheaper
-mirrors would have measured the same tree. A planted file is unlinked before it
-is written, because writing through a hardlink would edit the repository.
+THE WORD WAS RETIRED BY THE FIRST WRAPPER BODY, AND THE BRANCH IT GUARDED IS
+STILL IN THE SCRIPT. ``engine/tests/payloads/`` now exists and the constant reads
+the count that directory returns, which is 0: the one implemented method is
+reached by its oracle case, and the gate takes the union of the two sources. So
+the resting tree is ``ok`` rather than ``OWED``, and the sentinel's own branch --
+the catalogue sum guard and the refusal to rest on a premise that no method
+carries a body -- is no longer reachable from the committed manifest. It is
+reached HERE instead, against a mirror with the directory removed and the word
+restored, because a branch that survives in the script with nothing exercising it
+is a branch that has quietly stopped working.
+
+Each state is exercised against a real run of the real script. The ones that need
+a wrapper body, or need one absent, get a HARDLINK MIRROR of ``engine/``:
+hardlinks make the copy 0.04 s and leave every count identical -- ``find -type f``
+is true of a hardlink and false of a symlink, and ``rglob`` does not descend a
+symlinked directory, so neither of the cheaper mirrors would have measured the
+same tree. A planted file is unlinked before it is written, because writing
+through a hardlink would edit the repository.
 """
 
 from __future__ import annotations
@@ -85,7 +95,14 @@ def _manifest(tmp_path: Path, **engine_overrides: object) -> Path:
 
 
 def _mirror(tmp_path: Path) -> Path:
-    """A writable hardlink mirror of engine/, with the workspace lock beside it."""
+    """A writable hardlink mirror of engine/, with the workspace lock beside it.
+
+    ``.omc`` IS IGNORED HERE FOR THE SAME REASON AS THE OTHER THREE, and it was
+    missing while ``tests/test_double_run_methods.py``'s mirror already skipped
+    it: agent runtime state is not part of the tree under test, and hardlinking
+    a live session's files into a temporary directory is a copy nobody asked for.
+    The two mirrors now ignore the same set.
+    """
     root = tmp_path / "root"
     root.mkdir()
     os.link(REPO_ROOT / "uv.lock", root / "uv.lock")
@@ -94,13 +111,25 @@ def _mirror(tmp_path: Path) -> Path:
         ENGINE_ROOT,
         engine,
         copy_function=os.link,
-        ignore=shutil.ignore_patterns("__pycache__", "mutants", ".venv"),
+        ignore=shutil.ignore_patterns("__pycache__", "mutants", ".venv", ".omc"),
     )
     return engine
 
 
+def _without_the_payload_tree(tmp_path: Path) -> Path:
+    """A mirror with ``tests/payloads/`` removed, which is where the word applies.
+
+    ``shutil.rmtree`` on a tree of HARDLINKS unlinks the mirror's names and leaves
+    the repository's own files alone; that invariant is what the mirror is for and
+    it is asserted in the test below rather than assumed here.
+    """
+    engine = _mirror(tmp_path)
+    shutil.rmtree(engine / "tests" / "payloads")
+    return engine
+
+
 def _plant_one_body(engine: Path) -> str:
-    """Give exactly one public wrapper function a body, and name it.
+    """Give exactly one MORE public wrapper function a body, and name it.
 
     One statement is inserted ahead of the emitted raise, so the function stops
     being a stub while the CATALOGUE SIZE does not move: the implemented count
@@ -111,57 +140,198 @@ def _plant_one_body(engine: Path) -> str:
     module = next(
         p
         for p in sorted((engine / "src" / "econflow_engine" / "wrappers").rglob("*.py"))
-        if p.name != "__init__.py"
+        if p.name != "__init__.py" and STUB_RAISE in p.read_text(encoding="utf-8")
     )
     text = module.read_text(encoding="utf-8")
     head, _, tail = text.partition(STUB_RAISE)
-    assert tail, f"no emitted stub raise in {module}"
     function = head.rsplit("\ndef ", 1)[1].split("(", 1)[0]
     module.unlink()  # never write through a hardlink: it would edit the repository
     module.write_text(f"{head}    _ = None\n{STUB_RAISE}{tail}", encoding="utf-8")
     return function
 
 
-def test_the_resting_tree_is_green_and_still_says_owed() -> None:
-    """POSITIVE. Nothing implemented, no payload tree: owed, said aloud, exit 0.
+def _implemented() -> int:
+    """What the committed manifest says the tree carries. Read, never written down."""
+    return int(json.loads(INVENTORY.read_text(encoding="utf-8"))["engine"]["n_implemented"])
 
-    The OWED line must survive. Its visibility is the whole point of the marker;
-    only its exit code follows the premise.
+
+def test_the_resting_tree_is_green_and_the_word_is_retired() -> None:
+    """POSITIVE. The directory exists, the count is measured, and the run is clean.
+
+    The measured count is 0 and that is a MEASUREMENT rather than an absence: the
+    one implemented method arrives with an oracle case, which the double-run gate
+    reads as its call, so no payload file was written for it. The distinction the
+    word used to carry -- a count that does not come back at all -- is now carried
+    by the directory's existence.
     """
     result = _run(ENGINE_ROOT, INVENTORY)
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "OWED" in _payload_line(result)
+    line = _payload_line(result)
+    assert line.startswith("  ok"), line
+    assert "OWED" not in result.stdout, result.stdout
+    assert _implemented() > 0, (
+        "no wrapper body is implemented, so the word was retired without the "
+        "change that retires it"
+    )
 
 
-def test_an_implemented_body_turns_the_sentinel_red_and_names_it(tmp_path: Path) -> None:
-    """NEGATIVE. One body exists, the word is still there: red, and it names the method.
+def test_a_count_that_does_not_match_the_directory_is_red(tmp_path: Path) -> None:
+    """NEGATIVE. The counter, in the direction a counter goes wrong quietly.
 
-    The manifest also carries n_implemented=1, because the person who writes the
-    first body must bump it. That leaves the payload sentinel as the ONLY thing
-    that can fail, which is what the last assertion pins.
+    This is what the OWED branch used to protect and what now protects the tree in
+    its place: the constant is compared against what ``find`` returns, so a
+    payload landing without a reviewed one-line diff is red, and so is a diff that
+    moves the number without landing a payload.
     """
-    engine = _mirror(tmp_path)
-    planted = _plant_one_body(engine)
-
-    result = _run(engine, _manifest(tmp_path, n_implemented=1))
+    result = _run(ENGINE_ROOT, _manifest(tmp_path, invocation_payloads=7))
 
     assert result.returncode == 1, result.stdout + result.stderr
     line = _payload_line(result)
     assert line.startswith("  FAIL"), line
-    assert planted in line, f"{planted} is not named in {line!r}"
+    assert "7" in line and "0" in line, line
     assert _failing_labels(result) == {"invocation_payloads"}, result.stdout
+
+
+def test_a_payload_that_lands_without_a_diff_is_red(tmp_path: Path) -> None:
+    """NEGATIVE. The same rule from the other side, on a real file in a real tree."""
+    engine = _mirror(tmp_path)
+    landed = engine / "tests" / "payloads" / "c35_resampling_inference" / "multiple_testing"
+    landed.mkdir(parents=True)
+    (landed / "planted.json").write_text("{}", encoding="utf-8")
+
+    result = _run(engine, INVENTORY)
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert _payload_line(result).startswith("  FAIL"), result.stdout
+    assert _failing_labels(result) == {"invocation_payloads"}, result.stdout
+
+
+def test_an_underscored_file_is_apparatus_and_is_not_counted(tmp_path: Path) -> None:
+    """POSITIVE. The exclusion both readers apply, asserted rather than assumed.
+
+    ``engine/tests/payloads/_readme.json`` is what makes the directory exist and
+    the count measurable. If ``assert.sh`` counted it the resting tree would read
+    1, and the committed 0 would be wrong in the quiet direction.
+    """
+    engine = _mirror(tmp_path)
+    (engine / "tests" / "payloads" / "_second.json").write_text("{}", encoding="utf-8")
+
+    result = _run(engine, INVENTORY)
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _payload_line(result).startswith("  ok"), result.stdout
+
+
+def test_the_word_still_refuses_a_tree_that_carries_a_body(tmp_path: Path) -> None:
+    """NEGATIVE. The retired branch, reached where it still applies, and it names it.
+
+    The committed manifest no longer carries the word, so this branch is dead from
+    the tree's own side. It is exercised against a mirror with the payload tree
+    removed and the word restored, because the alternative is a branch that stays
+    in the script with nothing proving it still fires.
+    """
+    engine = _without_the_payload_tree(tmp_path)
+
+    result = _run(engine, _manifest(tmp_path, invocation_payloads="unmeasured"))
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    line = _payload_line(result)
+    assert line.startswith("  FAIL"), line
+    assert "run_binomial_fe_glm" in line, f"the body in the tree is not named in {line!r}"
+    assert _failing_labels(result) == {"invocation_payloads"}, result.stdout
+
+
+def test_the_word_rests_green_only_where_no_body_exists(tmp_path: Path) -> None:
+    """POSITIVE for the retired branch. Its premise, on a tree that satisfies it.
+
+    Every body in the mirror is turned back into a stub, which is the state the
+    word was written for. The OWED line must survive there: its visibility was the
+    whole point of the marker, and only its exit code followed the premise.
+    """
+    engine = _without_the_payload_tree(tmp_path)
+    module = engine / "src" / "econflow_engine" / "wrappers"
+    for path in sorted(module.rglob("*.py")):
+        if path.name == "__init__.py":
+            continue
+        text = path.read_text(encoding="utf-8")
+        head, marker, tail = text.partition("# --- gen_wrappers: header end ---")
+        if not marker or STUB_RAISE in tail:
+            continue
+        stubbed = head + marker + "\n\n\ndef _unused() -> None:\n    return None\n"
+        path.unlink()
+        path.write_text(stubbed, encoding="utf-8")
+
+    result = _run(
+        engine,
+        _manifest(
+            tmp_path,
+            invocation_payloads="unmeasured",
+            n_implemented=0,
+            methods=_implemented_stub_total(engine),
+        ),
+    )
+
+    assert "OWED" in _payload_line(result), result.stdout
+
+
+def _implemented_stub_total(engine: Path) -> int:
+    """How many stubs the flattened mirror holds, so the sum guard is satisfied.
+
+    The flattening above deletes node functions rather than filling them in, so
+    the catalogue shrinks and ``methods`` must shrink with it -- otherwise the sum
+    guard fires and this test would report the premise branch by way of a
+    different failure.
+    """
+    total = 0
+    for path in sorted((engine / "src" / "econflow_engine" / "wrappers").rglob("*.py")):
+        if path.name != "__init__.py":
+            total += path.read_text(encoding="utf-8").count(STUB_RAISE)
+    return total
 
 
 def test_the_catalogue_sum_guard_fires(tmp_path: Path) -> None:
     """NEGATIVE. Implemented plus stub must account for every method in the catalogue.
 
     Without this, a walk that found nothing would report an empty implemented set
-    and the premise would read true for the worst possible reason.
+    and the word's premise would read true for the worst possible reason. Reached
+    on the same mirror as the branch it belongs to.
     """
-    result = _run(ENGINE_ROOT, _manifest(tmp_path, methods=1457))
+    engine = _without_the_payload_tree(tmp_path)
+
+    result = _run(
+        engine, _manifest(tmp_path, invocation_payloads="unmeasured", methods=1457)
+    )
 
     assert result.returncode == 1, result.stdout + result.stderr
     line = _payload_line(result)
     assert line.startswith("  FAIL"), line
     assert "1457" in line and "1456" in line, line
+
+
+def test_a_second_body_is_named_beside_the_first(tmp_path: Path) -> None:
+    """NEGATIVE, and the CONTROL over the mirror itself.
+
+    A plant must reach the report, or every red above could be the mirror rather
+    than the plant. The repository's own copy of the planted module is compared
+    before and after, because writing through a hardlink would edit it.
+    """
+    engine = _without_the_payload_tree(tmp_path)
+    planted = _plant_one_body(engine)
+    committed = sorted((ENGINE_ROOT / "src" / "econflow_engine" / "wrappers").rglob("*.py"))
+    before = {path: path.read_bytes() for path in committed}
+
+    result = _run(
+        engine,
+        _manifest(
+            tmp_path, invocation_payloads="unmeasured", n_implemented=_implemented() + 1
+        ),
+    )
+
+    assert {path: path.read_bytes() for path in committed} == before, (
+        "the mirror wrote through a hardlink and edited the repository"
+    )
+    assert result.returncode == 1, result.stdout + result.stderr
+    line = _payload_line(result)
+    assert line.startswith("  FAIL"), line
+    assert planted in line, f"{planted} is not named in {line!r}"
