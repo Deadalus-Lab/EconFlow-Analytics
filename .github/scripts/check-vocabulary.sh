@@ -89,8 +89,9 @@
 #   3. a NEGATIVE control -- a line of real mathematics, a citation, an author's
 #      initial and a pytest node ID -- that it must NOT flag, so the token list
 #      cannot silently decay into one that matches nothing that matters
-#   4. a SECOND negative-direction control on the one rule here that has been
-#      narrowed, asserting the narrowing did not reach further than intended
+#   4. NEGATIVE-DIRECTION controls, one per narrowing of the one rule here
+#      that has been narrowed, each asserting that its narrowing did not
+#      reach further than intended
 #
 # Binary files are skipped: there is no prose in a parquet fixture to fix.
 #
@@ -183,7 +184,36 @@ SYNTAX = (
     # not, and measuring the four combinations is what showed it: the widening
     # suppressed no node ID the guard had not already suppressed, and it dropped
     # a namespace call written after a dot. It is not here.
-    r"(?<![:\w])(?!pkg::fn|foo::bar)[A-Za-z][A-Za-z0-9._]*(?<!\.py)::[A-Za-z_.]|"
+    # `(?!(?:error|ignore|always|default|module|once)::)` KEEPS A PYTEST WARNING
+    # FILTER OUT, on the same terms. A filterwarnings entry is
+    # `action:message:category:module:lineno`, so
+    # `"ignore::statsmodels.tools.sm_exceptions.ConvergenceWarning"` names a
+    # Python exception class in pytest's own filter syntax -- this project's own
+    # vocabulary, not another ecosystem's namespace, and the two suites in
+    # c16_limited_dependent cannot write it in any other form. `filterwarnings =
+    # ["error", ...]` in engine/pyproject.toml makes every warning fatal exactly
+    # so that a wrapper permitted to provoke one says so on its own test;
+    # deleting the mark to quiet this gate would delete that statement.
+    # MEASURED RATHER THAN ASSERTED, so the next reader is told no more than was
+    # checked: neutering both marks leaves `run_verifications.sh` green on
+    # today's fixtures, so they are a standing permission for an optimiser that
+    # may give up, not a suppression that is currently firing. Either way the
+    # string is the suites' own vocabulary, which is what this rule turns on.
+    #
+    # THOSE SIX ACTIONS ARE PYTEST'S WHOLE SET, and the exemption is anchored to
+    # the set rather than to "anything before a `::`", which would delete the
+    # rule. It is checked at the START of the match, not at the `::` where the
+    # `.py` guard sits, because an action word is variable-width and a Python
+    # lookbehind is not -- one wide enough to read `default` back from the
+    # colons would read the tail of `mydefault::somefn` too and exempt a real
+    # namespace call. The leading `(?<![:\w])` is what makes the start position
+    # sufficient: inside `ignore::` no later position can begin a match, so
+    # there is nothing for the scan to restart on. A package name that merely
+    # begins or ends with an action still fires, which ACTION_LIKE_NAMES below
+    # asserts in both directions.
+    r"(?<![:\w])(?!pkg::fn|foo::bar)"
+    r"(?!(?:error|ignore|always|default|module|once)::)"
+    r"[A-Za-z][A-Za-z0-9._]*(?<!\.py)::[A-Za-z_.]|"
     r"%>%|%in%|"
     # a leading-dot function name, the "internal function" convention of another
     # ecosystem. Anchored to a known engine-internal prefix so it cannot reach a
@@ -292,7 +322,9 @@ NEGATIVE = (
     # pytest's own selector syntax, in the three shapes the tree writes it.
     "tests/test_cli.py::test_list_prints_every_node_one_per_line; "
     '"tests/conformance/test_conformance.py::test_the_harness_compares_something_today"; '
-    "# tests/test_gates_primitives.py::test_in_range_blocks_a_non_number"
+    "# tests/test_gates_primitives.py::test_in_range_blocks_a_non_number; "
+    # pytest's own warning-filter syntax, as the c16 suites write it.
+    '"ignore::statsmodels.tools.sm_exceptions.ConvergenceWarning"'
 )
 
 # --- anti-vacuity 4: the namespace rule still reaches past a dot ----------
@@ -303,6 +335,23 @@ AFTER_A_DOT = "as in .mypkg::somefn, a namespace written straight after a dot"
 if not PATTERN.search(AFTER_A_DOT):
     sys.exit("FAIL: a namespace call written after a dot was NOT detected; the "
              "leading lookbehind has been widened and the rule now has a blind spot.")
+# --- anti-vacuity 4b: the filter-action exemption reaches no further ------
+# The six actions are exempt; a package name that merely BEGINS or ENDS with one
+# is not. The two directions are asserted SEPARATELY, for the reason the
+# positive controls are: one string holding both is satisfied by whichever half
+# matches first, so the exemption could widen in the other direction and this
+# would still report success. Neither `ignored` nor `myonce` appears in any
+# token list here, so nothing else in this file would go red if the exemption
+# widened into `(?!\w+::)` and took the whole rule with it.
+ACTION_LIKE_NAMES = (
+    "as in ignored::somefn, a package name that only begins like an action",
+    "as in myonce::somefn, a package name that only ends like an action",
+)
+unmatched = [name for name in ACTION_LIKE_NAMES if not PATTERN.search(name)]
+if unmatched:
+    sys.exit(f"FAIL: {len(unmatched)} namespace call(s) whose package merely "
+             "begins or ends with a pytest filter action were NOT detected; the "
+             f"filter-action exemption has widened past the six: {unmatched}")
 flagged = [m.group(0) for m in PATTERN.finditer(NEGATIVE)]
 if flagged:
     sys.exit("FAIL: the negative control was flagged on "
@@ -328,5 +377,5 @@ if findings:
 
 print(f"ok: the vocabulary is this project's own "
       f"(examined {examined} files, floor {floor}, "
-      f"{len(POSITIVE)} positive control(s) and 2 negative control(s) all fired).")
+      f"{len(POSITIVE)} positive control(s) and 4 negative control(s) all fired).")
 PY
