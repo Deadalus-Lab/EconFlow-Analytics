@@ -67,6 +67,7 @@ from econflow_engine.gates.estimation import (
     require_finite_estimates,
     require_strictly_inside,
     require_supplied,
+    require_within_bounds,
 )
 from econflow_engine.gates.primitives import (
     GATE_DETAIL_CODES,
@@ -114,4 +115,5 @@ __all__ = [
     "require_strictly_inside",
     "require_supplied",
     "require_variance",
+    "require_within_bounds",
 ]

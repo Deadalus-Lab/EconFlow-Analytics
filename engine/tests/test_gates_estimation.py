@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""The thirteen estimator refusals, each with the input it passes and the one it blocks.
+"""The seventeen names this module exports, each with the input it passes and the one it blocks.
 
 PAIRED THROUGHOUT, for the reason every gate suite in this package is paired: a
 rule tested only on the input it refuses is indistinguishable from one that
@@ -38,6 +38,7 @@ from econflow_engine.gates.estimation import (
     require_finite_estimates,
     require_strictly_inside,
     require_supplied,
+    require_within_bounds,
 )
 from econflow_engine.gates.primitives import require_in_range
 
@@ -621,3 +622,72 @@ class TestRefuseACombination:
         assert "f: zeros='hurdle' with an exposure is not available." in message
         assert "statsmodels 0.14.6 raises NotImplementedError for it." in message
         assert "Divide the response by the exposure, or drop the hurdle." in message
+
+
+class TestRequireWithinBounds:
+    """The CLOSED interval over a VECTOR, which neither sibling can express."""
+
+    def test_a_vector_inside_the_interval_passes(self) -> None:
+        require_within_bounds(
+            pd.Series([0.0, 0.5, 1.0]),
+            low=0.0,
+            high=1.0,
+            fn="f",
+            arg="y",
+            remedy="-",
+        )
+
+    def test_both_endpoints_are_admitted_where_the_open_sibling_refuses_them(
+        self,
+    ) -> None:
+        """THE WHOLE POINT OF THE PAIR: 0 and 1 are a share, and are not a beta density."""
+        require_within_bounds(
+            pd.Series([0.0, 1.0]), low=0.0, high=1.0, fn="f", arg="y", remedy="-"
+        )
+        with pytest.raises(GateError) as refused:
+            require_strictly_inside(
+                pd.Series([0.0, 1.0]), low=0.0, high=1.0, fn="f", arg="y"
+            )
+        assert refused.value.detail_code == "precondition-domain"
+
+    def test_a_value_outside_reports_how_many_broke_the_rule_and_the_first(
+        self,
+    ) -> None:
+        with pytest.raises(GateError) as refused:
+            require_within_bounds(
+                pd.Series([1.4, 0.5, -0.3]),
+                low=0.0,
+                high=1.0,
+                fn="f",
+                arg="y",
+                remedy="Divide a percentage by 100.",
+            )
+        assert refused.value.reason_code == "other"
+        assert refused.value.detail_code == "precondition-domain"
+        assert "2 value(s) outside [0.0, 1.0]" in str(refused.value)
+        assert "the first is 1.4" in str(refused.value)
+        assert "Divide a percentage by 100." in str(refused.value)
+
+    def test_a_missing_value_is_refused_as_missing_rather_than_as_out_of_range(
+        self,
+    ) -> None:
+        """A ``nan`` is not outside the interval; it is not a number at all, and
+        reporting it as out of range is true and useless."""
+        with pytest.raises(GateError) as refused:
+            require_within_bounds(
+                pd.Series([0.5, float("nan")]),
+                low=0.0,
+                high=1.0,
+                fn="f",
+                arg="y",
+                remedy="-",
+            )
+        assert refused.value.detail_code == "precondition-missing"
+
+    def test_a_gate_given_an_inverted_interval_says_so_against_itself(self) -> None:
+        """``gate-argument`` is the wrapper AUTHOR's mistake and never the caller's."""
+        with pytest.raises(GateError) as refused:
+            require_within_bounds(
+                pd.Series([0.5]), low=1.0, high=0.0, fn="f", arg="y", remedy="-"
+            )
+        assert refused.value.detail_code == "gate-argument"

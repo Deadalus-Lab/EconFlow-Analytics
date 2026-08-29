@@ -31,6 +31,14 @@ fourteen times over and still return a payload of nulls from a fit that
 converged on ``nan`` -- which is what the second 2.2 body did until this
 landed.
 
+THE THIRD BODY ADDED ONE, AND IT IS THE THIRD CORNER OF A SET THAT NEEDED ALL
+THREE. :func:`require_within_bounds` is the CLOSED interval over a VECTOR:
+:func:`~econflow_engine.gates.primitives.require_in_range` is closed and takes one
+number, :func:`require_strictly_inside` takes a vector and is open, and a response
+that is a PROPORTION is the case neither answers -- every observation in ``[0, 1]``
+with both endpoints admissible data. It carries the same detail code as its two
+siblings and no new one.
+
 TWO OF THE FIRST SIX ARE A SECURITY BOUNDARY AND ARE NOT INTERCHANGEABLE WITH THE
 REST.
 :func:`require_a_bare_name` and :func:`require_an_allowlisted_specification` guard
@@ -85,6 +93,7 @@ __all__ = [
     "require_finite_estimates",
     "require_strictly_inside",
     "require_supplied",
+    "require_within_bounds",
 ]
 
 #: The packages whose exceptions are the ESTIMATOR objecting rather than a defect
@@ -244,6 +253,54 @@ def require_strictly_inside(
             f'"{arg}" = {value} lies outside the open interval {interval}. The '
             f"endpoints are excluded rather than rounded to: at {low} and at {high} "
             f"the quantity this method reports is degenerate rather than extreme.",
+            "precondition-domain",
+        )
+
+
+def require_within_bounds(
+    value: pd.Series, *, low: float, high: float, fn: str, arg: str, remedy: str
+) -> None:
+    """Refuse a VECTOR carrying a value outside the CLOSED interval ``[low, high]``.
+
+    THE THIRD CORNER OF A SET THAT NEEDED ALL THREE.
+    :func:`~econflow_engine.gates.primitives.require_in_range` is closed and takes
+    ONE number; :func:`require_strictly_inside` takes a vector and is open. A
+    response that is a PROPORTION is the case neither answers: every observation
+    must lie in ``[0, 1]``, and both endpoints are admissible data -- a household
+    that spends none of its income on food, a plan in which nobody participates.
+    Asking the open rule would refuse them, and asking the closed scalar rule
+    would only see one number.
+
+    MEASURED against statsmodels 0.14.6 on the 38 food-expenditure households of
+    Ferrari and Cribari-Neto (2004). The Bernoulli quasi-likelihood of Papke and
+    Wooldridge (1996) FITS a response outside the unit interval and says nothing:
+    the published shares with the first replaced by 1.4 return
+    ``llf = -17.215557434559905``, and with it replaced by -0.3,
+    ``llf = -15.03350281799101``. Neither raises, and neither warns under
+    ``warnings.simplefilter('always')``. A share reported in percent is how a
+    caller reaches that by accident, which is what ``remedy`` is for.
+
+    MISSING IS CHECKED FIRST, by the primitive that owns that question, for the
+    reason :func:`require_counts` states: a ``nan`` is not outside the interval,
+    it is not a number, and reporting it as out of range is true and useless.
+    """
+    if low > high:
+        raise _refuse(
+            fn,
+            f"the gate was given low = {low} above high = {high} for \"{arg}\".",
+            "gate-argument",
+        )
+    require_no_missing(value, fn=fn, arg=arg)
+    array = np.asarray(value, dtype=float)
+    outside = array[(array < low) | (array > high)]
+    if outside.size:
+        raise _refuse(
+            fn,
+            f'"{arg}" carries {outside.size} value(s) outside [{low}, {high}] (the '
+            f"first is {outside[0]}). Both endpoints are admissible and everything "
+            f"beyond them is not: this method is defined on that interval and fits "
+            f"anything else without complaint, reporting an estimate of a model "
+            f"nobody specified. {remedy}",
             "precondition-domain",
         )
 

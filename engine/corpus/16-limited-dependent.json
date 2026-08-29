@@ -377,10 +377,10 @@
     }
    ],
    "output_key_fields": [
-    "params: coefficients on the link scale",
-    "marginal_effects: on the proportion scale, which is what is interpretable",
-    "precision: the beta precision parameter, where fitted",
-    "boundary_share: proportion at exactly zero or one"
+    "params: mean-equation coefficients on the link scale, keyed by term -- the intercept this node adds under the name const, and one entry per covariate -- each carrying its estimate, standard error, z statistic, p-value and the confidence interval at conf_level. The standard errors are the observed-information ones statsmodels reports, NOT the expected-information ones Ferrari and Cribari-Neto (2004) Table 2 prints",
+    "marginal_effects: the average effect of each covariate on the PROPORTION rather than on the link scale, computed as the sample mean of the inverse link's derivative times the coefficient, with no entry for the intercept. On the fractional branch it reproduces the library's own get_margeff(at='overall', method='dydx') to 5e-16 on all four links; the beta branch has no library answer at all, so the same arithmetic carries both",
+    "precision: phi on its natural scale where it is one number, the precision equation's coefficients on the log scale where precision_covariates make phi vary by observation, and null for model='fractional', which estimates no precision parameter",
+    "boundary_share: the proportion of observations at exactly zero or one, by exact equality rather than by tolerance, which is what says whether model='beta' was admissible at all"
    ],
    "chart_kind": "table",
    "interpretation_traps": [

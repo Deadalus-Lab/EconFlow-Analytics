@@ -164,7 +164,38 @@ def require_no_missing(value: object, *, fn: str, arg: str) -> None:
 
 
 def require_variance(value: object, *, fn: str, arg: str) -> None:
-    """Refuse a constant input to a method whose statistic divides by its spread."""
+    """Refuse a constant input to a method whose statistic divides by its spread.
+
+    TWO CONDITIONS, AND THE SECOND WAS ADDED BECAUSE THE FIRST MISSES A CONSTANT
+    VECTOR. ``np.var`` subtracts a mean it computed by summation, and for a value
+    that is not exactly representable the subtraction does not cancel: MEASURED,
+    ``np.var(np.full(38, 0.3), ddof=1)`` is ``1.2659085472296641e-32`` and this
+    rule admitted it, while ``np.full(38, 0.5)`` -- a power of two, summed exactly
+    -- gives ``0.0`` and was refused. The same data, refused or admitted by whether
+    its value happens to be a dyadic rational. Found by the third body written in
+    phase 2.2: a fractional-response fit over 38 identical shares of 0.3 CONVERGES,
+    reporting slopes of -6.9e-18 and standard errors to match, behind a
+    ``PerfectSeparationWarning`` that a caller outside this repository's ``-W
+    error`` suite never sees.
+
+    ``min == max`` IS THE EXACT QUESTION and it is asked BESIDE the variance rather
+    than in place of it. The variance arm still refuses a vector whose spread
+    underflows to zero without its values being equal, which the exact arm admits.
+    THE WITNESS FOR THAT IS ``[1e-162, 1.5e-162]`` AND NOT ``[1.0, 1.0 + 1e-300]``,
+    which is what this paragraph claimed until a review measured it: ``1e-300`` is
+    far below the spacing of 1.0, so that literal IS ``[1.0, 1.0]`` and the exact
+    arm answers it. Measured on the real witness -- ``min != max`` is true and
+    ``np.var(..., ddof=1)`` is ``0.0``, so only the variance arm refuses it.
+
+    THAT ARM ANSWERS IN THE PRODUCTION ERROR STATE AND NOT UNDER A RAISING ONE,
+    which is a pre-existing property of computing a variance here rather than
+    something either arm introduced: under ``np.seterr(all='raise')`` the same
+    witness makes ``np.var`` itself raise ``FloatingPointError: underflow
+    encountered in square`` before this function can refuse anything. It is
+    recorded rather than worked around, because guarding the variance is a change
+    to this primitive's behaviour under every caller and belongs to whoever needs
+    it.
+    """
     array = _numeric_vector(value, fn=fn, arg=arg)
     if array.size < 2:
         raise _refuse(
@@ -172,7 +203,7 @@ def require_variance(value: object, *, fn: str, arg: str) -> None:
             f'"{arg}" carries {array.size} observation(s); variance is undefined below 2.',
             "precondition-sample-size",
         )
-    if float(np.var(array, ddof=1)) <= 0.0:
+    if float(np.min(array)) == float(np.max(array)) or float(np.var(array, ddof=1)) <= 0.0:
         raise _refuse(
             fn,
             f'"{arg}" is constant (zero variance). Every statistic this method reports '
