@@ -14,12 +14,11 @@ interpretation traps recorded against it.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any, Literal
+
+import pandas as pd
 
 from econflow_engine.generated.args.c16_limited_dependent import NODE_META, wire_model
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
@@ -31,27 +30,17 @@ __all__ = [
 
 # --- gen_wrappers: header end ---
 
-# PANDAS IS IMPORTED AGAIN HERE, AT RUN TIME, AND THE HEADER'S TYPE_CHECKING
-# IMPORT ABOVE IS LEFT EXACTLY AS EMITTED because `gen_wrappers.py --check`
-# compares the header BYTE FOR BYTE. The second import is not redundant:
-# `tests/conftest.py` installs `beartype.claw` over `econflow_engine`, so this
-# function's annotations are RESOLVED on every call, and a `pd.DataFrame` whose
-# `pd` exists only for a type checker raises BeartypeCallHintForwardRefException
-# at the first real call. Measured on this module before the import was added --
-# every wrapper whose signature names `pd` or `np` will meet the same wall, so
-# the durable fix belongs in the emitter rather than here.
-import math  # noqa: E402
+import math
 
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
+import numpy as np
 
 # NOT `import pyfixest as pf`. `pyfixest.estimation.feglm` is re-exported on the
 # package, and the package ALSO holds a submodule of the same name; pyright
 # resolves the attribute to the module and reports the call as uncallable, where
 # mypy resolves it to the function. Naming the function is what both agree on.
-from pyfixest.estimation import Felogit, Feprobit, feglm  # noqa: E402
+from pyfixest.estimation import Felogit, Feprobit, feglm
 
-from econflow_engine.gates.estimation import (  # noqa: E402
+from econflow_engine.gates.estimation import (
     is_estimator_refusal,
     refuse_a_multi_model_fit,
     refuse_estimator_failure,
@@ -62,7 +51,7 @@ from econflow_engine.gates.estimation import (  # noqa: E402
     require_convergence,
     require_supplied,
 )
-from econflow_engine.gates.primitives import (  # noqa: E402
+from econflow_engine.gates.primitives import (
     require_min_length,
     require_no_missing,
 )

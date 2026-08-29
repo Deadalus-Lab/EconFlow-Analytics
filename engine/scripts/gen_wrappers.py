@@ -485,8 +485,6 @@ def module_source(
     needs_pandas = any(_SCALAR_TYPES.get(k, "").startswith("pd.") for k in kinds)
     needs_numpy = any(_SCALAR_TYPES.get(k, "").startswith("np.") for k in kinds)
     needs_sequence = any(_SCALAR_TYPES.get(k, "").startswith("Sequence") for k in kinds)
-    if needs_pandas or needs_numpy:
-        typing_names.append("TYPE_CHECKING")
 
     # The SPDX line sits INSIDE the region, so a header that lost it is re-derived
     # by --write rather than only reported by the spdx gate. Both SPDX gates read
@@ -516,20 +514,22 @@ def module_source(
     head += ['"""', "", "from __future__ import annotations", ""]
     if needs_sequence:
         head.append("from collections.abc import Sequence")
-    # isort puts CONSTANT_CASE names first, so TYPE_CHECKING leads.
-    ordered = sorted(typing_names, key=lambda n: (not n.isupper(), n))
-    head.append(f"from typing import {', '.join(ordered)}")
+    head.append(f"from typing import {', '.join(sorted(typing_names))}")
+    # AT RUN TIME AND NOT UNDER ``TYPE_CHECKING``: ``tests/conftest.py`` installs
+    # ``beartype.claw``, which resolves a signature's annotations on every call, so
+    # a ``pd`` that exists only for a type checker raises
+    # ``BeartypeCallHintForwardRefException`` at the first real call into any of
+    # these 536 modules. No static gate sees it -- it appears when a body exists to
+    # be called -- so the emitter supplies the names rather than each body doing so.
+    if needs_numpy or needs_pandas:
+        head.append("")
+        if needs_numpy:
+            head.append("import numpy as np")
+        if needs_pandas:
+            head.append("import pandas as pd")
     head += [
         "",
         f"from econflow_engine.generated.args.{package} import NODE_META, wire_model",
-    ]
-    if needs_pandas or needs_numpy:
-        head += ["", "if TYPE_CHECKING:"]
-        if needs_numpy:
-            head.append("    import numpy as np")
-        if needs_pandas:
-            head.append("    import pandas as pd")
-    head += [
         "",
         "# Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and",
         "# read kinds and defaults from ``NODE_META[fn]`` without another import.",
