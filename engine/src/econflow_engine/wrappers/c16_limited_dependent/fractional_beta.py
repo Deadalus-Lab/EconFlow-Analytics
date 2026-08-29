@@ -491,8 +491,13 @@ def ld_fractional_response(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
 
     Gates:
-        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
-        body must run are named here once the field carries them.
+        Declared on the method card:
+
+        - precondition-sample-size
+        - precondition-missing
+        - precondition-degenerate
+        - precondition-domain
+        - precondition-rank
 
     Validation:
         Documented on the method card:
@@ -627,12 +632,15 @@ def ld_fractional_response(
         matrix -- the closed-form ``W`` following their equation (9).
         ``BetaResults`` is a ``GenericLikelihoodModel`` and its ``bse`` inverts the
         OBSERVED numerical Hessian: MEASURED, 0.22137, 0.00308 and 0.03574 on the
-        same data. Two estimators of one quantity, disagreeing by about 1.1e-02
-        relative at worst. Reproducing the published pair means implementing the
-        expected information in this engine and reporting it in place of the value
-        the library gives, which is a larger change than this method; the oracle
-        case claims none of them and says so, and the disagreement is pinned by a
-        test so that a release moving it is visible.
+        same data. Two estimators of one quantity, disagreeing by 1.107e-02,
+        1.448e-02 and 1.124e-02 relative -- worst on ``income``, and NOT on the
+        intercept, which is where this paragraph first put it. Reproducing the
+        published pair means implementing the expected information in this engine
+        and reporting it in place of the value the library gives, which is a larger
+        change than this method; the oracle case claims none of them and says so,
+        and all three gaps are asserted term by term by
+        ``test_the_published_standard_errors_are_not_claimed_and_the_gap_is_measured``
+        so that a release moving any of them is visible.
 
         DELIBERATELY OMITTED. The pseudo R-squared: the paper prints 0.3878 for
         this fit, ``BetaResults.prsquared`` returns 0.4088, and the two definitions
@@ -666,7 +674,15 @@ def ld_fractional_response(
         branch ``llf = -15.461508215318748``. A collinear design is fitted by
         ``BetaModel`` in silence and returns ``llf = 45.333509321237926`` against
         the identified fit's ``45.33350932122192`` -- the same number to eleven
-        digits, beside a coefficient no data identifies -- and a rank-deficient
+        digits, beside a coefficient no data identifies. THE CONSTRUCTION IS PART
+        OF THAT CLAIM AND WAS MISSING FROM IT: the collinear design is the
+        published one with a FOURTH column equal to ``income`` times two, and
+        DOUBLING rather than repeating is what reaches that constant -- ``income``
+        copied under a second name returns ``45.33350932122191`` instead, which is
+        how this paragraph came to carry a figure nobody could reproduce from
+        it. Both figures are asserted by
+        ``test_a_full_rank_design_passes_and_a_collinear_one_is_refused``, which
+        builds the same widened frame the refusal is measured on. A rank-deficient
         PRECISION design is fitted the same way with every standard error
         non-finite. Two columns sharing a name are fitted and one of the two
         coefficients disappears from any mapping keyed by name. An argument whose

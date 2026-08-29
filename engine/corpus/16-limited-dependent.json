@@ -52,7 +52,12 @@
     "McFadden 1974 (pseudo-R2)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null,
+   "precondition_gates": [
+    "precondition-sample-size",
+    "precondition-missing",
+    "precondition-degenerate",
+    "precondition-domain"
+   ],
    "validation_notes": null
   },
   {
@@ -260,7 +265,13 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null,
+   "precondition_gates": [
+    "precondition-sample-size",
+    "precondition-missing",
+    "precondition-degenerate",
+    "precondition-domain",
+    "precondition-rank"
+   ],
    "validation_notes": null
   },
   {
@@ -395,7 +406,13 @@
     "statsmodels.othermod.betareg"
    ],
    "precondition_tools": null,
-   "precondition_gates": null,
+   "precondition_gates": [
+    "precondition-sample-size",
+    "precondition-missing",
+    "precondition-degenerate",
+    "precondition-domain",
+    "precondition-rank"
+   ],
    "validation_notes": [
     "model='zero_one_inflated_beta' must refuse with a GateError until a source is chosen: no zero-or-one-inflated beta mixture exists in statsmodels 0.14.6, whose statsmodels.othermod.betareg defines only BetaModel, BetaResults and BetaResultsWrapper, and no primary source for the mixture has been selected",
     "the enum value stays because the node signature is frozen; dropping it is a contract change and an owner decision, and a branch quietly returning a plain beta fit under this name would be worse than a refusal"

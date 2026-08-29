@@ -4222,7 +4222,12 @@
     "McFadden 1974 (pseudo-R2)"
    ],
    "precondition_tools": null,
-   "precondition_gates": null,
+   "precondition_gates": [
+    "precondition-sample-size",
+    "precondition-missing",
+    "precondition-degenerate",
+    "precondition-domain"
+   ],
    "validation_notes": null,
    "embed_text": "[#83] Binomial GLM (probit/logit) — recession probability (Estrella-Mishkin)\nCategory: 16-limited-dependent\nNodes: run_binomial_fe_glm\nWHEN: a binary outcome (a recession dummy 0/1); estimating P(y=1|x) from predictors (the yield-curve spread) with probit/logit; optionally high-dimensional fixed effects + clustered SE + weights\nNOT when: a continuous outcome (-> #33, or forecasting); more than two categories (-> an ordered model, or #30); an endogenous dynamic recession state (a dynamic probit, outside the surface); counts (-> Poisson)\nAlternatives: logit link (you want an odds-ratio interpretation (probit is the Estrella-Mishkin default)) · base glm(family=binomial) (without high-dimensional FE / clustered SE it is equivalent) · #30 Markov switching (category 06) (the recession state is latent/unobserved -> extract regime probabilities (gaussian/lm only)) · dynamic probit (Kauppi-Saikkonen) (an autoregressive latent recession probability (outside the wrapper))\nOutput: coefficients: named beta on the LINK scale (the index), NOT marginal effects/probabilities · coeftable: term/estimate/std_error/z_value/p_value (z-test; SE clustered if a cluster was supplied) · fitted_probabilities: P(y=1|x) via predict(type=response) — the score that feeds #84 · obs_kept: 1-based indices of the retained rows (fixef/separation -> length < nrow; alignment) · pseudo_r2: McFadden pseudo-R2 (ratio of log-likelihoods, fitstat pr2) — NOT an OLS R2 · loglik/aic/bic/deviance/nobs: fit stats; link/family/fixef_names: metadata\nPitfalls: coef = the effect on the latent index, NOT the marginal effect on the probability (which shrinks at the extremes); only the sign & significance are directly readable · do NOT assume length(fitted_probabilities)==nrow; fixef/separation drops rows -> align through obs_kept · pseudo-R2 != R2; a McFadden value of 0.3 is excellent (not '30% of the variance') · perfect/quasi-separation -> coefficients of ±∞ with enormous SE, or a drop (check obs_kept & the SE) · an in-sample AUC (via #84 on the same sample) is optimistic; an out-of-sample/real-time vintage is needed\nSources: Bergé 2018 CREA discussion paper (efficient estimation with many fixed effects) · Estrella & Mishkin 1998 Rev. Econ. Stat. 80(1):45-61 (probit recession probability) · Estrella & Hardouvelis 1991 J. Finance 46(2):555-576 (yield curve -> activity) · Kauppi & Saikkonen 2008 Rev. Econ. Stat. 90(4):777-791 (dynamic probit, alt) · McFadden 1974 (pseudo-R2)"
   },
@@ -26971,7 +26976,13 @@
     "statsmodels"
    ],
    "precondition_tools": null,
-   "precondition_gates": null,
+   "precondition_gates": [
+    "precondition-sample-size",
+    "precondition-missing",
+    "precondition-degenerate",
+    "precondition-domain",
+    "precondition-rank"
+   ],
    "validation_notes": null,
    "embed_text": "[#524] Count models: Poisson, negative binomial, generalised Poisson, zero-inflated and hurdle\nCategory: 16-limited-dependent\nNodes: ld_count_model · ld_overdispersion_test\nWHEN: the outcome is a non-negative count, where a linear model predicts impossible values and misstates the variance\nNOT when: the counts are large enough to be treated as continuous; the outcome is a rate with a known exposure and no count structure\nAlternatives: Poisson (mean equals variance) · negative binomial (overdispersion) · zero-inflated or hurdle (more zeros than the count distribution allows)\nOutput: params: count-equation coefficients on the log-mean scale, interpretable as semi-elasticities, one per covariate plus the intercept this node adds · rate_ratios: exp(params), which is the form a count model with an exposure is read in and the form published tables print · coeftable: term/estimate/std_error/z_value/p_value/conf_low/conf_high for EVERY estimated parameter, the zero equation and the dispersion included · dispersion: alpha, and null for a Poisson, which estimates none · zero_inflation: the inflation equation's coefficients, and null unless zeros='zero_inflated' -- a hurdle's zero equation is not an inflation and is reported in coeftable as zm_<covariate>, the estimator's prefix over this node's own design column names · vuong: NULL ON EVERY BRANCH. statsmodels 0.14.6 carries no Vuong test, so the statistic would be written in-engine, and no published value was found to check one against · fitted_values: the fitted mean per observation, on the scale of the counts, so the exposure is inside it · llf/aic/bic/nobs: fit statistics; family/zeros: which branch was fitted\nPitfalls: OVERDISPERSION DOES NOT BIAS POISSON COEFFICIENTS but makes its standard errors far too small; the choice between robust Poisson and negative binomial is about inference, not consistency · zero-inflated and hurdle models mean different things: hurdle treats all zeros as one process, zero-inflation mixes structural and sampling zeros · an exposure variable belongs in the model as an offset with coefficient one, not as a regressor\nSources: Cameron & Trivedi 2013, Regression Analysis of Count Data, 2nd ed. · Mullahy 1986 (Journal of Econometrics 33:341-365) · Lambert 1992 (Technometrics 34:1) · Vuong 1989 (Econometrica 57:307-333), doi:10.2307/1912557 -- the source for the promised vuong output field; statsmodels 0.14.6 carries no Vuong test · statsmodels"
   },
@@ -27112,7 +27123,13 @@
     "statsmodels.othermod.betareg"
    ],
    "precondition_tools": null,
-   "precondition_gates": null,
+   "precondition_gates": [
+    "precondition-sample-size",
+    "precondition-missing",
+    "precondition-degenerate",
+    "precondition-domain",
+    "precondition-rank"
+   ],
    "validation_notes": [
     "model='zero_one_inflated_beta' must refuse with a GateError until a source is chosen: no zero-or-one-inflated beta mixture exists in statsmodels 0.14.6, whose statsmodels.othermod.betareg defines only BetaModel, BetaResults and BetaResultsWrapper, and no primary source for the mixture has been selected",
     "the enum value stays because the node signature is frozen; dropping it is a contract change and an owner decision, and a branch quietly returning a plain beta fit under this name would be worse than a refusal"

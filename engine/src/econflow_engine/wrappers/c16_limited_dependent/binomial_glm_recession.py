@@ -145,8 +145,12 @@ def run_binomial_fe_glm(
         A JSON-safe mapping, ready for ``econflow_engine.serialize.to_mcp``.
 
     Gates:
-        None declared. The ``precondition_gates`` field of this method card is empty; the checks a
-        body must run are named here once the field carries them.
+        Declared on the method card:
+
+        - precondition-sample-size
+        - precondition-missing
+        - precondition-degenerate
+        - precondition-domain
 
     .. gen_wrappers: end of generated docstring
 

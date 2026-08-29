@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -39,7 +40,7 @@ from econflow_engine.gates.registry import (
     card_gate_names,
     resolve_gates,
 )
-from econflow_engine.metrics import find_manifest
+from econflow_engine.metrics import find_manifest, stub_ledger
 
 ENGINE_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ENGINE_ROOT / "artifacts"
@@ -214,10 +215,6 @@ def test_the_card_join_actually_reached_the_catalogue(
         f"the manifest-to-card join reaches {len(reached)} of the catalogue's "
         f"{len(on_card)} card(s); it is reading a narrower artifact than it should"
     )
-    assert all(card_gate_names(str(node["fn"])) == () for node in nodes), (
-        "a node sees a non-empty precondition_gates field; the vocabulary gate is "
-        "the check that now owns what it may hold"
-    )
 
 
 def test_an_unknown_method_name_is_refused() -> None:
@@ -282,6 +279,141 @@ def test_the_vocabulary_check_refuses_a_card_that_names_an_unregistered_gate() -
         "a card naming 'precondition-raank' was accepted; the check reads a field "
         "nothing constrains and would admit any string at all"
     )
+
+
+# --------------------------------------------------------------------------
+# The other direction: a WRITTEN BODY's card has to name at least one gate
+# --------------------------------------------------------------------------
+#
+# WHAT THIS CLOSES, AND WHY IT IS A COUNT AGAINST A COUNT. Every wrapper
+# docstring carries a Gates section rendered from ``precondition_gates``, and an
+# empty field renders "None declared. ... the checks a body must run are named
+# here once the field carries them." That sentence is TRUE of a stub, which
+# enforces nothing, and it was FALSE of all three written bodies at once:
+# ``ld_fractional_response`` alone makes seventeen require_/refuse_ calls under a
+# docstring saying none were declared. Nothing executed the sentence, so nothing
+# could notice.
+#
+# Both halves of the rule are already measured elsewhere and neither is written
+# again here. ``stub_ledger`` answers "which public functions carry a body",
+# which is the same walk ``engine.n_implemented`` is measured by and
+# ``assert.sh`` re-runs; ``card_gate_names`` answers "what does this node's card
+# declare", which is the join the two tests above hold to the catalogue. This
+# gate is the join of those two answers, and its denominator is the manifest's
+# own ``engine.n_implemented`` -- so a body that arrives without bumping that
+# constant is caught by ``assert.sh``, and one that bumps it without declaring a
+# gate is caught here.
+
+WRAPPERS = ENGINE_ROOT / "src" / "econflow_engine" / "wrappers"
+
+#: THE NEGATIVE CONTROL'S SUBJECT: a node that is still a stub and whose card
+#: declares nothing. Card 525 in the same category as all three written bodies,
+#: so the control sits where the next body will land rather than in a corner of
+#: the catalogue nobody is working in. Both of its properties are asserted before
+#: it is used, so writing ``ld_tobit``'s body turns the control RED with a
+#: message telling the next author to name another stub -- never green over a
+#: control that has quietly stopped controlling anything.
+A_STUB_WHOSE_CARD_IS_SILENT = "ld_tobit"
+
+
+def bodies_missing_a_declared_gate(
+    wrappers: Path, declared_for: Callable[[str], Sequence[str]]
+) -> list[str]:
+    """Every public function carrying a body whose card names no gate.
+
+    THE WALK IS INSIDE, NOT AN ARGUMENT, and that is what makes the controls
+    below controls. The discrimination this gate performs is between a written
+    body and a stub, and that judgement is ``stub_ledger``'s; handing this
+    function a list of pairs would move the judgement into the caller and leave a
+    control free to "prove" the rule by planting the answer it wanted. Only the
+    CARD side is injectable, which is the side the two controls vary.
+    """
+    return [fn for _, fn in stub_ledger(wrappers).implemented if not declared_for(fn)]
+
+
+def test_every_written_body_has_a_card_that_declares_a_gate() -> None:
+    """THE GATE. No named exception, denominator asserted from the manifest.
+
+    ZERO EXCEPTIONS IS THE DESIGN, for the reason the vocabulary gate above
+    states in its own words: an exemption list accumulates until somebody deletes
+    the rule to make it green. A body that genuinely runs no cross-cutting gate
+    is not a body this engine ships -- every one of the eight primitives answers
+    a question about the caller's data, and a method that asks none of them has
+    not been reviewed for the data it will be handed.
+    """
+    ledger = stub_ledger(WRAPPERS)
+    expected = inventory("engine", "n_implemented")
+    assert len(ledger.implemented) == expected, (
+        f"the walk found {len(ledger.implemented)} written body/bodies against the "
+        f"manifest's engine.n_implemented of {expected}; a gate whose denominator "
+        "is wrong has not examined the tree it claims to have examined"
+    )
+
+    offenders = bodies_missing_a_declared_gate(WRAPPERS, card_gate_names)
+    assert offenders == [], (
+        f"{len(offenders)} written body/bodies whose method card declares no "
+        f"precondition gate: {offenders}. Their docstrings therefore say 'None "
+        "declared. ... the checks a body must run are named here once the field "
+        "carries them', which is true of a stub and false of a body that runs "
+        "gates. Name them in the card's precondition_gates, from the detail codes "
+        "the body's refusals actually carry, and re-seal with "
+        "scripts/gen_artifacts.py --build."
+    )
+
+
+def test_the_body_gate_catches_a_body_whose_card_was_emptied() -> None:
+    """THE POSITIVE CONTROL. A check nobody has watched refuse is not yet a check.
+
+    Built here rather than planted in the corpus, for the reason the vocabulary
+    control above gives: a card edited to carry a control can be left behind in
+    the committed tree by mistake, and a function argument cannot.
+    """
+    ledger = stub_ledger(WRAPPERS)
+    victim = sorted(name for _, name in ledger.implemented)[0]
+
+    def emptied(fn: str) -> Sequence[str]:
+        return () if fn == victim else card_gate_names(fn)
+
+    assert card_gate_names(victim), (
+        f"{victim} declares nothing even before the control empties it; the "
+        "control cannot distinguish its own edit from the state of the tree"
+    )
+    assert bodies_missing_a_declared_gate(WRAPPERS, emptied) == [victim], (
+        f"emptying {victim}'s card left the gate green; it is reading something "
+        "other than the card"
+    )
+
+
+def test_the_body_gate_leaves_every_stub_alone_even_with_no_card_declaring() -> None:
+    """THE NEGATIVE CONTROL. The discrimination is the STUB PREDICATE, not the field.
+
+    A gate that flagged every node whose card is silent would flag 1452 stubs and
+    be deleted within the day. Silencing EVERY card is the sharpest way to ask
+    whether the walk is doing the discriminating: with nothing declared anywhere,
+    the offenders must still be exactly the written bodies, and
+    :data:`A_STUB_WHOSE_CARD_IS_SILENT` -- which is a stub AND has a silent card,
+    the pair a body with a silent card is otherwise indistinguishable from --
+    must still be absent.
+    """
+    ledger = stub_ledger(WRAPPERS)
+    bodies = sorted(name for _, name in ledger.implemented)
+
+    assert A_STUB_WHOSE_CARD_IS_SILENT not in bodies, (
+        f"{A_STUB_WHOSE_CARD_IS_SILENT} now carries a body, so it can no longer "
+        "be this control's stub; name another node whose card declares nothing"
+    )
+    assert card_gate_names(A_STUB_WHOSE_CARD_IS_SILENT) == (), (
+        f"{A_STUB_WHOSE_CARD_IS_SILENT}'s card now declares a gate, so the control "
+        "no longer plants the (stub, silent card) pair it exists to plant"
+    )
+
+    offenders = bodies_missing_a_declared_gate(WRAPPERS, lambda _fn: ())
+    assert sorted(offenders) == sorted(bodies), (
+        f"with every card silenced the gate reports {offenders}, not the written "
+        f"bodies {bodies}; it is answering a question about the field rather than "
+        "about which functions carry a body"
+    )
+    assert A_STUB_WHOSE_CARD_IS_SILENT not in offenders
 
 
 def test_the_sentences_the_gate_displaced_are_still_documented() -> None:

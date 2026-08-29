@@ -422,16 +422,42 @@ class TestGatesBlock:
         ``llf = 45.333509321237926`` against the identified fit's
         ``45.33350932122192`` -- the same number to eleven digits, beside a
         coefficient vector one column longer that no data identifies.
+
+        THE SILENCE IS RUN HERE AND NOT ONLY DESCRIBED, which is the change. Both
+        log-likelihoods were prose in two docstrings and nothing executed either;
+        the widened frame the refusal is measured on is built once below and
+        handed to the library directly, so the pair of figures the gate exists
+        for is a comparison rather than a memory. DOUBLING AND NOT DUPLICATING:
+        ``income`` copied under a second name returns ``45.33350932122191``, a
+        different constant, and the docstrings named the first while a reader
+        reproducing them reached for the second.
+
+        NO WARNING FILTER IS APPLIED, DELIBERATELY. The suite runs under
+        ``-W error``, so the fit below would fail this test if statsmodels said
+        anything at all about the rank-deficient design -- which is exactly the
+        "in SILENCE" half of the claim, asserted by the absence of a filter that
+        the sibling gates in this class have to apply.
         """
+        from statsmodels.genmod.families.links import Logit
+        from statsmodels.othermod.betareg import BetaModel
+
         share, covariates = published()
         assert wrapper.ld_fractional_response(y=share, x=covariates, model="beta")
 
-        with pytest.raises(GateError) as refused:
-            wrapper.ld_fractional_response(
-                y=share,
-                x=covariates.assign(twice=covariates["income"] * 2.0),
-                model="beta",
+        widened = covariates.assign(twice=covariates["income"] * 2.0)
+
+        def library_llf(frame: pd.DataFrame) -> float:
+            design = pd.concat(
+                [pd.Series(1.0, index=share.index, name="const"), frame], axis=1
             )
+            fit = BetaModel(share, design, exog_precision=None, link=Logit()).fit()
+            return float(fit.llf)
+
+        assert library_llf(covariates) == 45.33350932122192
+        assert library_llf(widened) == 45.333509321237926
+
+        with pytest.raises(GateError) as refused:
+            wrapper.ld_fractional_response(y=share, x=widened, model="beta")
         assert refused.value.detail_code == "precondition-rank"
         assert "rank 3 over 4 column(s)" in str(refused.value)
 
@@ -1051,6 +1077,15 @@ class TestOracleCase:
         ``bse`` comes from the OBSERVED numerical Hessian. The two are different
         estimators of the same quantity and they do not agree to oracle precision;
         this pins the disagreement so that a future release moving it is visible.
+
+        ONE BAND PER TERM, AND NOT A BAND ON THE MAXIMUM, because the loose form
+        of this test is what let a false figure ship. It asserted only that the
+        widest gap lay between 1e-4 and 0.02, and two documents then described
+        that gap as "about 1.1e-02 relative at worst" -- the intercept's figure,
+        not the worst one. The worst is ``income`` at 1.448e-02, and no assertion
+        here could tell the two apart. Three bands and a named argmax can, so the
+        sentence in the wrapper docstring and the one in the oracle case's
+        ``notes`` are now claims this test would refuse.
         """
         reported = fitted()["params"]
         published_errors = {"const": 0.22385, "income": 0.00304, "persons": 0.03534}
@@ -1058,8 +1093,15 @@ class TestOracleCase:
             term: abs(reported[term]["std_error"] - value) / value
             for term, value in published_errors.items()
         }
-        assert max(gaps.values()) > 1e-4, gaps
-        assert max(gaps.values()) < 0.02, gaps
+        #: MEASURED on the committed fixtures against statsmodels 0.14.6:
+        #: const 1.106969e-02, income 1.447868e-02, persons 1.124146e-02. The band
+        #: is one part in a thousand around each, which is wide enough to survive
+        #: an optimiser tolerance and far too narrow to confuse one term with
+        #: another.
+        measured = {"const": 1.107e-02, "income": 1.448e-02, "persons": 1.124e-02}
+        for term, expected in measured.items():
+            assert abs(gaps[term] - expected) < 1e-3 * expected, (term, gaps)
+        assert max(gaps, key=lambda term: gaps[term]) == "income", gaps
 
 
 class TestDeterminism:
