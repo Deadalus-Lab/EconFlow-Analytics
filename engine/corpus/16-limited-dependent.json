@@ -237,10 +237,14 @@
     }
    ],
    "output_key_fields": [
-    "params: coefficients, interpretable as semi-elasticities",
-    "dispersion: the overdispersion parameter",
-    "zero_inflation: the inflation equation, where fitted",
-    "vuong: comparison of zero-inflated against the plain model"
+    "params: count-equation coefficients on the log-mean scale, interpretable as semi-elasticities, one per covariate plus the intercept this node adds",
+    "rate_ratios: exp(params), which is the form a count model with an exposure is read in and the form published tables print",
+    "coeftable: term/estimate/std_error/z_value/p_value/conf_low/conf_high for EVERY estimated parameter, the zero equation and the dispersion included",
+    "dispersion: alpha, and null for a Poisson, which estimates none",
+    "zero_inflation: the inflation equation's coefficients, and null unless zeros='zero_inflated' -- a hurdle's zero equation is not an inflation and is reported in coeftable as zm_<covariate>, the estimator's prefix over this node's own design column names",
+    "vuong: NULL ON EVERY BRANCH. statsmodels 0.14.6 carries no Vuong test, so the statistic would be written in-engine, and no published value was found to check one against",
+    "fitted_values: the fitted mean per observation, on the scale of the counts, so the exposure is inside it",
+    "llf/aic/bic/nobs: fit statistics; family/zeros: which branch was fitted"
    ],
    "chart_kind": "table",
    "interpretation_traps": [
@@ -966,8 +970,22 @@
     "conf_level": 0.95
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "params",
+     "rate_ratios",
+     "coeftable",
+     "dispersion",
+     "zero_inflation",
+     "vuong",
+     "fitted_values",
+     "llf",
+     "aic",
+     "bic",
+     "nobs",
+     "family",
+     "zeros"
+    ]
    },
    "arguments": [
     {

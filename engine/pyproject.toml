@@ -252,18 +252,23 @@ known_first_party = ["econflow_engine", "contract_hash"]
 extend_exclude = ["api-baseline"]
 
 [tool.deptry.per_rule_ignores]
-# DEP002 = declared and never imported. TRUE TODAY AND DELIBERATE: every wrapper
-# function in the tree is a typed stub that raises NotImplementedError, so nothing
-# imports any of these yet. They are declared because the Phase 2 bodies are
-# written against them -- these five are exactly the wave-one distributions
-# METHOD-SOURCES.json marks `one`, less pandas, numpy and scipy, which the
-# infrastructure already imports.
+# DEP002 = declared and never imported. It was true of all five wave-one
+# distributions while every wrapper function was a typed stub that raises: they
+# are declared because the Phase 2 bodies are written against them, and they are
+# exactly what METHOD-SOURCES.json marks `one`, less pandas, numpy and scipy,
+# which the infrastructure already imports.
 #
 # EVERY NAME IS LISTED SEPARATELY AND THE RULE IS NOT DISABLED. A blanket DEP002
 # ignore would also swallow the sixth dependency somebody declares and forgets to
 # use. DELETE A NAME FROM THIS LIST with the first wrapper that imports it -- at
 # that point its ignore starts hiding a real answer.
-DEP002 = ["statsmodels", "arch", "linearmodels", "pyfixest", "scikit-learn"]
+#
+# `statsmodels` LEFT ON 2026-08-29 UNDER THAT RULE, with the count model of card
+# #524: `deptry .` is green without it, which is the check that the name was
+# hiding nothing else. `pyfixest` is imported too, by the binomial GLM of card
+# #83, and is still listed -- it is named here rather than removed, because that
+# removal belongs to whoever reads it against their own deptry run.
+DEP002 = ["arch", "linearmodels", "pyfixest", "scikit-learn"]
 
 # THE SECOND TYPE CHECKER, AND IT IS NOT REDUNDANT.
 # mypy and pyright disagree about real code: pyright narrows through `assert`,

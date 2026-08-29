@@ -18,7 +18,7 @@ from typing import Any
 ENGINE_INFO: dict[str, Any] = {
     'n_nodes': 1456,
     'n_categories': 46,
-    'artifact_sha256': '7bd43f38d4660d51cd31074f147c10c963e490ad5e99eb6d1c69bae11556a934',
+    'artifact_sha256': '6e37b42565eac0f68da1ee3ee125519450bb526218feb12a52cac7492bac36f2',
 }
 
 #: The closed vocabularies, copied verbatim from the artifact.

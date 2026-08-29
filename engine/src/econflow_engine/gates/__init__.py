@@ -18,9 +18,15 @@ THE FIVE MODULES:
     contract carries no default for, a named column the frame lacks, a name that
     is not a bare identifier, an assembled specification the formula allowlist
     refuses, two spellings of one specification, an iteration that did not
-    converge, and the estimator's own exception translated into a refusal. NOT
-    registry primitives: six of the seven ask about the call rather than about
-    the data, and two of those six are a security boundary.
+    converge, a converged iteration whose numbers are not numbers, the
+    estimator's own exception translated into a refusal, a combination of
+    arguments the library does not carry, and four questions about the data a
+    count model asks: whole non-negative numbers, a value strictly inside an open
+    interval, a level the model is about actually occurring, and column names and
+    row labels that identify what they name. NOT registry
+    primitives: the registry is keyed by detail code and is total, so a new
+    primitive would mean a new code, and the code vocabulary is shared with the
+    corpus. Two of them are a security boundary.
 :mod:`~econflow_engine.gates.cross_section`
     normative gate 4 -- refuse data carrying time order to a cross-section
     method. Returns a diagnostics report the caller may surface.
@@ -46,13 +52,20 @@ from econflow_engine.gates.cross_section import (
 )
 from econflow_engine.gates.estimation import (
     is_estimator_refusal,
+    refuse_a_combination,
     refuse_a_multi_model_fit,
     refuse_estimator_failure,
     require_a_bare_name,
     require_a_column,
+    require_an_aligned_index,
     require_an_allowlisted_specification,
+    require_an_observed_value,
     require_at_most_one_spelling,
     require_convergence,
+    require_counts,
+    require_distinct_column_names,
+    require_finite_estimates,
+    require_strictly_inside,
     require_supplied,
 )
 from econflow_engine.gates.primitives import (
@@ -78,20 +91,27 @@ __all__ = [
     "gate_sliding_window_step",
     "gates_for",
     "is_estimator_refusal",
+    "refuse_a_combination",
     "refuse_a_multi_model_fit",
     "refuse_estimator_failure",
     "require_a_bare_name",
     "require_a_column",
+    "require_an_aligned_index",
     "require_an_allowlisted_specification",
+    "require_an_observed_value",
     "require_at_most_one_spelling",
     "require_balanced_panel",
     "require_convergence",
+    "require_counts",
     "require_cross_section",
+    "require_distinct_column_names",
+    "require_finite_estimates",
     "require_full_rank",
     "require_in_range",
     "require_min_length",
     "require_no_missing",
     "require_regular_frequency",
+    "require_strictly_inside",
     "require_supplied",
     "require_variance",
 ]

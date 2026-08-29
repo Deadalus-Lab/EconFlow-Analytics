@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""The seven estimator refusals, each with the input it passes and the one it blocks.
+"""The thirteen estimator refusals, each with the input it passes and the one it blocks.
 
 PAIRED THROUGHOUT, for the reason every gate suite in this package is paired: a
 rule tested only on the input it refuses is indistinguishable from one that
@@ -23,15 +23,23 @@ import pytest
 from econflow_engine.errors import GateError
 from econflow_engine.gates.estimation import (
     is_estimator_refusal,
+    refuse_a_combination,
     refuse_a_multi_model_fit,
     refuse_estimator_failure,
     require_a_bare_name,
     require_a_column,
+    require_an_aligned_index,
     require_an_allowlisted_specification,
+    require_an_observed_value,
     require_at_most_one_spelling,
     require_convergence,
+    require_counts,
+    require_distinct_column_names,
+    require_finite_estimates,
+    require_strictly_inside,
     require_supplied,
 )
+from econflow_engine.gates.primitives import require_in_range
 
 FRAME = pd.DataFrame({"spread": [1.0, 2.0], "recession": [0.0, 1.0]})
 
@@ -197,6 +205,63 @@ class TestRequireConvergence:
         assert "Drop the predictor." in str(refused.value)
 
 
+class TestRequireFiniteEstimates:
+    """The numbers a fit came back with, asked about before they are reported.
+
+    THE OTHER HALF OF :class:`TestRequireConvergence`. That flag says the
+    iteration finished; this says what it finished with is a number. A payload
+    field holding ``nan`` reaches the wire as ``null``, which is also how a field
+    a method leaves empty ON PURPOSE reaches it -- so the two are
+    indistinguishable to a caller unless one of them is refused.
+    """
+
+    def test_ordinary_numbers_pass(self) -> None:
+        """The pass side: a coefficient vector and its log-likelihood are reported."""
+        require_finite_estimates(
+            pd.Series({"const": -7.919325, "smokes": 0.354536, "llf": -33.600153}),
+            fn="f",
+            quantity="coefficients and log-likelihood",
+            remedy="-",
+        )
+
+    def test_a_nan_is_refused_and_every_term_carrying_one_is_named(self) -> None:
+        with pytest.raises(GateError) as refused:
+            require_finite_estimates(
+                pd.Series({"const": float("nan"), "w": 1.0, "llf": float("nan")}),
+                fn="f",
+                quantity="coefficients and log-likelihood",
+                remedy="Rescale the covariate.",
+            )
+        message = str(refused.value)
+        assert refused.value.reason_code == "other"
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "coefficients and log-likelihood" in message
+        assert "['const', 'llf']" in message
+        assert "the first is nan" in message
+        assert "Rescale the covariate." in message
+
+    def test_an_infinity_is_refused_beside_a_nan(self) -> None:
+        """Both reach the wire as the same ``null``, so both are the same defect."""
+        with pytest.raises(GateError) as refused:
+            require_finite_estimates(
+                pd.Series({"v": 2.0, "w": float("inf")}),
+                fn="f",
+                quantity="rate ratios",
+                remedy="-",
+            )
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "rate ratios" in str(refused.value)
+        assert "['w']" in str(refused.value)
+        assert "the first is inf" in str(refused.value)
+
+    def test_a_label_the_vector_carries_twice_is_reported_once(self) -> None:
+        """An estimator's parameter index is not a set; the message it produces is."""
+        doubled = pd.Series([float("nan"), float("nan")], index=["zm_x1", "zm_x1"])
+        with pytest.raises(GateError) as refused:
+            require_finite_estimates(doubled, fn="f", quantity="coefficients", remedy="-")
+        assert "['zm_x1']" in str(refused.value)
+
+
 class TestIsEstimatorRefusal:
     """Which exceptions are the estimator objecting, and which are a defect here."""
 
@@ -256,6 +321,30 @@ class TestIsEstimatorRefusal:
 
         error = raised.value
         assert type(error).__name__ == expected_class, type(error)
+        assert not isinstance(error, ValueError | ArithmeticError), type(error)
+        assert is_estimator_refusal(error)
+
+    def test_the_module_based_arm_admits_a_real_statsmodels_error(self) -> None:
+        """``statsmodels`` JOINED THE SET WITH THE SECOND 2.2 BODY AND WAS NEVER ASKED.
+
+        The module arm was exercised against ``formulaic`` and ``pyfixest`` alone,
+        so the third name in ``_ESTIMATOR_PACKAGES`` was a claim rather than a
+        measurement. ``MissingDataError`` is raised by the CONSTRUCTOR, derives
+        straight from ``Exception`` and is not a ``ValueError``, so the type-based
+        arm cannot see it and only the module arm can. Provoked rather than named,
+        for the reason the formula-engine classes are: a class named in a test can
+        drift out of the set the library actually raises without the test noticing.
+        """
+        import statsmodels.api as sm
+
+        holed = pd.Series([1.0, 2.0, float("nan"), 4.0])
+        design = sm.add_constant(pd.Series([1.0, 2.0, 3.0, 4.0]))
+        with pytest.raises(Exception) as raised:  # noqa: B017 - the class IS the subject
+            sm.Poisson(holed, design, missing="raise")
+
+        error = raised.value
+        assert type(error).__name__ == "MissingDataError", type(error)
+        assert type(error).__module__.split(".", 1)[0] == "statsmodels", type(error)
         assert not isinstance(error, ValueError | ArithmeticError), type(error)
         assert is_estimator_refusal(error)
 
@@ -330,3 +419,205 @@ class TestRefuseAMultiModelFit:
         with pytest.raises(GateError) as refused:
             refuse_a_multi_model_fit(fn="f", produced="FixestMultiEstimation", remedy="-")
         assert "FixestMultiEstimation" in str(refused.value)
+
+
+class TestRequireCounts:
+    """A response that is a count, at or above the floor the zero rule sets."""
+
+    def test_whole_non_negative_numbers_pass(self) -> None:
+        require_counts(pd.Series([0.0, 1.0, 7.0]), minimum=0, fn="f", arg="y", remedy="-")
+        require_counts(pd.Series([3, 4, 5]), minimum=1, fn="f", arg="y", remedy="-")
+
+    def test_a_fractional_value_is_refused_and_the_message_shows_it(self) -> None:
+        with pytest.raises(GateError) as refused:
+            require_counts(
+                pd.Series([1.0, 2.5, 3.0]),
+                minimum=0,
+                fn="f",
+                arg="y",
+                remedy="Round the response, or fit a continuous model.",
+            )
+        assert refused.value.reason_code == "other"
+        assert refused.value.detail_code == "precondition-domain"
+        assert "not whole numbers" in str(refused.value)
+        assert "2.5" in str(refused.value)
+        assert "Round the response" in str(refused.value)
+
+    def test_a_value_below_the_floor_is_refused(self) -> None:
+        with pytest.raises(GateError) as refused:
+            require_counts(pd.Series([2.0, -1.0]), minimum=0, fn="f", arg="y", remedy="-")
+        assert refused.value.detail_code == "precondition-domain"
+        assert "below 0" in str(refused.value)
+
+    def test_the_floor_is_the_one_the_caller_names(self) -> None:
+        """A zero-truncated model takes 1, and the same zero that passes at 0 fails."""
+        require_counts(pd.Series([0.0, 2.0]), minimum=0, fn="f", arg="y", remedy="-")
+        with pytest.raises(GateError) as refused:
+            require_counts(pd.Series([0.0, 2.0]), minimum=1, fn="f", arg="y", remedy="-")
+        assert "below 1" in str(refused.value)
+
+    def test_a_missing_value_is_refused_before_integrality_is_asked_about(self) -> None:
+        """``nan`` is not a whole number either, and that is not what is wrong with it."""
+        with pytest.raises(GateError) as refused:
+            require_counts(
+                pd.Series([1.0, float("nan")]), minimum=0, fn="f", arg="y", remedy="-"
+            )
+        assert refused.value.detail_code == "precondition-missing"
+        assert "1 missing" in str(refused.value)
+
+
+class TestRequireStrictlyInside:
+    """The OPEN interval, which the inclusive primitive cannot express."""
+
+    def test_a_value_inside_passes(self) -> None:
+        require_strictly_inside(0.95, low=0.0, high=1.0, fn="f", arg="conf_level")
+        require_strictly_inside(
+            pd.Series([1.0, 2.5]), low=0.0, high=float("inf"), fn="f", arg="exposure"
+        )
+
+    def test_an_endpoint_is_refused_where_require_in_range_would_admit_it(self) -> None:
+        """THE WHOLE POINT OF THE PAIR: 1.0 is inside [0, 1] and outside (0, 1)."""
+        require_in_range(1.0, low=0.0, high=1.0, fn="f", arg="conf_level")
+        with pytest.raises(GateError) as refused:
+            require_strictly_inside(1.0, low=0.0, high=1.0, fn="f", arg="conf_level")
+        assert refused.value.detail_code == "precondition-domain"
+        assert "open interval (0.0, 1.0)" in str(refused.value)
+        assert '"conf_level" = 1.0' in str(refused.value)
+
+    def test_a_vector_reports_how_many_values_broke_the_rule_and_the_first(self) -> None:
+        with pytest.raises(GateError) as refused:
+            require_strictly_inside(
+                pd.Series([2.0, 0.0, -3.0]),
+                low=0.0,
+                high=float("inf"),
+                fn="f",
+                arg="exposure",
+            )
+        assert refused.value.detail_code == "precondition-domain"
+        assert "2 value(s) outside the open interval" in str(refused.value)
+        assert "the first is 0.0" in str(refused.value)
+
+    def test_a_missing_value_in_a_vector_is_refused_as_missing(self) -> None:
+        with pytest.raises(GateError) as refused:
+            require_strictly_inside(
+                pd.Series([1.0, float("nan")]),
+                low=0.0,
+                high=float("inf"),
+                fn="f",
+                arg="exposure",
+            )
+        assert refused.value.detail_code == "precondition-missing"
+
+
+class TestRequireAnObservedValue:
+    """A model about a level, over a sample that carries none of it."""
+
+    def test_a_sample_carrying_the_level_passes(self) -> None:
+        require_an_observed_value(
+            pd.Series([0.0, 3.0, 1.0]), level=0.0, fn="f", arg="y", remedy="-"
+        )
+
+    def test_a_sample_without_it_is_refused(self) -> None:
+        with pytest.raises(GateError) as refused:
+            require_an_observed_value(
+                pd.Series([2.0, 3.0]),
+                level=0.0,
+                fn="f",
+                arg="y",
+                remedy="Fit zeros='none' instead.",
+            )
+        assert refused.value.reason_code == "other"
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "no value equal to 0" in str(refused.value)
+        assert "Fit zeros='none' instead." in str(refused.value)
+
+
+class TestRequireDistinctColumnNames:
+    """Two columns under one name are one column in any payload keyed by name."""
+
+    def test_distinct_names_pass(self) -> None:
+        require_distinct_column_names(FRAME, fn="f", arg="design", remedy="-")
+
+    def test_a_repeated_name_is_refused_and_is_named(self) -> None:
+        doubled = pd.concat([FRAME, FRAME[["spread"]]], axis=1)
+        with pytest.raises(GateError) as refused:
+            require_distinct_column_names(
+                doubled, fn="f", arg="design", remedy="Drop the duplicate column."
+            )
+        assert refused.value.detail_code == "precondition-shape"
+        assert "['spread'] more than once" in str(refused.value)
+        assert "Drop the duplicate column." in str(refused.value)
+
+    def test_every_repeated_name_is_reported_once(self) -> None:
+        crowded = pd.concat([FRAME, FRAME], axis=1)
+        with pytest.raises(GateError) as refused:
+            require_distinct_column_names(crowded, fn="f", arg="design", remedy="-")
+        assert "['recession', 'spread']" in str(refused.value)
+
+
+class TestRequireAnAlignedIndex:
+    """Labels, in order, because the estimator reads values and not labels."""
+
+    def test_the_same_labels_in_the_same_order_pass(self) -> None:
+        require_an_aligned_index(
+            FRAME, reference=pd.Index([0, 1]), fn="f", arg="x", remedy="-"
+        )
+        require_an_aligned_index(
+            pd.Series([1.0, 2.0]),
+            reference=pd.Index([0, 1]),
+            fn="f",
+            arg="exposure",
+            remedy="-",
+        )
+
+    def test_a_permutation_of_the_same_labels_is_refused(self) -> None:
+        """THE CASE LENGTH CANNOT SEE, and the one that silently changes the fit."""
+        reversed_labels = pd.Series([2.0, 1.0], index=pd.Index([1, 0]))
+        with pytest.raises(GateError) as refused:
+            require_an_aligned_index(
+                reversed_labels,
+                reference=pd.Index([0, 1]),
+                fn="f",
+                arg="exposure",
+                remedy="Sort it by the response's index.",
+            )
+        assert refused.value.detail_code == "precondition-shape"
+        assert "not aligned with the response" in str(refused.value)
+        assert "Sort it by the response's index." in str(refused.value)
+
+    def test_a_different_length_is_refused_and_both_lengths_are_reported(self) -> None:
+        with pytest.raises(GateError) as refused:
+            require_an_aligned_index(
+                pd.Series([1.0]),
+                reference=pd.Index([0, 1]),
+                fn="f",
+                arg="exposure",
+                remedy="-",
+            )
+        assert "1 label(s) against the response's 2" in str(refused.value)
+
+
+class TestRefuseACombination:
+    """A pair of arguments the reference implementation cannot honour.
+
+    THE PAIR IS SPLIT ACROSS TWO LEVELS, as it is for the other ``NoReturn``
+    refusal: there is no input this returns on, so the passing half is the ``if``
+    at the call site and it is asserted against a real fit in
+    ``tests/wrappers/c16_limited_dependent/test_count_models.py``, where a hurdle
+    without an exposure runs and the same hurdle with one is refused here.
+    """
+
+    def test_it_names_the_combination_the_reason_and_the_remedy(self) -> None:
+        with pytest.raises(GateError) as refused:
+            refuse_a_combination(
+                fn="f",
+                combination="zeros='hurdle' with an exposure",
+                reason="statsmodels 0.14.6 raises NotImplementedError for it.",
+                remedy="Divide the response by the exposure, or drop the hurdle.",
+            )
+        message = str(refused.value)
+        assert refused.value.reason_code == "other"
+        assert refused.value.detail_code == "precondition-domain"
+        assert "f: zeros='hurdle' with an exposure is not available." in message
+        assert "statsmodels 0.14.6 raises NotImplementedError for it." in message
+        assert "Divide the response by the exposure, or drop the hurdle." in message

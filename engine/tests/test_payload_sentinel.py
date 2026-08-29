@@ -37,7 +37,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from econflow_engine.metrics import find_repo_root
+from econflow_engine.metrics import find_repo_root, stub_ledger
 from tests.support import ENGINE_ROOT, INVENTORY
 
 REPO_ROOT = find_repo_root(Path(__file__))
@@ -230,15 +230,29 @@ def test_the_word_still_refuses_a_tree_that_carries_a_body(tmp_path: Path) -> No
     the tree's own side. It is exercised against a mirror with the payload tree
     removed and the word restored, because the alternative is a branch that stays
     in the script with nothing proving it still fires.
+
+    EVERY BODY IS REQUIRED BY NAME, AND THE NAMES ARE ASKED OF ``stub_ledger``.
+    This named one body and one only, which was the whole implemented set while
+    there was one; with two it would have stayed green had ``ld_count_model``
+    dropped out of the report altogether -- and reporting one body where the tree
+    holds two is exactly the quiet-direction miscount the surrounding suite exists
+    to catch. The count is asserted beside the names for the same reason.
     """
     engine = _without_the_payload_tree(tmp_path)
+    bodies = sorted(
+        name
+        for _, name in stub_ledger(engine / "src" / "econflow_engine" / "wrappers").implemented
+    )
+    assert bodies, "the mirror carries no body, so this branch has nothing to refuse"
 
     result = _run(engine, _manifest(tmp_path, invocation_payloads="unmeasured"))
 
     assert result.returncode == 1, result.stdout + result.stderr
     line = _payload_line(result)
     assert line.startswith("  FAIL"), line
-    assert "run_binomial_fe_glm" in line, f"the body in the tree is not named in {line!r}"
+    assert f"{len(bodies)} method(s) carry a body" in line, line
+    unnamed = [name for name in bodies if name not in line]
+    assert not unnamed, f"the bodies {unnamed} in the tree are not named in {line!r}"
     assert _failing_labels(result) == {"invocation_payloads"}, result.stdout
 
 
@@ -248,15 +262,27 @@ def test_the_word_rests_green_only_where_no_body_exists(tmp_path: Path) -> None:
     Every body in the mirror is turned back into a stub, which is the state the
     word was written for. The OWED line must survive there: its visibility was the
     whole point of the marker, and only its exit code followed the premise.
+
+    WHICH MODULES TO FLATTEN IS ASKED OF ``stub_ledger`` AND NOT OF THE TEXT, and
+    the difference is a module that carries a body AND a stub. This used to skip
+    any module whose text still held the emitted raise, which was the same
+    statement as "carries no body" only while every module was all-one or
+    all-the-other. Card #524 is the first with one of each -- ``ld_count_model``
+    written, ``ld_overdispersion_test`` not -- so the text rule left its body
+    standing, the mirror reported one implemented method, and this test failed on
+    a premise it had itself broken. ``stub_ledger`` is the walk
+    ``engine.n_implemented`` is measured with, so the question is now asked the
+    way the manifest asks it.
     """
     engine = _without_the_payload_tree(tmp_path)
     module = engine / "src" / "econflow_engine" / "wrappers"
+    carries_a_body = {path for path, _ in stub_ledger(module).implemented}
     for path in sorted(module.rglob("*.py")):
-        if path.name == "__init__.py":
+        if path.name == "__init__.py" or path not in carries_a_body:
             continue
         text = path.read_text(encoding="utf-8")
-        head, marker, tail = text.partition("# --- gen_wrappers: header end ---")
-        if not marker or STUB_RAISE in tail:
+        head, marker, _ = text.partition("# --- gen_wrappers: header end ---")
+        if not marker:
             continue
         stubbed = head + marker + "\n\n\ndef _unused() -> None:\n    return None\n"
         path.unlink()

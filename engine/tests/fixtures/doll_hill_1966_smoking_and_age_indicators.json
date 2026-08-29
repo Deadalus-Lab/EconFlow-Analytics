@@ -1,0 +1,29 @@
+{
+  "shape": "frame",
+  "index": {
+    "kind": "range",
+    "start": 1
+  },
+  "columns": [
+    "smokes",
+    "age_45_54",
+    "age_55_64",
+    "age_65_74",
+    "age_75_84"
+  ],
+  "values": [
+    [1, 0, 0, 0, 0],
+    [1, 1, 0, 0, 0],
+    [1, 0, 1, 0, 0],
+    [1, 0, 0, 1, 0],
+    [1, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0],
+    [0, 0, 1, 0, 0],
+    [0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 1]
+  ],
+  "dtype": "int",
+  "citation": "Doll, R. and Hill, A. B. (1966), Mortality of British doctors in relation to smoking: observations on coronary thrombosis, National Cancer Institute Monograph 19, 205-268. The age-specific table is reprinted in Lash, T. L., VanderWeele, T. J., Haneuse, S. and Rothman, K. J. (2021), Modern Epidemiology, 4th ed., p. 417, and again in StataCorp, Stata Base Reference Manual, [R] poisson, Example 2, p. 6, whose ten listed rows are the ones transcribed here.",
+  "notes": "THE DESIGN OF THE PUBLISHED MODEL, one indicator for smoking and four for the age categories. The published table lists `agecat` as a label with five levels; `poisson deaths smokes i.agecat` expands it to four indicators against the omitted base 35-44, and that expansion is what is written out here -- so row 1 (smokers aged 35-44) and row 6 (nonsmokers aged 35-44) carry zeros in all four age columns. The five columns are the model's covariates and nothing else: THE INTERCEPT IS NOT HERE, because the node this dataset is written for adds one and refuses a design that already carries a column of its own constant.\n\nWHAT IT DOES NOT SUPPORT. There is no interaction between smoking and age, which is the published specification and not a simplification made here; the manual fits the same model without one. Nothing in this dataset says which rows are smokers other than the first column, and nothing carries the age labels themselves, so a reading of a coefficient back to an age band has to go through the column names."
+}

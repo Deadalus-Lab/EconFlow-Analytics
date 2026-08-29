@@ -65,10 +65,19 @@ SIGNATURE_NAMES = ("pd", "np")
 #: as well as the annotation, and a wrong value would raise its parameter
 #: violation instead of reaching the body -- a different verdict wearing the same
 #: red.
+#:
+#: EVERY ONE OF THEM IS EMPTY, AND THAT IS THE SWEEP'S SAFETY ARGUMENT RATHER THAN
+#: A DETAIL OF THE FIXTURE. ``test_every_stub_callable_from_handles_alone_reaches_
+#: its_body`` requires a written body to REFUSE, and the only reason every body
+#: must is that no method is defined over no observations. These carried three
+#: rows until 2026-08-29, while the docstring below claimed they were empty: the
+#: assertion held for ``ld_count_model`` only because it estimates four parameters
+#: and 4 > 3, so a future body needing two parameters would have RETURNED a result
+#: over three rows and turned the sweep red for being correct.
 HANDLE_VALUES: dict[str, Any] = {
-    "pd.Series": pd.Series([1.0, 2.0, 3.0]),
-    "pd.DataFrame": pd.DataFrame({"a": [1.0, 2.0, 3.0]}),
-    "np.ndarray": np.zeros(3),
+    "pd.Series": pd.Series([], dtype=float),
+    "pd.DataFrame": pd.DataFrame({"a": pd.Series([], dtype=float)}),
+    "np.ndarray": np.zeros(0),
 }
 
 # REUSE-IgnoreStart -- the SPDX lines below are written into a temporary file and
@@ -344,18 +353,38 @@ def test_every_stub_callable_from_handles_alone_reaches_its_body() -> None:
     A stub raises ``NotImplementedError``, and beartype resolves the annotations
     BEFORE the body runs -- so ``NotImplementedError`` is the evidence that
     resolution succeeded. Anything else means the annotation stopped the call.
+
+    A WRITTEN BODY ANSWERS ``GateError`` INSTEAD, and the sweep is told which
+    functions those are rather than admitting the class everywhere. The arguments
+    below are EMPTY handles -- a Series, a frame and an array with no rows at all,
+    which is what ``HANDLE_VALUES`` holds and what the note there is about -- so a
+    body that reached them must refuse: it has no observations, and every such
+    method has a length rule. Accepting ``GateError`` from a stub would let a body land
+    unnoticed in the stub set, and accepting anything but a refusal from a body
+    would let it return a result over no data, so the two sets are asserted
+    separately and neither can cover for the other. ``stub_ledger`` is the walk
+    ``engine.n_implemented`` is measured with, so the split cannot drift from the
+    manifest.
     """
+    from econflow_engine.errors import GateError
+    from econflow_engine.metrics import stub_ledger
+
+    implemented = {name for _, name in stub_ledger(WRAPPERS).implemented}
     called = 0
     wrong: list[str] = []
     for path, fn, required in handle_only_calls():
         called += 1
         arguments = {name: HANDLE_VALUES[ann] for name, ann in required.items()}
+        expected: type[Exception] = GateError if fn in implemented else NotImplementedError
         try:
             getattr(import_module(module_path(path)), fn)(**arguments)
-        except NotImplementedError:
+        except expected:
             continue
         except Exception as exc:
-            wrong.append(f"{path.relative_to(WRAPPERS)}::{fn}: {type(exc).__name__}: {exc}")
+            wrong.append(
+                f"{path.relative_to(WRAPPERS)}::{fn}: {type(exc).__name__}: {exc} "
+                f"(expected {expected.__name__})"
+            )
         else:
             wrong.append(f"{path.relative_to(WRAPPERS)}::{fn}: returned without raising")
 

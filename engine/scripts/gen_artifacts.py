@@ -284,8 +284,8 @@ def build_node_specs(
     }
 
 
-#: An ``output_key_fields`` entry that OPENS WITH A FIELD NAME. 1997 of the 2623
-#: committed entries match; the other 626 are prose sentences about the output and
+#: An ``output_key_fields`` entry that OPENS WITH A FIELD NAME. 2000 of the 2627
+#: committed entries match; the other 627 are prose sentences about the output and
 #: name no field at all. Only the matching ones are read, and the non-matching ones
 #: are never guessed at -- a sentence turned into a field name by a regular
 #: expression is a payload key nobody wrote down.
@@ -299,7 +299,7 @@ def check_output_key_containment(
 
     ONE-WAY, AND THAT DIRECTION IS THE WHOLE DESIGN. The card's prose is the older
     document and the weaker claim: it says "key fields", which may be partial, and
-    626 of its entries are sentences rather than names. ``output_keys`` is the
+    627 of its entries are sentences rather than names. ``output_keys`` is the
     newer and stronger one -- the payload's whole key set for one function. So a
     field the card names must be declared somewhere among that card's declared
     functions, and a declared key the card never mentioned is fine.

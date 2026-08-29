@@ -1,0 +1,14 @@
+{
+  "shape": "series",
+  "index": {
+    "kind": "range",
+    "start": 1
+  },
+  "columns": [
+    "pyears"
+  ],
+  "values": [52407, 43248, 28612, 12663, 5317, 18790, 10673, 5710, 2585, 1462],
+  "dtype": "int",
+  "citation": "Doll, R. and Hill, A. B. (1966), Mortality of British doctors in relation to smoking: observations on coronary thrombosis, National Cancer Institute Monograph 19, 205-268. The age-specific table is reprinted in Lash, T. L., VanderWeele, T. J., Haneuse, S. and Rothman, K. J. (2021), Modern Epidemiology, 4th ed., p. 417, and again in StataCorp, Stata Base Reference Manual, [R] poisson, Example 2, p. 6, whose ten listed rows are the ones transcribed here.",
+  "notes": "THE PERSON-YEARS COLUMN OF THE PUBLISHED TABLE, on its natural scale and NOT logged. It is the time each group was observed for, and it enters a count model as an offset whose coefficient is fixed at one -- which is what the manual's `exposure(pyears)` does and what the estimator this engine wraps does with an `exposure` argument. A caller who logs it first would log it twice.\n\nWHAT IT DOES NOT SUPPORT. These are person-years, so they are a duration and not a count: the integer dtype is what the source prints and carries no claim that the quantity is discrete. Row order is the manual's own -- smokers 35-44 through 75-84, then nonsmokers -- and the index is shared with doll_hill_1966_coronary_deaths and doll_hill_1966_smoking_and_age_indicators, because an exposure aligned to the wrong row is a different model rather than an error anything downstream can see."
+}

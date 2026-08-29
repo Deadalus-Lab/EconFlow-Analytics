@@ -584,7 +584,7 @@ def test_a_card_naming_a_field_its_declared_node_lacks_is_refused() -> None:
 
 
 def test_the_containment_check_never_parses_a_prose_entry() -> None:
-    """THE NEGATIVE CONTROL. 626 of the 2623 entries are sentences, not names.
+    """THE NEGATIVE CONTROL. 627 of the 2627 entries are sentences, not names.
 
     A sentence turned into a field name by a regular expression is a payload key
     nobody wrote down, so an entry that does not open with ``name: value`` is
@@ -607,8 +607,8 @@ def test_the_containment_check_never_parses_a_prose_entry() -> None:
 def test_the_prose_share_of_the_card_entries_is_the_measured_one() -> None:
     """The split the seeding rule rests on, asserted rather than remembered.
 
-    ``FIELD_ENTRY`` reads 1997 of the 2623 committed entries and never the other
-    626, and the decision to seed 142 nodes rather than 543 rests on that split. A
+    ``FIELD_ENTRY`` reads 2000 of the 2627 committed entries and never the other
+    627, and the decision to seed 142 nodes rather than 543 rests on that split. A
     catalogue edit that turned most of the prose into parseable names would make
     the debt mechanically closable, and this says so loudly instead of leaving the
     seeding rule looking arbitrary for ever.
@@ -616,5 +616,5 @@ def test_the_prose_share_of_the_card_entries_is_the_measured_one() -> None:
     cards = read("method-cards.json")["cards"]
     entries = [e for c in cards for e in (c["output_key_fields"] or [])]
     parseable = [e for e in entries if G.FIELD_ENTRY.match(e)]
-    assert len(entries) == 2623, len(entries)
-    assert len(parseable) == 1997, len(parseable)
+    assert len(entries) == 2627, len(entries)
+    assert len(parseable) == 2000, len(parseable)
