@@ -2,18 +2,20 @@
 
 # Architecture
 
-**One of five layers exists, and inside it nothing computes yet.** The compute engine has a finished
-typed contract, generated schemas, sealed artifacts and a green test suite. Not one method body is
-written, and the other four layers have no code at all.
+**One of five layers exists, and inside it the first methods compute.** The compute engine has a
+finished typed contract, generated schemas, sealed artifacts and a green test suite. Almost every one
+of its method wrappers is still a typed stub that raises, and the other four layers have no code at
+all.
 
-[`README.md`](README.md) counts what exists. This document says how the engine is built, and which
-decisions are settled so that they do not get reopened.
+[`README.md`](README.md) counts what exists, implementations included, each figure beside the command
+that reproduces it. This document says how the engine is built, and which decisions are settled so
+that they do not get reopened.
 
 ## The five layers
 
 | Layer | What it does | State |
 |---|---|---|
-| **Engine** (`engine/`) | Every statistic. The only place a number is computed. | Contract, schemas, artifacts and suite done. No method body written. |
+| **Engine** (`engine/`) | Every statistic. The only place a number is computed. | Contract, schemas, artifacts and suite done. Almost every method is still a stub. |
 | **Platform** (`backend/`) | Runs graphs, stores results, handles users. | Not built. Galaxy is the intended host. |
 | **Integration** | Translates a canvas graph into a platform workflow. | Not built. |
 | **Canvas** | The node editor a researcher actually uses. | Not built. |
@@ -109,8 +111,8 @@ allowlist of calls and a depth limit, and is never evaluated in a caller's names
 a `store://bucket/key` pointer, and `parse_store_uri` refuses a key holding `..`, a leading slash, a
 backslash or a control character before anything opens it.
 
-While no method body exists these properties are cheap to hold. The gates exist to make them
-expensive to break later.
+With almost every wrapper still a stub, these properties are cheap to hold. The gates exist to make
+them expensive to break as the bodies land.
 
 ## Not yet decided
 

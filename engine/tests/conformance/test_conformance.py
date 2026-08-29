@@ -472,9 +472,9 @@ def _require_the_case_to_name_the_declared_payload(
     them is wrong and the file should say which.
 
     A NODE WHOSE STATUS IS ``undeclared`` IS PASSED OVER, not defaulted. That is
-    the debt in ``engine.undeclared_output_keys``; a rule that refused those cases
-    would refuse 1314 nodes' worth of oracle work to enforce a field nobody has
-    filled in yet.
+    the debt counted by ``engine.undeclared_output_keys``; a rule that refused
+    those cases would refuse the oracle work for every node still carrying it, to
+    enforce a field nobody has filled in yet.
     """
     if namespace == ENGINE_NAMESPACE:
         return
