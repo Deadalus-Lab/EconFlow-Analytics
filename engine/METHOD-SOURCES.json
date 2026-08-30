@@ -3128,7 +3128,7 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -3358,7 +3358,7 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -3444,7 +3444,7 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -7828,7 +7828,7 @@
       "library": "utilsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -8065,7 +8065,7 @@
       "paper": null,
       "dataset": null,
       "wave": "one",
-      "audited": null,
+      "audited": true,
       "refuted": []
     },
     "c16_limited_dependent/high_dimensional_way": {
@@ -8302,7 +8302,7 @@
       "library": "hierarchicalforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -8323,7 +8323,7 @@
       "library": "hierarchicalforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -8433,7 +8433,7 @@
       "library": "hierarchicalforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -9643,7 +9643,7 @@
       "library": "utilsforecast",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -9776,7 +9776,7 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -10046,7 +10046,7 @@
       "library": "nltk",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -10067,7 +10067,7 @@
       "library": "nltk",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -10089,7 +10089,7 @@
       "library": "tomotopy",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -10176,7 +10176,7 @@
       "library": "vaderSentiment",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },
@@ -10197,7 +10197,7 @@
       "library": "textstat",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": [
         "nltk"
@@ -13144,7 +13144,7 @@
       "library": "localprojections",
       "paper": null,
       "dataset": null,
-      "wave": "deferred",
+      "wave": "one",
       "audited": true,
       "refuted": []
     },

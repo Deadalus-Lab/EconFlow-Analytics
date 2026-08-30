@@ -44,7 +44,7 @@
     "infra_py_files": 30,
     "test_files": 32,
     "test_helpers": 1,
-    "py_packages": 117,
+    "py_packages": 136,
     "python_version": "3.12",
     "n_implemented": 3,
     "_comment_invocation_payloads": "THE ONE CONSTANT IN THIS MANIFEST THAT WAS DELIBERATELY OWED, AND THE FIRST EVER TO CARRY THE WORD. It no longer is, and the history is kept here because the reason it retired is not the reason decision A4 wrote down. Box 2.1.14 double-runs a method and compares the bytes, and a method cannot be run without arguments to run it with. parity-fixtures.json holds argument-adapter VERDICTS, not call arguments, and node-specs.json declares argument KINDS, not values. So the method leg of that gate enumerates the implemented set and refuses to go green while skipping any member of it, which meant the first wrapper body written in 2.2 would turn it red unless it arrived with a call. WHAT THIS CONSTANT COUNTS IS ONE HALF OF WHERE THAT CALL COMES FROM, and reading a green gate as evidence about this figure is a mistake the original phrasing invited. The gate takes a UNION: a file under engine/tests/payloads/, which the command below counts, and an admissible oracle case under engine/tests/oracle/, which it does not. HOW IT ACTUALLY RETIRED: the first body, run_binomial_fe_glm, landed reached by its ORACLE CASE. A4 anticipated that -- the word does not retire itself the moment the double-run gate goes green -- and the decision taken here was to build engine/tests/payloads/ with an underscore-prefixed readme and nothing else, which makes the command below return a measurement instead of erroring, so the constant is a measured 0 and not an absent one. WHAT THAT MOVED, AND IT MOVED BETWEEN CI JOBS RATHER THAN DISAPPEARING. While the word stood, assert-inventory's OWED branch carried a coverage guarantee as a side effect: it refused to print OWED once ANY method carried a body, so the assert-inventory job in ci.yml answered for 'every implemented body has a call'. With a directory present that branch is not taken and assert.sh only compares a file count, so assert-inventory no longer answers for it. The guarantee is now carried in the engine-suite job, by tests/controls/double_run.py, which prints 'UNRUN <method>: no oracle case and no payload file' and exits non-zero. That is a stronger check than the one it replaced -- it names the method rather than the manifest word -- but it is a DIFFERENT JOB, and anyone reading a green assert-inventory as proof of call coverage would be reading the wrong gate. THE DEFINITION IS COMMITTED AND IS NOT IN THIS FILE: engine/tests/controls/double_run.py carries it in its module docstring -- the payload's shape, where the file goes, what produces it, what was rejected and why, how the harness consumes it, and why an admissible oracle case already IS an invocation payload and is reused rather than copied. It lives there because that module is what prints the red line, so the contract is in the file the person who meets the gate already has open. THIS FIGURE RISES only when a payload FILE lands, which is owed by the first body that has no oracle case to be reached through.",
@@ -72,7 +72,7 @@
     "n_legacy_cards": 252,
     "n_parity_cases": 4855,
     "n_recommend_fixtures": 114,
-    "sbom_components": 115,
+    "sbom_components": 134,
     "sidecars": 7
   },
   "boundary": {

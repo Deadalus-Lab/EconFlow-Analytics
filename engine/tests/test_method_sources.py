@@ -103,7 +103,7 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 #: `feglm` was probed live at 0.60.0 and reproduces Dalal, Fowlkes and Hoadley
 #: (1989) Model (3.2) to six significant figures, which is a stronger check than
 #: the reading this column was defined for and is recorded under the same word.
-AUDITED_ROWS = 425
+AUDITED_ROWS = 426
 
 #: HOW MANY (row, distribution) REFUTATIONS THE REGISTER CARRIES, and it is a
 #: COUNT here for the reason ``AUDITED_ROWS`` above is one: "no row names a
