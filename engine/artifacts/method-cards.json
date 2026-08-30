@@ -8,7 +8,7 @@
   "reason": "box 2.1.1.12 -- 46 cards stop naming a distribution the register measured as not implementing their method"
  },
  "source": {
-  "node_specs_sha256": "62ce2171c63d73de92074897b5248fcd82193e30a601f13086ed5c677d991bb5",
+  "node_specs_sha256": "bc6c42d460ece467614ab394d9c32075155eb6da6428e48cc879d4788f5c4ae7",
   "n_cards": 600,
   "n_categories": 46,
   "n_nodes_covered": 1456,
@@ -26923,10 +26923,16 @@
     }
    ],
    "output_key_fields": [
-    "params: coefficients, common across thresholds under proportional odds",
-    "thresholds: the estimated cut points",
-    "marginal_effects: per category, which is what is interpretable",
-    "brant_test: test of the proportional-odds assumption"
+    "params: the coefficient on each covariate, common across every threshold under proportional odds. It is the whole of what the ordered model says about a covariate, because no intercept is identified -- an intercept is a common shift of every cut point",
+    "thresholds: the estimated CUT POINTS, keyed by the two levels each separates. They are NOT the parameters statsmodels stores: the last J-2 of those are the LOGARITHMS of the increments between adjacent cut points, and the stored vector is monotone increasing, so reporting it would be silently wrong and would pass any ordering check a reader applied",
+    "marginal_effects: the average effect of each covariate on the share in each category, which is what is interpretable. It is this engine's own arithmetic -- OrderedResults carries no get_margeff -- from the derivative of the observation probability, [f(mu_j - x'b) - f(mu_{j+1} - x'b)] b_k averaged over the sample",
+    "coeftable: estimate, standard error, z statistic, p-value and the conf_level interval, for the COVARIATES and for nothing else. No threshold row is reported, because the standard errors statsmodels gives for the last J-2 thresholds belong to the stored log increments rather than to the cut points",
+    "llf: the maximised log-likelihood; nobs: how many observations the fit used. Nothing is dropped for missingness -- a missing outcome or covariate is refused -- so nobs is the length supplied",
+    "link: the link this call used, echoed back so a payload is readable without its request. cloglog has no implementation in statsmodels and is supplied here as scipy.stats.gumbel_l, whose CDF is the complementary log-log transform exactly",
+    "outcome: the response as this model read it -- an ordered Categorical whose categories are the levels lowest first -- and design: the covariates as fitted. They are here because ld_proportional_odds_test re-fits J-1 binary logistic regressions over the same rows and its only argument is a handle to what this node returned; the registry stores that return, and a fitted object put there reaches the wire as a serialisation stub, which the determinism gate refuses outright",
+    "brant_test: the omnibus test of the proportional-odds assumption -- statistic, parameter (degrees of freedom, (J-2)p), p_value and method -- built from Brant (1990) section 3 on top of J-1 binary logistic regressions, because statsmodels carries no such test",
+    "by_variable: the same test restricted to one covariate at a time, on J-2 degrees of freedom, which is the per-covariate convention the literature reports",
+    "alpha: the level the verdict was taken at; reject: whether the proportional-odds restriction is rejected at it"
    ],
    "chart_kind": "table",
    "interpretation_traps": [
@@ -26936,13 +26942,27 @@
    ],
    "sources": [
     "McKelvey & Zavoina 1975 (Journal of Mathematical Sociology 4:103-120)",
+    "McCullagh 1980 (JRSS B 42(2):109-142, Table 1 p. 111 and pp. 112-113)",
     "Brant 1990 (Biometrics 46:1171)",
     "statsmodels.miscmodels.ordinal_model"
    ],
    "precondition_tools": null,
-   "precondition_gates": null,
-   "validation_notes": null,
-   "embed_text": "[#523] Ordered logit and probit\nCategory: 16-limited-dependent\nNodes: ld_ordered_choice · ld_proportional_odds_test\nWHEN: the outcome has a natural order but no cardinal meaning -- survey scales, ratings, self-assessed categories\nNOT when: the categories are unordered (-> multinomial); the proportional-odds assumption fails badly\nAlternatives: multinomial logit (no natural order) · ordered logit or probit (ordered categories, proportional odds acceptable) · generalised ordered model (proportional odds fails for some covariates)\nOutput: params: coefficients, common across thresholds under proportional odds · thresholds: the estimated cut points · marginal_effects: per category, which is what is interpretable · brant_test: test of the proportional-odds assumption\nPitfalls: THE PROPORTIONAL-ODDS ASSUMPTION forces one coefficient across every threshold, and it is frequently violated -- the Brant test is not optional · the coefficient sign tells you the direction for the highest and lowest categories only; middle-category marginal effects can go either way · thresholds are not parameters of interest and are not comparable across specifications\nSources: McKelvey & Zavoina 1975 (Journal of Mathematical Sociology 4:103-120) · Brant 1990 (Biometrics 46:1171) · statsmodels.miscmodels.ordinal_model"
+   "precondition_gates": [
+    "precondition-domain",
+    "precondition-missing",
+    "precondition-rank",
+    "precondition-sample-size",
+    "precondition-degenerate"
+   ],
+   "validation_notes": [
+    "thresholds reports the CUT POINTS and not the parameters statsmodels stores: the last J-2 stored parameters are the LOGARITHMS of the increments between adjacent cut points, and the stored vector is monotone increasing, so reporting it would be silently wrong and would pass any ordering check a reader applied",
+    "coeftable carries the covariates and no threshold row, because bse reports the standard errors of the stored parameterisation; measured against the standard errors Stata's [R] ologit prints for the same fit, the coefficient and the first cut point agree to 1e-7 while the other three cut points are 4.4e-02, 4.6e-01 and 6.0e-01 away",
+    "the body also raises precondition-shape, which this field cannot name: a covariate table whose row labels are not the outcome's, one naming a column twice, and one with no columns at all are refused under that code, and gates/registry.py PRIMITIVES registers no primitive for it, so the closed vocabulary of precondition_gates has no entry to declare it with",
+    "link='cloglog' has no implementation in statsmodels 0.14.6 and is supplied here as scipy.stats.gumbel_l, whose CDF is the complementary log-log transform exactly; the library raises AttributeError on the string rather than refusing it",
+    "ld_proportional_odds_test is defined for the PROPORTIONAL-ODDS model alone: Brant (1990) compares the slopes of J-1 binary LOGISTIC regressions, so a fit made under the probit or the complementary log-log link is refused rather than tested under a restriction it was never estimated under",
+    "there is no oracle case for ld_proportional_odds_test and none can be written from the literature found: Brant (1990) prints an omnibus statistic of 11.2 on 6 degrees of freedom for 83 donated livers and never prints the 83 x 7 design behind it, and McCullagh (1980) prints his data and no Brant statistic. The arithmetic is checked instead against the scalar identity the three-category case reduces to, and against two contingency tables built to satisfy and to violate the restriction"
+   ],
+   "embed_text": "[#523] Ordered logit and probit\nCategory: 16-limited-dependent\nNodes: ld_ordered_choice · ld_proportional_odds_test\nWHEN: the outcome has a natural order but no cardinal meaning -- survey scales, ratings, self-assessed categories\nNOT when: the categories are unordered (-> multinomial); the proportional-odds assumption fails badly\nAlternatives: multinomial logit (no natural order) · ordered logit or probit (ordered categories, proportional odds acceptable) · generalised ordered model (proportional odds fails for some covariates)\nOutput: params: the coefficient on each covariate, common across every threshold under proportional odds. It is the whole of what the ordered model says about a covariate, because no intercept is identified -- an intercept is a common shift of every cut point · thresholds: the estimated CUT POINTS, keyed by the two levels each separates. They are NOT the parameters statsmodels stores: the last J-2 of those are the LOGARITHMS of the increments between adjacent cut points, and the stored vector is monotone increasing, so reporting it would be silently wrong and would pass any ordering check a reader applied · marginal_effects: the average effect of each covariate on the share in each category, which is what is interpretable. It is this engine's own arithmetic -- OrderedResults carries no get_margeff -- from the derivative of the observation probability, [f(mu_j - x'b) - f(mu_{j+1} - x'b)] b_k averaged over the sample · coeftable: estimate, standard error, z statistic, p-value and the conf_level interval, for the COVARIATES and for nothing else. No threshold row is reported, because the standard errors statsmodels gives for the last J-2 thresholds belong to the stored log increments rather than to the cut points · llf: the maximised log-likelihood; nobs: how many observations the fit used. Nothing is dropped for missingness -- a missing outcome or covariate is refused -- so nobs is the length supplied · link: the link this call used, echoed back so a payload is readable without its request. cloglog has no implementation in statsmodels and is supplied here as scipy.stats.gumbel_l, whose CDF is the complementary log-log transform exactly · outcome: the response as this model read it -- an ordered Categorical whose categories are the levels lowest first -- and design: the covariates as fitted. They are here because ld_proportional_odds_test re-fits J-1 binary logistic regressions over the same rows and its only argument is a handle to what this node returned; the registry stores that return, and a fitted object put there reaches the wire as a serialisation stub, which the determinism gate refuses outright · brant_test: the omnibus test of the proportional-odds assumption -- statistic, parameter (degrees of freedom, (J-2)p), p_value and method -- built from Brant (1990) section 3 on top of J-1 binary logistic regressions, because statsmodels carries no such test · by_variable: the same test restricted to one covariate at a time, on J-2 degrees of freedom, which is the per-covariate convention the literature reports · alpha: the level the verdict was taken at; reject: whether the proportional-odds restriction is rejected at it\nPitfalls: THE PROPORTIONAL-ODDS ASSUMPTION forces one coefficient across every threshold, and it is frequently violated -- the Brant test is not optional · the coefficient sign tells you the direction for the highest and lowest categories only; middle-category marginal effects can go either way · thresholds are not parameters of interest and are not comparable across specifications\nSources: McKelvey & Zavoina 1975 (Journal of Mathematical Sociology 4:103-120) · McCullagh 1980 (JRSS B 42(2):109-142, Table 1 p. 111 and pp. 112-113) · Brant 1990 (Biometrics 46:1171) · statsmodels.miscmodels.ordinal_model"
   },
   {
    "id": 524,

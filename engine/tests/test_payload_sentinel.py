@@ -44,6 +44,11 @@ REPO_ROOT = find_repo_root(Path(__file__))
 ASSERT_SH = REPO_ROOT / ".github" / "actions" / "assert-inventory" / "assert.sh"
 STUB_RAISE = "    raise NotImplementedError("
 
+#: How many implemented bodies ``assert.sh`` names in its remedy line before it stops:
+#: the script prints ``",".join(sorted(names)[:5])``. Written here so the test below asserts
+#: what the report promises rather than what a reader of it might assume.
+_NAMES_THE_REPORT_SHOWS = 5
+
 
 def _run(engine_dir: Path, manifest: Path) -> subprocess.CompletedProcess[str]:
     """Run the real gate on the real script, never a second copy of its logic.
@@ -155,14 +160,32 @@ def _implemented() -> int:
     return int(json.loads(INVENTORY.read_text(encoding="utf-8"))["engine"]["n_implemented"])
 
 
+def _payloads_in_the_tree() -> int:
+    """What ``find`` returns for the committed payload tree, asked the same way.
+
+    MEASURED RATHER THAN WRITTEN DOWN, because the count moved the first time a
+    body landed without an oracle case to be reached through, and a second copy of
+    the figure in this file would have been the thing that went stale.
+    """
+    return len(
+        [
+            path
+            for path in (ENGINE_ROOT / "tests" / "payloads").rglob("*.json")
+            if not path.name.startswith("_")
+        ]
+    )
+
+
 def test_the_resting_tree_is_green_and_the_word_is_retired() -> None:
     """POSITIVE. The directory exists, the count is measured, and the run is clean.
 
-    The measured count is 0 and that is a MEASUREMENT rather than an absence: the
-    one implemented method arrives with an oracle case, which the double-run gate
-    reads as its call, so no payload file was written for it. The distinction the
-    word used to carry -- a count that does not come back at all -- is now carried
-    by the directory's existence.
+    The measured count was 0 while every implemented method arrived with an oracle
+    case, which the double-run gate reads as its call. It rose when
+    ``ld_proportional_odds_test`` landed: Brant (1990) prints its statistics and
+    not the design behind them, so no oracle case can exist for that node and a
+    payload file is the only call it has. The distinction the word used to carry
+    -- a count that does not come back at all -- is still carried by the
+    directory's existence.
     """
     result = _run(ENGINE_ROOT, INVENTORY)
 
@@ -189,7 +212,11 @@ def test_a_count_that_does_not_match_the_directory_is_red(tmp_path: Path) -> Non
     assert result.returncode == 1, result.stdout + result.stderr
     line = _payload_line(result)
     assert line.startswith("  FAIL"), line
-    assert "7" in line and "0" in line, line
+    # BOTH NUMBERS, AND THE MEASURED ONE IS MEASURED HERE TOO. The claimed 7 is
+    # this test's own and the other side is the tree's; writing the second down
+    # would make this file the second home for a figure that moves with the
+    # directory, which is what it moved for the first time on 2026-08-30.
+    assert f"expected 7, measured {_payloads_in_the_tree()}" in line, line
     assert _failing_labels(result) == {"invocation_payloads"}, result.stdout
 
 
@@ -212,7 +239,9 @@ def test_an_underscored_file_is_apparatus_and_is_not_counted(tmp_path: Path) -> 
 
     ``engine/tests/payloads/_readme.json`` is what makes the directory exist and
     the count measurable. If ``assert.sh`` counted it the resting tree would read
-    1, and the committed 0 would be wrong in the quiet direction.
+    one more than it does, and the committed figure would be wrong in the quiet
+    direction. A SECOND underscored file is planted rather than the first being
+    read, so this stays true whatever the payload count is.
     """
     engine = _mirror(tmp_path)
     (engine / "tests" / "payloads" / "_second.json").write_text("{}", encoding="utf-8")
@@ -231,12 +260,22 @@ def test_the_word_still_refuses_a_tree_that_carries_a_body(tmp_path: Path) -> No
     removed and the word restored, because the alternative is a branch that stays
     in the script with nothing proving it still fires.
 
-    EVERY BODY IS REQUIRED BY NAME, AND THE NAMES ARE ASKED OF ``stub_ledger``.
+    THE BODIES ARE REQUIRED BY NAME, AND THE NAMES ARE ASKED OF ``stub_ledger``.
     This named one body and one only, which was the whole implemented set while
     there was one; with two it would have stayed green had ``ld_count_model``
     dropped out of the report altogether -- and reporting one body where the tree
     holds two is exactly the quiet-direction miscount the surrounding suite exists
-    to catch. The count is asserted beside the names for the same reason.
+    to catch. The count is asserted beside the names for the same reason, and it
+    is the count rather than the list that carries that guarantee.
+
+    THE REPORT NAMES AT MOST FIVE, AND THAT CAP IS PINNED HERE RATHER THAN
+    DISCOVERED. ``assert.sh`` prints ``",".join(sorted(names)[:5])``, so from the
+    sixth implemented body onward the line stops being the whole list -- and it
+    says nothing about having truncated, so a reader sees five names beside a
+    count of six. What this asserts is therefore the count, which is exact, and
+    the five names the report does promise, which is what it can promise. The
+    silence about the truncation is a wording defect in that remedy message and
+    is named here so that whoever widens the cap has a test that moves with it.
     """
     engine = _without_the_payload_tree(tmp_path)
     bodies = sorted(
@@ -251,7 +290,7 @@ def test_the_word_still_refuses_a_tree_that_carries_a_body(tmp_path: Path) -> No
     line = _payload_line(result)
     assert line.startswith("  FAIL"), line
     assert f"{len(bodies)} method(s) carry a body" in line, line
-    unnamed = [name for name in bodies if name not in line]
+    unnamed = [name for name in bodies[:_NAMES_THE_REPORT_SHOWS] if name not in line]
     assert not unnamed, f"the bodies {unnamed} in the tree are not named in {line!r}"
     assert _failing_labels(result) == {"invocation_payloads"}, result.stdout
 

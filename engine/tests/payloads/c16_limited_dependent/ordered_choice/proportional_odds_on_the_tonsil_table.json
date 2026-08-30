@@ -1,0 +1,18 @@
+{
+  "fn": "ld_proportional_odds_test",
+  "inputs": {
+    "fit": {
+      "$produce": {
+        "fn": "ld_ordered_choice",
+        "inputs": {
+          "y": {"$fixture": "mccullagh_1980_tonsil_size"},
+          "x": {"$fixture": "mccullagh_1980_streptococcus_carrier"},
+          "link": "logit",
+          "conf_level": 0.95
+        }
+      }
+    },
+    "alpha": 0.05
+  },
+  "notes": "THIS NODE HAS NO ORACLE CASE AND CANNOT HAVE ONE, WHICH IS WHY IT NEEDS A PAYLOAD. Brant (1990), doi:10.2307/2532457, prints an omnibus statistic of 11.2 on 6 degrees of freedom for 83 donated livers and never prints the 83 x 7 design it was computed from; McCullagh (1980) prints his data and no Brant statistic. So there is no published number to compare against and nothing for tests/oracle/ to hold -- and without a case there, the double-run gate has no call to make. This file is that call.\n\nWHY THESE ARGUMENTS AND NOT OTHERS. Three things have to be true at once for this node to reach its own arithmetic, and this is the only committed dataset on which all three are: the outcome must carry three levels or more, so that (J-2)p is at least one and the restriction has something to be tested against; every one of the J-1 dichotomies 1{y > j} must admit a maximum-likelihood estimate, which the separation gate asks of each in turn; and the fit must be a logit, because the restriction being tested is a statement about log odds. The sibling node's own oracle dataset fails the second: no domestic car in Stata's 1977 repair records has an Excellent record, so its fourth dichotomy is separated and this node REFUSES that fit -- a refusal reproduces perfectly and would exercise the gate rather than the body, which is exactly what this gate's own module says it will not accept as a run.\n\nWHAT THE CALL EXERCISES. Two binary logistic regressions over 1398 rows, their joint covariance including the off-diagonal blocks that are Brant's own contribution, the differencing contrast, one quadratic form for the omnibus statistic and one per covariate, and the chi-squared tail. `alpha` is named explicitly at the value the contract declares, so the `reject` field is computed from an argument that arrived rather than from a default nobody sent.\n\nWHAT IT DELIBERATELY DOES NOT DO. It makes no claim about the number that comes back. The statistic on these data is checked in tests/wrappers/c16_limited_dependent/test_ordered_choice.py against the scalar identity the three-category case reduces to -- (b_1 - b_2)^2 / Var(b_1 - b_2), rebuilt from the same two binary logits by a second route -- and that is a comparison with an algebraic identity rather than with a page, so it belongs in the module's own tests and not in a file whose whole point is that two runs agree with each other."
+}

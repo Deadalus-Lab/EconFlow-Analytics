@@ -100324,8 +100324,18 @@
     "conf_level": 0.95
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "params",
+     "thresholds",
+     "marginal_effects",
+     "coeftable",
+     "llf",
+     "nobs",
+     "link",
+     "outcome",
+     "design"
+    ]
    },
    "arguments": [
     {
@@ -100411,8 +100421,13 @@
     "alpha": 0.05
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "brant_test",
+     "by_variable",
+     "alpha",
+     "reject"
+    ]
    },
    "arguments": [
     {
