@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""The eighteen names this module exports, each with the input it passes and the one it blocks.
+"""The nineteen names this module exports, each with the input it passes and the one it blocks.
 
 PAIRED THROUGHOUT, for the reason every gate suite in this package is paired: a
 rule tested only on the input it refuses is indistinguishable from one that
@@ -29,6 +29,7 @@ from econflow_engine.gates.estimation import (
     refuse_estimator_failure,
     require_a_bare_name,
     require_a_column,
+    require_a_declared_option,
     require_an_aligned_index,
     require_an_allowlisted_specification,
     require_an_observed_value,
@@ -263,6 +264,66 @@ class TestRequireFiniteEstimates:
         with pytest.raises(GateError) as refused:
             require_finite_estimates(doubled, fn="f", quantity="coefficients", remedy="-")
         assert "['zm_x1']" in str(refused.value)
+
+
+class TestRequireADeclaredOption:
+    """The enum check the wire model does and a direct Python call did not.
+
+    ``mcp/make_tool.py`` validates an ``enum`` argument against the contract's own
+    list before a body runs, so nothing arriving THROUGH THE WIRE can be outside
+    it. The annotation is not the guard on the other path: ``tests/conftest.py``
+    installs ``beartype.claw``, but beartype is a dev dependency and that hook is
+    pytest's alone, so the shipped package enforced no ``Literal``. MEASURED with
+    the hook absent, on ``run_roc``: ``direction='X'`` returned an area of 0.0
+    where ``'<'`` returns 1.0 and reported ``'X'`` back beside it.
+    """
+
+    def test_a_declared_value_passes(self) -> None:
+        for option in ("<", ">", "auto"):
+            require_a_declared_option(
+                option, allowed=("<", ">", "auto"), fn="f", arg="direction", remedy="-"
+            )
+
+    # THE ARRAY IS WHAT MAKES THE ``isinstance`` HALF LOAD-BEARING. Every other
+    # value here is refused by ``value not in allowed`` on its own, so without it
+    # the type check could be deleted and this class would stay green. MEASURED:
+    # ``np.array(['<', '>']) not in ('<', '>', 'auto')`` raises ``ValueError: The
+    # truth value of an array with more than one element is ambiguous`` -- a crash
+    # out of a gate, which is the one thing a gate may not do.
+    @pytest.mark.parametrize(
+        "sent", ["X", "less", "", "ascending", "<=", None, 1, np.array(["<", ">"])]
+    )
+    def test_anything_outside_the_set_is_refused_and_named(self, sent: object) -> None:
+        with pytest.raises(GateError) as refused:
+            require_a_declared_option(
+                sent,
+                allowed=("<", ">", "auto"),
+                fn="f",
+                arg="direction",
+                remedy="Send '<', '>' or 'auto'.",
+            )
+        assert refused.value.reason_code == "other"
+        # THE CALLER'S CODE AND NOT THE AUTHOR'S. A value a user typed must not be
+        # reported as a defect in the wrapper.
+        assert refused.value.detail_code == "precondition-domain"
+        assert repr(sent) in str(refused.value)
+        assert "is not one of the values this argument declares" in str(refused.value)
+        assert "'<', '>', 'auto'" in str(refused.value)
+        assert "Send '<', '>' or 'auto'." in str(refused.value)
+
+    def test_the_refusal_says_it_will_not_guess(self) -> None:
+        """A near miss is refused rather than resolved to its neighbour.
+
+        ``'<='`` is one character from a declared value and each declared value
+        selects a DIFFERENT area, so a nearest-match would return a number the
+        caller did not ask for under a name they did not send.
+        """
+        with pytest.raises(GateError) as refused:
+            require_a_declared_option(
+                "<=", allowed=("<", ">", "auto"), fn="f", arg="direction", remedy="-"
+            )
+        assert "not resolved to a nearest match" in str(refused.value)
+        assert "it is not defaulted" in str(refused.value)
 
 
 class TestRequireNoSeparation:

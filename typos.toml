@@ -124,6 +124,11 @@ yhat = "yhat"        # y-hat, the fitted values
 # CONTRACT: renaming one is a breaking change to every saved analysis, not a
 # spelling fix, so they are admitted here rather than corrected.
 thr = "thr"          # the threshold-model function prefix: thr_predict, thr_regime
+# `max_fpr` is scikit-learn's own argument name for the partial-AUC bound, and
+# the checker splits the identifier and reads `fpr` -- the false-positive rate --
+# as a slip for "for". Card #84's wrapper names the argument in order to record
+# that it is deliberately not offered.
+fpr = "fpr"
 lik = "lik"          # log-likelihood, in loglik and similar output fields
 Lik = "Lik"
 pn = "pn"            # an argument name in the mixed-variable PCA node

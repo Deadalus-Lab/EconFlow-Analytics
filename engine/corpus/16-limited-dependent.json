@@ -93,31 +93,43 @@
     }
    ],
    "output_key_fields": [
-    "auc: Area Under Curve in [0,1]; 0.5=random, 1=perfect (the C-statistic)",
-    "auc_ci: {low,high,conf_level,method=delong}; low>0.5 -> significantly better than random",
-    "roc_curve: data_frame threshold/sensitivity/specificity (chart-ready; the ±Inf sentinels are removed)",
-    "best_threshold: named list at the Youden point (threshold/sensitivity/specificity; several rows on ties)",
-    "n_cases/n_controls: positives/negatives after dropping missing values; controls_level/cases_level: WHICH label is which",
-    "direction: '<' (controls below cases, the normal case for a probability score) or '>'; percent: False"
+    "auc: the area under the curve in [0,1], which is the Mann-Whitney statistic W of Hanley and McNeil (1982) section IV with a tie counted as half a win; 0.5 is a score that orders nothing and 1 is one that orders every pair. It is scikit-learn's roc_auc_score of the response against the predictor in the reported orientation",
+    "auc_ci: {low, high, conf_level, method='delong'}, from the placement-value variance of DeLong et al. (1988) computed by the midrank identity of Sun and Xu (2014) and a normal quantile. It is NOT clipped to [0,1], because a normal interval on a small sample legitimately runs past 1 and hiding that would hide the case where the approximation should not be trusted. It is null when ci is false, and a variance of zero is refused rather than reported as an interval of no width",
+    "roc_curve: a frame of threshold, sensitivity and specificity, one row per distinct operating point, with scikit-learn's +Inf sentinel row dropped and drop_intermediate NOT taken -- the library's default silently deletes an operating point. Sensitivity is the share of cases at or above the threshold when direction is '<' and at or below it when direction is '>'; thresholds are always on the predictor's own scale",
+    "best_threshold: the rows of roc_curve maximising Youden's J = sensitivity + specificity - 1, EVERY tied row kept, so it is a frame with the same three columns rather than a single row",
+    "n_cases/n_controls: how many observations carry the case level and the control level. Nothing is dropped for missingness -- a missing label or a missing score is refused -- so the two sum to the length supplied; controls_level/cases_level: WHICH observed label is which, the lower of the two levels being the control and the higher the case",
+    "direction: the orientation this call RESOLVED, always '<' (controls below cases, the normal case for a probability score) or '>', never the word 'auto' the caller may have sent; percent: False, so a reader knows the scale is 0 to 1 and not 0 to 100"
    ],
    "chart_kind": "line",
    "interpretation_traps": [
     "CRITICAL label inversion: swapped control/case labels -> AUC=1-AUC; always read controls_level/cases_level; AUC<0.5 is often inverted labels/direction",
-    "direction=auto silently picks the orientation with AUC>=0.5, hiding an inversion; for a strict evaluation set direction='<'",
+    "direction='auto' picks the orientation with AUC>=0.5, which is how an inversion hides; the resolved orientation is always reported under direction, and for a strict evaluation set direction='<' rather than reading it back",
     "an in-sample AUC (a predictor from the same sample) is optimistic; an out-of-sample/real-time evaluation is needed",
     "Youden != operationally optimal (it weights false alarm/miss equally; macro recession-calling is asymmetric)",
-    "AUC measures discrimination, NOT calibration; the same AUC can correspond to very different probability calibration"
+    "AUC measures discrimination, NOT calibration; the same AUC can correspond to very different probability calibration",
+    "auc_ci is DeLong's interval and no other: the standard error Hanley and McNeil print for their own data is their moment estimator rather than DeLong's, and the two disagree in the third decimal on the same 109 images"
    ],
    "sources": [
+    "Hanley & McNeil 1982 Radiology 143(1):29-36 (the area as a Mann-Whitney statistic; Table I and Table II)",
     "Robin et al. 2011 BMC Bioinformatics 12:77 (ROC curve analysis and comparison)",
     "DeLong, DeLong & Clarke-Pearson 1988 Biometrics 44:837-845 (AUC variance / CI)",
+    "Sun & Xu 2014 IEEE Signal Processing Letters 21(11):1389-1393 (the midrank form of that variance)",
     "Youden 1950 Cancer 3(1):32-35 (index J, best operating point)"
    ],
    "precondition_tools": [
     "c16_limited_dependent/binomial_glm_recession.run_binomial_fe_glm (produces the fitted_probabilities score)"
    ],
-   "precondition_gates": null,
-   "validation_notes": null
+   "precondition_gates": [
+    "precondition-sample-size",
+    "precondition-missing",
+    "precondition-degenerate",
+    "precondition-domain"
+   ],
+   "validation_notes": [
+    "direction has no default in the contract and its own description claims one: node-specs.json gives the argument has_default false while the description reads 'default auto'. An omitted optional reaches a body as None and stays None, so an absent direction is REFUSED rather than filled in with 'auto' -- a default a client cannot read out of the contract is a behaviour nobody agreed to, and the two orientations return an area and one minus it, so there is no neutral answer. Correcting the description changes the node's contract_hash and is an owner decision, so the tension is recorded here rather than reconciled in code",
+    "the body also raises precondition-shape, which this field cannot name: a response or a predictor that is not a single vector, and a predictor whose row labels are not the response's, are refused under that code, and gates/registry.py PRIMITIVES registers no primitive for it, so the closed vocabulary of precondition_gates has no entry to declare it with",
+    "which observed label is the case is decided by ORDER -- the lower of the two levels is the control, the higher is the case -- which is the rule scikit-learn's own binariser applies, and it is REPORTED under controls_level and cases_level rather than left implicit. Two levels with no order between them, such as the integer 0 beside the string 'NA', are refused rather than ranked by the order the rows arrive in"
+   ]
   },
   {
    "id": 206,
@@ -787,8 +799,19 @@
     "conf_level": 0.95
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "auc",
+     "auc_ci",
+     "roc_curve",
+     "best_threshold",
+     "n_cases",
+     "n_controls",
+     "controls_level",
+     "cases_level",
+     "direction",
+     "percent"
+    ]
    },
    "arguments": [
     {

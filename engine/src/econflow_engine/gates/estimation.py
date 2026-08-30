@@ -50,6 +50,16 @@ linear programme, not a comparison -- which is why the body that calls it keeps
 it OUTSIDE the ``try`` that translates the estimator's exceptions. It too carries
 ``precondition-degenerate`` and no new code.
 
+THE NINETEENTH IS THE FIRST ABOUT AN ARGUMENT'S VOCABULARY, AND IT EXISTS BECAUSE
+AN ANNOTATION WAS MISTAKEN FOR A GUARD. :func:`require_a_declared_option` refuses a
+value outside the set an ``enum`` argument declares. The wire model already does
+this, so the question is only ever asked of a DIRECT Python call -- and the body
+that needed it carried a docstring claiming beartype answered it there. beartype
+is a dev dependency installed by ``tests/conftest.py``, so the check existed under
+pytest and nowhere else, which is exactly the arrangement in which no test can see
+the hole. MEASURED with the hook absent, ``run_roc`` took ``direction='X'``,
+inverted the area to 0.0 where ``'<'`` returns 1.0, and reported ``'X'`` back.
+
 TWO OF THE FIRST SIX ARE A SECURITY BOUNDARY AND ARE NOT INTERCHANGEABLE WITH THE
 REST.
 :func:`require_a_bare_name` and :func:`require_an_allowlisted_specification` guard
@@ -95,6 +105,7 @@ __all__ = [
     "refuse_estimator_failure",
     "require_a_bare_name",
     "require_a_column",
+    "require_a_declared_option",
     "require_an_aligned_index",
     "require_an_allowlisted_specification",
     "require_an_observed_value",
@@ -259,6 +270,48 @@ def require_supplied(value: object, *, fn: str, arg: str, remedy: str) -> None:
             f"default for it, so nothing was filled in on your behalf and nothing "
             f"will be: a default this method invented would be one no client can "
             f"read out of the contract. {remedy}",
+            "precondition-domain",
+        )
+
+
+def require_a_declared_option(
+    value: object, *, allowed: tuple[str, ...], fn: str, arg: str, remedy: str
+) -> None:
+    """Refuse a value outside the set an ``enum`` argument declares.
+
+    THE WIRE PATH ALREADY DOES THIS AND THE DIRECT PATH DOES NOT, WHICH IS THE
+    WHOLE CASE FOR THE FUNCTION. ``mcp/make_tool.py`` builds a pydantic model from
+    the node's contract and an ``enum`` argument is validated against the
+    contract's own list before a body runs, so nothing reaching a node THROUGH THE
+    WIRE can arrive outside it. A direct Python call has no such model in front of
+    it.
+
+    THE ANNOTATION IS NOT THE GUARD, AND BELIEVING IT WAS IS HOW THIS SHIPPED.
+    ``tests/conftest.py`` installs ``beartype.claw`` over ``econflow_engine``,
+    which does enforce every ``Literal`` -- but beartype is a DEV dependency and
+    that hook is installed by pytest alone; conftest's own comment says it must
+    never move into the package. So the suite runs with the check and the shipped
+    package runs without it, which is precisely the arrangement in which no test
+    can see the hole. MEASURED on a direct call to ``run_roc`` with the hook
+    absent: ``direction='X'`` returned an area of 0.0 where ``'<'`` returns 1.0,
+    with ``'X'`` echoed back under ``direction`` -- an inverted area and an
+    orientation outside the declared enum, and no refusal. ``'less'`` and ``''``
+    behaved the same way.
+
+    IT CARRIES ``precondition-domain`` AND NOT ``gate-argument``. The value came
+    from the CALLER and the caller can fix it by sending a declared one; the
+    author-error code would tell a wrapper author to go looking at their own code
+    for something a user typed.
+    """
+    if not isinstance(value, str) or value not in allowed:
+        listed = ", ".join(repr(option) for option in allowed)
+        raise _refuse(
+            fn,
+            f'"{arg}" was sent as {value!r}, which is not one of the values this '
+            f"argument declares: {listed}. It is not resolved to a nearest match "
+            f"and it is not defaulted -- every value here selects a different "
+            f"answer, so guessing which one was meant would return a number the "
+            f"caller did not ask for. {remedy}",
             "precondition-domain",
         )
 

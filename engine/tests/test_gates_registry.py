@@ -60,10 +60,19 @@ INVENTORY = find_manifest(Path(__file__))
 CARDS_WITH_DECLARED_GATES_FLOOR = 0
 
 
-#: sha256 over the nineteen validation_notes sentences in card order, newline
+#: sha256 over the twenty-five validation_notes sentences in card order, newline
 #: joined. Measured, with the command in the test that reads it. It was fifteen
-#: until 2026-08-28, when cards 527 and 528 were authored with two notes each.
-SENTENCES_SHA256 = "1780c197d3665ab345762a692b93e9248ca9589c2dc45ff89aac20918d2af2b4"
+#: until 2026-08-28, when cards 527 and 528 were authored with two notes each, and
+#: nineteen until 2026-08-30, when card 84 was authored with three: the contract
+#: publishes no default for `direction` while the argument's own description claims
+#: one, the body raises a detail code `precondition_gates` has no entry for, and
+#: which observed label is the case is decided by order and reported rather than
+#: inferred. It became twenty-five the same day, when card 83 was given the three
+#: its body's design turns on: separation is gated ACROSS the sample and not WITHIN
+#: a fixed effect, a covariate that separates inside every level comes back as a
+#: converged fit, and a constant-outcome level is dropped by the estimator with a
+#: warning in one direction and in silence in the other.
+SENTENCES_SHA256 = "51fb27e725b49c8a5a5008f3347d561a854bf70bbb01c3402532c2c46592a793"
 
 
 def read(name: str) -> Any:
@@ -432,14 +441,25 @@ def test_the_sentences_the_gate_displaced_are_still_documented() -> None:
     one-line diff, and a reviewer sees both. A floor would only catch the second
     kind and would let the sentences be replaced by others.
 
-    IT HAS BEEN EXTENDED ONCE, on 2026-08-28: cards 527 and 528 each carry two
-    sentences saying that ``zero_one_inflated_beta`` and ``multinomial_probit``
-    must refuse, because no implementation of either exists to call.
+    IT HAS BEEN EXTENDED THREE TIMES. On 2026-08-28: cards 527 and 528 each carry
+    two sentences saying that ``zero_one_inflated_beta`` and ``multinomial_probit``
+    must refuse, because no implementation of either exists to call. On
+    2026-08-30: card 84 carries three, written with ``run_roc``'s body -- the
+    contract publishes no default for ``direction`` while the argument's own
+    description claims one, so an absent orientation is refused rather than
+    filled in; the body raises ``precondition-shape``, which this vocabulary has
+    no entry for; and which observed label is the case is decided by order and
+    reported rather than inferred. The same day, card 83 carries three of its own,
+    and they were OWED rather than new: ``run_binomial_fe_glm``'s separation gate
+    is asked of the covariates alone, which is stated in five places in its source
+    and three of its tests while the card a user actually reads said nothing at
+    all. A gap named only where nobody reading the catalogue will see it is not a
+    named gap.
     """
     cards = {int(card["id"]): card for card in read("method-cards.json")["cards"]}
     #: card id -> how many notes it carries. Extend this when a card is authored
     #: with notes; never shrink it to match a card that lost some.
-    carried = {96: 3, 97: 3, 98: 3, 99: 3, 100: 3, 527: 2, 528: 2}
+    carried = {83: 3, 84: 3, 96: 3, 97: 3, 98: 3, 99: 3, 100: 3, 527: 2, 528: 2}
 
     documented = {
         card_id: len(card["validation_notes"] or ())
@@ -475,12 +495,13 @@ def test_the_sentences_the_gate_displaced_are_still_documented() -> None:
         for card_id in sorted(cards)
         for note in (cards[card_id]["validation_notes"] or ())
     ]
-    assert len(sentences) == 19, len(sentences)
+    assert len(sentences) == 25, len(sentences)
     digest = hashlib.sha256("\n".join(sentences).encode("utf-8")).hexdigest()
     assert digest == SENTENCES_SHA256, (
-        f"the nineteen sentences digest to {digest}, not {SENTENCES_SHA256}; one has "
-        "been reworded or reordered. Fifteen were moved verbatim out of "
-        "precondition_gates and four were authored on cards 527 and 528; all "
-        "nineteen are the documented refusals a user would otherwise meet "
-        "undocumented -- if the edit is deliberate, recompute the constant."
+        f"the twenty-five sentences digest to {digest}, not {SENTENCES_SHA256}; one "
+        "has been reworded or reordered. Fifteen were moved verbatim out of "
+        "precondition_gates, four were authored on cards 527 and 528, three on "
+        "card 84 and three on card 83; all twenty-five are the documented refusals a "
+        "user would otherwise meet undocumented -- if the edit is deliberate, "
+        "recompute the constant."
     )

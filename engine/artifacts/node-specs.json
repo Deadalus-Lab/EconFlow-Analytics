@@ -100209,8 +100209,19 @@
     "conf_level": 0.95
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "auc",
+     "auc_ci",
+     "roc_curve",
+     "best_threshold",
+     "n_cases",
+     "n_controls",
+     "controls_level",
+     "cases_level",
+     "direction",
+     "percent"
+    ]
    },
    "arguments": [
     {
