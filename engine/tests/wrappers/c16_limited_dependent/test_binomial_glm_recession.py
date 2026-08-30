@@ -823,6 +823,21 @@ class TestOracleCase:
             is None
         )
 
+        # THE CLASS IS NOT THE REPRODUCTION, and until this assertion existed only
+        # the class was enforced. `estimate-1e-4` is named for what the PAPER
+        # PRINTS -- four decimal places, so no tighter band can be claimed against
+        # the page -- but what the engine actually achieves is two orders better,
+        # and that was recorded in the fixture's notes where nothing could hold it.
+        # MEASURED on the pinned libraries: Intercept 4.477813e-06, temperature
+        # 1.009191e-05. The band below is twice the worse of the two, so an
+        # ordinary library patch does not move it, while a reproduction decaying
+        # towards the class's own 1e-4 does. Its worth is that the fixture's prose
+        # had ALREADY drifted -- it claimed 8.7e-6 for a gap that measures
+        # 1.009191e-05 -- which is what a number kept outside a gate does.
+        for name, published in case.expected["coefficients"].items():
+            relative = abs(payload["coefficients"][name] - published) / abs(published)
+            assert relative < 2e-5, (name, published, payload["coefficients"][name], relative)
+
 
 class TestDeterminism:
     """Class D -- identical inputs, identical bytes."""
