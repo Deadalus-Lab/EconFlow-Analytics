@@ -106,6 +106,7 @@
     "_comment_controls": "THE THREE PLANTED-CONTROL COUNTS, ADDED 2026-08-23 WITH BOXES 2.1.14, 2.1.16 AND 2.1.18. All three harnesses are written against implemented wrapper bodies, and engine.n_implemented is 0 -- so run as written each would examine nothing and report success, which is the failure ARCHITECTURE.md 11.1 exists to refuse and which this tree has hit six times. Each therefore carries planted positive controls it MUST flag and negative controls it MUST NOT, on the pattern .github/scripts/check-no-network.sh established. These counts are EXACT, not floors: deleting a control must be a visible one-line diff here, because a harness silently left with fewer controls than it claims is indistinguishable from one that has stopped proving itself. The wrapper-facing floors are separate and read engine.n_implemented, so they rise on their own with the first body in 2.2 and need no second edit. NOTE these are NOT checked by assert-inventory/assert.sh: it flattens the engine|spdx|artifacts|suite sections but only compares the keys it names explicitly, exactly as it already leaves min_tests, failed and error to run_verifications.sh. The measuring sites are steps 11, 12 and 13 of engine/run_verifications.sh.",
     "determinism_controls": 5,
     "property_controls": 4,
+    "network_controls": 6,
     "doctest_examples": 2
   },
   "oracle": {
@@ -160,6 +161,7 @@
     "literal_callable_nodes": "python3 -c \"import json;d=json.load(open('artifacts/node-specs.json'));b=set(d['vocabulary']['pointer_handle_kinds'])|{'path'};print(sum(1 for n in d['nodes'] if not any(a['kind'] in b for a in n['arguments'] if a['required'])))\"",
     "determinism_controls": "grep -cE '\"\"\"(POSITIVE|NEGATIVE)\\.' tests/controls/determinism.py",
     "property_controls": "grep -cE '\"\"\"(POSITIVE|NEGATIVE)\\.' tests/controls/property_controls.py",
+    "network_controls": "grep -cE '\"\"\"(POSITIVE|NEGATIVE|OPAQUE)\\.' tests/controls/network_reach.py",
     "doctest_examples": "python3 -m pytest --doctest-modules --collect-only -q tests/controls/doctest_correct.py | grep -c '::'",
     "mutation_min_mutants": "uv run --project .. mutmut run >/dev/null 2>&1; uv run --project .. mutmut export-cicd-stats >/dev/null && python3 -c \"import json;print(json.load(open('mutants/mutmut-cicd-stats.json'))['total'])\"",
     "mutation_min_kill_rate": "uv run --project .. mutmut export-cicd-stats >/dev/null && python3 -c \"import json;s=json.load(open('mutants/mutmut-cicd-stats.json'));print(round(100*s['killed']/s['total'],1))\""

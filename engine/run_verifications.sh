@@ -212,13 +212,32 @@ echo "== 8. the public API still matches its committed baseline =="
 # either name. See api-baseline/check_api.py for why this is not `griffe check`.
 $RUN python api-baseline/check_api.py || fail "the wrapper API drifted from api-baseline/wrappers.json"
 
-echo "== 9. no wrapper reaches the network =="
+echo "== 9. no wrapper SOURCE names a transport =="
 # Published in five places and called "Verified", with nothing re-measuring it
 # until 2026-08-21. The figure quoted was taken by hand when the tree held 251
 # wrapper modules and was never taken again while the tree more than doubled.
 # A claim without a gate is a memory.
+#
+# READ THIS STEP WITH 9b. It parses OUR source, so it answers for the 598 files
+# it walks and for nothing underneath them. Step 9b is the other half.
 bash ../.github/scripts/check-no-network.sh .. ||
-  fail "a wrapper reaches the network; fetching belongs to the external-data node"
+  fail "a wrapper's source names a transport; fetching belongs to the external-data node"
+
+echo "== 9b. and no wrapper OPENS a connection while it runs =="
+# THE HALF STEP 9 CANNOT REACH, and the case that produced it is in the
+# dependency set already: textstat calls nltk.download() on a cache miss, which
+# resolves raw.githubusercontent.com AT CALL TIME. A body calling it would reach
+# the network on every call while engine.wrapper_network_calls stayed 0, because
+# the wrapper's own source names no transport. The import contract at step 3 has
+# the same blind spot from the other side -- grimp squashes external packages, so
+# wrappers -> textstat -> nltk -> urllib is one edge to an opaque node.
+#
+# So this step stops parsing and starts WATCHING: every implemented body is run
+# under a PEP 578 audit hook that sees socket and urllib events at C level, and no
+# library can evade it by importing differently. Its floor is engine.n_implemented
+# and its planted controls include the textstat path itself.
+$RUN python -m tests.controls.network_reach ||
+  fail "a wrapper body opened a connection at run time, or a planted control did not fire"
 
 echo "== 10. running a method twice returns the same bytes =="
 # BOX 2.1.14. ONE method qualifies today, and this comment used to say zero: the
@@ -281,10 +300,10 @@ echo "== 12. the planted control sets are the size the manifest claims =="
 # and both of the harnesses above are only as good as their controls. Deleting
 # one is therefore a visible one-line diff in .github/inventory.json.
 for pair in "determinism_controls:determinism.py" "property_controls:property_controls.py" \
-  "fixture_controls:fixture_reach.py"; do
+  "fixture_controls:fixture_reach.py" "network_controls:network_reach.py"; do
   key="${pair%%:*}"
   module="tests/controls/${pair#*:}"
-  planted="$(grep -cE '"""(POSITIVE|NEGATIVE)\.' "$module" || true)"
+  planted="$(grep -cE '"""(POSITIVE|NEGATIVE|OPAQUE)\.' "$module" || true)"
   expected="$(inventory suite "$key")" || fail "the ${key} floor is unreadable"
   [ "$planted" -eq "$expected" ] ||
     fail "${module} plants ${planted} control(s), the manifest says ${expected}"
