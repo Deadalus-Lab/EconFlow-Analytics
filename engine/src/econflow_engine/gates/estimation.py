@@ -242,6 +242,17 @@ _SEPARATION_MARGIN = 1e-8
 #: ``OptimizeWarning: Invalid option value`` and silently keeps its own -- so the
 #: recovery rests on an undocumented clamp two orders wide, and buying 1 case in
 #: 3000 with that is a worse trade than naming it here.
+#:
+#: THE GAP IS PINNED BY A TEST AND NOT ONLY BY THIS PARAGRAPH. Naming a cost in
+#: prose leaves nothing to notice when the cost changes, and the design behind the
+#: figures above was never committed, so neither edge of the band could be
+#: re-measured. ``tests/test_gates_estimation.py`` now carries an eight-row design
+#: -- swept for, then reduced row by row while the verdict held -- that separates
+#: under the direction (0, 0.9, 1) with a smallest margin of 0.041406 and that
+#: this gate admits, its witness violating feasibility by -1.666092e-08 against a
+#: band of -4.833462e-12. That test asserts the WRONG answer deliberately, so
+#: moving this constant in either direction turns it red instead of moving the
+#: gap in silence: MEASURED, at 1e-8 the same design is refused.
 _SEPARATION_WITNESS_FEASIBILITY = 1e-12
 
 

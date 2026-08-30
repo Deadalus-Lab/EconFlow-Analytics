@@ -610,6 +610,82 @@ class TestRequireNoSeparation:
         require_no_separation(design, response=pd.Series(outcome), fn="f", remedy="-")
 
 
+    #: A design that SEPARATES and that this gate nevertheless admits. Eight rows,
+    #: recovered by sweep and then reduced row by row while the verdict held; the
+    #: reduction is what makes it small enough to read.
+    FALSE_NEGATIVE_X0 = (
+        -1.9035467822756038,
+        -0.7288473017240793,
+        -1.429153830702324,
+        1.663241444849746,
+        -0.8887421144553375,
+        -1.3442459140726306,
+        0.6847212681786018,
+        -0.6073235314355453,
+    )
+    FALSE_NEGATIVE_X1 = (
+        1.7963925089807575,
+        -0.31980421524644115,
+        1.1500743456375981,
+        2.135120442547325,
+        -2.944719820657696,
+        1.2512276501009154,
+        -0.7264584708143823,
+        0.8936171991919502,
+    )
+    FALSE_NEGATIVE_Y = (1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0)
+
+    def test_the_one_separated_design_this_gate_admits_is_still_admitted(self) -> None:
+        """THE GAP, PINNED. This asserts WRONG behaviour on purpose.
+
+        :data:`_SEPARATION_WITNESS_FEASIBILITY` buys its refusal of 381 falsely
+        refused designs at the price of admitting a small number that genuinely
+        separate, and the module says so in prose. Nothing held that price to a
+        number: the sweeps behind it were never committed, so a change to the
+        constant, or to HiGHS's own tolerance, could widen or narrow the gap with
+        no test moving in either direction.
+
+        SEPARATION IS ESTABLISHED HERE WITHOUT A LINEAR PROGRAMME, which is the
+        only way this test can be evidence about the gate rather than a second
+        copy of it. The direction (0, 0.9, 1) orders every one of the eight rows
+        strictly, with a smallest margin of 0.041406, so the maximum-likelihood
+        estimate for this design does not exist and a refusal would be correct.
+        The gate does not make it: MEASURED, the witness its programme returns
+        violates its own constraints by -1.666092e-08 against a feasibility band
+        of -4.833462e-12, so :func:`require_no_separation` returns rather than
+        refusing.
+
+        WHAT A FAILURE OF THIS TEST MEANS. It is not a regression. If this design
+        starts being REFUSED, the gap has closed and this test should be rewritten
+        as the ordinary refusal test it would then be -- and the module's prose,
+        which quotes the price as one design in 3000, must move with it.
+
+        Recovered by sweeping designs separated by construction: one admitted in
+        40000, at 281 rows, then reduced to these 8 while the verdict held.
+        """
+        design = pd.DataFrame(
+            {
+                "Intercept": [1.0] * 8,
+                "x0": list(self.FALSE_NEGATIVE_X0),
+                "x1": list(self.FALSE_NEGATIVE_X1),
+            }
+        )
+        response = pd.Series(self.FALSE_NEGATIVE_Y)
+
+        # THE DESIGN SEPARATES, shown by exhibiting a direction rather than by
+        # asking a solver. Every row's oriented projection is strictly positive.
+        oriented = (2.0 * response.to_numpy(dtype=float) - 1.0)[:, None] * design.to_numpy(
+            dtype=float
+        )
+        margins = oriented @ np.array([0.0, 0.9, 1.0])
+        assert margins.min() > 0.0
+        assert margins.min() == pytest.approx(0.041406, abs=1e-6)
+
+        # AND THE GATE ADMITS IT ANYWAY. This is the recorded cost of the
+        # feasibility band, not a property anybody wants.
+        require_no_separation(design, response=response, fn="f", remedy="-")
+
+
 class TestIsEstimatorRefusal:
     """Which exceptions are the estimator objecting, and which are a defect here."""
 
