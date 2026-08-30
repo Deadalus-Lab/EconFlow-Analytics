@@ -814,6 +814,26 @@ def require_no_separation(
     depend on where an iteration happened to stop, on how many iterations it was
     allowed, or on which kernel the machine chose.
 
+    WHAT ``design`` MUST HOLD, STATED HERE BECAUSE THREE CALL SITES ANSWERED IT
+    THREE DIFFERENT WAYS AND ONLY ONE OF THEM HAD CHOSEN. **Every column whose
+    coefficient the likelihood in question is maximised over, THE INTERCEPT
+    INCLUDED wherever the model has one** -- ``b`` above ranges over exactly these
+    columns, so a column left out is a direction the programme cannot look along
+    and a column put in that the model does not estimate is one it must not.
+    THE INTERCEPT IS NOT COSMETIC HERE: without it the feasible set is a
+    homogeneous half-space through the origin rather than a family of hyperplanes,
+    and MEASURED, an indicator covariate whose ones share one outcome scores 0.0
+    over the covariate alone and 2.250000e+01 with the intercept beside it -- 5
+    positive outcomes among Stata's 66 repair records. The three call sites and
+    what each now sends: ``ld_ordered_choice`` builds the ordered model as one
+    stacked binary design with a boundary-specific intercept, so the cut-point
+    columns ARE its intercepts; ``ld_proportional_odds_test`` sends the intercept
+    its binary logits carry; ``run_binomial_fe_glm`` sends
+    ``matrix.independent``, adding the constant column formulaic leaves out when
+    the specification carries a fixed effect. A fixed effect's LEVELS are a
+    separate matter and are not columns of this design -- the paragraph below is
+    about them, and it is a decision rather than an oversight.
+
     THE CALLER PASSES THE COVARIATES, AND A FIXED-EFFECT LEVEL IS NOT ONE OF
     THEM -- NOT BECAUSE THE LEVELS GAVE WRONG ANSWERS BUT BECAUSE THEY ANSWERED
     THE WRONG QUESTION. With the complete indicator set in the design this
@@ -871,11 +891,15 @@ def require_no_separation(
     3000 admitted -- against 381 falsely refused and 403 crashed in a population of
     12500 whose outcome no design orders.
 
-    THIS IS ASKED OF ONE NODE TODAY. ``ld_count_model`` and
-    ``ld_fractional_response`` are the same family and the same question belongs
-    on both -- a Poisson with fixed effects separates the same way -- but each is
-    its own change, with its own probe and its own paired tests, and neither is
-    made here.
+    THIS IS ASKED OF THREE NODES TODAY -- ``run_binomial_fe_glm``,
+    ``ld_ordered_choice`` and ``ld_proportional_odds_test`` -- and the middle one
+    is not a binary model at all: it reaches this programme through the stacked
+    design ``ordered_choice._the_existence_question`` builds, where the ordered
+    model's existence condition IS Silvapulle's on one binary design carrying a
+    boundary-specific intercept. ``ld_count_model`` and ``ld_fractional_response``
+    are the same family as the first and the same question belongs on both -- a
+    Poisson with fixed effects separates the same way -- but each is its own
+    change, with its own probe and its own paired tests, and neither is made here.
     """
     if design.shape[1] == 0:
         # A DESIGN WITH NO COLUMNS HAS NO DIRECTION TO SEPARATE ALONG, and it is

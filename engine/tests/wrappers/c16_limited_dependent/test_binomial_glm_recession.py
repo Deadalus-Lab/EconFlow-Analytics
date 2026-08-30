@@ -423,31 +423,83 @@ class TestGatesBlock:
         # does not.
         assert "the estimator refused these inputs" not in str(refused.value)
 
+    @pytest.mark.parametrize("specification", ["y ~ x | g", "y ~ x"])
+    def test_the_same_dummy_is_refused_on_both_paths_now_the_intercept_is_stated(
+        self, specification: str
+    ) -> None:
+        """GATE 6'S OTHER HALF: WHICH DESIGN THE EXISTENCE QUESTION IS ASKED OF.
+
+        ``require_no_separation`` now states a contract for its ``design`` -- every column whose
+        coefficient the likelihood is maximised over, the intercept included where the model has
+        one -- and until it did, this node obeyed it on one path and not the other BY ACCIDENT:
+        formulaic puts an ``Intercept`` in ``matrix.independent`` for ``y ~ x`` and none in it for
+        ``y ~ x | g``, because the fixed effect absorbs it. Nobody chose the second.
+
+        THE HOLE THAT LEFT IS THE ORDINARY CASE OF A DUMMY REGRESSOR, MEASURED. Over the covariate
+        ALONE the eight rows below score 0.0 and are ADMITTED -- ``x`` is an indicator, so no
+        direction in it alone orders the outcome -- and with the intercept they score 2.0 and are
+        refused. On Stata's 66 repair records the same shape reads 0.0 against 2.250000e+01.
+
+        WHAT THE EXTRA COLUMN COSTS ON THE PANELS THE LEVELS WERE REMOVED FOR: nothing, and that is
+        the whole reason one column is not the indicator matrix. MEASURED over four seeded logit
+        panels with a firm effect and one covariate -- 100 x 5, 100 x 10, 100 x 20 and 300 x 8, with
+        25, 9, 4 and 44 constant-outcome levels -- the margin is 0.0 over the covariates and 0.0
+        with the intercept in every one, while the level indicators score 3.2464e+01, 1.8916e+01,
+        1.7923e+01 and 7.7471e+01.
+        """
+        estimable = pd.DataFrame(
+            {
+                "x": [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0],
+                "y": [0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0],
+                "g": ["a", "a", "b", "b", "a", "a", "b", "b"],
+            }
+        )
+        assert wrapper.run_binomial_fe_glm(
+            formula=specification, data=estimable, link="logit"
+        )["nobs"] == 8
+
+        quasi = pd.DataFrame(
+            {
+                "x": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+                "y": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0],
+                "g": ["a", "a", "b", "b", "a", "a", "b", "b"],
+            }
+        )
+        with pytest.raises(GateError) as refused:
+            wrapper.run_binomial_fe_glm(formula=specification, data=quasi, link="logit")
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "the design separates the outcome" in str(refused.value)
+        assert "'Intercept'" in str(refused.value)
+        assert "the estimator refused these inputs" not in str(refused.value)
+
     @pytest.mark.parametrize(
         ("formula", "fixef"), [("y ~ x", "g"), ("y ~ x | g", None)]
     )
     def test_a_design_of_nothing_but_zeros_is_refused_rather_than_divided_by(
         self, formula: str, fixef: str | None
     ) -> None:
-        """THE MARGIN'S DENOMINATOR IS THE LARGEST ROW NORM, AND IT CAN BE ZERO.
+        """A DESIGN OF NOTHING BUT ZEROS, WHICH THIS NODE ONCE DIVIDED BY.
 
-        A FIXED EFFECT IS WHAT MAKES THIS REACHABLE, and it is worth saying why
-        rather than treating the ``fixef`` as decoration. MEASURED, the design the
-        gate sees is ``matrix.independent``: ``y ~ x`` leaves it holding
-        ['Intercept', 'x'] and ``y ~ x | g`` leaves it holding ['x'] alone,
-        because the fixed effect absorbs the intercept. With ``x`` all zero the
-        second is a matrix of nothing but zeros, its largest row norm is 0.0, and
-        ``float(-programme.fun) / 0.0`` raised ``ZeroDivisionError: float division
-        by zero`` -- which escapes the gateway, since ``mcp/make_tool.py`` turns a
-        ``GateError`` into a refusal and lets every other exception out as a
-        crash.
+        THE HISTORY, BECAUSE THE FRAME IS ONLY WORTH KEEPING WITH IT. The margin's
+        denominator is the largest row norm, and MEASURED, ``y ~ x`` left
+        ``matrix.independent`` holding ['Intercept', 'x'] while ``y ~ x | g`` left
+        it holding ['x'] alone -- the fixed effect absorbs the intercept. With
+        ``x`` all zero the second was a matrix of nothing but zeros, its largest
+        row norm was 0.0, and ``float(-programme.fun) / 0.0`` raised
+        ``ZeroDivisionError: float division by zero``, which escapes the gateway:
+        ``mcp/make_tool.py`` turns a ``GateError`` into a refusal and lets every
+        other exception out as a crash. It was a REGRESSION -- the identical frame
+        with ``x`` at 1e-320 was never a crash -- which is why the gate declines to
+        answer a question with no answer rather than refusing on it.
 
-        AND IT WAS A REGRESSION, WHICH IS THE HALF THAT DECIDES HOW IT IS FIXED.
-        MEASURED: the identical frame with ``x`` at 1e-320 rather than 0.0 was
-        never a crash -- it reaches the estimator and comes back as the refusal
-        below. So a working refusal was replaced by a crash, and restoring it is
-        what this asserts: the gate declines to answer a question that has no
-        answer, and pyfixest's own objection is translated as it always was.
+        THIS NODE NO LONGER REACHES THAT GUARD, AND THE FRAME STAYS ANYWAY. The
+        design now carries the intercept on both paths, so the largest row norm is
+        1.0 here and the programme scores 0.0 -- the outcome alternates and no
+        constant orders it. What the two calls below assert is unchanged and is
+        the whole point of the frame: pyfixest's own "All variables are collinear"
+        reaches the caller as a refusal on both spellings and identically at 0.0
+        and at 1e-320. The zero-denominator guard itself is exercised where it can
+        still be reached directly, in tests/test_gates_estimation.py.
         """
         zero = pd.DataFrame(
             {

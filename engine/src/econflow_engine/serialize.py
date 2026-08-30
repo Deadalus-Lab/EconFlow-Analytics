@@ -237,6 +237,11 @@ def _(value: pd.Categorical) -> dict[str, Any]:
     return {
         "values": [None if pd.isna(v) else str(v) for v in value],
         "levels": [str(c) for c in value.categories],
+        "ordered": bool(value.ordered),
+        # `ordered` IS PART OF THE ANSWER AND NOT A DETAIL. `levels` is a LIST, so it
+        # reads as an order whether or not the column declares one -- and an
+        # unordered Categorical's categories are pandas' lexicographic sort, which is
+        # an order nobody chose. A consumer cannot tell the two apart without this.
     }
 
 
@@ -244,6 +249,16 @@ def _(value: pd.Categorical) -> dict[str, Any]:
 def _(value: pd.Series) -> dict[str, Any]:
     """Every time-series representation collapses to this: values plus an index."""
     out: dict[str, Any] = {"values": [to_mcp(v) for v in value.tolist()]}
+    if isinstance(value.dtype, pd.CategoricalDtype):
+        # THE CATEGORICAL HANDLER ABOVE NEVER SEES A CATEGORICAL COLUMN. `to_mcp` is a
+        # `singledispatch` over the argument's CLASS, and a Categorical inside a Series
+        # is a Series -- so `tolist()` flattened it to its labels and the levels and
+        # their order were dropped on the wire while surviving in process. Measured on
+        # `ld_ordered_choice`, whose `outcome` is published as an ordered Categorical
+        # precisely for the order it carries: what travelled was `{"values": [...],
+        # "name": "tonsil_size"}` and nothing else.
+        out["levels"] = [str(c) for c in value.cat.categories]
+        out["ordered"] = bool(value.cat.ordered)
     if isinstance(value.index, pd.DatetimeIndex | pd.PeriodIndex):
         out["index"] = [_iso_index_label(t) for t in value.index]
         freq = getattr(value.index, "freqstr", None)

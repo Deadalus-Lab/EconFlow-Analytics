@@ -82,6 +82,11 @@ _MIN_OBSERVATIONS = 3
 #: link function within it; the estimator's ``family`` argument conflates the two.
 _FAMILY = "binomial"
 
+#: formulaic's own name for the constant column, taken rather than invented: it is
+#: the label a caller reads in the separation refusal, and it has to be the one
+#: ``matrix.independent`` already uses on the specifications that carry one.
+_INTERCEPT = "Intercept"
+
 #: What to send instead, wherever the estimator itself objects. Named once
 #: because the two blocks that translate its refusals -- the design build and the
 #: fit -- run the same parser over the same specification and reject the same
@@ -151,8 +156,12 @@ def _separation_design(
     replacement. Reaching for ``formulaic`` directly would put a second formula
     grammar beside the estimator's and gate a design it never fits.
 
-    THE DESIGN IS ``matrix.independent`` AND THE FIXED-EFFECT LEVELS ARE NOT IN
-    IT. THE REASON IS NOT THAT EXPANDING THEM GAVE WRONG ANSWERS -- IT DID NOT --
+    THE DESIGN IS ``matrix.independent`` PLUS AN INTERCEPT, AND THE FIXED-EFFECT
+    LEVELS ARE NOT IN IT. The intercept is the gate's stated contract for
+    ``design`` -- every column whose coefficient the likelihood is maximised over
+    -- and formulaic supplies it for ``y ~ x`` and withholds it for ``y ~ x | g``,
+    which is why it is added here rather than relied on. THE REASON THE LEVELS ARE
+    OUT IS NOT THAT EXPANDING THEM GAVE WRONG ANSWERS -- IT DID NOT --
     BUT THAT IT ANSWERED THE WRONG QUESTION, AND THIS PARAGRAPH SAYS SO BECAUSE
     THE FIRST DRAFT OF IT CLAIMED OTHERWISE. With the complete indicator set in
     the design the programme scores above zero exactly when some level carries a
@@ -178,11 +187,15 @@ def _separation_design(
     is dropped: a design of (20000, 10001) and 7852 MB of peak RSS through the
     programme, against (20000, 1) and 237 MB over the covariates.
 
-    WHAT THE COVARIATE-ONLY PROGRAMME ASKS IS A THIRD QUESTION -- whether one
-    hyperplane orders the POOLED sample -- which is neither of the two above. It
-    keeps every unambiguous refusal (see the two links in the body's docstring)
-    and gives up the fixed-effect half entirely; the gap below says what that
-    costs and what would close it properly.
+    WHAT THE COVARIATES-AND-INTERCEPT PROGRAMME ASKS IS A THIRD QUESTION --
+    whether one hyperplane orders the POOLED sample -- which is neither of the two
+    above. It keeps every unambiguous refusal (see the two links in the body's
+    docstring) and gives up the fixed-effect half entirely; the gap below says
+    what that costs and what would close it properly. The intercept is what makes
+    it a hyperplane rather than a half-space through the origin, and refusing on
+    it says nothing false about a conditional estimate: a direction that orders
+    the pooled sample orders it inside every level too, so the within-level
+    likelihood is non-decreasing along the same ray.
 
     ``drop_singletons=True`` MIRRORS ``feglm``'s ``fixef_rm='singleton'``
     DEFAULT, which ``_drop_singletons`` turns into exactly this flag
@@ -292,7 +305,24 @@ def _separation_design(
     response = matrix.dependent.iloc[:, 0]
     if set(response.unique()) != {0.0, 1.0}:
         return None
-    return matrix.independent, response
+    design = matrix.independent
+    if _INTERCEPT not in design.columns:
+        # THE GATE'S ``design`` CONTRACT, OBEYED ON BOTH PATHS RATHER THAN ON ONE.
+        # `matrix.independent` carries an ``Intercept`` for ``y ~ x`` and none for
+        # ``y ~ x | g``, because the fixed effect absorbs it -- so the same question
+        # was put to two different designs, and nobody chose the second. MEASURED,
+        # what that left open is the ordinary case of a dummy regressor: over the
+        # covariate alone the eight rows of this module's paired test score 0.0 and
+        # are admitted, and with the intercept 2.0; on Stata's 66 repair records the
+        # same shape reads 0.0 against 2.250000e+01. ONE COLUMN IS NOT THE INDICATOR
+        # MATRIX, which is what the levels were removed for: MEASURED over four
+        # seeded logit panels with a firm effect and one covariate -- 100 x 5,
+        # 100 x 10, 100 x 20 and 300 x 8 -- the margin is 0.0 over the covariates and
+        # 0.0 with the intercept in all four, while the levels score 3.2464e+01,
+        # 1.8916e+01, 1.7923e+01 and 7.7471e+01.
+        design = design.copy()
+        design.insert(0, _INTERCEPT, 1.0)
+    return design, response
 
 
 def _null_deviance(response: np.ndarray) -> float:
@@ -482,8 +512,9 @@ def run_binomial_fe_glm(
         measured ``ZeroDivisionError`` below that. ``fixef`` is a bare name and
         ``fixef`` names a real column -- the card's own ``fixef`` description,
         and the injection below. ``fixef`` and ``| col`` not both supplied -- the
-        card does not say which wins. The COVARIATES do not separate the outcome
-        -- the next paragraph, and note the word: separation WITHIN a fixed effect
+        card does not say which wins. The COVARIATES AND THE INTERCEPT do not
+        separate the outcome
+        -- the next paragraph, and note the words: separation WITHIN a fixed effect
         is not asked about here and is the gap named on
         :func:`_separation_design`. The fit converged -- which therefore still
         covers a separated fixed effect as well as an iteration that ran out of
