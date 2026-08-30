@@ -31,6 +31,7 @@ __all__ = [
 # --- gen_wrappers: header end ---
 
 import math
+import warnings
 
 import numpy as np
 
@@ -39,6 +40,14 @@ import numpy as np
 # resolves the attribute to the module and reports the call as uncallable, where
 # mypy resolves it to the function. Naming the function is what both agree on.
 from pyfixest.estimation import Felogit, Feprobit, feglm
+
+# The estimator's OWN model-matrix construction, which is what `feglm` reaches
+# for at `models/feols_.py:405`. pyfixest's deprecation notice on the retired
+# `model_matrix_fixest` names this pair as its replacement; neither is exported
+# on the package root, and a second formula grammar beside the estimator's would
+# gate a design it never fits.
+from pyfixest.estimation.formula.model_matrix import create_model_matrix
+from pyfixest.estimation.formula.parse import Formula
 
 from econflow_engine.gates.estimation import (
     is_estimator_refusal,
@@ -49,6 +58,7 @@ from econflow_engine.gates.estimation import (
     require_an_allowlisted_specification,
     require_at_most_one_spelling,
     require_convergence,
+    require_no_separation,
     require_supplied,
 )
 from econflow_engine.gates.primitives import (
@@ -70,6 +80,15 @@ _MIN_OBSERVATIONS = 3
 #: The response distribution, which is fixed for this node. ``link`` selects the
 #: link function within it; the estimator's ``family`` argument conflates the two.
 _FAMILY = "binomial"
+
+#: What to send instead, wherever the estimator itself objects. Named once
+#: because the two blocks that translate its refusals -- the design build and the
+#: fit -- run the same parser over the same specification and reject the same
+#: two things.
+_ESTIMATOR_REMEDY = (
+    "The formula must name columns the data carries, and the variable on its left "
+    "must be binary -- exactly two levels, coded 0 and 1."
+)
 
 
 def _usable_numbers(data: pd.DataFrame) -> None:
@@ -97,6 +116,163 @@ def _usable_numbers(data: pd.DataFrame) -> None:
             require_no_missing(
                 np.where(column.isna(), np.nan, 0.0), fn=_FN, arg=label
             )
+
+
+def _separation_design(
+    specification: str, data: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.Series] | None:
+    """The design and the response the estimator is about to fit, ``None`` where
+    the specification carries no single binary model to ask about.
+
+    THE ESTIMATOR'S OWN PARSER, NOT A SECOND ONE. ``Formula.parse`` and
+    ``create_model_matrix`` are the two calls ``Feols.prepare_model_matrix``
+    makes (``pyfixest/estimation/models/feols_.py`` 405-413), and pyfixest's own
+    deprecation notice on the retired ``model_matrix_fixest`` names them as the
+    replacement. Reaching for ``formulaic`` directly would put a second formula
+    grammar beside the estimator's and gate a design it never fits.
+
+    THE DESIGN IS ``matrix.independent`` AND THE FIXED-EFFECT LEVELS ARE NOT IN
+    IT. THE REASON IS NOT THAT EXPANDING THEM GAVE WRONG ANSWERS -- IT DID NOT --
+    BUT THAT IT ANSWERED THE WRONG QUESTION, AND THIS PARAGRAPH SAYS SO BECAUSE
+    THE FIRST DRAFT OF IT CLAIMED OTHERWISE. With the complete indicator set in
+    the design the programme scores above zero exactly when some level carries a
+    constant outcome, or when the covariates order the outcome inside every mixed
+    level; both are precisely non-existence of the UNCONDITIONAL maximum
+    likelihood estimate, so no estimable design was ever refused.
+
+    THE TROUBLE IS THAT THE UNCONDITIONAL ESTIMATE IS NOT WHAT A BINARY PANEL IS
+    FOR, AND A CONSTANT-OUTCOME LEVEL IS THE ORDINARY CASE. MEASURED on logit
+    panels carrying a firm effect and one covariate -- constant-outcome firms,
+    then margin with the levels before and after ``feglm``'s own row dropping:
+    25 of 100 firms and 2.7035e+01 -> 1.6221e+01 over 100 firms x 5 years;
+    16 of 100 and 3.4040e+01 -> 1.9147e+01 over 100 x 10; 2 of 100 and
+    7.9761e+00 -> 0.0 over 100 x 20; 44 of 300 and 7.5204e+01 -> 4.6148e+01 over
+    300 x 8. Over the covariates alone all four score 0.0. Such a level's effect
+    is +/-infinity, it contributes nothing to the CONDITIONAL likelihood, and
+    dropping its rows is the standard treatment -- so refusing the whole fit for
+    it turns a routine panel into an error.
+
+    THE LEVELS ALSO DENSIFIED THE DESIGN. ``pd.get_dummies`` built an ``n`` x
+    ``levels`` float64 matrix on a node that takes a caller-supplied handle.
+    MEASURED over 20000 rows and 10000 levels, two rows to a level so that none
+    is dropped: a design of (20000, 10001) and 7852 MB of peak RSS through the
+    programme, against (20000, 1) and 237 MB over the covariates.
+
+    WHAT THE COVARIATE-ONLY PROGRAMME ASKS IS A THIRD QUESTION -- whether one
+    hyperplane orders the POOLED sample -- which is neither of the two above. It
+    keeps every unambiguous refusal (see the two links in the body's docstring)
+    and gives up the fixed-effect half entirely; the gap below says what that
+    costs and what would close it properly.
+
+    ``drop_singletons=True`` MIRRORS ``feglm``'s ``fixef_rm='singleton'``
+    DEFAULT, which ``_drop_singletons`` turns into exactly this flag
+    (``pyfixest/estimation/FixestMulti_.py`` 249, 758). IT IS THE ROW SET THAT
+    NEEDS IT AND NO LONGER THE MARGIN, which corrects the reason recorded here
+    while the levels were in the design: a singleton was then its own indicator
+    column and separated on it alone, MEASURED on the 138 O-ring rows with one
+    row given a level of its own, at positions 0, 68 and 137 -- 0.0 with it
+    dropped and 1.2195e-02 with it kept. Over the covariates alone all six of
+    those score 0.0, so the flag changes no answer here. It stays because it
+    aligns this design with the estimator's -- PARTLY: ``feglm`` drops further
+    rows after this point, for separation, which this function does not see.
+
+    TWO CASES THIS LEAVES UNCOVERED. NAMED RATHER THAN DROPPED, BOTH MEASURED.
+
+    (1) A FIXED-EFFECT LEVEL WHOSE OUTCOME NEVER VARIES. MEASURED on the 138
+    O-ring rows carrying a twelve-row level with no incident in it: the margin is
+    1.4634e-01 with the indicators in the design and 0.0 without them. pyfixest
+    0.60.0 answers this one itself -- it removes the twelve behind
+    ``UserWarning: 12 observations removed because of separation.``, fits the
+    remaining 126 and returns ``convergence`` True -- and the estimate it hands
+    back EXISTS: MEASURED, the margin over those 126 rows is 0.0 with the levels
+    and without them. What is uncovered is the SILENCE about the twelve rather
+    than a fit with no maximum; the caller is told by that warning and by a
+    shorter ``obs_kept``, and by nothing else.
+
+    (1b) AND THE MIRROR OF IT IS NOT SYMMETRIC, WHICH IS WHY IT IS WRITTEN OUT.
+    pyfixest's check removes a level that is ALL-ZERO and keeps one that is
+    ALL-ONE. MEASURED on the same 138 rows with six incident rows given a level
+    of their own: the margin is 7.3171e-02 with the indicators and 0.0 without
+    them, and ``feglm`` keeps all 138 rows, returns ``convergence`` True and
+    raises NO WARNING AT ALL. MEASURED on the panels above, where the split is
+    plain: 100 firms x 5 years carries ten all-zero levels and fifteen all-one,
+    and after the drop the all-zero are gone and all fifteen all-one remain.
+    Here the caller gets no signal whatever -- not a warning, not a shortened
+    ``obs_kept`` -- so this half is worse than (1) and shares its cause.
+
+    (2) SEPARATION INSIDE EVERY LEVEL BUT NOT ACROSS THEM, WHICH IS THE WORSE
+    HALF AND IS NOT THE SAME CASE. A covariate can order the outcome within each
+    level at a DIFFERENT cut per level, and then no single hyperplane orders the
+    pooled sample and the covariates alone score 0.0. MEASURED on eight rows and
+    two levels, ``x`` cutting level A at 0 and level B at 10: 0.0 over the
+    covariate, 1.0256e-01 with the levels, and ``feglm`` returns ``convergence``
+    True, deviance 6.016594756162403e-08 and a coefficient of 19.697788 with a
+    standard error of 6795.277043. That is a maximum-likelihood estimate that
+    does not exist, reported as a fit -- the defect this gate exists for, in its
+    fixed-effect form -- and this design admits it.
+
+    WHAT WOULD CLOSE THEM, AND WHAT WOULD NOT. Re-running this programme after
+    the estimator's own row dropping would NOT: MEASURED, pyfixest's check leaves
+    fifteen all-one levels in the 100 x 5 panel and the programme over the rows
+    it kept still scores 1.6221e+01, so that route refuses the same routine
+    panels the levels did. What closes both is asking the CONDITIONAL question
+    the panel is actually about, which needs no indicator matrix: (a) any level
+    with a constant outcome, found by one groupby; (b) for the rest, whether one
+    ``b`` orders the outcome inside every mixed level, which is a programme over
+    the WITHIN-LEVEL DIFFERENCES ``x_i - x_j`` taken for ``y_i = 1, y_j = 0`` --
+    as many columns as covariates, and no ``n`` x ``levels`` matrix anywhere.
+    That is a different question from the one asked here, with its own probe, its
+    own paired tests and its own owner decision. It is not made here.
+
+    THE TWO ``None`` ANSWERS ARE THE TWO STATES IN WHICH THE QUESTION HAS NO
+    MEANING, AND THE ESTIMATOR REFUSES BOTH A FEW LINES BELOW. A specification
+    naming several models parses to several formulas and returns a
+    ``FixestMulti``; a response that is not two-valued 0/1 raises the estimator's
+    own "The dependent variable must have two unique values." Separation is
+    defined for one binary model, and answering for a response of ``{0.0}`` or
+    ``{0.0, 1.0, 2.0}`` would replace a refusal that says what is wrong with one
+    that does not.
+
+    THE SUPPRESSED WARNING IS THE ESTIMATOR'S, RAISED ONE LINE EARLY. This build
+    and ``feglm``'s take the same formula, the same frame and the same arguments,
+    so MEASURED they emit the identical ``UserWarning`` about dropped singletons
+    -- twice, once each. The caller must see it once, from the fit; and where
+    this gate refuses, there is no fit and the refusal is the message.
+    """
+    formulas = Formula.parse(specification)
+    if len(formulas) != 1:
+        return None
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        matrix = create_model_matrix(
+            # `data.copy()` AND `context={}`, BOTH MEASURED, NEITHER OPTIONAL.
+            #
+            # `feglm` passes `copy_data=True` and so never touches the frame the
+            # caller handed over; `create_model_matrix` opens with
+            # `data.reset_index(drop=True, inplace=True)` and, for a `^`
+            # interaction, writes the encoded column back. MEASURED: a frame
+            # indexed 10..17 came back indexed 0..7, and `y ~ x | era^dec` left
+            # a new `era_dec` column on the CALLER's object. A gate that reads
+            # must not rewrite what it read.
+            #
+            # `context` defaults to 0, a STACK FRAME OFFSET: `capture_context(0)`
+            # is `sys._getframe(3)`, which through this direct call is THIS
+            # function's frame and through `feglm` is a pyfixest-internal one.
+            # Its mapping is merged on the RIGHT, so it also shadows pyfixest's
+            # own `log`, `i` and `__fixed_effect__`. MEASURED before pinning it:
+            # `y ~ specification` and `y ~ formulas` resolved this function's
+            # locals as factors and escaped as a raw `TypeError`, on a body whose
+            # formula surface has already carried one live injection. An empty
+            # mapping is the environment the estimator's own path offers.
+            formula=formulas[0],
+            data=data.copy(),
+            drop_singletons=True,
+            context={},
+        )
+    response = matrix.dependent.iloc[:, 0]
+    if set(response.unique()) != {0.0, 1.0}:
+        return None
+    return matrix.independent, response
 
 
 def _null_deviance(response: np.ndarray) -> float:
@@ -151,6 +327,39 @@ def run_binomial_fe_glm(
         - precondition-missing
         - precondition-degenerate
         - precondition-domain
+
+    Validation:
+        Documented on the method card:
+
+        - separation is refused ACROSS the sample and is NOT checked WITHIN a fixed effect, and that
+          is a deliberate boundary rather than an oversight. The body puts Konis (2007)
+          linear-programming feasibility -- Silvapulle's (1981) existence condition solved as a
+          programme -- to the COVARIATES alone, because expanding the fixed-effect levels into
+          indicators answers a different question: with the levels in the design the programme
+          scores above zero whenever any level carries a constant outcome, which is the ORDINARY
+          case in a binary panel and whose effect is infinite and contributes nothing to the
+          conditional likelihood. MEASURED on logit panels with a firm effect and one covariate,
+          constant-outcome firms against the margin with the levels in: 25 of 100 firms and
+          2.7035e+01 over 100 firms x 5 years, 44 of 300 and 7.5204e+01 over 300 x 8 -- while over
+          the covariates alone all of them score 0.0. So refusing on the expanded design would turn
+          routine panels into errors, and the narrower question is asked instead
+        - the case that boundary leaves open is a covariate that orders the outcome inside EVERY
+          level at a different cut per level, which no single hyperplane over the pooled sample can
+          see. MEASURED on eight rows and two levels cut at 0 and at 10: the covariates score 0.0
+          and the levels 1.0256e-01, and feglm returns convergence TRUE with deviance
+          6.016594756162403e-08 and a coefficient of 19.697788 whose standard error is 6795.277043
+          -- a maximum-likelihood estimate that does not exist, reported as a fit. Read the standard
+          errors and obs_kept rather than the convergence flag: a coefficient near 20 beside a
+          standard error in the thousands is separation inside a level, not an effect
+        - a fixed-effect level whose outcome never varies is dropped by the estimator rather than by
+          this node, and the two halves of that are NOT symmetric. MEASURED against pyfixest 0.60.0:
+          an ALL-ZERO level is removed behind 'UserWarning: N observations removed because of
+          separation.' and shortens obs_kept, while an ALL-ONE level is KEPT with no warning and no
+          change to obs_kept at all -- on 138 rows with six positive rows given a level of their
+          own, all 138 are kept and convergence is TRUE. The estimate that comes back is one that
+          exists, so this is silence about which rows were used rather than a fit with no maximum;
+          compare obs_kept against the frame's own length before reading the coefficients as an
+          answer about the whole sample
 
     .. gen_wrappers: end of generated docstring
 
@@ -243,9 +452,50 @@ def run_binomial_fe_glm(
         measured ``ZeroDivisionError`` below that. ``fixef`` is a bare name and
         ``fixef`` names a real column -- the card's own ``fixef`` description,
         and the injection below. ``fixef`` and ``| col`` not both supplied -- the
-        card does not say which wins. The fit converged -- a separated fit
-        returns coefficients near +-57 with ``convergence`` false. The
-        estimator's own refusals are translated rather than crashed on.
+        card does not say which wins. The COVARIATES do not separate the outcome
+        -- the next paragraph, and note the word: separation WITHIN a fixed effect
+        is not asked about here and is the gap named on
+        :func:`_separation_design`. The fit converged -- which therefore still
+        covers a separated fixed effect as well as an iteration that ran out of
+        steps, and the node exposes no limit to raise. The estimator's own
+        refusals are translated rather than crashed on.
+
+        SEPARATION IS REFUSED FROM THE DATA, AND THE CONVERGENCE FLAG CANNOT DO
+        IT. This paragraph replaces a claim that was true only on the machine it
+        was written on: "a separated fit returns coefficients near +-57 with
+        ``convergence`` false". Reproduce with::
+
+            import numpy as np, pandas as pd
+            from pyfixest.estimation import feglm
+            frame = pd.DataFrame({"x": [1., 2, 3, 4, 5, 6, 7, 8],
+                                  "y": [0., 0, 0, 0, 1, 1, 1, 1]})
+            for link in ("logit", "probit"):
+                with np.errstate(divide="ignore", invalid="ignore"):
+                    fit = feglm("y ~ x", frame, family=link)
+                print(link, bool(fit.convergence), fit.deviance, dict(fit.coef()))
+
+            logit False 0.019002321852144635 {'Intercept': -57.16580917955002,
+                                              'x': 12.703513151011114}
+            probit True 0.5033898356102827 {'Intercept': -15.752135995812294,
+                                            'x': 3.5004746657360624}
+
+        SO THE FLAG IS FALSE FOR ONE LINK AND TRUE FOR THE OTHER ON THE SAME
+        EIGHT ROWS. The probit half is deterministic and is a fit that does not
+        exist reported as one that does, p-values 0.149716 and 0.147083 attached.
+        The logit half is a lottery: pyfixest stops the IWLS at
+        ``|dev - dev_old| / (0.1 + |dev_old|) < 1e-8``
+        (``pyfixest/estimation/models/feglm_.py`` 358-360, 426-440), separation
+        stalls it on a plateau at deviance 0.019002321852144635 where that
+        denominator is 0.119, and the flag therefore fires on a step smaller than
+        1.19e-9 -- decided by the last bit of the linear algebra. numpy's wheel
+        builds OpenBLAS ``DYNAMIC_ARCH``, so the GEMM kernel is chosen from the
+        CPU at run time; perturbing the IWLS step by one ULP flips the flag to
+        True in 21 of 25 perturbations of an unchanged frame. What is asked
+        instead is Konis (2007) linear-programming feasibility over the design --
+        objective 4.0 and margin 4.4444e-01 on those eight rows in all 25, 0.0 on
+        every frame this engine's suite fits.
+        :func:`~econflow_engine.gates.estimation.require_no_separation` carries
+        the arithmetic and the measured tolerance.
 
         THE TWO GATES ON THE SPECIFICATION ARE A SECURITY BOUNDARY, and they
         exist because this body BUILDS a string that is then EVALUATED. MEASURED
@@ -272,14 +522,19 @@ def run_binomial_fe_glm(
         correct fit raises rather than returning. ``divide`` and ``invalid`` are
         relaxed around the call and nothing else is, so an overflow or an
         underflow is NOT SILENCED -- it raises. It does not reach the caller as a
-        crash, though: it raises inside the ``try`` below, and the only call in
-        that block is the estimator's, so ``is_estimator_refusal`` reads it as the
-        estimator objecting and it is reported as a refusal carrying the class and
-        the original text. MEASURED: numpy raises ``FloatingPointError`` for an
-        overflow under a raising error state, not ``OverflowError``, and both
-        derive from ``ArithmeticError``. A likelihood with no maximum is refused
-        through ``convergence`` rather than through an exception that depends on
-        the caller's settings.
+        crash, though: it raises inside a ``try`` below, and neither of the two
+        encloses arithmetic of this engine's own, so ``is_estimator_refusal``
+        reads it as the estimator objecting and it is reported as a refusal
+        carrying the class and the original text. MEASURED: numpy raises ``FloatingPointError``
+        for an overflow under a raising error state, not ``OverflowError``, and
+        both derive from ``ArithmeticError``. THAT IS WHY THE SEPARATION GATE SITS
+        BETWEEN THE TWO BLOCKS RATHER THAN INSIDE EITHER: it is this engine's own
+        linear-programming arithmetic, and a fault in it caught by either handler
+        would be reported to the caller as the library's objection to their data.
+        A likelihood the COVARIATES leave without a maximum is refused from the
+        design before the estimator runs, so that case never depends on the
+        caller's error state at all. A fixed effect that separates still reaches
+        the estimator, by the gap named on :func:`_separation_design`.
 
         TWO PRIVATE ATTRIBUTES ARE READ, THERE IS NO PUBLIC ROUTE TO EITHER, AND
         THEY ARE ON DIFFERENT INDEX SPACES. ``_data.index`` holds the retained
@@ -320,6 +575,35 @@ def run_binomial_fe_glm(
     # The allowlist walked `formula` at the argument boundary; it never saw the
     # string built here, which is the one the estimator parses.
     require_an_allowlisted_specification(specification, fn=_FN)
+    # ITS OWN ``try``, AND NOT THE ESTIMATOR'S BELOW. Neither block encloses
+    # arithmetic of this engine's own, which is what makes reading an
+    # ``ArithmeticError`` out of either as the estimator objecting safe. This one
+    # is not purely a library call -- `_separation_design` also copies the frame,
+    # takes a column and compares a set -- but the only failure those reach is an
+    # ``IndexError``, which ``is_estimator_refusal`` does not accept. The
+    # separation gate itself sits BETWEEN the two blocks because it IS this
+    # engine's arithmetic: inside either, a fault in it would be reported to the
+    # caller as the library's objection to their data.
+    try:
+        separation = _separation_design(specification, data)
+    except Exception as error:
+        if not is_estimator_refusal(error):
+            raise
+        refuse_estimator_failure(
+            error, fn=_FN, code="precondition-degenerate", remedy=_ESTIMATOR_REMEDY
+        )
+    if separation is not None:
+        design, outcome = separation
+        require_no_separation(
+            design,
+            response=outcome,
+            fn=_FN,
+            remedy=(
+                "Drop the separating predictor, or pool the levels that separate. "
+                "This is asked of the data rather than of the fit, so the answer "
+                "does not depend on where an iteration stopped."
+            ),
+        )
     try:
         # THE ESTIMATOR IS RUN UNDER numpy's OWN ERROR STATE AND NOT UNDER THE
         # CALLER'S, for the two conditions its IWLS is written to expect. MEASURED
@@ -330,22 +614,16 @@ def run_binomial_fe_glm(
         # returning. Narrowed to the two states measured, so an overflow or an
         # underflow is not silenced; it raises, and the except below then reports
         # it as the estimator's refusal rather than letting it escape -- this
-        # block encloses no arithmetic of this engine's own. What the estimator does with a
-        # genuinely degenerate likelihood is then visible where it belongs, in
-        # `convergence`: the separated fit below returns False and is refused.
+        # block encloses no arithmetic of this engine's own. A likelihood the
+        # COVARIATES leave without a maximum never reaches here; one a fixed
+        # effect leaves without a maximum still does, and comes back as a fit.
         with np.errstate(divide="ignore", invalid="ignore"):
             model = feglm(specification, data, family=str(link))
     except Exception as error:
         if not is_estimator_refusal(error):
             raise
         refuse_estimator_failure(
-            error,
-            fn=_FN,
-            code="precondition-degenerate",
-            remedy=(
-                "The formula must name columns the data carries, and the variable on "
-                "its left must be binary -- exactly two levels, coded 0 and 1."
-            ),
+            error, fn=_FN, code="precondition-degenerate", remedy=_ESTIMATOR_REMEDY
         )
     if not isinstance(model, Felogit | Feprobit):
         # THE TWO CLASSES THE TWO ADMISSIBLE LINKS PRODUCE, measured on 0.60.0:
@@ -371,9 +649,12 @@ def run_binomial_fe_glm(
         fn=_FN,
         estimator="iteratively reweighted least-squares",
         remedy=(
-            "This is what perfect or quasi-separation looks like: a predictor that "
-            "splits the outcome leaves the likelihood without a maximum. Drop the "
-            "separating predictor, or pool the levels that separate."
+            "Separation has been ruled out ACROSS the sample but not WITHIN a fixed "
+            "effect, so either is possible here: check whether a level of the "
+            "grouping carries only one outcome, or whether a predictor splits the "
+            "outcome inside every level. Otherwise rescale a predictor whose units "
+            "are far larger than the others, or drop one that is nearly collinear "
+            "with another. This node exposes no iteration limit to raise."
         ),
     )
 

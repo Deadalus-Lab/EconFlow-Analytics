@@ -19,8 +19,9 @@ import json
 import math
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -239,15 +240,47 @@ class TestGatesBlock:
         assert refused.value.detail_code == "precondition-domain"
         assert "two spellings" in str(refused.value)
 
-    def test_a_converged_fit_passes_and_a_separated_one_is_refused(self) -> None:
-        """GATE 6. MEASURED: perfect separation returns coefficients of about +-57.
+    @pytest.mark.parametrize("link", ["logit", "probit"])
+    def test_an_estimable_frame_passes_and_a_separated_one_is_refused_on_both_links(
+        self, link: Literal["probit", "logit"]
+    ) -> None:
+        """GATE 6. THE PREMISE THIS TEST USED TO CARRY WAS FALSE ON BOTH LINKS.
 
-        The body runs the estimator under numpy's shipped error state, so this
-        reaches ``require_convergence`` rather than an arithmetic exception whose
-        occurrence depends on how the caller left ``np.seterr``. Nothing is
-        relaxed here; that is the point of the scoping.
+        It asserted that ``convergence`` detects separation, and quoted "perfect
+        separation returns coefficients of about +-57". Neither half survives
+        measurement.
+
+        THE LOGIT HALF IS A LOTTERY. pyfixest 0.60.0 stops the IWLS at
+        ``|dev - dev_old| / (0.1 + |dev_old|) < 1e-8``
+        (``pyfixest/estimation/models/feglm_.py`` 358-360, 426-440). Under
+        separation the iteration does not diverge -- it stalls on a plateau at
+        deviance 0.019002321852144635, where that denominator is 0.119 and the
+        flag therefore fires whenever a step moves the deviance by less than
+        1.19e-9. Which side of that a run lands on is decided by the last bit of
+        the linear algebra, and numpy's wheel builds OpenBLAS ``DYNAMIC_ARCH``,
+        so the GEMM kernel is chosen from the CPU at run time and a heterogeneous
+        runner fleet is a coin toss. Perturbing the IWLS step by ONE ULP flips
+        the flag to True in 21 of 25 perturbations while the frame is unchanged.
+        That is the observed CI failure: this assertion failed with DID NOT RAISE
+        on a tree byte-identical to a run where it passed.
+
+        THE PROBIT HALF NEEDS NO LOTTERY AND IS WRONG TODAY, EVERY TIME. The same
+        eight rows under ``link='probit'`` return ``convergence`` True, deviance
+        0.5033898356102827 and coefficients -15.752136 and 3.500475 carrying
+        p-values 0.149716 and 0.147083 -- a maximum-likelihood estimate that does
+        not exist, handed back as a valid fit with inference attached.
+
+        WHAT REPLACES IT. The body now asks a question about the DATA before it
+        fits: Konis (2007) linear-programming feasibility, which is 0 for every
+        frame this suite fits and 4.4444e-01 for the eight rows below -- an
+        objective of 4.0 against a largest row norm of 9 -- on both links and
+        under all 25 perturbations. So this frame is still refused -- for the
+        reason it is actually inadmissible, and on whichever kernel the runner
+        picked.
         """
-        assert fitted()["coefficients"]
+        assert wrapper.run_binomial_fe_glm(
+            formula="incident ~ temperature", data=oring(), link=link
+        )["coefficients"]
 
         separated = pd.DataFrame(
             {
@@ -256,9 +289,317 @@ class TestGatesBlock:
             }
         )
         with pytest.raises(GateError) as refused:
-            wrapper.run_binomial_fe_glm(formula="y ~ x", data=separated, link="logit")
+            wrapper.run_binomial_fe_glm(formula="y ~ x", data=separated, link=link)
+        assert refused.value.reason_code == "other"
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "the design separates the outcome" in str(refused.value)
+        assert "maximum-likelihood estimate does not exist" in str(refused.value)
+        assert "'x'" in str(refused.value)
+        # THE REFUSAL IS THIS ENGINE'S AND MUST NOT BE ATTRIBUTED TO THE LIBRARY.
+        # ``GateError`` derives from ``ValueError``, so a gate call moved inside
+        # either estimator ``try`` is read by ``is_estimator_refusal`` as pyfixest
+        # objecting and comes back wrapped -- with this whole message quoted
+        # inside it, so every assertion above still passes. This is the one that
+        # does not.
+        assert "the estimator refused these inputs" not in str(refused.value)
+
+    @pytest.mark.parametrize(
+        ("formula", "fixef"), [("y ~ x", "g"), ("y ~ x | g", None)]
+    )
+    def test_a_design_of_nothing_but_zeros_is_refused_rather_than_divided_by(
+        self, formula: str, fixef: str | None
+    ) -> None:
+        """THE MARGIN'S DENOMINATOR IS THE LARGEST ROW NORM, AND IT CAN BE ZERO.
+
+        A FIXED EFFECT IS WHAT MAKES THIS REACHABLE, and it is worth saying why
+        rather than treating the ``fixef`` as decoration. MEASURED, the design the
+        gate sees is ``matrix.independent``: ``y ~ x`` leaves it holding
+        ['Intercept', 'x'] and ``y ~ x | g`` leaves it holding ['x'] alone,
+        because the fixed effect absorbs the intercept. With ``x`` all zero the
+        second is a matrix of nothing but zeros, its largest row norm is 0.0, and
+        ``float(-programme.fun) / 0.0`` raised ``ZeroDivisionError: float division
+        by zero`` -- which escapes the gateway, since ``mcp/make_tool.py`` turns a
+        ``GateError`` into a refusal and lets every other exception out as a
+        crash.
+
+        AND IT WAS A REGRESSION, WHICH IS THE HALF THAT DECIDES HOW IT IS FIXED.
+        MEASURED: the identical frame with ``x`` at 1e-320 rather than 0.0 was
+        never a crash -- it reaches the estimator and comes back as the refusal
+        below. So a working refusal was replaced by a crash, and restoring it is
+        what this asserts: the gate declines to answer a question that has no
+        answer, and pyfixest's own objection is translated as it always was.
+        """
+        zero = pd.DataFrame(
+            {
+                "y": [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0],
+                "x": [0.0] * 8,
+                "g": ["a", "a", "b", "b", "a", "a", "b", "b"],
+            }
+        )
+        with pytest.raises(GateError) as refused:
+            wrapper.run_binomial_fe_glm(
+                formula=formula, data=zero, link="logit", fixef=fixef
+            )
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "the estimator refused these inputs" in str(refused.value)
+        assert "All variables are collinear" in str(refused.value)
+        # The frame that was NEVER a crash, asserted beside the one that was, so
+        # that a fix which merely swallows the zero shows up here as a difference
+        # between the two.
+        with pytest.raises(GateError) as tiny:
+            wrapper.run_binomial_fe_glm(
+                formula=formula, data=zero.assign(x=1e-320), link="logit", fixef=fixef
+            )
+        assert str(tiny.value) == str(refused.value)
+
+    def test_a_near_collinear_design_is_fitted_rather_than_called_separated(self) -> None:
+        """A SOLVER RESIDUAL IS NOT A FACT ABOUT THE CALLER'S DATA.
+
+        HiGHS's default primal feasibility tolerance is 1e-7, so on this design it
+        returned ``success`` True and ``status`` 0 at a point violating the
+        programme's own constraints by -3.778144463950639e-09 on 46 of the 120
+        rows, with an objective that divided out to a margin of 1.015745e-08 --
+        above the threshold, so the node refused the call and told the caller
+        their design separates the outcome.
+
+        IT DOES NOT. MEASURED on this frame: 65 zeros and 55 ones, controls
+        spanning ``a`` in [-2.251, 2.245] against cases in [-1.860, 1.795], and
+        the fit below exists -- pyfixest 0.60.0 returns ``convergence`` True at
+        Intercept -0.138024 and ``a`` 0.397434 once it drops ``b`` for
+        multicollinearity. The refusal was a false statement about the frame
+        standing in front of a fit that was there all along, which is why the
+        coefficients are asserted here and not merely the absence of a raise.
+        """
+        rng = np.random.default_rng(159)
+        rows = 120
+        base = rng.normal(size=rows)
+        frame = pd.DataFrame(
+            {
+                "y": (rng.random(rows) < 0.5).astype(float),
+                "a": base,
+                "b": base + rng.normal(scale=1e-9, size=rows),
+            }
+        )
+        assert int((frame["y"] == 0.0).sum()) == 65
+        assert int((frame["y"] == 1.0).sum()) == 55
+        with pytest.warns(UserWarning, match="multicollinearity"):
+            fitted = wrapper.run_binomial_fe_glm(
+                formula="y ~ a + b", data=frame, link="logit"
+            )
+        assert fitted["coefficients"]["Intercept"] == pytest.approx(-0.13802399948033858)
+        assert fitted["coefficients"]["a"] == pytest.approx(0.39743371919950254)
+        # ``b`` is gone because pyfixest dropped it, not because anything here
+        # refused it, and all 120 rows survive: the frame is estimable whole.
+        assert "b" not in fitted["coefficients"]
+        assert len(fitted["obs_kept"]) == rows
+
+    def test_a_fixed_effect_level_that_never_varies_is_the_named_gap(self) -> None:
+        """NOT A GATE. THE NAMED GAP, PINNED SO THAT CLOSING IT IS A VISIBLE DIFF.
+
+        THIS TEST ASSERTED A REFUSAL UNTIL THE DESIGN WAS NARROWED TO THE
+        COVARIATES, and it is written the other way round now rather than
+        deleted. Expanding the fixed-effect levels into indicators is what
+        reached this frame -- and the same expansion refused the ordinary
+        high-dimensional panel ``fixef`` exists for, because a level whose
+        outcome is constant is the ORDINARY case there: MEASURED, 25 of 100 firms
+        at five years, and a margin of 2.7035e+01. The levels left the design,
+        and this case left the gate's scope with them.
+
+        WHAT HAPPENS INSTEAD, MEASURED against pyfixest 0.60.0: its own
+        separation check removes the twelve rows of the level carrying no
+        incident, behind ``UserWarning: 12 observations removed because of
+        separation.``, fits the remaining 126 and returns ``convergence`` True.
+        The estimate it hands back EXISTS -- the margin over those 126 rows is
+        0.0 with the levels expanded and 0.0 without them -- so what is uncovered
+        here is the SILENCE about the twelve rather than a fit with no maximum.
+        The warning and the shortened ``obs_kept`` are the whole of what the
+        caller is told, which is why both are asserted below.
+
+        WHAT TURNS THIS RED, STATED PRECISELY, BECAUSE THE FIRST VERSION OF THIS
+        SENTENCE WAS WRONG. Merely re-running the programme after the row
+        dropping does NOT: MEASURED, the margin over the surviving 126 rows is
+        0.0 with the levels expanded, so the gate would pass and every assertion
+        below would stay green. What turns it red is refusing this frame BEFORE
+        the drop, or reporting the twelve rows to the caller as something other
+        than a warning -- which is what closing the gap actually means.
+        """
+        quiet = era()
+        outcome = quiet["incident"].to_numpy()
+        never = [row for row in range(len(quiet)) if outcome[row] == 0.0][:12]
+        groups = ["main"] * len(quiet)
+        for row in never:
+            groups[row] = "quiet"
+        quiet["grp"] = groups
+
+        with pytest.warns(UserWarning, match="12 observations removed"):
+            admitted = wrapper.run_binomial_fe_glm(
+                formula="incident ~ temperature | grp", data=quiet, link="logit"
+            )
+        assert admitted["nobs"] == 126
+        assert len(admitted["obs_kept"]) == 126
+        assert not {row + 1 for row in never} & set(admitted["obs_kept"])
+
+    def test_a_fit_reporting_non_convergence_is_still_refused(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """GATE 6b. THE BLOCK SIDE OF ``require_convergence``, WHICH LOST ITS ONLY
+        TEST WHEN THE SEPARATION GATE TOOK OVER THE FRAME THAT USED TO DRIVE IT.
+
+        The old test drove this gate with the separated eight rows. Those are now
+        refused earlier, by ``require_no_separation``, so nothing reached
+        ``require_convergence``'s blocking branch any more while the gate stayed
+        wired at the call site and listed among the node's gates. A gate with no
+        block test is the failure mode this suite exists to prevent.
+
+        WHAT IS SUBSTITUTED AND WHAT IS NOT. The estimator's flag is an INPUT to
+        this node's logic, and it is the input that is replaced here -- with a
+        real ``Felogit`` from a real fit, its ``convergence`` set to the value the
+        gate is meant to act on. Nothing about pyfixest's behaviour is asserted;
+        what is asserted is that this node refuses on that input, with the reason
+        code, the detail code and the remedy it promises. Provoking the flag from
+        data instead is what the whole change abandoned: it is a BLAS lottery,
+        measured at 21 of 25 one-ULP perturbations.
+        """
+        from pyfixest.estimation import Felogit, Feprobit
+        from pyfixest.estimation import feglm as real
+
+        def stalled(*args: Any, **kwargs: Any) -> Any:
+            model = real(*args, **kwargs)
+            assert isinstance(model, Felogit | Feprobit)
+            model.convergence = False
+            return model
+
+        monkeypatch.setattr(wrapper, "feglm", stalled)
+
+        with pytest.raises(GateError) as refused:
+            wrapper.run_binomial_fe_glm(
+                formula="incident ~ temperature", data=oring(), link="logit"
+            )
+        assert refused.value.reason_code == "other"
         assert refused.value.detail_code == "precondition-degenerate"
         assert "did not converge" in str(refused.value)
+        # THE REMEDY MUST NOT CLAIM SEPARATION IS RULED OUT. It is ruled out
+        # across the sample and not within a fixed effect, and a message that
+        # says otherwise sends a caller whose grouping separates off to rescale
+        # a predictor. That sentence was live until the narrowing was reviewed.
+        assert "not WITHIN a fixed effect" in str(refused.value)
+        assert "check whether a level of the grouping carries only one outcome" in str(
+            refused.value
+        )
+        assert "Separation has already been ruled out" not in str(refused.value)
+
+    def test_an_all_one_level_is_the_same_gap_with_no_signal_at_all(self) -> None:
+        """THE MIRROR OF THE TEST ABOVE, AND IT IS NOT SYMMETRIC.
+
+        MEASURED against pyfixest 0.60.0: its separation check removes a level
+        that is ALL-ZERO and KEEPS one that is ALL-ONE. Six incident rows given a
+        level of their own score 7.3171e-02 with the indicators and 0.0 without
+        them -- so the estimate does not exist -- and ``feglm`` keeps all 138
+        rows, returns ``convergence`` True and raises NO WARNING.
+
+        That is why this mirror is written out rather than folded into the test
+        above. There, the caller at least gets a warning and a shortened
+        ``obs_kept``; here they get neither, and the payload is indistinguishable
+        from a sound fit. MEASURED on the panels the narrowing was justified by,
+        the split is the ordinary one: 100 firms at five years carries ten
+        all-zero levels and fifteen all-one, and after the drop the ten are gone
+        and all fifteen remain.
+        """
+        always = era()
+        outcome = always["incident"].to_numpy()
+        incidents = [row for row in range(len(always)) if outcome[row] == 1.0][:6]
+        groups = ["main"] * len(always)
+        for row in incidents:
+            groups[row] = "always"
+        always["grp"] = groups
+
+        admitted = wrapper.run_binomial_fe_glm(
+            formula="incident ~ temperature | grp", data=always, link="logit"
+        )
+        assert admitted["nobs"] == 138
+        assert len(admitted["obs_kept"]) == 138
+
+    def test_separation_inside_every_level_is_the_second_named_gap(self) -> None:
+        """THE WORSE HALF OF THE GAP, AND NOT THE SAME CASE AS THE ONE ABOVE.
+
+        A covariate can order the outcome WITHIN each level at a different cut
+        per level, and then no single hyperplane orders the pooled sample. The
+        eight rows below are cut at 0 inside level ``A`` and at 10 inside level
+        ``B``: MEASURED, the programme scores 0.0 over the covariate and
+        1.0256e-01 with the levels expanded, so the covariate-only design admits
+        a frame whose unconditional maximum-likelihood estimate does not exist.
+
+        WHAT COMES BACK IS THAT NON-EXISTENT ESTIMATE, REPORTED AS A FIT.
+        MEASURED against pyfixest 0.60.0: ``convergence`` True, deviance
+        6.016594756162403e-08, coefficient 19.697788 and a standard error of
+        6795.277043 -- the deviance at the floor and the error four orders above
+        the estimate are the signature, and neither is a refusal. Unlike the
+        constant-outcome level above, pyfixest drops nothing here and warns about
+        nothing.
+
+        This is asserted as it stands rather than left to prose. Closing the gap
+        turns it red, and the note it is pinned against says what closing it
+        takes -- a complete row drop, which pyfixest's own is measurably not.
+        """
+        cut = pd.DataFrame(
+            {
+                "x": [-2.0, -1.0, 1.0, 2.0, 8.0, 9.0, 11.0, 12.0],
+                "y": [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0],
+                "g": ["A", "A", "A", "A", "B", "B", "B", "B"],
+            }
+        )
+        admitted = wrapper.run_binomial_fe_glm(
+            formula="y ~ x | g", data=cut, link="logit"
+        )
+        assert admitted["nobs"] == 8
+        assert admitted["deviance"] < 1e-6
+        assert admitted["coeftable"]["std_error"][0] > 1000.0
+
+    def test_the_frame_the_caller_supplied_is_not_rewritten_by_the_call(self) -> None:
+        """THE GATE READS THE FRAME AND MUST NOT REWRITE IT.
+
+        MEASURED: ``feglm`` passes ``copy_data=True`` and never touches the
+        caller's object, while ``create_model_matrix`` -- which the separation
+        gate calls directly -- opens with
+        ``data.reset_index(drop=True, inplace=True)``. Before the copy, a frame
+        indexed 10..17 came back from this node indexed 0..7.
+        """
+        shifted = small()
+        shifted.index = pd.RangeIndex(start=10, stop=18)
+        expected = list(shifted.index)
+        columns = list(shifted.columns)
+
+        wrapper.run_binomial_fe_glm(formula="y ~ x", data=shifted, link="logit")
+
+        assert list(shifted.index) == expected
+        assert list(shifted.columns) == columns
+
+    def test_a_formula_naming_the_wrappers_own_state_is_refused_not_resolved(self) -> None:
+        """THE EVALUATION ENVIRONMENT IS PINNED EMPTY, AND IT DEFAULTS TO OPEN.
+
+        ``create_model_matrix``'s ``context`` argument is a STACK FRAME OFFSET,
+        not a namespace: ``capture_context(0)`` resolves to ``sys._getframe(3)``,
+        which through a direct call is the CALLING function's frame and through
+        ``feglm`` is a pyfixest-internal one. Its mapping is merged on the right,
+        so it also shadows the estimator's own ``log``, ``i`` and
+        ``__fixed_effect__``.
+
+        MEASURED before ``context={}`` was pinned: ``y ~ specification`` and
+        ``y ~ formulas`` resolved the gate helper's own locals as model factors
+        and escaped this node as a raw ``TypeError`` -- on a body whose formula
+        surface has already carried one live injection. The names below are the
+        helper's parameters and locals; none of them is a column of the frame.
+        """
+        for leaked in ("specification", "data", "formulas"):
+            with pytest.raises(GateError) as refused:
+                wrapper.run_binomial_fe_glm(
+                    formula=f"y ~ {leaked}", data=small(), link="logit"
+                )
+            assert refused.value.detail_code in {
+                "precondition-degenerate",
+                "precondition-domain",
+            }, leaked
+            assert "TypeError" not in str(refused.value), leaked
 
     def test_a_binary_response_passes_and_a_three_level_one_is_refused(self) -> None:
         """GATE 7. The estimator's own refusal, translated rather than crashed on."""

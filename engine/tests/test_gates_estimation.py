@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-"""The seventeen names this module exports, each with the input it passes and the one it blocks.
+"""The eighteen names this module exports, each with the input it passes and the one it blocks.
 
 PAIRED THROUGHOUT, for the reason every gate suite in this package is paired: a
 rule tested only on the input it refuses is indistinguishable from one that
@@ -19,6 +19,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
+from scipy.optimize import linprog
 
 from econflow_engine.errors import GateError
 from econflow_engine.gates.estimation import (
@@ -36,6 +37,7 @@ from econflow_engine.gates.estimation import (
     require_counts,
     require_distinct_column_names,
     require_finite_estimates,
+    require_no_separation,
     require_strictly_inside,
     require_supplied,
     require_within_bounds,
@@ -261,6 +263,290 @@ class TestRequireFiniteEstimates:
         with pytest.raises(GateError) as refused:
             require_finite_estimates(doubled, fn="f", quantity="coefficients", remedy="-")
         assert "['zm_x1']" in str(refused.value)
+
+
+class TestRequireNoSeparation:
+    """The question the convergence flag was being asked and cannot answer.
+
+    THE FLAG IS A LOTTERY AND THIS IS NOT. MEASURED against pyfixest 0.60.0: a
+    logit on the eight rows of :data:`SEPARATED` returns ``convergence`` False
+    here and True under 21 of 25 one-ULP perturbations of its own IWLS step,
+    because the iteration reaches a floating-point plateau and pyfixest calls
+    convergence at ``|dev - dev_old| / (0.1 + |dev_old|) < 1e-8``. The
+    linear-programming objective over the same design is 4.0 -- a margin of
+    4.4444e-01 against a largest row norm of 9 -- in all 25. A probit on
+    the same eight rows needs no perturbation at all: it returns
+    ``convergence`` True, deviance 0.5033898356102827 and coefficients
+    -15.752136 and 3.500475 with p-values 0.149716 and 0.147083, which is a fit
+    that does not exist reported as one that does.
+    """
+
+    def test_a_design_whose_estimate_exists_passes(self) -> None:
+        """The pass side. No hyperplane orders these outcomes, so nothing is refused."""
+        require_no_separation(
+            pd.DataFrame({"Intercept": [1.0] * 8, "x": [1.0, 2, 3, 4, 5, 6, 7, 8]}),
+            response=pd.Series([0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]),
+            fn="f",
+            remedy="-",
+        )
+
+    def test_a_design_with_no_columns_has_no_direction_to_separate_along(self) -> None:
+        """The pass side's boundary, and it is reachable rather than hypothetical.
+
+        MEASURED against pyfixest 0.60.0: ``y ~ 0`` is admitted by this engine's
+        formula allowlist and returns a converged intercept-free ``Felogit``, so
+        an empty design reaches this gate. ``linprog`` given an empty objective
+        raises ``ValueError: Invalid input for linprog: c must be a 1-D array``,
+        which would be a crash out of a gate that has nothing to refuse. (That
+        fit is thin for a different, older reason: ``coef()`` and ``tidy()``
+        WARN ``Empty variance-covariance matrix detected``
+        (``_result_accessor_mixin.py`` 168) and the node returns
+        ``{"coefficients": {}}``. It reaches a caller as an exception only under
+        this suite's ``filterwarnings = ["error"]``, and answering it is not this
+        gate's job either way.)
+        """
+        require_no_separation(
+            pd.DataFrame(index=range(4)),
+            response=pd.Series([0.0, 1.0, 0.0, 1.0]),
+            fn="f",
+            remedy="-",
+        )
+
+    def test_a_separating_design_is_refused_and_the_message_names_the_column(
+        self,
+    ) -> None:
+        with pytest.raises(GateError) as refused:
+            require_no_separation(
+                pd.DataFrame({"Intercept": [1.0] * 8, "x": [1.0, 2, 3, 4, 5, 6, 7, 8]}),
+                response=pd.Series([0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]),
+                fn="f",
+                remedy="Drop the separating predictor.",
+            )
+        assert refused.value.reason_code == "other"
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "the design separates the outcome" in str(refused.value)
+        assert "maximum-likelihood estimate does not exist" in str(refused.value)
+        assert "'x'" in str(refused.value)
+        assert "Drop the separating predictor." in str(refused.value)
+
+    def test_an_indicator_column_whose_ones_share_one_outcome_is_refused(self) -> None:
+        """THE PROGRAMME ANSWERS ABOUT THE COLUMNS IT IS GIVEN AND NOTHING ELSE.
+
+        ``grp_quiet`` is 1 on exactly the rows whose outcome is 0, so it orders
+        the sample by itself and no other column has to do anything: MEASURED,
+        objective 2.0 and margin 2.631579e-02. THIS IS A COVARIATE HERE, WHICH IS
+        THE WHOLE OF WHY IT IS SEEN. The caller of this primitive decides what
+        goes in the design, and ``run_binomial_fe_glm`` no longer expands a
+        ``| fe`` term into columns of this shape -- doing so refused ordinary
+        high-dimensional panels, and the case it covered is the gap named in
+        :func:`require_no_separation`. A column the caller writes into the
+        formula is still a column.
+        """
+        with pytest.raises(GateError) as refused:
+            require_no_separation(
+                pd.DataFrame(
+                    {
+                        "temperature": [70.0, 66.0, 63.0, 75.0, 58.0, 53.0],
+                        "grp_main": [1.0, 1.0, 1.0, 1.0, 0.0, 0.0],
+                        "grp_quiet": [0.0, 0.0, 0.0, 0.0, 1.0, 1.0],
+                    }
+                ),
+                response=pd.Series([1.0, 0.0, 1.0, 0.0, 0.0, 0.0]),
+                fn="f",
+                remedy="-",
+            )
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "'grp_quiet'" in str(refused.value)
+
+    def test_two_separated_rows_are_refused_however_long_the_rest_of_the_sample(
+        self,
+    ) -> None:
+        """THE NORMALISER, PINNED. Dividing by the SUM of the row norms dilutes.
+
+        MEASURED on this shape, whose objective is 2.0 at both lengths: against
+        the SUMMED row norms it scores 2.000800e-04 inside 138 rows and
+        1.986295e-05 inside 1380 -- a tenfold dilution bought with nothing but
+        sample size, so a fixed threshold on that ratio would refuse the short
+        frame and admit the long one. Against the LARGEST row norm both score
+        2.352941e-02, which is why that is the divisor.
+        """
+        rows = 1380
+        frame = pd.DataFrame(
+            {
+                "temperature": [60.0 + (row % 25) for row in range(rows)],
+                "grp_main": [0.0 if row < 2 else 1.0 for row in range(rows)],
+                "grp_quiet": [1.0 if row < 2 else 0.0 for row in range(rows)],
+            }
+        )
+        outcome = pd.Series([0.0 if row < 2 else float(row % 2) for row in range(rows)])
+        with pytest.raises(GateError) as refused:
+            require_no_separation(frame, response=outcome, fn="f", remedy="-")
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "'grp_quiet'" in str(refused.value)
+
+    def test_an_all_zero_design_has_no_direction_to_separate_along(self) -> None:
+        """THE OTHER DIVISOR OF ZERO, and it escaped the gateway as a crash.
+
+        The largest row norm is the margin's denominator, and it is 0.0 for a
+        design whose every entry is zero -- MEASURED on this frame, against a
+        design with no columns at all, which the test above covers and which is a
+        different shape. The guard on ``design.shape[1] == 0`` did not reach it,
+        so ``float(-programme.fun) / 0.0`` raised ``ZeroDivisionError: float
+        division by zero`` out of a gate whose only admissible refusal is a
+        ``GateError``. Its node-level reproducer, and the evidence that this was a
+        REGRESSION rather than an uncovered corner, are in
+        ``tests/wrappers/c16_limited_dependent/test_binomial_glm_recession.py``.
+        """
+        require_no_separation(
+            pd.DataFrame({"x": [0.0] * 8}),
+            response=pd.Series([0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0]),
+            fn="f",
+            remedy="-",
+        )
+
+    def test_the_same_one_column_shape_is_still_refused_when_its_signs_order_the_outcome(
+        self,
+    ) -> None:
+        """The block half of the pair above: the zero is what passes, not the shape.
+
+        One column, no intercept, and the outcome ordered by its sign. MEASURED:
+        the largest row norm is 4.0, the objective 20.0 and the margin 5.0, at a
+        witness of ``b = 1``.
+        """
+        with pytest.raises(GateError) as refused:
+            require_no_separation(
+                pd.DataFrame({"x": [-1.0, -2.0, -3.0, -4.0, 1.0, 2.0, 3.0, 4.0]}),
+                response=pd.Series([0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]),
+                fn="f",
+                remedy="-",
+            )
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "'x'" in str(refused.value)
+
+    def test_a_near_collinear_design_whose_estimate_exists_is_not_refused(self) -> None:
+        """A SOLVER RESIDUAL IS NOT A FACT ABOUT THE CALLER'S DATA.
+
+        HiGHS's default primal feasibility tolerance is 1e-7, so on an
+        ill-conditioned design it returns ``success`` True and ``status`` 0 at a
+        point that violates the programme's own constraints, and the objective
+        attached to that point is not zero. MEASURED on this frame: ``x`` is
+        [0, -1, 1], ``(oriented @ x).min()`` is -3.778144463950639e-09 on 46 of
+        the 120 rows, and the margin is 1.015745e-08 -- above the threshold, so
+        the design was refused.
+
+        IT PLAINLY DOES NOT SEPARATE. MEASURED: 65 zeros and 55 ones, with
+        controls spanning ``a`` in [-2.251, 2.245] against cases in
+        [-1.860, 1.795], and pyfixest 0.60.0 fits it at Intercept -0.138 and ``a``
+        0.397 with ``convergence`` True, after dropping ``b`` for
+        multicollinearity. The refusal stated a mathematical falsehood about the
+        frame and blocked a fit that exists.
+        """
+        rng = np.random.default_rng(159)
+        rows = 120
+        base = rng.normal(size=rows)
+        outcome = (rng.random(rows) < 0.5).astype(float)
+        design = pd.DataFrame(
+            {
+                "Intercept": np.ones(rows),
+                "a": base,
+                "b": base + rng.normal(scale=1e-9, size=rows),
+            }
+        )
+        # THE PREMISE IS ASSERTED BEFORE THE VERDICT, or a solver whose objective
+        # drifts below the margin would leave this test green having exercised
+        # nothing. The design has to still REACH the witness check: an objective
+        # above _SEPARATION_MARGIN, at a point that violates the constraints.
+        oriented = (2.0 * outcome - 1.0)[:, None] * design.to_numpy(dtype=float)
+        programme = linprog(
+            c=-oriented.sum(axis=0),
+            A_ub=-oriented,
+            b_ub=np.zeros(oriented.shape[0]),
+            bounds=(-1.0, 1.0),
+            method="highs",
+        )
+        scale = float(np.abs(oriented).sum(axis=1).max())
+        assert programme.success is True
+        assert float(-programme.fun) / scale > 1e-8, "the margin no longer clears the threshold"
+        assert float((oriented @ programme.x).min()) / scale < -1e-12, (
+            "the witness is feasible now, so this design no longer exercises the check"
+        )
+
+        require_no_separation(design, response=pd.Series(outcome), fn="f", remedy="-")
+
+    def test_the_same_near_collinear_pair_is_refused_when_it_does_separate(self) -> None:
+        """The block half: verifying the witness must not blunt a real separation.
+
+        The identical near-collinear columns, with the outcome cut at the median
+        of ``a`` so that one hyperplane orders every row. MEASURED: margin
+        3.062475e+01 at a witness whose worst constraint value is 6.305398e-19 --
+        feasible, so the objective is believed and the design refused.
+        """
+        rng = np.random.default_rng(159)
+        rows = 120
+        base = rng.normal(size=rows)
+        # DRAWN AND DISCARDED ON PURPOSE, NOT LEFTOVER. The paired test above takes
+        # its outcome from this position in the stream; consuming it here is what
+        # makes ``b`` the SAME near-collinear column in both, so the two differ in
+        # the outcome alone. Deleting this line silently changes the design.
+        rng.random(rows)
+        frame = pd.DataFrame(
+            {
+                "Intercept": np.ones(rows),
+                "a": base,
+                "b": base + rng.normal(scale=1e-9, size=rows),
+            }
+        )
+        with pytest.raises(GateError) as refused:
+            require_no_separation(
+                frame,
+                response=pd.Series((base > np.median(base)).astype(float)),
+                fn="f",
+                remedy="-",
+            )
+        assert refused.value.detail_code == "precondition-degenerate"
+        assert "'a'" in str(refused.value)
+
+    def test_a_programme_the_solver_cannot_answer_is_not_read_as_separation(self) -> None:
+        """THE THIRD ESCAPE, and it is a crash rather than a false refusal.
+
+        MEASURED on 60 rows carrying one covariate scaled to 1e15: HiGHS returns
+        ``success`` False, ``status`` 2 and "(HiGHS Status 2: Model error)" with
+        ``fun`` and ``x`` both None, on which ``float(-programme.fun)`` raised
+        ``TypeError: bad operand type for unary -: 'NoneType'``.
+
+        NO BLOCK HALF IS WRITTEN FOR THIS ONE AND THE REASON IS MEASURED, not an
+        omission: the solver refuses this shape whichever outcome it carries. The
+        identical columns with the outcome cut at the median of ``a`` -- which
+        separates by construction -- return ``success`` False and ``status`` 2 as
+        well, so there is no separating design at this conditioning for a paired
+        refusal to be taken on. What the pair above pins is that the verdict is
+        silence and not a refusal; what this pins is that it is not a crash.
+        """
+        rng = np.random.default_rng(20260831)
+        rows = 60
+        design = pd.DataFrame(
+            {
+                "Intercept": np.ones(rows),
+                "a": rng.normal(size=rows),
+                "b": rng.normal(size=rows) * 1e15,
+            }
+        )
+        outcome = (rng.random(rows) < 0.5).astype(float)
+        # THE PREMISE, ASSERTED. A later HiGHS that SOLVES this design would leave
+        # the branch below unentered and this test green over nothing, so the
+        # solver's own refusal is pinned rather than assumed.
+        oriented = (2.0 * outcome - 1.0)[:, None] * design.to_numpy(dtype=float)
+        programme = linprog(
+            c=-oriented.sum(axis=0),
+            A_ub=-oriented,
+            b_ub=np.zeros(oriented.shape[0]),
+            bounds=(-1.0, 1.0),
+            method="highs",
+        )
+        assert programme.success is False, "HiGHS now answers this design; rewrite the test"
+        assert programme.fun is None
+
+        require_no_separation(design, response=pd.Series(outcome), fn="f", remedy="-")
 
 
 class TestIsEstimatorRefusal:

@@ -39,6 +39,17 @@ that is a PROPORTION is the case neither answers -- every observation in ``[0, 1
 with both endpoints admissible data. It carries the same detail code as its two
 siblings and no new one.
 
+THE EIGHTEENTH REPLACES A QUESTION THAT WAS BEING PUT TO THE WRONG WITNESS.
+:func:`require_no_separation` asks whether the caller's DESIGN admits a maximum
+likelihood estimate at all, which is what :func:`require_convergence` was being
+read as answering. It cannot: the flag reports where an iteration stopped, and
+under separation an IWLS stalls on a floating-point plateau rather than
+diverging, so which way the flag lands is decided by the last bit of the linear
+algebra. This is the first rule here whose arithmetic is this module's own -- a
+linear programme, not a comparison -- which is why the body that calls it keeps
+it OUTSIDE the ``try`` that translates the estimator's exceptions. It too carries
+``precondition-degenerate`` and no new code.
+
 TWO OF THE FIRST SIX ARE A SECURITY BOUNDARY AND ARE NOT INTERCHANGEABLE WITH THE
 REST.
 :func:`require_a_bare_name` and :func:`require_an_allowlisted_specification` guard
@@ -70,6 +81,7 @@ from typing import NoReturn
 
 import numpy as np
 import pandas as pd
+from scipy.optimize import linprog
 
 from econflow_engine.errors import GateError
 from econflow_engine.formula import validate_formula
@@ -91,6 +103,7 @@ __all__ = [
     "require_counts",
     "require_distinct_column_names",
     "require_finite_estimates",
+    "require_no_separation",
     "require_strictly_inside",
     "require_supplied",
     "require_within_bounds",
@@ -100,6 +113,125 @@ __all__ = [
 #: in a wrapper. Adding one is a statement that this engine reads that package's
 #: errors as refusals; :func:`is_estimator_refusal` records what was measured.
 _ESTIMATOR_PACKAGES: frozenset[str] = frozenset({"formulaic", "pyfixest", "statsmodels"})
+
+#: The margin above which :func:`require_no_separation` reads the programme as
+#: having found a separating direction, relative to the largest row norm of the
+#: oriented design. IT IS A GUARD AGAINST A SOLVER RESIDUAL AND NOT A DIAL: the
+#: two populations do not overlap anywhere near it. MEASURED over 2657 random
+#: binary designs whose estimate exists (20 to 200 rows, 1 to 6 covariates,
+#: column scales spanning 1e-3 to 1e3, outcomes drawn from a logit), the largest
+#: margin HiGHS returned was 0.0 EXACTLY. MEASURED at the other edge, a design
+#: separated by two rows in 1380 scores 2.439024e-02, and squeezing the
+#: separating gap down to 1e-10 leaves the margin at 8.720930e-02 rather than
+#: driving it toward zero -- the programme simply scales the direction back out
+#: to its own box.
+#:
+#: THAT SAMPLE WAS STRUCTURALLY BLIND AND THE SENTENCE IT SUPPORTED WAS FALSE.
+#: It read "the nearest measured neighbour is six orders of magnitude above this
+#: value on one side and exactly zero on the other", and the reason no neighbour
+#: was nearer is that every design in it was WELL CONDITIONED: no near-collinear
+#: pair, no zero column, no scale disparity beyond 1e3. Those are precisely the
+#: regimes in which HiGHS returns a point that violates its own constraints, and
+#: the objective attached to such a point lands squarely in the band this constant
+#: was said to have to itself. MEASURED over the excluded regimes, 600 designs per
+#: band, outcome drawn independently of the design so that nothing but luck
+#: separates it -- near-collinear pairs ``x2 = x1 + N(0, eps)`` scoring a margin
+#: above this value: eps 1e-12 to 1e-10, 0 of 600; eps 1e-9, 1 of 600, largest
+#: margin 1.229480e-08; eps 1e-8, 401 of 600, largest margin 1.138867e-07; eps
+#: 1e-7 to 1e-2, 0 of 600. Inside that band a false refusal was the MAJORITY
+#: outcome, and every one of the 402 carried a witness violating the programme's
+#: own constraints. The band is narrow because it is the band in which the
+#: near-collinearity is large enough to unsettle HiGHS and still small enough that
+#: its presolve does not simply drop the column. The guard that answers those 402
+#: is :data:`_SEPARATION_WITNESS_FEASIBILITY` and not this number.
+#:
+#: WHAT THIS CONSTANT FACES ONCE THE WITNESS IS VERIFIED, RE-MEASURED OVER THE
+#: REGIMES THE OLD SAMPLE EXCLUDED. Two labelled populations, the verdict taken
+#: from the fixed gate. Separated by construction, 3000 designs of 20 to 200 rows
+#: and 1 to 6 covariates at scales 1e-3 to 1e3: 2999 refused, smallest refused
+#: margin 3.174675e-05. Outcome independent of the design, 12500 designs over the
+#: whole near-collinear band, all-zero and near-zero columns at 0, 1e-320, 1e-300,
+#: 1e-150 and 1e-30, and scale disparities of 1e3 to 1e15: ZERO refusals, and no
+#: margin above this value anywhere in them. So the nearest measured neighbour
+#: above is 3.174675e-05 -- three and a half orders up, and a genuine separation
+#: -- while below it the non-separated population produces nothing this value has
+#: to reject. IT IS DEFENSIBLE, and it is defensible only in that order: the
+#: feasibility check does the work this number was wrongly credited with.
+#:
+#: RELATIVE TO THE LARGEST ROW NORM AND NOT TO THEIR SUM. MEASURED on the same
+#: two-row separated level, over the O-RING covariates, whose row norms sum to
+#: 9738 and whose largest is 82: against the sum it scores 2.053810e-04 inside
+#: 138 rows and 2.053810e-05 inside 1380, so any fixed threshold on that ratio
+#: refuses the short frame and admits the long one; against the largest row norm
+#: it scores 2.439024e-02 in both. THE FRAME IS NAMED BECAUSE THE PAIRED TEST IN
+#: tests/test_gates_estimation.py USES A DIFFERENT ONE -- 60 + row % 25, largest
+#: row norm 85 -- and therefore reports 2.352941e-02 and 2.000800e-04 /
+#: 1.986295e-05 for the same experiment. Two frames, one conclusion; neither set
+#: of digits is a correction of the other.
+_SEPARATION_MARGIN = 1e-8
+
+#: How far below zero a row of ``oriented @ x`` may fall before
+#: :func:`require_no_separation` stops believing the objective attached to ``x``,
+#: relative to the same largest row norm the margin is taken against.
+#:
+#: EVERY FIGURE BELOW IS A PROPERTY OF ONE SOLVER BUILD, WHICH IS scipy 1.18.0's
+#: BUNDLED HiGHS, and it is named here because the rest of this module pins the
+#: version of every library it quotes and this constant is derived wholly from
+#: that one.
+#:
+#: WHY A SOLVED PROGRAMME NEEDS ITS ANSWER CHECKED AT ALL. HiGHS's default primal
+#: feasibility tolerance is 1e-7, so ``success`` True and ``status`` 0 mean it
+#: stopped satisfied and NOT that the point it returns satisfies the constraints
+#: this module wrote. MEASURED on 120 rows carrying ``b = a + N(0, 1e-9)``, seed
+#: 159: ``success`` True, ``status`` 0, ``x`` [0, -1, 1], and yet
+#: ``(oriented @ x).min()`` is -3.778144463950639e-09 on 46 of the 120 rows -- a
+#: RELATIVE violation of -6.866427e-10 against that design's largest row norm of
+#: 5.5023444189556105, which is the quantity the comparison below actually makes
+#: -- with an objective of -5.588978524428967e-08 that divides out to a margin of
+#: 1.0157449441323413e-08, above :data:`_SEPARATION_MARGIN`, so the design was
+#: refused. It does not separate: 65 zeros and 55 ones, controls spanning ``a`` in
+#: [-2.251, 2.245] against cases in [-1.860, 1.795], and pyfixest 0.60.0 fits it
+#: at Intercept -0.138 and ``a`` 0.397 after dropping ``b`` for multicollinearity.
+#: ``method="highs-ds"`` and ``method="highs-ipm"`` return the same infeasible
+#: point, so it is not the simplex arm's alone.
+#:
+#: EVERY VIOLATION QUOTED BELOW IS RELATIVE TO THAT SAME LARGEST ROW NORM, in the
+#: unit the comparison uses, and the paragraph above is the only place an absolute
+#: one appears -- named as such because it is what a reader reproduces first.
+#:
+#: WHY A CHECK ON THE WITNESS IS EXACT WHERE A THRESHOLD ON THE OBJECTIVE IS NOT.
+#: ``b = 0`` is always feasible with objective 0, so the programme's optimum is
+#: never negative and a POSITIVE objective at a FEASIBLE point is Silvapulle's
+#: (1981) condition met constructively -- that point IS a separating direction.
+#: At an infeasible point the objective bounds nothing, in either direction. So
+#: the refusal below is only ever made while holding a witness, which is what its
+#: message claims to have.
+#:
+#: THE VALUE, AND THE ONE CASE IT COSTS. MEASURED over 3499 designs whose answer
+#: is honest -- 1499 well-conditioned and 2000 separated by construction -- the
+#: worst relative violation was -1.012873e-16, and over the 2000 separated ones
+#: not a single witness fell below -1e-14. MEASURED over 12500 designs whose
+#: outcome was drawn independently of the design, spanning the whole near-collinear
+#: band, all-zero and near-zero columns and scale disparities to 1e15: the shipped
+#: gate falsely refused 381 of them, and among those 381 the violation CLOSEST TO
+#: ZERO was -5.923896e-10 and the worst -1.518403e-08. This value sits four orders
+#: above the worst honest residual and nearly three below the mildest leakage, so
+#: neither edge is close. IT IS NOT A PERFECT SEPARATOR AND THE EXCEPTION IS
+#: RECORDED RATHER THAN ROUNDED AWAY: over 3000 designs separated by construction,
+#: ONE -- 165 rows, 4 columns, margin 1.118970e-01 -- came back with a violation of
+#: -2.769367e-08, inside the leakage band, and is therefore admitted rather than
+#: refused. NO threshold separates the two populations, because that one design's
+#: violation is worse than the leakage's mildest; the choice is which error to
+#: make, not whether to make one. Losing it costs a REFUSAL this module already
+#: declines to make in two other named cases (see
+#: :func:`require_no_separation`'s two gaps); admitting the 381 costs a FALSE
+#: STATEMENT about the caller's data. Re-solving it at a tightened
+#: ``primal_feasibility_tolerance`` was measured and NOT taken: 1e-9 and 1e-10
+#: recover it, 1e-11 and below do not, because HiGHS rejects them with
+#: ``OptimizeWarning: Invalid option value`` and silently keeps its own -- so the
+#: recovery rests on an undocumented clamp two orders wide, and buying 1 case in
+#: 3000 with that is a worse trade than naming it here.
+_SEPARATION_WITNESS_FEASIBILITY = 1e-12
 
 
 def _refuse(fn: str, message: str, code: GateDetailCode) -> GateError:
@@ -572,6 +704,184 @@ def require_finite_estimates(
         f"is {array[unusable][0]}). They are not reported: each would reach you as "
         f"a null, which is also how this method reports a field it leaves empty on "
         f"purpose, so the two would be indistinguishable. {remedy}",
+        "precondition-degenerate",
+    )
+
+
+def require_no_separation(
+    design: pd.DataFrame, *, response: pd.Series, fn: str, remedy: str
+) -> None:
+    """Refuse a binary design whose maximum-likelihood estimate does not exist.
+
+    THE QUESTION :func:`require_convergence` WAS BEING ASKED AND CANNOT ANSWER.
+    Under perfect or quasi-complete separation the likelihood of a binomial GLM
+    has no interior maximum -- the estimate runs off to infinity -- and every
+    number an iteration returns is where it stopped. Reading the estimator's
+    convergence flag to detect that reads the STOPPING RULE rather than the data.
+
+    WHY THAT IS NOT A CONSERVATIVE READING BUT A LOTTERY. MEASURED against
+    pyfixest 0.60.0, whose IWLS stops at
+    ``|dev - dev_old| / (0.1 + |dev_old|) < 1e-8``
+    (``pyfixest/estimation/models/feglm_.py`` 358-360, 426-440): a separated
+    logit does not diverge, it stalls on a floating-point plateau at deviance
+    0.019002321852144635, where that denominator is 0.119 -- so the flag fires
+    the moment a step moves the deviance by less than 1.19e-9, which on a plateau
+    is decided by the last bit of the linear algebra. numpy's wheel builds
+    OpenBLAS ``DYNAMIC_ARCH``, so its GEMM kernel is chosen from the CPU at run
+    time; a heterogeneous runner fleet therefore decides it afresh each run.
+    Perturbing the IWLS step by ONE ULP flips the flag to True in 21 of 25
+    perturbations of an unchanged frame, while the programme below scores an
+    objective of 4.0 -- a margin of 4.4444e-01 against a largest row norm of 9 --
+    in all 25.
+    And a separated PROBIT needs no perturbation at all: it returns
+    ``convergence`` True, deviance 0.5033898356102827 and coefficients
+    -15.752136 and 3.500475 with p-values 0.149716 and 0.147083.
+
+    WHAT IS ASKED INSTEAD -- Konis (2007) ch. 4, the linear-programming
+    feasibility test, which is Silvapulle's (1981) existence condition solved as
+    a programme rather than inspected. With ``z_i = 2 y_i - 1``::
+
+        maximise  sum_i z_i x_i'b   subject to   z_i x_i'b >= 0 for all i,
+                                                 |b_j| <= 1
+
+    ``b = 0`` is always feasible, so the optimum is at least 0; it is EXACTLY 0
+    when no hyperplane orders the two classes, which is precisely when the
+    estimate exists. It is a question about the DATA, so its answer does not
+    depend on where an iteration happened to stop, on how many iterations it was
+    allowed, or on which kernel the machine chose.
+
+    THE CALLER PASSES THE COVARIATES, AND A FIXED-EFFECT LEVEL IS NOT ONE OF
+    THEM -- NOT BECAUSE THE LEVELS GAVE WRONG ANSWERS BUT BECAUSE THEY ANSWERED
+    THE WRONG QUESTION. With the complete indicator set in the design this
+    programme scores above zero exactly when some level carries a constant
+    outcome, or when the covariates order the outcome inside every mixed level;
+    both are non-existence of the UNCONDITIONAL estimate, so no estimable design
+    was refused. But a constant-outcome level is the ORDINARY case in a binary
+    panel and its effect is +/-infinity, contributing nothing to the conditional
+    likelihood. MEASURED on logit panels with a firm effect and one covariate --
+    constant-outcome firms, then margin with the levels before and after the
+    estimator's own row dropping: 25 of 100 and 2.7035e+01 -> 1.6221e+01 over
+    100 firms x 5 years; 16 of 100 and 3.4040e+01 -> 1.9147e+01 over 100 x 10;
+    2 of 100 and 7.9761e+00 -> 0.0 over 100 x 20; 44 of 300 and 7.5204e+01 ->
+    4.6148e+01 over 300 x 8. Over the covariates alone all four score 0.0.
+
+    TWO GAPS THAT LEAVES, NAMED SO SOMEBODY CAN CLOSE THEM. A FIXED-EFFECT LEVEL
+    WHOSE OUTCOME NEVER VARIES is not seen here. MEASURED on 138 rows carrying a
+    twelve-row level with no positive outcome: 1.4634e-01 with the indicators and
+    0.0 without them. pyfixest 0.60.0 answers that one itself -- it removes the
+    twelve behind ``UserWarning: 12 observations removed because of separation.``
+    and fits the remaining 126 -- and the estimate it reports EXISTS, MEASURED:
+    the margin over those 126 is 0.0 either way. What is uncovered is the silence
+    about the dropped rows, not a fit with no maximum. SEPARATION INSIDE EVERY
+    LEVEL BUT NOT ACROSS THEM is the second and the worse: a covariate can order
+    the outcome within each level at a different cut per level, and MEASURED on
+    eight rows and two levels cut at 0 and at 10 the covariate scores 0.0 while
+    the levels score 1.0256e-01, with ``feglm`` returning ``convergence`` True,
+    deviance 6.016594756162403e-08 and a coefficient of 19.697788 whose standard
+    error is 6795.277043 -- an estimate that does not exist, reported as a fit.
+
+    RE-RUNNING THIS AFTER THE ESTIMATOR'S ROW DROPPING WOULD NOT CLOSE THEM:
+    MEASURED, pyfixest removes an ALL-ZERO level and keeps an ALL-ONE one, so a
+    100-firm five-year panel keeps fifteen of them and the programme over the
+    rows it kept still scores 1.6221e+01. What closes both is the CONDITIONAL
+    question -- a groupby for the constant-outcome levels, then this programme
+    over the WITHIN-LEVEL DIFFERENCES ``x_i - x_j`` for ``y_i = 1, y_j = 0``,
+    which needs as many columns as covariates and no indicator matrix. That is a
+    different question, and its own change.
+
+    A THIRD THING IT DECLINES TO ANSWER, AND THE PRINCIPLE BEHIND ALL THREE.
+    Where the programme does not solve, or solves to a point that violates its own
+    constraints, this returns rather than refuses. "The solver could not answer"
+    and "the design separates" are different facts and only the second is about
+    the caller's data, so a refusal built from the first states a falsehood about
+    a frame nobody examined -- and MEASURED, the frames it stated it about are
+    ordinary: 401 of 600 designs in one near-collinear band, and the one of those
+    checked against the estimator is fitted by pyfixest at Intercept -0.138024 and
+    ``a`` 0.397434. The refusal below therefore names the columns of a witness it
+    has verified, and where there is no verified witness there is no claim. That
+    is the same posture as the two gaps above, and it is deliberate: this gate's
+    silence already means "not demonstrated" rather than "shown to be fine", and
+    the estimator, :func:`require_convergence` and
+    :func:`require_finite_estimates` all still stand behind it. Its cost is
+    measured in :data:`_SEPARATION_WITNESS_FEASIBILITY` -- one separated design in
+    3000 admitted -- against 381 falsely refused and 403 crashed in a population of
+    12500 whose outcome no design orders.
+
+    THIS IS ASKED OF ONE NODE TODAY. ``ld_count_model`` and
+    ``ld_fractional_response`` are the same family and the same question belongs
+    on both -- a Poisson with fixed effects separates the same way -- but each is
+    its own change, with its own probe and its own paired tests, and neither is
+    made here.
+    """
+    if design.shape[1] == 0:
+        # A DESIGN WITH NO COLUMNS HAS NO DIRECTION TO SEPARATE ALONG, and it is
+        # reachable rather than hypothetical: MEASURED, ``y ~ 0`` is admitted by
+        # the formula allowlist and returns a converged intercept-free fit from
+        # pyfixest 0.60.0, while ``linprog`` given an empty objective raises
+        # "Invalid input for linprog: c must be a 1-D array". Answering the
+        # question is what is wrong there, not the fit.
+        return
+    signs = 2.0 * np.asarray(response, dtype=float).ravel() - 1.0
+    oriented = signs[:, None] * design.to_numpy(dtype=float)
+    scale = float(np.abs(oriented).sum(axis=1).max())
+    if scale == 0.0:
+        # AN ALL-ZERO DESIGN HAS NO DIRECTION TO SEPARATE ALONG EITHER, and it
+        # divided by that zero. MEASURED at the node: eight rows of alternating
+        # outcome with ``x`` all zero and a fixed effect on ``g`` reached
+        # ``ZeroDivisionError: float division by zero``, which escapes the gateway
+        # -- ``mcp/make_tool.py`` turns a GateError into a refusal and lets every
+        # other exception out as a crash. THE FIXED EFFECT IS WHAT MAKES IT
+        # REACHABLE rather than incidental: it is the Intercept that keeps the
+        # design non-zero, and ``y ~ x | g`` leaves ``matrix.independent`` holding
+        # ['x'] alone where ``y ~ x`` leaves ['Intercept', 'x']. It is a
+        # REGRESSION -- the same frame with ``x`` at 1e-320 still refuses through
+        # the estimator's own "All variables are collinear".
+        return
+    programme = linprog(
+        c=-oriented.sum(axis=0),
+        A_ub=-oriented,
+        b_ub=np.zeros(oriented.shape[0]),
+        bounds=(-1.0, 1.0),
+        method="highs",
+    )
+    if not programme.success:
+        # THE SOLVER DID NOT ANSWER, WHICH IS NOT A FACT ABOUT THE CALLER'S DATA.
+        # ``success`` is exactly ``status == 0``; of the four failing statuses,
+        # infeasible (2) and unbounded (3) cannot describe THIS programme -- b = 0
+        # is always feasible and the box bounds every direction -- so the only
+        # honest readings left are an iteration limit (1) and numerical difficulty
+        # (4). MEASURED that it is reachable and that reading it as separation was
+        # never the alternative: 60 rows with one covariate scaled to 1e15 return
+        # ``success`` False, ``status`` 2 and the message "(HiGHS Status 2: Model
+        # error)" with ``fun`` and ``x`` both None, on which the line below raised
+        # ``TypeError: bad operand type for unary -: 'NoneType'`` and escaped the
+        # gateway. Refusing here would state that a design separates on the
+        # strength of a programme that produced no answer about it.
+        return
+    margin = float(-programme.fun) / scale
+    if margin <= _SEPARATION_MARGIN:
+        return
+    witness = np.asarray(programme.x, dtype=float)
+    if float((oriented @ witness).min()) < -_SEPARATION_WITNESS_FEASIBILITY * scale:
+        # THE OBJECTIVE IS ONLY WORTH READING AT A POINT THAT SATISFIES THE
+        # CONSTRAINTS, and HiGHS's own primal feasibility tolerance is 1e-7 rather
+        # than zero. See :data:`_SEPARATION_WITNESS_FEASIBILITY` for the measured
+        # band in which it returns a violating point with a margin above the
+        # threshold, and for the one separated design in 3000 this declines to
+        # refuse as a result.
+        return
+    separating = sorted(
+        str(name)
+        for name, weight in zip(design.columns, witness, strict=True)
+        if abs(float(weight)) > _SEPARATION_MARGIN
+    )
+    raise _refuse(
+        fn,
+        f"the design separates the outcome. A linear combination of {separating} "
+        f"orders every observation, so the likelihood has no interior maximum and "
+        f"the maximum-likelihood estimate does not exist. What an iteration returns "
+        f"for it is where the iteration stopped rather than an estimate, and it is "
+        f"not reported. {remedy}",
         "precondition-degenerate",
     )
 

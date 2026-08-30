@@ -42,6 +42,7 @@
     "do NOT assume length(fitted_probabilities)==nrow; fixef/separation drops rows -> align through obs_kept",
     "pseudo-R2 != R2; a McFadden value of 0.3 is excellent (not '30% of the variance')",
     "perfect/quasi-separation -> coefficients of ±∞ with enormous SE, or a drop (check obs_kept & the SE)",
+    "with a fixed effect, separation is gated ACROSS the sample only: a predictor splitting the outcome INSIDE every level returns convergence=TRUE with a coefficient near 20 and an SE near 6800 -- read the SE and obs_kept, not the flag",
     "an in-sample AUC (via #84 on the same sample) is optimistic; an out-of-sample/real-time vintage is needed"
    ],
    "sources": [
@@ -58,7 +59,11 @@
     "precondition-degenerate",
     "precondition-domain"
    ],
-   "validation_notes": null
+   "validation_notes": [
+    "separation is refused ACROSS the sample and is NOT checked WITHIN a fixed effect, and that is a deliberate boundary rather than an oversight. The body puts Konis (2007) linear-programming feasibility -- Silvapulle's (1981) existence condition solved as a programme -- to the COVARIATES alone, because expanding the fixed-effect levels into indicators answers a different question: with the levels in the design the programme scores above zero whenever any level carries a constant outcome, which is the ORDINARY case in a binary panel and whose effect is infinite and contributes nothing to the conditional likelihood. MEASURED on logit panels with a firm effect and one covariate, constant-outcome firms against the margin with the levels in: 25 of 100 firms and 2.7035e+01 over 100 firms x 5 years, 44 of 300 and 7.5204e+01 over 300 x 8 -- while over the covariates alone all of them score 0.0. So refusing on the expanded design would turn routine panels into errors, and the narrower question is asked instead",
+    "the case that boundary leaves open is a covariate that orders the outcome inside EVERY level at a different cut per level, which no single hyperplane over the pooled sample can see. MEASURED on eight rows and two levels cut at 0 and at 10: the covariates score 0.0 and the levels 1.0256e-01, and feglm returns convergence TRUE with deviance 6.016594756162403e-08 and a coefficient of 19.697788 whose standard error is 6795.277043 -- a maximum-likelihood estimate that does not exist, reported as a fit. Read the standard errors and obs_kept rather than the convergence flag: a coefficient near 20 beside a standard error in the thousands is separation inside a level, not an effect",
+    "a fixed-effect level whose outcome never varies is dropped by the estimator rather than by this node, and the two halves of that are NOT symmetric. MEASURED against pyfixest 0.60.0: an ALL-ZERO level is removed behind 'UserWarning: N observations removed because of separation.' and shortens obs_kept, while an ALL-ONE level is KEPT with no warning and no change to obs_kept at all -- on 138 rows with six positive rows given a level of their own, all 138 are kept and convergence is TRUE. The estimate that comes back is one that exists, so this is silence about which rows were used rather than a fit with no maximum; compare obs_kept against the frame's own length before reading the coefficients as an answer about the whole sample"
+   ]
   },
   {
    "id": 84,
