@@ -6,7 +6,7 @@
 
 Category 16-limited-dependent; module ``heckman_selection``.
 
-Reference implementation: statsmodels.
+Reference implementation: 10.2307/1912352.
 
 See ``engine/corpus/`` for when this method applies, what to reach for instead, and the
 interpretation traps recorded against it.
@@ -14,12 +14,11 @@ interpretation traps recorded against it.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any, Literal
+
+import pandas as pd
 
 from econflow_engine.generated.args.c16_limited_dependent import NODE_META, wire_model
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.

@@ -212,27 +212,57 @@ echo "== 8. the public API still matches its committed baseline =="
 # either name. See api-baseline/check_api.py for why this is not `griffe check`.
 $RUN python api-baseline/check_api.py || fail "the wrapper API drifted from api-baseline/wrappers.json"
 
-echo "== 9. no wrapper reaches the network =="
+echo "== 9. no wrapper SOURCE names a transport =="
 # Published in five places and called "Verified", with nothing re-measuring it
 # until 2026-08-21. The figure quoted was taken by hand when the tree held 251
 # wrapper modules and was never taken again while the tree more than doubled.
 # A claim without a gate is a memory.
+#
+# READ THIS STEP WITH 9b. It parses OUR source, so it answers for the 598 files
+# it walks and for nothing underneath them. Step 9b is the other half.
 bash ../.github/scripts/check-no-network.sh .. ||
-  fail "a wrapper reaches the network; fetching belongs to the external-data node"
+  fail "a wrapper's source names a transport; fetching belongs to the external-data node"
+
+echo "== 9b. and no wrapper OPENS a connection while it runs =="
+# THE HALF STEP 9 CANNOT REACH, and the case that produced it is in the
+# dependency set already: textstat calls nltk.download() on a cache miss, which
+# resolves raw.githubusercontent.com AT CALL TIME. A body calling it would reach
+# the network on every call while engine.wrapper_network_calls stayed 0, because
+# the wrapper's own source names no transport. The import contract at step 3 has
+# the same blind spot from the other side -- grimp squashes external packages, so
+# wrappers -> textstat -> nltk -> urllib is one edge to an opaque node.
+#
+# So this step stops parsing and starts WATCHING: every implemented body is run
+# under a PEP 578 audit hook that sees socket and urllib events at C level, and no
+# library can evade it by importing differently. Its floor is engine.n_implemented
+# and its planted controls include the textstat path itself.
+$RUN python -m tests.controls.network_reach ||
+  fail "a wrapper body opened a connection at run time, or a planted control did not fire"
 
 echo "== 10. running a method twice returns the same bytes =="
-# BOX 2.1.14. Zero methods qualify today -- engine.n_implemented is 0 and every
-# wrapper body is a typed stub that raises -- so a harness that iterated the
-# implemented set and printed "all match" would have examined NOTHING. The proof
-# is therefore carried by planted controls: three that MUST be caught (the wall
-# clock, a live object's address, an unseeded draw) and two that MUST NOT be (a
-# constant, and a draw from a generator seeded inside the call). Both counts are
-# printed, and the method count is compared EXACTLY against the manifest so it
-# rises on its own with the first body in 2.2.
+# BOX 2.1.14. ONE method qualifies today, and this comment used to say zero: the
+# whole tier was a typed stub that raises, so a harness that iterated the
+# implemented set and printed "all match" would have examined NOTHING. That is
+# why the proof is carried by planted controls rather than by the tree, and it
+# stays carried by them at one body as much as it was at none. There are two sets.
+# tests/controls/determinism.py holds five callables this step double-runs on
+# every invocation: three that MUST be caught (the wall clock, a live object's
+# address, an unseeded draw) and two that MUST NOT be (a constant, and a draw
+# from a generator seeded inside the call). The METHOD leg has one committed body
+# and a single body cannot exercise the leg's refusals -- an orphan payload, a
+# name collision, a body with no call at all -- so its controls plant their own:
+# tests/test_double_run_methods.py
+# mirrors engine/ with hardlinks, gives a node a body, and runs this same module
+# against the mirror as a subprocess. A body reached by its oracle case and one
+# reached by a payload file must go green; every other plant must turn it red
+# with the method named, and each of those was watched failing against the gate
+# with the guard it pins removed.
+# Both counts are printed here, and the method count is compared EXACTLY against
+# the manifest so it rises on its own with the first body in 2.2.
 $RUN python -m tests.controls.double_run ||
   fail "the double-run determinism harness failed; a method or a planted control did not reproduce"
 
-echo "== 11. doctests, counted rather than exit-coded =="
+echo "== 11. doctests, counted AND run =="
 # BOX 2.1.18. `pytest --doctest-modules` over a tree with no examples collects
 # zero and EXITS 0 -- green, having run nothing. Wired in as
 # `pytest --doctest-modules src/ || fail` it would be a gate that can never fail
@@ -240,6 +270,13 @@ echo "== 11. doctests, counted rather than exit-coded =="
 # floor that reads engine.n_implemented, and proves itself on three controls: a
 # deliberately wrong example that MUST fail, a correct one that MUST pass, and a
 # prose-only docstring that must collect 0 without erroring.
+# COUNTING WAS NOT ENOUGH AND THE COUNTED-ONLY FORM SHIPPED A FALSE EXAMPLE. The
+# wrapper tier was collected and never executed, so the floor proved an example
+# EXISTED and never that it was TRUE; the first 2.2 body landed asserting -0.1116
+# for a coefficient of -0.0376 and this step printed "all passing" over it.
+# Nothing else reaches those docstrings -- pyproject.toml sets testpaths to
+# tests/ and adds no --doctest-modules, and step 4 above runs plain pytest -- so
+# the gate now RUNS the wrapper tier's examples as well as counting them.
 $RUN python -m tests.controls.doctest_gate ||
   fail "the doctest gate failed; see the collected counts above"
 
@@ -248,8 +285,9 @@ echo "== 11b. a published table reaches the body it is delivered to =="
 # published table and delivers it through registry_put -> adapt_args ->
 # resolve_handle. Nothing about a green case proves the body READ it: a body
 # returning a constant passes any comparison whose expected value happens to
-# match. Every wrapper body is a stub, so no real body can be watched reading a
-# dataset either -- the proof is carried by four planted controls driven down
+# match. One wrapper body exists now and the rest of the tier is still stubs, so
+# a single real body cannot be made to reach the wrong verdict on demand and
+# cannot answer for this either -- the proof is carried by four planted controls driven down
 # the real path against a real node's contract. Two MUST be flagged (a constant,
 # and a payload that reads only the frame's length) and two MUST NOT (a sum over
 # the values, and a payload that declares no dependence on them).
@@ -262,10 +300,10 @@ echo "== 12. the planted control sets are the size the manifest claims =="
 # and both of the harnesses above are only as good as their controls. Deleting
 # one is therefore a visible one-line diff in .github/inventory.json.
 for pair in "determinism_controls:determinism.py" "property_controls:property_controls.py" \
-  "fixture_controls:fixture_reach.py"; do
+  "fixture_controls:fixture_reach.py" "network_controls:network_reach.py"; do
   key="${pair%%:*}"
   module="tests/controls/${pair#*:}"
-  planted="$(grep -cE '"""(POSITIVE|NEGATIVE)\.' "$module" || true)"
+  planted="$(grep -cE '"""(POSITIVE|NEGATIVE|OPAQUE)\.' "$module" || true)"
   expected="$(inventory suite "$key")" || fail "the ${key} floor is unreadable"
   [ "$planted" -eq "$expected" ] ||
     fail "${module} plants ${planted} control(s), the manifest says ${expected}"

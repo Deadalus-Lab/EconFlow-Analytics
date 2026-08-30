@@ -100107,8 +100107,22 @@
     "data": "<df_handle>"
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "coefficients",
+     "coeftable",
+     "fitted_probabilities",
+     "obs_kept",
+     "pseudo_r2",
+     "loglik",
+     "aic",
+     "bic",
+     "deviance",
+     "nobs",
+     "link",
+     "family",
+     "fixef_names"
+    ]
    },
    "arguments": [
     {
@@ -100195,8 +100209,19 @@
     "conf_level": 0.95
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "auc",
+     "auc_ci",
+     "roc_curve",
+     "best_threshold",
+     "n_cases",
+     "n_controls",
+     "controls_level",
+     "cases_level",
+     "direction",
+     "percent"
+    ]
    },
    "arguments": [
     {
@@ -100299,8 +100324,18 @@
     "conf_level": 0.95
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "params",
+     "thresholds",
+     "marginal_effects",
+     "coeftable",
+     "llf",
+     "nobs",
+     "link",
+     "outcome",
+     "design"
+    ]
    },
    "arguments": [
     {
@@ -100386,8 +100421,13 @@
     "alpha": 0.05
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "brant_test",
+     "by_variable",
+     "alpha",
+     "reject"
+    ]
    },
    "arguments": [
     {
@@ -100448,8 +100488,22 @@
     "conf_level": 0.95
    },
    "output_keys": {
-    "status": "undeclared",
-    "keys": null
+    "status": "declared",
+    "keys": [
+     "params",
+     "rate_ratios",
+     "coeftable",
+     "dispersion",
+     "zero_inflation",
+     "vuong",
+     "fitted_values",
+     "llf",
+     "aic",
+     "bic",
+     "nobs",
+     "family",
+     "zeros"
+    ]
    },
    "arguments": [
     {

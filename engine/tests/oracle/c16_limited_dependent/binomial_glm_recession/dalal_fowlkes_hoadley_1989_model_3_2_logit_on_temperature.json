@@ -1,0 +1,31 @@
+{
+  "fn": "run_binomial_fe_glm",
+  "inputs": {
+    "formula": "incident ~ temperature",
+    "data": {"$fixture": "dalal_fowlkes_hoadley_1989_oring_field_joint"},
+    "link": "logit"
+  },
+  "expected": {
+    "coefficients": {
+      "Intercept": 5.085,
+      "temperature": -0.1156
+    }
+  },
+  "unchecked_keys": [
+    "coeftable",
+    "fitted_probabilities",
+    "obs_kept",
+    "pseudo_r2",
+    "loglik",
+    "aic",
+    "bic",
+    "deviance",
+    "nobs",
+    "link",
+    "family",
+    "fixef_names"
+  ],
+  "tolerance_class": "estimate-1e-4",
+  "citation": "Dalal, S. R., Fowlkes, E. B. and Hoadley, B. (1989), Risk Analysis of the Space Shuttle: Pre-Challenger Prediction of Failure, Journal of the American Statistical Association 84(408), 945-957, DOI 10.1080/01621459.1989.10478858 -- p. 948, the text beneath equation (3.2): the logistic model for the number of field-joint primary O-ring incidents out of six, fitted on the calculated joint temperature alone, whose estimated coefficients are printed as alpha-hat = 5.085 and beta-hat = -.1156.",
+  "notes": "THE PAPER FITS A BINOMIAL MODEL AND THIS NODE FITS BERNOULLI TRIALS, AND THE TWO ARE THE SAME LIKELIHOOD. Model (3.2) treats each of the 23 flights as six binomial trials at that flight's temperature; the fixture writes those trials out one per row, so the two agree about the coefficients exactly and the fixture's own notes carry the argument. The node has no argument for a trial count and the estimator it wraps has no weights parameter, so the expansion is not a convenience -- it is the only way this published model is reachable at all.\n\nWHY THIS MODEL AND NOT THE BINARY ONE ON P. 949. The same paper also prints alpha-hat* = 15.043 and beta-hat* = -.2322 for a plain binary logit over the 23 flights, which is a smaller fixture and the more obvious choice. It was measured and rejected: the estimate this engine returns for that model is -0.23216274, which sits 1.60e-4 in relative terms from the -0.2322 the paper prints, and the paper prints four decimal places, so the gap is the printing rather than a disagreement. No tolerance class that names a coefficient admits it -- `estimate-1e-4` allows 2.3e-5 there -- and reaching for `pvalue-1e-3` to widen the band would put a class in this file that describes neither the number nor the reason. Model (3.2) has the same published precision over larger coefficients, so its two estimates sit 4.477813e-06 and 1.009191e-05 from the page, inside the class they are actually named under by an order of magnitude. THOSE TWO FIGURES ARE ASSERTED and not only stated: `TestOracleCase` holds both below 2e-5, so a reproduction that decays towards the class's own 1e-4 turns this file's test red instead of staying green on a band five times wider than the fit needs.\n\nWHAT THIS CASE DOES NOT CLAIM. The paper prints standard errors for this model -- 3.052 and 0.047 -- and they are NOT checked here, which is why `coeftable` is unchecked rather than compared. Measured against pyfixest 0.60.0: its default small-sample correction (`k_adj` true) returns 3.063664 and 0.047196, while the same fit with the correction switched off returns 3.052463 and 0.047023 and matches the page. No argument of this node reaches `ssc`, so the published pair is unreachable through the wire contract and comparing against it would fail for a reason that has nothing to do with the estimate. The paper's lack-of-fit statistic for this model, 18.086 on 21 degrees of freedom, is a property of the 23 grouped counts rather than of the 138 Bernoulli rows and is a different number here; it is not claimed either. Every remaining field is unchecked because the source publishes nothing to check it against: the fitted probabilities, the retained-row list, McFadden's pseudo-R2 and the information criteria are all this engine's arithmetic over the fit, and the three metadata fields echo the call."
+}

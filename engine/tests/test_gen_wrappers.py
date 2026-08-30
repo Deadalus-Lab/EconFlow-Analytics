@@ -37,7 +37,7 @@ from typing import Any
 
 import pytest
 
-from econflow_engine.metrics import find_manifest
+from econflow_engine.metrics import find_manifest, stub_ledger
 from econflow_engine.naming import category_package, wrapper_module_name
 
 ENGINE_ROOT = Path(__file__).resolve().parent.parent
@@ -237,19 +237,19 @@ def test_the_generated_sections_keep_their_order(
 def test_the_validation_section_is_rendered_from_the_card_and_not_from_a_constant(
     plan_and_context: tuple[dict[Path, str], dict[str, Any]],
 ) -> None:
-    """The fifteen authored sentences, followed from their cards into docstrings.
+    """The thirty-one authored sentences, followed from their cards into docstrings.
 
     THE OTHER HALF OF A PIN THAT ALREADY EXISTS. tests/test_gates_registry.py
-    holds these sentences to five cards by count and by digest, so a reword or a
+    holds these sentences to their cards by count and by digest, so a reword or a
     deletion on the CARD side is loud. Nothing there says they reach a wrapper
     docstring: ``validation_section`` returning ``[]`` empties the section from
-    all five modules and every count in this file goes on passing.
+    every one of those modules and every count in this file goes on passing.
 
-    THEY ARE THE ONLY POSITIVE CONTROL THE SECTION PAIR HAS. ``precondition_gates``
-    is empty on all 600 cards, so the Gates section renders the same sentence
-    everywhere and would be indistinguishable from a constant. These fifteen are
-    the only prose in the tier that can have arrived only by being read off a
-    card.
+    THEY ARE THE STRONGEST POSITIVE CONTROL THE SECTION PAIR HAS. The Gates
+    section renders the same sentence on every card whose ``precondition_gates``
+    is empty, which is nearly all of them, so it is close to indistinguishable
+    from a constant; these thirty-one sentences are prose that can have arrived
+    only by being read off a card.
     """
     plan, _ = plan_and_context
     cards = [
@@ -257,7 +257,7 @@ def test_the_validation_section_is_rendered_from_the_card_and_not_from_a_constan
         for card in G.read_artifact("method-cards.json")["cards"]
         if card.get("validation_notes")
     ]
-    assert len(cards) == 5, "the corpus moved; re-measure before editing this test"
+    assert len(cards) == 10, "the corpus moved; re-measure before editing this test"
 
     seen = 0
     for card in cards:
@@ -277,36 +277,118 @@ def test_the_validation_section_is_rendered_from_the_card_and_not_from_a_constan
             # THE EXPECTED SIDE SHARES NO TRANSFORM WITH THE EMITTER, and routing
             # it through ``docsafe`` is exactly the mistake: with ``docsafe``
             # returning "" both sides collapse to "", every bullet renders as a
-            # bare "- ", and ``"" in home`` passes on all fifteen. Measured over
+            # bare "- ", and ``"" in home`` passes on all thirty-one. Measured over
             # the corpus: no note carries a backslash or a triple quote, so
             # ``docsafe`` is a no-op on every one of them and dropping it here
-            # compares the same bytes -- while a regression in it now shows.
+            # compares the same bytes -- while a regression in it now shows. The
+            # two 2026-08-28 cards were re-measured against this and carry none
+            # either.
             want = " ".join(str(note).split())
             assert want, "an empty note asserts nothing"
             for where, home in homes.items():
                 assert want in home, f"card #{card['id']}: {note!r} is absent from {where}"
             seen += 1
-    assert seen == 15
+    assert seen == 31
     carrying = [
         path for path, source in plan.items() if "\n    Validation:\n" in source
     ]
-    assert len(carrying) == 5, sorted(p.name for p in carrying)
+    assert len(carrying) == 10, sorted(p.name for p in carrying)
 
 
-def test_no_wrapper_docstring_offers_a_doctest_example(
+def _implemented_pairs() -> set[tuple[str, str]]:
+    """The written bodies, keyed on THE MODULE AND THE NAME rather than the name.
+
+    ``stub_ledger`` yields ``(path, name)`` and this used to throw the path away.
+    A public function in module B whose name equals an implemented node in module
+    A was then classified as a body: excluded from the rule that no stub may carry
+    an example, and required by the other direction to carry one it has no way to
+    make true. ``tests/test_double_run_methods.py`` calls that same collision "the
+    dangerous half" and refuses it in the double-run gate; the pair key is what
+    refuses it here.
+    """
+    return {
+        (str(path.relative_to(WRAPPERS)), name)
+        for path, name in stub_ledger(WRAPPERS).implemented
+    }
+
+
+def _split_stubs_from_bodies(
+    wrapper_functions: list[tuple[str, ast.FunctionDef]],
+    implemented: set[tuple[str, str]],
+) -> tuple[list[tuple[str, ast.FunctionDef]], list[tuple[str, ast.FunctionDef]]]:
+    """Split the walked functions on the pair key. Shared with the control below."""
+    stubs = [
+        (label, node) for label, node in wrapper_functions if (label, node.name) not in implemented
+    ]
+    bodies = [
+        (label, node) for label, node in wrapper_functions if (label, node.name) in implemented
+    ]
+    return stubs, bodies
+
+
+def test_a_helper_colliding_with_another_module_s_body_is_read_as_a_stub(
     wrapper_functions: list[tuple[str, ast.FunctionDef]],
 ) -> None:
-    """Zero examples in the tier, and the parser that box 2.1.18 will use says so.
+    """THE CONTROL FOR THE PAIR KEY, and the collision is planted rather than hoped for.
+
+    Keyed on the bare name, an author's public helper in module B that happens to
+    share a name with module A's written body is classified as a BODY. It is then
+    dropped from the no-example-on-a-stub check and added to the every-body-
+    carries-an-example check -- a helper that can never satisfy the second and is
+    no longer watched by the first. Both halves are asserted here, and the
+    collision is asserted to be real under the old key so this cannot pass by
+    finding no collision at all.
+    """
+    implemented = _implemented_pairs()
+    assert implemented, "no body is written; this control would compare nothing"
+    body_label, body_name = sorted(implemented)[0]
+    impostor_label = next(label for label, _ in wrapper_functions if label != body_label)
+    impostor = ast.parse(f'def {body_name}() -> None:\n    """A helper, no example."""\n').body[0]
+    assert isinstance(impostor, ast.FunctionDef)
+
+    assert body_name in {name for _, name in implemented}, "the collision is not real"
+
+    stubs, bodies = _split_stubs_from_bodies(
+        [*wrapper_functions, (impostor_label, impostor)], implemented
+    )
+    assert (impostor_label, impostor) in stubs
+    assert (impostor_label, impostor) not in bodies
+    assert (body_label, body_name) in {(label, node.name) for label, node in bodies}
+
+
+def test_no_stub_docstring_offers_a_doctest_example(
+    wrapper_functions: list[tuple[str, ast.FunctionDef]],
+) -> None:
+    """No example on a body that RAISES, and the parser box 2.1.18 uses says so.
 
     An example against a body that raises NotImplementedError is a failure, and
     1456 of them would arrive on the day ``--doctest-modules`` is switched on.
     The example is written with the body, which is the only point at which one
     can be true.
+
+    THE RULE IS ABOUT STUBS AND USED TO BE WORDED AS "ZERO IN THE TIER", which
+    was the same statement while every body was a stub and stopped being one with
+    the first body written in phase 2.2. That body arrives with the example this
+    docstring has always asked for, and reading the old wording as a ceiling
+    would have made writing one a failure. The set that must carry none is
+    therefore narrowed to the stubs, by the SAME walk
+    ``.github/actions/assert-inventory/assert.sh`` counts ``n_implemented`` with,
+    and the count of examined functions is asserted below so that a narrowing to
+    nothing cannot pass.
+
+    THE OTHER DIRECTION IS ASSERTED TOO: an implemented body that carries NO
+    example is refused here, because ``tests/controls/doctest_gate.py`` floors
+    the collected count at ``engine.n_implemented`` and a body without one turns
+    that gate red with nothing naming the cause.
     """
     parser = doctest.DocTestParser()
+    stubs, bodies = _split_stubs_from_bodies(wrapper_functions, _implemented_pairs())
+    assert len(bodies) == inventory("engine", "n_implemented")
+    assert len(stubs) + len(bodies) == len(wrapper_functions)
+
     offenders = [
         f"{label}::{node.name}"
-        for label, node in wrapper_functions
+        for label, node in stubs
         if parser.get_examples(ast.get_docstring(node, clean=False) or "")
     ]
     modules = sorted(WRAPPERS.rglob("*.py"))
@@ -316,6 +398,12 @@ def test_no_wrapper_docstring_offers_a_doctest_example(
         if parser.get_examples(ast.get_docstring(ast.parse(path.read_text("utf-8"))) or "")
     ]
     assert not offenders, offenders[:20]
+    exampleless = [
+        f"{label}::{node.name}"
+        for label, node in bodies
+        if not parser.get_examples(ast.get_docstring(node, clean=False) or "")
+    ]
+    assert not exampleless, exampleless[:20]
     # THE POSITIVE CONTROL, AND THE CEILING ABOVE RESTS ENTIRELY ON IT. "zero
     # examples found" and "the parser was never looking" print the same result,
     # and the doctest floor in tests/controls/doctest_gate.py sits at 0, so it

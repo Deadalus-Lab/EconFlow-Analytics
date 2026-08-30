@@ -1,0 +1,53 @@
+{
+  "shape": "series",
+  "index": {
+    "kind": "range",
+    "start": 1
+  },
+  "columns": [
+    "food_share"
+  ],
+  "values": [
+    0.25606632947051666,
+    0.20232309486780717,
+    0.2911260193628731,
+    0.1898035810068708,
+    0.1619337494592423,
+    0.3682922851084652,
+    0.2800173385348938,
+    0.20677517685627192,
+    0.16049550621649494,
+    0.22806564155575654,
+    0.19211442348065175,
+    0.2541946526283032,
+    0.3015883477229289,
+    0.25703030966188856,
+    0.29143697170158034,
+    0.3624967059443587,
+    0.2265521369180498,
+    0.3086045414729466,
+    0.3705066404328578,
+    0.10752582252117869,
+    0.3306025244105739,
+    0.2590826277998071,
+    0.2501852881230313,
+    0.2387816991166,
+    0.41442034063121164,
+    0.178273619370587,
+    0.22506638858237643,
+    0.26305193630112195,
+    0.3652333879151758,
+    0.5612430032812198,
+    0.24239056303518655,
+    0.34187650868607455,
+    0.34856983969631755,
+    0.32847591645794955,
+    0.3508730644326258,
+    0.2353782071821162,
+    0.5140399358174362,
+    0.5429749328229101
+  ],
+  "dtype": "float",
+  "citation": "Griffiths, W. E., Hill, R. C. and Judge, G. G. (1993), Learning and Practicing Econometrics, Wiley, Table 15.4 -- the 38-household food-expenditure survey. The same 38 rows are the application of Ferrari, S. L. P. and Cribari-Neto, F. (2004), Beta Regression for Modelling Rates and Proportions, Journal of Applied Statistics 31(7), 799-815, DOI 10.1080/0266476042000214501, section 4, and are distributed verbatim as statsmodels/othermod/tests/results/foodexpenditure.csv in statsmodels 0.14.6.",
+  "notes": "THIS COLUMN IS A RATIO AND THE SOURCE PRINTS ITS TWO HALVES, WHICH IS THE ONE THING A READER MUST KNOW BEFORE USING IT. Table 15.4 prints `food` and `income` per household; Ferrari and Cribari-Neto's response is food/income, the share of household income spent on food, and no table prints that column. Each value here is the exact double that dividing the two published columns produces, in the published row order, so the transcription is reversible: reading `food` and `income` out of the source and dividing them reproduces these 38 numbers bit for bit. `values` in a dataset file is JSON literals and cannot compute, and the alternative -- a $produce chain through a node that divides two series -- needs a wrapper body that does not exist, so the division is done here and declared here rather than hidden.\n\nWHAT IT DOES NOT SUPPORT. The two columns it was built from are gone: nothing here can answer a question about the level of food expenditure or of income, and the companion dataset ferrari_cribari_neto_2004_income_and_persons carries income back as a covariate rather than as the divisor. Every value lies strictly inside the unit interval -- the smallest is 0.10752582252117869 and the largest 0.5612430032812198 -- so this dataset exercises a beta regression and says nothing about a response at exactly zero or one, which is the case beta regression is undefined on. The two datasets share this index and a case that reaches for one must reach for the other."
+}

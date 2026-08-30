@@ -1,0 +1,31 @@
+{
+  "fn": "ld_count_model",
+  "inputs": {
+    "y": {"$fixture": "doll_hill_1966_coronary_deaths"},
+    "x": {"$fixture": "doll_hill_1966_smoking_and_age_indicators"},
+    "family": "poisson",
+    "zeros": "none",
+    "exposure": {"$fixture": "doll_hill_1966_person_years"},
+    "conf_level": 0.95
+  },
+  "expected": {
+    "llf": -33.600153,
+    "nobs": 10
+  },
+  "unchecked_keys": [
+    "params",
+    "rate_ratios",
+    "coeftable",
+    "dispersion",
+    "zero_inflation",
+    "vuong",
+    "fitted_values",
+    "aic",
+    "bic",
+    "family",
+    "zeros"
+  ],
+  "tolerance_class": "estimate-1e-4",
+  "citation": "StataCorp, Stata Base Reference Manual, [R] poisson, Example 2, pp. 6-7 (https://www.stata.com/manuals/rpoisson.pdf; the example loads https://www.stata-press.com/data/r19/dollhill3, so this is the release 19 manual). The command is `poisson deaths smokes i.agecat, exposure(pyears) irr` and the page prints `Log likelihood = -33.600153` above a table of incidence-rate ratios: smokes 1.425519, 45--54 4.410584, 55--64 13.8392, 65--74 28.51678, 75--84 40.45121 and _cons .0003636. The data are Doll and Hill (1966), National Cancer Institute Monograph 19, 205-268, reprinted at p. 6 of the same manual and in Lash, VanderWeele, Haneuse and Rothman, Modern Epidemiology, 4th ed. (2021), p. 417.",
+  "notes": "TWO NUMBERS ARE CHECKED AND THE COEFFICIENTS ARE NOT, WHICH IS A MEASUREMENT RATHER THAN A CHOICE. The page prints `Log likelihood = -33.600153` and `Number of obs = 10`, and this payload carries both verbatim. It also prints the whole coefficient vector -- but the command specifies `irr`, so what is tabulated is exp(beta) and not beta, and the entry for _cons is printed as .0003636: four significant digits, whose rounding floor alone is 1.4e-04 in relative terms. MEASURED, read back from the body on this fixture: the five other ratios agree with the page between 2.7e-08 and 3.2e-07, and _cons at 1.305e-04 -- OUTSIDE the 1e-04 that `estimate-1e-4` allows. `numerically_equal` compares a mapping on its whole key set, so the six ratios are all compared or none is, and no class in _policy.json admits that entry: the next one up is `pvalue-1e-3`, and it is refused on what it IS rather than on what a control would say about it: the class is for a p-value compared near zero, and against a number of size 3.6e-04 its 1e-06 absolute floor alone is 2.75e-03 of the value -- looser than the class's own rtol, and twenty times the disagreement it would be admitting. THE APPEAL TO THE PERTURBATION CONTROL THAT USED TO STAND HERE WAS WRONG, and it was the only part of this paragraph phrased as something the harness enforces. MEASURED: `pvalue-1e-3` BITES on these six numbers -- ten times its rtol moves _cons from .0003636 to .000367236 and `numerically_equal` refuses that -- so the class is admissible at load time and would have admitted all six ratios. Nothing in the loader would have stopped this; the reason is semantic and it is this file's own. So `rate_ratios` is unchecked, and it is unchecked because the page cannot be compared with at this precision rather than because nothing was published.\n\nWHAT WOULD CHANGE THAT, RECORDED FOR WHOEVER DECIDES IT. On the LOG scale every published entry sits inside `estimate-1e-4` -- taking the logarithm divides the relative error by |beta|, so the worst entry, _cons again, lands at 1.65e-05. That comparison would put ln() of a printed number into `expected`, which is arithmetic this file's author would have done rather than the page, and this case does not do it on its own authority.\n\nWHY estimate-1e-4 AND NOT statistic-1e-6. Both numbers here come out of a Newton iteration rather than a closed form, which is what the class is for. The log-likelihood agrees at 1.311e-08 relative, four orders inside the class it is named under, and the perturbation control still bites: ten times the class's tolerance moves it to -33.6337, which the comparison refuses.\n\nWHAT THIS CASE DOES NOT CLAIM. The page also prints standard errors, z statistics, p-values and 95% confidence intervals; `coeftable` carries all of them and none is compared, because the standard errors and the intervals are printed on the ratio scale while the table reports them on the log scale, and the z and the p-value are printed to two and three decimals -- 3.30 and 0.001 for smoking -- which no tolerance class in _policy.json can hold apart from the values around them. The pseudo-R2 of 0.9321 and the LR chi-squared of 922.93 are not payload fields at all. `dispersion` is null because a Poisson estimates none, `zero_inflation` is null because this branch fits no inflation equation, and `vuong` is null on every branch: statsmodels 0.14.6 carries no Vuong test, and no published value was found against which one written here could be checked."
+}

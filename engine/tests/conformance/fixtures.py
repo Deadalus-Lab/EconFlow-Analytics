@@ -58,17 +58,24 @@ half of the same gate.
 
 WHERE THIS DIRECTORY IS NOT. NOT under ``tests/oracle/``: ``_case_files`` globs
 that tree by file name, so a dataset there would be discovered as a case and die
-on the three-segment rule. NOT ``tests/payloads/``: that directory's ABSENCE is
-what keeps ``engine.invocation_payloads`` in its deliberately-owed OWED branch,
-which ``assert.sh`` keys on with ``[ ! -d tests/payloads ]``. Creating it here
-would silently retire a debt this change has not paid.
+on the three-segment rule. NOT ``tests/payloads/``, AND THE REASON CHANGED WHEN
+THAT DIRECTORY WAS BUILT. It used to be that the directory's ABSENCE held
+``engine.invocation_payloads`` in the OWED branch ``assert.sh`` keyed on with
+``[ ! -d tests/payloads ]``, so creating it here would have retired a debt this
+change had not paid. The debt is retired: the tree now holds ``tests/payloads/``
+and the constant is a measured 0. What keeps a dataset out of it is now the
+second reason, which was always the stronger one -- ``tests/controls/
+double_run.py`` reads every ``*.json`` there that does not begin with ``_`` as an
+INVOCATION PAYLOAD, and its key set is CLOSED to ``fn``, ``inputs`` and
+``notes``. A dataset filed there would be refused by name for carrying the wrong
+keys, which is a clearer failure than the old one but still a failure.
 """
 
 from __future__ import annotations
 
 import json
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -373,18 +380,70 @@ def move_leaf(value: Any, rtol: float, atol: float) -> Any:
     return value
 
 
+def is_indicator(column: Sequence[Any]) -> bool:
+    """Does this column hold nothing but 0 and 1, both of them present?
+
+    AN INDICATOR'S SUPPORT IS ITS SHAPE, which is why the question is asked at
+    all. :func:`move_leaf` answers for one number in isolation and cannot see it:
+    scaling 0 by ``1 + 10 rtol`` leaves it at 0, so the fallback adds one and
+    lands it exactly on the column's OTHER level, while the 1s scale off it. A
+    column of {0, 1} therefore comes back as {1, 1.001}, which is no longer an
+    indicator at all -- and a method whose response must be binary refuses the
+    moved dataset rather than running on it. Measured on the Challenger O-ring
+    dataset against ``run_binomial_fe_glm``: "The dependent variable must be
+    binary (0 or 1)".
+
+    Booleans are excluded because :func:`move_leaf` already negates them, which
+    is the same move this identifies and is already correct for that dtype.
+    """
+    levels: set[float] = set()
+    for value in column:
+        if isinstance(value, bool) or not isinstance(value, int | float):
+            return False
+        levels.add(float(value))
+    return levels == {0.0, 1.0}
+
+
+def _move_column(column: Sequence[Any], rtol: float, atol: float) -> list[Any]:
+    """One column, moved. An indicator is NEGATED; everything else scales.
+
+    NEGATION IS A TOTAL MOVE AND NOT A SOFTER ONE. Every value changes, and a
+    response with 9 ones in 138 rows becomes one with 129, so a body that reads
+    its data cannot return the same payload. What it does not do is leave the
+    column outside the set of values the method accepts, which is the difference
+    between moving the data and changing the question.
+    """
+    if is_indicator(column):
+        return [1 - value for value in column]
+    return [move_leaf(value, rtol, atol) for value in column]
+
+
 def move_values(record: dict[str, Any], rtol: float, atol: float) -> dict[str, Any]:
-    """A copy of ``record`` with every leaf of ``values`` moved. Shapes untouched."""
+    """A copy of ``record`` with every leaf of ``values`` moved. Shapes untouched.
 
-    def walk(value: Any) -> Any:
-        if isinstance(value, list):
-            return [walk(item) for item in value]
-        if isinstance(value, dict):
-            return {k: walk(v) for k, v in value.items()}
-        return move_leaf(value, rtol, atol)
-
+    COLUMN BY COLUMN RATHER THAN LEAF BY LEAF, because :func:`is_indicator` is a
+    question about a column and no walk over single leaves can ask it. A mapping
+    (shape ``object``) has no columns and keeps the leaf walk.
+    """
+    values = record["values"]
     moved = dict(record)
-    moved["values"] = walk(record["values"])
+    if record["shape"] == "object" or not isinstance(values, list):
+
+        def walk(value: Any) -> Any:
+            if isinstance(value, list):
+                return [walk(item) for item in value]
+            if isinstance(value, dict):
+                return {k: walk(v) for k, v in value.items()}
+            return move_leaf(value, rtol, atol)
+
+        moved["values"] = walk(values)
+        return moved
+    if record["shape"] in {"frame", "matrix"}:
+        columns = zip(*values, strict=True)
+        rows = zip(*(_move_column(column, rtol, atol) for column in columns), strict=True)
+        moved["values"] = [list(row) for row in rows]
+        return moved
+    moved["values"] = _move_column(values, rtol, atol)
     return moved
 
 

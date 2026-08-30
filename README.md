@@ -8,11 +8,12 @@ and the graph runs as a durable directed acyclic graph.
 **Licence:** AGPL-3.0-only for this project's own work. One set of third-party material in the
 tree keeps its own terms, and [`NOTICE`](NOTICE) states what it requires of you.
 
-## Status: the contract is finished, and nothing computes yet
+## Status: the contract is finished, and the first methods compute
 
-Every method wrapper in the engine is a typed stub that raises. What is written and green is the
-argument contract, the schemas generated from it, the sealed artifacts and the verification suite.
-The platform, integration, canvas and agent layers are specified and not built.
+Three of the engine's 1456 method wrappers carry a body; the other 1453 are typed stubs that
+raise. What is written and green is the argument contract, the schemas generated from it, the
+sealed artifacts and the verification suite. The platform, integration, canvas and agent layers
+are specified and not built.
 
 Every figure below is reproduced by the command beside it, run from `engine/`.
 
@@ -21,13 +22,18 @@ Every figure below is reproduced by the command beside it, run from `engine/`.
 | Wrapper modules | **598** | `find src/econflow_engine/wrappers -name '*.py' -type f -not -name '__init__.py' \| wc -l` |
 | Category packages | **46** | `find src/econflow_engine/wrappers -mindepth 1 -maxdepth 1 -type d -not -name '__pycache__' \| wc -l` |
 | Methods (nodes) in the contract | **1456** | `python3 -c "import json;print(json.load(open('artifacts/node-specs.json'))['engine']['n_nodes'])"` |
-| Methods carrying an implementation | **0** | `python3 -c "import ast,pathlib;body=lambda f:[s for s in f.body if not(isinstance(s,ast.Expr) and isinstance(s.value,ast.Constant) and isinstance(s.value.value,str))];stub=lambda b:len(b)==1 and isinstance(b[0],ast.Raise) and isinstance(getattr(b[0].exc,'func',b[0].exc),ast.Name) and getattr(b[0].exc,'func',b[0].exc).id=='NotImplementedError';print(sum(1 for p in pathlib.Path('src/econflow_engine/wrappers').rglob('*.py') if p.name!='__init__.py' for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and not n.name.startswith('_') and not stub(body(n))))"` |
+| Methods carrying an implementation | **6** | `python3 -c "import ast,pathlib;body=lambda f:[s for s in f.body if not(isinstance(s,ast.Expr) and isinstance(s.value,ast.Constant) and isinstance(s.value.value,str))];stub=lambda b:len(b)==1 and isinstance(b[0],ast.Raise) and isinstance(getattr(b[0].exc,'func',b[0].exc),ast.Name) and getattr(b[0].exc,'func',b[0].exc).id=='NotImplementedError';print(sum(1 for p in pathlib.Path('src/econflow_engine/wrappers').rglob('*.py') if p.name!='__init__.py' for n in ast.walk(ast.parse(p.read_text())) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and not n.name.startswith('_') and not stub(body(n))))"` |
 | Method cards | **600** | `python3 -c "import json;print(json.load(open('artifacts/method-cards.json'))['source']['n_cards'])"` |
 | Python version | **3.12** | `cat .python-version` |
 
 Read the fourth row first. It walks the syntax tree of every wrapper module and counts the public
 functions whose body is anything other than a docstring followed by a `NotImplementedError` raise.
-It counts none.
+It counts four: the binomial GLM of method card #83, which reproduces a coefficient published in
+1989; the count model of card #524, which reproduces a log-likelihood published in Stata's
+own reference manual; the fractional-response and beta regression of card #527, which
+reproduces the precision parameter published in 2004; and the ROC and area under the curve of
+card #84, which reproduces an area published in 1982. All four are double-run on every build to
+prove each returns the same bytes twice.
 
 There are more cards than modules because two modules carry two cards each. Name them with
 `python3 -c "import json,collections;c=collections.Counter(x['wrapper_file'] for x in json.load(open('artifacts/method-cards.json'))['cards']);print([k for k,n in c.items() if n>1])"`.

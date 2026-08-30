@@ -1,0 +1,14 @@
+{
+  "shape": "series",
+  "index": {
+    "kind": "range",
+    "start": 1
+  },
+  "columns": [
+    "deaths"
+  ],
+  "values": [32, 104, 206, 186, 102, 2, 12, 28, 28, 31],
+  "dtype": "int",
+  "citation": "Doll, R. and Hill, A. B. (1966), Mortality of British doctors in relation to smoking: observations on coronary thrombosis, National Cancer Institute Monograph 19, 205-268. The age-specific table is reprinted in Lash, T. L., VanderWeele, T. J., Haneuse, S. and Rothman, K. J. (2021), Modern Epidemiology, 4th ed., p. 417, and again in StataCorp, Stata Base Reference Manual, [R] poisson, Example 2, p. 6, whose ten listed rows are the ones transcribed here.",
+  "notes": "THE DEATHS COLUMN OF THE PUBLISHED TABLE, ten rows, in the order the manual lists them: the five age categories 35-44 through 75-84 for smokers first, then the same five for nonsmokers. The two companion datasets carry the other two columns of the same table -- doll_hill_1966_person_years the exposure, and doll_hill_1966_smoking_and_age_indicators the smoking indicator with the four age indicators -- and all three share this index, so a case that reaches for one must reach for the others.\n\nWHAT IT DOES NOT SUPPORT. The age category is a LABEL in the published table and is written here as four indicator columns in the companion design, with 35-44 as the omitted base; that is the coding the manual's `i.agecat` produces and it is what makes the published estimates reproducible, but no column of this dataset holds the label itself. Nothing here is a rate: the deaths are counts and become a rate only against the person-years, which is why the exposure is a separate argument rather than a column beside them."
+}

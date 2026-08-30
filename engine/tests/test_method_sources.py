@@ -97,8 +97,13 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 #: method. The remaining 275 are the deferred tier, examined against PyPI
 #: metadata, upstream code search and rendered API references; 32 of those 275
 #: named a library that does not implement their method.
-#: This figure moves only when rows are actually examined.
-AUDITED_ROWS = 424
+#: This figure moves only when rows are actually examined. IT ROSE 424 -> 425 ON
+#: 2026-08-28 with box 2.2.5: c16_limited_dependent/binomial_glm_recession is the
+#: first row whose audit is a WRITTEN BODY rather than a reading. pyfixest's
+#: `feglm` was probed live at 0.60.0 and reproduces Dalal, Fowlkes and Hoadley
+#: (1989) Model (3.2) to six significant figures, which is a stronger check than
+#: the reading this column was defined for and is recorded under the same word.
+AUDITED_ROWS = 426
 
 #: HOW MANY (row, distribution) REFUTATIONS THE REGISTER CARRIES, and it is a
 #: COUNT here for the reason ``AUDITED_ROWS`` above is one: "no row names a
@@ -119,7 +124,7 @@ AUDITED_ROWS = 424
 #: A row may name a REFUTED distribution again only with a new measurement
 #: showing the distribution gained the method -- in which case the entry is
 #: deleted from the row, in a diff that says which release added it.
-REFUTED_PAIRS = 52
+REFUTED_PAIRS = 54
 
 
 
@@ -271,7 +276,7 @@ def test_every_paper_is_a_doi(rows: dict[str, dict[str, Any]]) -> None:
     during the research resolved to entirely different papers, so the register
     holds resolvable identifiers and the prose lives in the cards."""
     papers = [(k, r["paper"]) for k, r in rows.items() if r["paper"]]
-    assert len(papers) == 131, len(papers)
+    assert len(papers) == 133, len(papers)
     assert [k for k, doi in papers if not DOI.match(doi)] == []
 
 

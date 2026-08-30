@@ -2,18 +2,20 @@
 
 # Architecture
 
-**One of five layers exists, and inside it nothing computes yet.** The compute engine has a finished
-typed contract, generated schemas, sealed artifacts and a green test suite. Not one method body is
-written, and the other four layers have no code at all.
+**One of five layers exists, and inside it the first methods compute.** The compute engine has a
+finished typed contract, generated schemas, sealed artifacts and a green test suite. Almost every one
+of its method wrappers is still a typed stub that raises, and the other four layers have no code at
+all.
 
-[`README.md`](README.md) counts what exists. This document says how the engine is built, and which
-decisions are settled so that they do not get reopened.
+[`README.md`](README.md) counts what exists, implementations included, each figure beside the command
+that reproduces it. This document says how the engine is built, and which decisions are settled so
+that they do not get reopened.
 
 ## The five layers
 
 | Layer | What it does | State |
 |---|---|---|
-| **Engine** (`engine/`) | Every statistic. The only place a number is computed. | Contract, schemas, artifacts and suite done. No method body written. |
+| **Engine** (`engine/`) | Every statistic. The only place a number is computed. | Contract, schemas, artifacts and suite done. Almost every method is still a stub. |
 | **Platform** (`backend/`) | Runs graphs, stores results, handles users. | Not built. Galaxy is the intended host. |
 | **Integration** | Translates a canvas graph into a platform workflow. | Not built. |
 | **Canvas** | The node editor a researcher actually uses. | Not built. |
@@ -55,12 +57,12 @@ Run from `engine/`.
 |---|---:|---|
 | Generated-tier modules | **96** | `find src/econflow_engine/generated -name '*.py' \| wc -l` |
 | Generators | **4** | `find scripts -maxdepth 1 -name 'gen_*.py' -type f \| wc -l` |
-| Infrastructure modules | **29** | `find src -name '*.py' -not -path '*__pycache__*' -not -path 'src/econflow_engine/wrappers/*' -not -path 'src/econflow_engine/generated/*' \| wc -l` |
-| Test modules | **25** | `find tests -name 'test_*.py' -not -path '*__pycache__*' \| wc -l` |
+| Infrastructure modules | **30** | `find src -name '*.py' -not -path '*__pycache__*' -not -path 'src/econflow_engine/wrappers/*' -not -path 'src/econflow_engine/generated/*' \| wc -l` |
+| Test modules | **34** | `find tests -name 'test_*.py' -not -path '*__pycache__*' \| wc -l` |
 | Frozen parity verdicts | **4855** | `python3 -c "import json;print(json.load(open('artifacts/parity-fixtures.json'))['n_cases'])"` |
 | Recommendation fixtures | **114** | `python3 -c "import json;print(json.load(open('artifacts/recommend-fixtures.json'))['source']['n_fixtures'])"` |
 | Decision trees | **10** | `python3 -c "import json;print(len(json.load(open('artifacts/method-trees.json'))['trees']))"` |
-| Python files with an SPDX header | **819** | `find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 \| xargs -0 grep -l 'SPDX-License-Identifier' \| wc -l` |
+| Python files with an SPDX header | **832** | `find src scripts tests -name '*.py' -not -path '*__pycache__*' -print0 \| xargs -0 grep -l 'SPDX-License-Identifier' \| wc -l` |
 
 The catalogue's own headline counts — wrapper modules, categories, methods, cards, implementations
 written — are published in [`README.md`](README.md) instead, each beside its own command.
@@ -109,8 +111,8 @@ allowlist of calls and a depth limit, and is never evaluated in a caller's names
 a `store://bucket/key` pointer, and `parse_store_uri` refuses a key holding `..`, a leading slash, a
 backslash or a control character before anything opens it.
 
-While no method body exists these properties are cheap to hold. The gates exist to make them
-expensive to break later.
+With almost every wrapper still a stub, these properties are cheap to hold. The gates exist to make
+them expensive to break as the bodies land.
 
 ## Not yet decided
 

@@ -148,6 +148,56 @@ def test_variance_blocks_a_constant_series() -> None:
     assert caught.value.detail_code == "precondition-degenerate"
 
 
+def test_variance_blocks_a_constant_series_whose_value_is_not_a_dyadic_rational() -> None:
+    """THE HOLE THE VARIANCE ARM ALONE LEFT, and it is a floating-point one.
+
+    MEASURED: ``np.var(np.full(38, 0.3), ddof=1)`` is 1.2659085472296641e-32
+    rather than zero, because the mean it subtracts was reached by summation and
+    0.3 is not exactly representable. The same 38 rows at 0.5 give exactly 0.0.
+    Before the exact arm was added beside it this rule refused the second and
+    admitted the first -- one constant vector refused and another admitted, on
+    nothing but whether the value is a power of two.
+    """
+    constant = np.full(38, 0.3)
+    assert float(np.var(constant, ddof=1)) > 0.0
+    with pytest.raises(GateError) as caught:
+        require_variance(constant, fn="f", arg="x")
+    assert caught.value.detail_code == "precondition-degenerate"
+    assert "constant (zero variance)" in str(caught.value)
+
+
+def test_variance_still_blocks_a_spread_that_underflows_without_the_values_being_equal(
+) -> None:
+    """WHY THE VARIANCE ARM STAYS, on the witness that actually exercises it.
+
+    ``min != max`` here and the spread is still zero to double precision, so the
+    exact arm admits it and only the variance arm refuses it. THE WITNESS HAD TO BE
+    CORRECTED: this test was first written with ``[1.0, 1.0 + 1e-300]``, and
+    ``1e-300`` is far below the spacing of 1.0 -- that literal IS ``[1.0, 1.0]``,
+    so the test passed through the NEW arm while claiming to defend the old one.
+    Measured, which is why the premise is asserted here rather than described.
+
+    THE ERROR STATE IS RELAXED FOR THE CALL, and that is the finding rather than a
+    convenience. Under ``np.seterr(all='raise')`` -- the state ``tests/conftest.py``
+    installs for this whole suite -- ``np.var`` on this witness raises
+    ``FloatingPointError: underflow encountered in square`` before the gate can
+    answer, so the arm has no reachable witness there at all. That is a
+    pre-existing property of ``require_variance`` computing an unguarded variance,
+    not something either arm introduced, and it is pinned here rather than hidden.
+    """
+    witness = [1e-162, 1.5e-162]
+    array = np.asarray(witness)
+    assert float(np.min(array)) != float(np.max(array))
+    with np.errstate(under="ignore"):
+        assert float(np.var(array, ddof=1)) == 0.0
+        with pytest.raises(GateError) as caught:
+            require_variance(witness, fn="f", arg="x")
+    assert caught.value.detail_code == "precondition-degenerate"
+
+    with pytest.raises(FloatingPointError, match="underflow"), np.errstate(under="raise"):
+        require_variance(witness, fn="f", arg="x")
+
+
 # --------------------------------------------------------------------------
 # require_regular_frequency -- precondition-frequency
 # --------------------------------------------------------------------------

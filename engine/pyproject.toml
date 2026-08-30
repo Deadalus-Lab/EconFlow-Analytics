@@ -49,8 +49,8 @@ dependencies = [
     "scipy",
     "statsmodels",
     "orjson",
-    # WAVE ONE. METHOD-SOURCES.json carries a `wave` column, and these four plus
-    # pandas, scipy and statsmodels are every distribution it marks `one`: the 214
+    # WAVE ONE. METHOD-SOURCES.json carries a `wave` column, and these eleven plus
+    # pandas, scipy and statsmodels are every distribution it marks `one`: the 229
     # rows whose bodies are written next. tests/test_method_sources.py asserts
     # that each of them resolves here, so a row cannot promise an import the
     # lockfile does not supply. A `deferred` row arrives with its own wrapper.
@@ -58,10 +58,77 @@ dependencies = [
     # arch and linearmodels are NCSA (University of Illinois/NCSA Open Source
     # Licence), admitted by owner decision on 2026-08-23; scripts/gen_third_party.py
     # records why beside the incompatible set.
+    #
+    # SEVEN ADMITTED BY OWNER DECISION ON 2026-08-30, promoting 15 register rows
+    # from `deferred` to `one`. Every licence below was re-measured from PyPI JSON
+    # that day, AT THE VERSION `exclude-newer` ADMITS rather than at the newest
+    # release -- a licence read off the latest version is not a measurement of the
+    # one this lockfile resolves:
+    #
+    #     hierarchicalforecast 1.5.1   Apache-2.0     (classifier)
+    #     nltk 3.10.3                  Apache-2.0     (classifier)
+    #     utilsforecast 0.2.16         Apache-2.0     (classifier)
+    #     localprojections 0.2.1       MIT            (classifier)
+    #     textstat 0.7.13              MIT            (free-text `License`)
+    #     tomotopy 0.14.0              MIT            (free-text `License`)
+    #     vaderSentiment 3.3.2         MIT License    (free-text `License`)
+    #
+    # THE LAST THREE PUBLISH NO LICENCE CLASSIFIER, so `_spdx_of` falls to the
+    # free-text branch and they land in the SBOM's `unmapped` count rather than as
+    # SPDX identifiers. That count is printed and not floored, so it is recorded
+    # here: three of the seven are attributed by the string their author typed.
+    #
+    # gensim WAS REFUSED IN THE SAME DECISION -- LGPL-2.1-only at 4.4.0, and the
+    # owner declined it against AGPL-3.0-only. It is absent from this list and its
+    # one register row, c26_text_as_data/embeddings, stays `deferred` pending a
+    # re-source. Nothing mechanically enforces that refusal: LGPL-2.1-only is in
+    # neither INCOMPATIBLE nor FORBIDDEN_DISTRIBUTIONS in scripts/gen_third_party.py,
+    # so a later `uv lock` that pulled gensim in as a transitive dependency would
+    # pass every gate in this tree.
+    #
+    # sktime WAS THE EIGHTH AND IS HELD BACK ON 2026-08-30. ITS LICENCE IS NOT THE
+    # QUESTION: BSD-3-Clause at 1.1.0, measured the same day as the seven above and
+    # admitted by the same reading. THE REASON IS A VERSION CONFLICT, and it is
+    # recorded here because a name absent from a list explains nothing.
+    #
+    # sktime 1.1.0 is the only distribution in the admission that upper-bounds the
+    # numerical stack: it pins `numpy<2.5` and `scikit-learn<1.8.0`, and resolving
+    # it moved this workspace from numpy 2.5.2 to 2.4.6 and from scikit-learn 1.9.0
+    # to 1.7.2. The scikit-learn move is harmless here. The numpy one is not:
+    # holding scikit-learn and downgrading numpy ALONE reproduces both failures, so
+    # numpy is the cause and the pin that reaches it is sktime's.
+    #
+    # WHAT THE DOWNGRADE COSTS is a refusal that stops firing. In
+    # tests/wrappers/c16_limited_dependent/test_fractional_beta.py -- a merged body,
+    # not a branch in progress -- test_the_beta_branch_does_not_converge_on_this_table_under_cloglog
+    # goes from raising GateError to DID NOT RAISE. A documented refusal that
+    # silently starts admitting is worse than a wrong answer, because nothing
+    # reports it. The second failure in that file is a last-digit disagreement in
+    # test_a_full_rank_design_passes_and_a_collinear_one_is_refused
+    # (45.333509321221605 against 45.33350932122192) and is the ordinary cost of a
+    # different BLAS reduction order; it is the refusal that decided this.
+    #
+    # THE HOLD COSTS FOUR REGISTER ROWS, which stay `deferred` and are named so the
+    # next reader does not have to search for them: c02_univariate_forecasting's
+    # direct_multistep and auto_selection, and c17_forecast_combination's
+    # ensemble_forecast_combination and forecast_stacking.
+    #
+    # IT RETURNS AS ITS OWN CHANGE, ON ITS OWN MERITS, and not as a line added back
+    # in passing: either an sktime release that admits numpy 2.5, or a measurement
+    # showing what numpy 2.4.6 does to that beta branch and a fix in the body rather
+    # than in the lockfile. Re-admitting it means flipping those four rows and
+    # re-measuring this file's counts, so it is a change with a diff of its own.
     "arch",
+    "hierarchicalforecast",
     "linearmodels",
+    "localprojections",
+    "nltk",
     "pyfixest",
     "scikit-learn",
+    "textstat",
+    "tomotopy",
+    "utilsforecast",
+    "vaderSentiment",
 ]
 
 [project.urls]
@@ -252,18 +319,61 @@ known_first_party = ["econflow_engine", "contract_hash"]
 extend_exclude = ["api-baseline"]
 
 [tool.deptry.per_rule_ignores]
-# DEP002 = declared and never imported. TRUE TODAY AND DELIBERATE: every wrapper
-# function in the tree is a typed stub that raises NotImplementedError, so nothing
-# imports any of these yet. They are declared because the Phase 2 bodies are
-# written against them -- these five are exactly the wave-one distributions
-# METHOD-SOURCES.json marks `one`, less pandas, numpy and scipy, which the
-# infrastructure already imports.
+# DEP002 = declared and never imported. It was true of all five wave-one
+# distributions while every wrapper function was a typed stub that raises: they
+# are declared because the Phase 2 bodies are written against them, and they are
+# exactly what METHOD-SOURCES.json marks `one`, less pandas, numpy and scipy,
+# which the infrastructure already imports.
 #
 # EVERY NAME IS LISTED SEPARATELY AND THE RULE IS NOT DISABLED. A blanket DEP002
 # ignore would also swallow the sixth dependency somebody declares and forgets to
 # use. DELETE A NAME FROM THIS LIST with the first wrapper that imports it -- at
 # that point its ignore starts hiding a real answer.
-DEP002 = ["statsmodels", "arch", "linearmodels", "pyfixest", "scikit-learn"]
+#
+# `statsmodels` LEFT ON 2026-08-29 UNDER THAT RULE, with the count model of card
+# #524: `deptry .` is green without it, which is the check that the name was
+# hiding nothing else. `pyfixest` is imported too, by the binomial GLM of card
+# #83, and is still listed -- it is named here rather than removed, because that
+# removal belongs to whoever reads it against their own deptry run.
+#
+# SEVEN NAMES JOINED ON 2026-08-30 WITH THE ADMISSION ABOVE, AND THE MEASUREMENT
+# IS RECORDED RATHER THAN THE RULE WIDENED. Lifting the ignore to see what is
+# under it --
+#
+#     deptry . --per-rule-ignores DEP002=orjson
+#
+# -- reports NINE DEP002 findings and nothing else: arch and linearmodels from
+# the 2026-08-23 admission, and exactly the seven admitted above, none of them
+# yet imported because no c04/c15/c17/c23/c24/c26/c42 body is written. That is
+# the same state arch and linearmodels were declared in, so they get the same
+# treatment and not a blanket ignore: each is named, and each is DELETED FROM
+# THIS LIST by the first wrapper that imports it.
+#
+# `pyfixest` AND `scikit-learn` ARE STILL LISTED AND ARE NO LONGER FINDINGS. The
+# run above names neither, because a body now imports each. Their ignores are
+# therefore doing nothing, which is the state the rule above says to delete a
+# name in -- but the bodies that import them are being written as this is
+# recorded, so the measurement is left here for whoever reads it against their
+# own deptry run rather than acted on from underneath them.
+#
+# sktime IS NOT HERE BECAUSE IT IS NOT DECLARED. It was held back in the same
+# decision over the numpy pin recorded beside [project.dependencies]; a name
+# ignored here for a distribution the manifest does not declare would be an
+# ignore with nothing behind it, and it would still be sitting here the day the
+# hold is lifted.
+DEP002 = [
+    "arch",
+    "hierarchicalforecast",
+    "linearmodels",
+    "localprojections",
+    "nltk",
+    "pyfixest",
+    "scikit-learn",
+    "textstat",
+    "tomotopy",
+    "utilsforecast",
+    "vaderSentiment",
+]
 
 # THE SECOND TYPE CHECKER, AND IT IS NOT REDUNDANT.
 # mypy and pyright disagree about real code: pyright narrows through `assert`,

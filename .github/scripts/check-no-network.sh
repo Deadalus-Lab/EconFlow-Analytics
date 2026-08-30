@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: AGPL-3.0-only
 #
-# check-no-network.sh -- no wrapper reaches the network, and this re-measures it.
+# check-no-network.sh -- no wrapper SOURCE names a transport, and this re-measures it.
 #
 # WHAT IT ENFORCES. A wrapper computes from what it was handed. It does not open a
 # socket, fetch a URL or resolve a host. That is what makes a result reproducible
@@ -9,6 +9,32 @@
 # executed in a sandbox with no egress at all. The single deliberate exception is
 # the external-data node, which lives OUTSIDE the wrapper set precisely so that
 # this rule can stay absolute here.
+#
+# WHAT IT PROVES IS NARROWER THAN THAT RULE, AND THE GAP IS THE POINT. This script
+# walks OUR OWN wrapper source, so it proves that the text of those modules names
+# no transport and calls no transport entry point. IT DOES NOT PROVE THAT NO
+# NETWORK IS REACHED. A body that calls a third-party function which fetches at
+# call time reaches the network while every line of the wrapper stays clean here,
+# because the fetching code is not in the walk.
+#
+# THAT IS NOT HYPOTHETICAL AND IT IS ALREADY IN THE DEPENDENCY SET. `textstat`
+# calls `nltk.download()` from textstat/backend/utils/_get_cmudict.py:24 on a
+# cache miss, which resolves raw.githubusercontent.com AT CALL TIME. A wrapper
+# calling `textstat.flesch_reading_ease` would therefore reach the network on
+# every call, this gate would report it clean, and `engine.wrapper_network_calls`
+# would stay 0. The import contract in pyproject.toml has the same blind spot from
+# the other direction: grimp squashes external packages, so
+# wrappers -> textstat -> nltk -> urllib is one edge to an opaque node.
+#
+# THE OTHER HALF IS A RUNTIME GATE: engine/tests/controls/network_reach.py, step
+# 9b of engine/run_verifications.sh. It runs every implemented body under a PEP
+# 578 audit hook and asserts that no socket, DNS or urllib event is raised at any
+# depth in any library -- a hook the interpreter calls from C, which nothing can
+# evade by importing differently. NEITHER GATE REPLACES THE OTHER, and they have
+# different denominators. This one reads every wrapper module in the tree,
+# including the ones that are still stubs and cannot be run at all; that one
+# reaches only the bodies that exist and can be called, which is four today. Read
+# a green line here as the first claim and never as the second.
 #
 # WHY IT EXISTS, MEASURED. Until 2026-08-21 this claim was published in five
 # places -- ARCHITECTURE.md called it "Verified" -- and NOTHING re-measured it.
@@ -183,6 +209,7 @@ if offenders:
           "can stay absolute here.", file=sys.stderr)
     sys.exit(1)
 
-print(f"ok: 0 of {parsed} wrapper modules reach the network "
-      f"(floor {floor}, all controls fired).")
+print(f"ok: 0 of {parsed} wrapper modules name a transport in their source "
+      f"(floor {floor}, all controls fired). Whether one is REACHED at run time "
+      f"is step 9b, tests/controls/network_reach.py.")
 PY

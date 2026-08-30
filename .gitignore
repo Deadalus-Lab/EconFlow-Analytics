@@ -70,6 +70,12 @@ todo.md
 .claude/
 .private/
 
+# Agent runtime state. NOT redundant against `/*`, which is the reason this one
+# is here: `/*` denies only the ROOT, and `!/engine` re-admits everything beneath
+# it -- so `engine/.omc/` was untracked and unignored, one `git add -A` away from
+# a history that can never be rewritten. Unanchored, so it holds at every depth.
+.omc/
+
 # ---- local tool caches ------------------------------------------------------
 .fastembed_cache/
 .token-optimizer/

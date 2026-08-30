@@ -14,12 +14,11 @@ interpretation traps recorded against it.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any, Literal
+
+import pandas as pd
 
 from econflow_engine.generated.args.c16_limited_dependent import NODE_META, wire_model
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.
@@ -61,6 +60,18 @@ def ld_unordered_choice(
     Gates:
         None declared. The ``precondition_gates`` field of this method card is empty; the checks a
         body must run are named here once the field carries them.
+
+    Validation:
+        Documented on the method card:
+
+        - model='multinomial_probit' must refuse with a GateError: statsmodels 0.14.6 carries no
+          multinomial probit, established by a regex sweep of the installed package, by the
+          statsmodels.api namespace and by the rendered discrete-model documentation for that
+          version
+        - the enum value stays because the node signature is frozen; dropping it is a contract
+          change and an owner decision. The blocker is not a missing source -- Train 2009 above
+          documents the simulated-likelihood estimator -- but the seed argument it needs, which this
+          node does not declare and which would contradict the node's recorded cacheability
 
     .. gen_wrappers: end of generated docstring
 

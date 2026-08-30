@@ -14,13 +14,12 @@ interpretation traps recorded against it.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
+
+import numpy as np
+import pandas as pd
 
 from econflow_engine.generated.args.c01_preparation_prechecks import NODE_META, wire_model
-
-if TYPE_CHECKING:
-    import numpy as np
-    import pandas as pd
 
 # Re-exported so a body can re-validate its own inputs with ``wire_model(fn)`` and
 # read kinds and defaults from ``NODE_META[fn]`` without another import.

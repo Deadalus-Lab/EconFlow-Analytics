@@ -19,11 +19,22 @@ count is trustworthy:
 
 FOUR ASSERTIONS, three of them planted controls:
 
-  1. THE WRAPPER TIER collects at least ``engine.n_implemented`` examples. That
-     is 0 == 0 today and RISES ON ITS OWN with the first body written in 2.2 --
-     no second edit here. The 1456 wrapper docstrings carry PROSE ``Examples``
-     sections with no ``>>>`` deliberately: executable examples over typed stubs
-     that raise would be 1456 guaranteed failures.
+  1. THE WRAPPER TIER collects at least ``engine.n_implemented`` examples AND
+     EVERY ONE OF THEM IS THEN RUN. The floor is 0 == 0 while the tier is all
+     stubs and RISES ON ITS OWN with the first body written in 2.2 -- no second
+     edit here. The 1456 wrapper docstrings carry PROSE ``Examples`` sections
+     with no ``>>>`` deliberately: executable examples over typed stubs that
+     raise would be 1456 guaranteed failures.
+
+     THE RUN IS NOT OPTIONAL AND USED TO BE MISSING, which is the second shape
+     of the same defect this module opens by refusing. Counting alone proves an
+     example EXISTS; it cannot say the example is TRUE, and nothing else in this
+     repository reaches these docstrings -- ``pyproject.toml`` sets
+     ``testpaths = ["tests"]`` and adds no ``--doctest-modules``, and
+     ``run_verifications.sh`` step 4 runs plain pytest. MEASURED: the first body
+     written in 2.2 landed with an example asserting ``-0.1116`` for a
+     coefficient of ``-0.0376``, and the counted-only gate printed
+     "1 doctest example(s) ... all passing" over it.
   2. POSITIVE CONTROL -- ``doctest_wrong.py`` collects exactly 1 and MUST FAIL.
      If it ever passes, nothing is being compared and every "0 failures" this
      gate has printed was worthless.
@@ -99,7 +110,8 @@ def main() -> int:  # noqa: PLR0911 - one branch per asserted control, each with
     expected_controls = inventory("suite", "doctest_examples")
     wrapper_floor = inventory("engine", "n_implemented")
 
-    # --- 1. the wrapper tier, with a floor that rises on its own -------------
+    # --- 1. the wrapper tier: counted against a floor that rises on its own,
+    #        and then RUN ---------------------------------------------------
     wrapper_examples = collected(WRAPPERS)
     if wrapper_examples < wrapper_floor:
         print(  # noqa: T201
@@ -109,6 +121,22 @@ def main() -> int:  # noqa: PLR0911 - one branch per asserted control, each with
             file=sys.stderr,
         )
         return 1
+    # GUARDED ON THE COUNT, NOT ON THE EXIT CODE. With no examples pytest exits 5
+    # and reading that as a failure would turn an all-stub tier red; reading it as
+    # a pass is the vacuity this module opens by refusing. The count already
+    # cleared the floor above, so there is nothing left to run only when both are 0.
+    if wrapper_examples:
+        wrapper_run = _pytest("-q", WRAPPERS)
+        if wrapper_run.returncode != 0:
+            _say(wrapper_run.stdout)
+            print(  # noqa: T201
+                f"FAIL: the wrapper tier's {wrapper_examples} doctest example(s) were "
+                "collected but did not all pass. The failure above names the module "
+                "and the line; a wrapper example is a claim about what the body "
+                "RETURNS, so either the example or the body is wrong.",
+                file=sys.stderr,
+            )
+            return 1
 
     # --- 2. POSITIVE control: a wrong example MUST fail ---------------------
     wrong_path = f"{CONTROLS}/doctest_wrong.py"
@@ -164,8 +192,8 @@ def main() -> int:  # noqa: PLR0911 - one branch per asserted control, each with
 
     _say(
         f"ok: {wrapper_examples} doctest example(s) under {WRAPPERS} "
-        f"(floor {wrapper_floor} = engine.n_implemented), "
-        f"{correct_collected} in the controls, all passing; "
+        f"(floor {wrapper_floor} = engine.n_implemented) and {correct_collected} in "
+        f"the controls -- all {wrapper_examples + correct_collected} RUN and passing; "
         "the wrong-output control failed and the prose control collected 0, "
         "as both must."
     )
