@@ -42,6 +42,7 @@ from econflow_engine.gates.estimation import (
     refuse_a_combination,
     refuse_estimator_failure,
     require_a_column,
+    require_a_declared_option,
     require_an_aligned_index,
     require_convergence,
     require_distinct_column_names,
@@ -96,6 +97,19 @@ def _declared(argument: str) -> Any:
     ``None`` is therefore its only meaning.
     """
     return NODE_META[_FN].defaults[argument]
+
+
+def _options(argument: str) -> tuple[str, ...]:
+    """The values ``node-specs.json`` declares for one ``enum`` argument of this node.
+
+    READ FROM THE CONTRACT rather than written out here, so the set this body
+    refuses against and the set ``mcp/make_tool.py`` validates a wire call against
+    cannot disagree. ``NodeArgMeta.enum`` is ``None`` for an argument of any other
+    kind; the empty tuple that produces refuses every value, which is the safe
+    direction for a module that may not raise.
+    """
+    declared = next(arg for arg in NODE_META[_FN].args if arg.name == argument)
+    return declared.enum or ()
 
 
 def _the_design(y: pd.Series, x: pd.DataFrame) -> pd.DataFrame:
@@ -691,6 +705,21 @@ def ld_fractional_response(
         range primitive admits. An unknown precision covariate reaches pandas as a
         ``KeyError``, which is a traceback rather than a refusal.
 
+        TWO ARE ASKED BEFORE ANY OF THAT AND ARE NOT ABOUT THE DATA AT ALL, AND
+        ONE OF THE TWO IS THE ONLY SILENT WRONG ANSWER IN THIS CATEGORY. ``model``
+        and ``link`` are read against the enum the node spec declares, out of
+        ``NODE_META`` rather than retyped here. The annotation is not the guard --
+        beartype is a dev dependency installed by ``tests/conftest.py`` alone, so
+        the shipped package enforced no ``Literal``. MEASURED with the hook absent
+        on the 38 published households: an undeclared ``link`` raised ``KeyError``
+        out of ``_LINKS``, a crash; but an undeclared ``model`` was ANSWERED,
+        because :func:`_fit_the_model` branches on ``model == "beta"`` and falls
+        through to the fractional GLM for everything else. ``model='beta '`` with
+        a trailing space returned the FRACTIONAL fit -- const -0.658915, income
+        -0.012259, persons 0.127534, ``precision`` None -- against the beta fit's
+        -0.622549, -0.012299, 0.118462 and 35.60973310373236, and the payload
+        names neither argument, so nothing in the answer said which had run.
+
         TWO GATES ASK ABOUT THE FIT'S OUTPUT RATHER THAN ITS INPUTS, which is the
         half the sibling count-model body first lacked and had to have added by
         review. MEASURED: ``income`` multiplied by 1e6 -- nothing but a change of
@@ -731,8 +760,36 @@ def ld_fractional_response(
         pandas would raise, and a test feeds the injection payload in as a column
         name and asserts in a ``finally`` that no side effect occurred.
     """
-    chosen_model = str(model if model is not None else _declared("model"))
-    chosen_link = str(link if link is not None else _declared("link"))
+    # THE RESOLVED VALUE AND NOT THE SUPPLIED ONE, because an omitted argument is
+    # legitimately ``None`` and the contract's own default is what replaces it.
+    # ASKED BEFORE ``str``, which would turn any object at all into a name.
+    # MEASURED with the beartype hook absent, on the published table: an
+    # undeclared ``link`` raised ``KeyError`` out of ``_LINKS[chosen_link]``, and
+    # an undeclared ``model`` was ANSWERED -- ``_fit_the_model`` branches on
+    # ``model == "beta"`` and falls through to the fractional GLM for everything
+    # else, so ``model='beta '`` returned the fractional fit under a name the
+    # payload does not carry.
+    supplied_model = model if model is not None else _declared("model")
+    supplied_link = link if link is not None else _declared("link")
+    require_a_declared_option(
+        supplied_model,
+        allowed=_options("model"),
+        fn=_FN,
+        arg="model",
+        remedy=(
+            "Name the model: 'fractional' for the Papke-Wooldridge quasi-likelihood, "
+            "or 'beta' for the Ferrari-Cribari-Neto density."
+        ),
+    )
+    require_a_declared_option(
+        supplied_link,
+        allowed=_options("link"),
+        fn=_FN,
+        arg="link",
+        remedy="Name the mean equation's link function.",
+    )
+    chosen_model = str(supplied_model)
+    chosen_link = str(supplied_link)
     level = float(conf_level if conf_level is not None else _declared("conf_level"))
 
     require_strictly_inside(level, low=0.0, high=1.0, fn=_FN, arg="conf_level")

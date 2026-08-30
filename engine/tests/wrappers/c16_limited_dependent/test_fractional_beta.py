@@ -27,6 +27,9 @@ from __future__ import annotations
 import json
 import math
 import os
+import subprocess
+import sys
+import textwrap
 from pathlib import Path
 from typing import Any
 
@@ -146,6 +149,144 @@ class TestGatesBlock:
         assert refused.value.detail_code == "precondition-domain"
         assert "zero_one_inflated_beta" in str(refused.value)
         assert "statsmodels 0.14.6" in str(refused.value)
+
+    def test_an_undeclared_model_or_link_is_refused_in_the_shipped_package(self) -> None:
+        """GATE 1b. THE SUITE CANNOT SEE THIS DEFECT FROM INSIDE ITSELF, AND THIS
+        IS THE ONE OF THE FIVE THAT ANSWERED.
+
+        ``tests/conftest.py`` installs ``beartype.claw`` over ``econflow_engine``,
+        so under pytest a direct call with an undeclared ``model`` or ``link`` is
+        stopped by the annotation before any gate runs. beartype is a DEV
+        dependency and that comment says the hook must never move into the
+        package, so the SHIPPED package had no such check. MEASURED without the
+        hook, on the published table: ``link`` raised ``KeyError`` out of
+        ``_LINKS[chosen_link]``, which is a crash; but ``model`` was ACCEPTED and
+        answered. ``_fit_the_model`` branches on ``model == "beta"`` and falls
+        through to the fractional GLM for everything else, so ``model='beta '``
+        with a trailing space returned the FRACTIONAL fit -- const -0.658915,
+        income -0.012259, persons 0.127534 and ``precision`` None, against the
+        beta fit's -0.622549, -0.012299, 0.118462 and 35.60973310373236. The
+        payload carries neither ``model`` nor ``link``, so nothing in the answer
+        said which estimator had run.
+
+        SO THE CALL IS MADE IN A SUBPROCESS, which loads no ``conftest`` and
+        therefore installs no hook. That is the only configuration in which this
+        assertion is about the package a user installs rather than about beartype.
+        """
+        # THE PASS HALF IS TOTAL OVER THE CONTRACT AND NOT OVER A LIST WRITTEN
+        # HERE. The gate refuses against `NODE_META[fn]`, so a corpus edit that
+        # added a fifth link would widen the refusal silently; sweeping the
+        # declared set is what turns that into a failing fit instead. The two
+        # equalities are the anti-vacuity half -- an empty enum would sweep
+        # nothing.
+        models = next(a for a in wrapper.NODE_META[FN].args if a.name == "model").enum
+        links = next(a for a in wrapper.NODE_META[FN].args if a.name == "link").enum
+        assert models == ("fractional", "beta", "zero_one_inflated_beta")
+        assert links == ("logit", "probit", "cloglog", "loglog")
+        share, covariates = published()
+        for option in links:
+            fit = wrapper.ld_fractional_response(y=share, x=covariates, link=option)
+            assert set(fit) == CARD_KEYS
+        for option in models:
+            # ``zero_one_inflated_beta`` is refused for having no estimator behind
+            # it, which is the test above; what is asserted here is that every
+            # DECLARED value gets past the enum gate on its own account. The call
+            # is built as a mapping because the value comes from the CONTRACT and
+            # not from the annotation: spelling the ``Literal`` out here to satisfy
+            # the type checker would put back the retyped list this sweep exists to
+            # do without.
+            call: dict[str, Any] = {"y": share, "x": covariates, "model": option}
+            try:
+                assert set(wrapper.ld_fractional_response(**call)) == CARD_KEYS
+            except GateError as refusal:
+                assert option == "zero_one_inflated_beta"
+                assert "is not one of the values this argument declares" not in str(
+                    refusal
+                )
+
+        program = textwrap.dedent(
+            """
+            import json
+            import numpy as np
+            import pandas as pd
+            from econflow_engine.errors import GateError
+            from econflow_engine.wrappers.c16_limited_dependent import (
+                fractional_beta as body,
+            )
+
+            rng = np.random.default_rng(2)
+            n = 100
+            x = pd.DataFrame({"w": rng.normal(size=n)})
+            noise = rng.normal(scale=0.3, size=n)
+            y = pd.Series(
+                1.0 / (1.0 + np.exp(-(0.2 + 0.5 * x["w"].to_numpy() + noise))),
+                name="share",
+            )
+
+            out = {"module": body.__file__}
+            # The hook really is absent, or this proves nothing.
+            out["beartyped"] = hasattr(
+                body.ld_fractional_response, "__beartype_wrapper__"
+            )
+            reference = body.ld_fractional_response(y=y, x=x, model="fractional")
+            out["fractional_const"] = reference["params"]["const"]["estimate"]
+            for argument, spellings in (
+                ("model", ("X", "", "Beta", "beta ")),
+                ("link", ("X", "", "Logit", "identity")),
+            ):
+                for bad in spellings:
+                    try:
+                        got = body.ld_fractional_response(
+                            **{"y": y, "x": x, argument: bad}
+                        )
+                        out[argument + ":" + bad] = {
+                            "accepted": got["params"]["const"]["estimate"],
+                            "precision": got["precision"],
+                        }
+                    except GateError as exc:
+                        out[argument + ":" + bad] = {
+                            "refused": str(exc), "code": exc.detail_code
+                        }
+            print(json.dumps(out))
+            """
+        )
+        # PYTHONPATH IS PINNED TO THIS TREE'S OWN src/, AND THAT IS THE ASSERTION
+        # BEHIND THE ASSERTION. pyproject.toml sets `pythonpath = ["src"]`, which
+        # pytest applies to ITSELF and cannot pass to a child; a bare `python -c`
+        # from engine/ therefore imports whatever econflow_engine is installed.
+        # MEASURED on the sibling ROC control: under another checkout's virtualenv
+        # it resolved to THAT tree, where the node is still a stub. A green run
+        # against the wrong source is the one outcome this file must never
+        # produce, so the path is pinned and the module the child actually
+        # imported is asserted below.
+        finished = subprocess.run(  # noqa: S603 - fixed argv, no shell
+            [sys.executable, "-c", program],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=300,
+            cwd=ENGINE_ROOT,
+            env={**os.environ, "PYTHONPATH": str(ENGINE_ROOT / "src")},
+        )
+        assert finished.returncode == 0, (
+            f"the child exited {finished.returncode}; stderr:\n{finished.stderr}"
+        )
+        answered = json.loads(finished.stdout)
+        assert answered["module"] == str(
+            ENGINE_ROOT / "src/econflow_engine/wrappers/c16_limited_dependent/fractional_beta.py"
+        ), f"the child imported {answered['module']}, which is not the tree under test"
+        assert answered["beartyped"] is False
+        for argument, spellings, listed in (
+            ("model", ("X", "", "Beta", "beta "), "'fractional'"),
+            ("link", ("X", "", "Logit", "identity"), "'logit'"),
+        ):
+            for bad in spellings:
+                seen = answered[argument + ":" + bad]
+                assert "refused" in seen, f"{argument}={bad!r} was accepted: {seen}"
+                assert seen["code"] == "precondition-domain"
+                assert "is not one of the values this argument declares" in seen["refused"]
+                assert f'"{argument}" was sent as {bad!r}' in seen["refused"]
+                assert listed in seen["refused"]
 
     def test_a_level_inside_the_unit_interval_passes_and_an_endpoint_is_refused(
         self,

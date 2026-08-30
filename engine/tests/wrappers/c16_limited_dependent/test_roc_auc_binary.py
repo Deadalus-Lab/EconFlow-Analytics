@@ -955,7 +955,7 @@ class TestStructure:
         index rather than sensitivity against one minus specificity, which is what a
         ROC curve is. This test asserts what the engine emits rather than what the
         card means, and records the difference instead of hiding it. It is a defect
-        in the emitter's frame branch (box 2.1.12) rather than in this payload, and
+        in the emitter's frame branch rather than in this payload, and
         it is the same one the sibling count-model body records against its
         coefficient table.
         """

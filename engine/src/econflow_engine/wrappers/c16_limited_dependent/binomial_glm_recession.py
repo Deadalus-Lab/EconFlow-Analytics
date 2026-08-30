@@ -55,6 +55,7 @@ from econflow_engine.gates.estimation import (
     refuse_estimator_failure,
     require_a_bare_name,
     require_a_column,
+    require_a_declared_option,
     require_an_allowlisted_specification,
     require_at_most_one_spelling,
     require_convergence,
@@ -89,6 +90,25 @@ _ESTIMATOR_REMEDY = (
     "The formula must name columns the data carries, and the variable on its left "
     "must be binary -- exactly two levels, coded 0 and 1."
 )
+
+#: What a caller must send in place of an absent or undeclared ``link``, and what
+#: each value means. Written once because both refusals on that argument use it.
+_LINK_REMEDY = (
+    "Pass link='probit' for the Estrella-Mishkin specification, or link='logit'."
+)
+
+
+def _options(argument: str) -> tuple[str, ...]:
+    """The values ``node-specs.json`` declares for one ``enum`` argument of this node.
+
+    READ FROM THE CONTRACT rather than written out here, so the set this body
+    refuses against and the set ``mcp/make_tool.py`` validates a wire call against
+    cannot disagree. ``NodeArgMeta.enum`` is ``None`` for an argument of any other
+    kind; the empty tuple that produces refuses every value, which is the safe
+    direction for a module that may not raise.
+    """
+    declared = next(arg for arg in NODE_META[_FN].args if arg.name == argument)
+    return declared.enum or ()
 
 
 def _usable_numbers(data: pd.DataFrame) -> None:
@@ -442,11 +462,21 @@ def run_binomial_fe_glm(
         paper prints 3.052, and the difference is that correction. Marginal
         effects: the coefficients are on the link scale by design, per the card's
         first trap. The ``gaussian`` family the estimator also offers: forbidden
-        by the node's enum. Multi-model syntax: one node, one model.
+        by the node's enum, and that sentence was FALSE until the enum was gated
+        here -- see ``link`` declared, below. Multi-model syntax: one node, one
+        model.
 
         GATES ADDED, AND THE SOURCE OF EACH. ``link`` supplied -- the node spec
         declares the argument with no default while its description names one,
         and re-materialising a default the contract does not carry is forbidden.
+        ``link`` declared -- the node spec's own enum, read out of ``NODE_META``
+        rather than retyped, because the annotation is not the guard: beartype is
+        a dev dependency installed by ``tests/conftest.py`` alone, so the shipped
+        package enforced no ``Literal`` and the value went to
+        ``feglm(family=...)`` as it stood. MEASURED with the hook absent,
+        ``link='gaussian'`` fitted a LINEAR PROBABILITY MODEL and the class check
+        below read the Fegaussian as the multi-response case, so the node told the
+        caller to drop a multi-model operator from a formula that carries none.
         No missing or non-finite value -- the card's own ``data`` description,
         and the measured silent row drop above. At least three observations -- a
         measured ``ZeroDivisionError`` below that. ``fixef`` is a bare name and
@@ -547,11 +577,17 @@ def run_binomial_fe_glm(
         first is out of bounds wherever the dropped rows are not a trailing
         suffix. A public accessor for either would retire this note.
     """
-    require_supplied(
-        link,
-        fn=_FN,
-        arg="link",
-        remedy="Pass link='probit' for the Estrella-Mishkin specification, or link='logit'.",
+    require_supplied(link, fn=_FN, arg="link", remedy=_LINK_REMEDY)
+    # BEFORE THE ESTIMATOR SEES IT, because the estimator's account of an
+    # undeclared link is about anything but the word the caller sent. MEASURED
+    # with the beartype hook absent, on `incident ~ temperature`:
+    # `link='gaussian'` fits a LINEAR PROBABILITY MODEL, and the Felogit/Feprobit
+    # check below reads the Fegaussian it returns as the multi-response case --
+    # so the node told a caller to "drop the multi-model operator from the
+    # formula" over a formula that carries none. The other four spellings came
+    # back as the estimator objecting to their data.
+    require_a_declared_option(
+        link, allowed=_options("link"), fn=_FN, arg="link", remedy=_LINK_REMEDY
     )
     require_min_length(data, minimum=_MIN_OBSERVATIONS, fn=_FN, arg="data")
     _usable_numbers(data)

@@ -18,6 +18,9 @@ from __future__ import annotations
 import json
 import math
 import os
+import subprocess
+import sys
+import textwrap
 from pathlib import Path
 from typing import Any, Literal
 
@@ -120,6 +123,123 @@ class TestGatesBlock:
         assert refused.value.detail_code == "precondition-domain"
         assert '"link" was not supplied' in str(refused.value)
         assert "probit" in str(refused.value) and "logit" in str(refused.value)
+
+    def test_a_link_outside_the_declared_enum_is_refused_in_the_shipped_package(
+        self,
+    ) -> None:
+        """GATE 1b. THE SUITE CANNOT SEE THIS DEFECT FROM INSIDE ITSELF.
+
+        ``tests/conftest.py`` installs ``beartype.claw`` over ``econflow_engine``,
+        so under pytest a direct call with an undeclared ``link`` is stopped by the
+        annotation before any gate runs. beartype is a DEV dependency and that
+        comment says the hook must never move into the package, so the SHIPPED
+        package had no such check and the value went straight to
+        ``feglm(family=str(link))``. MEASURED without the hook, on the oracle
+        frame: ``link='gaussian'`` was refused as "the formula asked for more than
+        one model ... Drop the multi-model operator from the formula" under
+        ``precondition-shape``, over a formula carrying no multi-model operator at
+        all -- pyfixest fits a Fegaussian, which is a LINEAR PROBABILITY MODEL, and
+        the class check downstream reads anything that is not a Felogit or a
+        Feprobit as the multi-response case. That message is a false statement
+        about the caller's own input. ``'X'``, ``''``, ``'Logit'`` and ``'cloglog'``
+        came back as "the estimator refused these inputs ... the variable on its
+        left must be binary", which blames the data for a word the caller typed.
+
+        SO THE CALL IS MADE IN A SUBPROCESS, which loads no ``conftest`` and
+        therefore installs no hook. That is the only configuration in which this
+        assertion is about the package a user installs rather than about beartype.
+        """
+        # THE PASS HALF IS TOTAL OVER THE CONTRACT AND NOT OVER A LIST WRITTEN
+        # HERE. The gate refuses against `NODE_META[fn]`, so a corpus edit that
+        # added a third link would widen the refusal silently; sweeping the
+        # declared set is what turns that into a failing fit instead. The equality
+        # below is the anti-vacuity half -- an empty enum would sweep nothing.
+        declared = next(a for a in wrapper.NODE_META[FN].args if a.name == "link").enum
+        assert declared == ("probit", "logit")
+        for option in declared:
+            fit = wrapper.run_binomial_fe_glm(
+                formula="incident ~ temperature", data=oring(), link=option
+            )
+            assert fit["link"] == option
+            assert fit["family"] == "binomial"
+
+        program = textwrap.dedent(
+            """
+            import json
+            import numpy as np
+            import pandas as pd
+            from econflow_engine.errors import GateError
+            from econflow_engine.wrappers.c16_limited_dependent import (
+                binomial_glm_recession as body,
+            )
+
+            rng = np.random.default_rng(0)
+            n = 120
+            x = rng.normal(size=n)
+            y = (rng.random(n) < 1.0 / (1.0 + np.exp(-0.3 * x))).astype(float)
+            frame = pd.DataFrame({"y": y, "x": x})
+
+            out = {"module": body.__file__}
+            # The hook really is absent, or this proves nothing.
+            out["beartyped"] = hasattr(
+                body.run_binomial_fe_glm, "__beartype_wrapper__"
+            )
+            passing = body.run_binomial_fe_glm(
+                formula="y ~ x", data=frame, link="logit"
+            )
+            out["link_for_logit"] = passing["link"]
+            for bad in ("gaussian", "X", "", "Logit", "cloglog"):
+                try:
+                    got = body.run_binomial_fe_glm(
+                        formula="y ~ x", data=frame, link=bad
+                    )
+                    out[bad] = {"link": got["link"], "loglik": got["loglik"]}
+                except GateError as exc:
+                    out[bad] = {"refused": str(exc), "code": exc.detail_code}
+            print(json.dumps(out))
+            """
+        )
+        # PYTHONPATH IS PINNED TO THIS TREE'S OWN src/, AND THAT IS THE ASSERTION
+        # BEHIND THE ASSERTION. pyproject.toml sets `pythonpath = ["src"]`, which
+        # pytest applies to ITSELF and cannot pass to a child; a bare `python -c`
+        # from engine/ therefore imports whatever econflow_engine is installed.
+        # MEASURED on the sibling ROC control: under another checkout's virtualenv
+        # it resolved to THAT tree, where the node is still a stub. A green run
+        # against the wrong source is the one outcome this file must never
+        # produce, so the path is pinned and the module the child actually
+        # imported is asserted below.
+        finished = subprocess.run(  # noqa: S603 - fixed argv, no shell
+            [sys.executable, "-c", program],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=300,
+            cwd=ENGINE_ROOT,
+            env={**os.environ, "PYTHONPATH": str(ENGINE_ROOT / "src")},
+        )
+        assert finished.returncode == 0, (
+            f"the child exited {finished.returncode}; stderr:\n{finished.stderr}"
+        )
+        answered = json.loads(finished.stdout)
+        assert answered["module"] == str(
+            ENGINE_ROOT
+            / "src/econflow_engine/wrappers/c16_limited_dependent/binomial_glm_recession.py"
+        ), f"the child imported {answered['module']}, which is not the tree under test"
+        assert answered["beartyped"] is False
+        assert answered["link_for_logit"] == "logit"
+        for bad in ("gaussian", "X", "", "Logit", "cloglog"):
+            assert "refused" in answered[bad], f"{bad!r} was accepted: {answered[bad]}"
+            assert answered[bad]["code"] == "precondition-domain"
+            assert "is not one of the values this argument declares" in answered[bad][
+                "refused"
+            ]
+            assert repr(bad) in answered[bad]["refused"]
+            assert "'probit', 'logit'" in answered[bad]["refused"]
+            # THE TWO FALSE MESSAGES, NAMED SO THEY CANNOT COME BACK. Neither the
+            # multi-model claim nor the estimator's objection describes an
+            # undeclared word.
+            assert "multi-model operator" not in answered[bad]["refused"]
+            assert "the estimator refused these inputs" not in answered[bad]["refused"]
 
     def test_a_clean_frame_passes_and_a_missing_value_is_refused(self) -> None:
         """GATE 2. MEASURED: pyfixest drops the NaN row and records it NOWHERE.

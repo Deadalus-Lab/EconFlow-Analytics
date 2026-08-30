@@ -57,6 +57,7 @@ from econflow_engine.gates.estimation import (
     refuse_a_combination,
     refuse_estimator_failure,
     require_a_column,
+    require_a_declared_option,
     require_an_aligned_index,
     require_an_observed_value,
     require_convergence,
@@ -140,6 +141,19 @@ def _declared(argument: str) -> Any:
     out itself would be a behaviour no client can read out of the contract.
     """
     return NODE_META[_FN].defaults[argument]
+
+
+def _options(argument: str) -> tuple[str, ...]:
+    """The values ``node-specs.json`` declares for one ``enum`` argument of this node.
+
+    READ FROM THE CONTRACT rather than written out here, so the set this body
+    refuses against and the set ``mcp/make_tool.py`` validates a wire call against
+    cannot disagree. ``NodeArgMeta.enum`` is ``None`` for an argument of any other
+    kind; the empty tuple that produces refuses every value, which is the safe
+    direction for a module that may not raise.
+    """
+    declared = next(arg for arg in NODE_META[_FN].args if arg.name == argument)
+    return declared.enum or ()
 
 
 def _the_design(y: pd.Series, x: pd.DataFrame) -> pd.DataFrame:
@@ -633,7 +647,14 @@ def ld_count_model(
         ``NotImplementedError`` is the exception an unwritten body raises: a hurdle
         with an exposure, and a hurdle with a generalised-Poisson component. One
         more is ours: inflation covariates outside a zero-inflated model would be
-        accepted and never fitted.
+        accepted and never fitted. TWO ARE ASKED BEFORE ANY OF THAT AND ARE NOT
+        ABOUT THE DATA AT ALL: ``family`` and ``zeros`` are read against the enum
+        the node spec declares, out of ``NODE_META`` rather than retyped here.
+        The annotation is not the guard -- beartype is a dev dependency installed
+        by ``tests/conftest.py`` alone, so the shipped package enforced no
+        ``Literal`` -- and MEASURED with the hook absent, every undeclared
+        spelling of either raised ``KeyError`` out of ``_ESTIMATORS[zeros][family]``,
+        which is a crash out of a node rather than a refusal.
 
         TWO GATES ASK ABOUT THE FIT'S OUTPUT RATHER THAN ITS INPUTS, and they were
         added by review after every one of the rules above had been written: this
@@ -670,8 +691,38 @@ def ld_count_model(
         ``require_a_column`` is applied instead, so an unknown name is a refusal
         rather than the ``KeyError`` pandas would raise.
     """
-    chosen_family = str(family if family is not None else _declared("family"))
-    chosen_zeros = str(zeros if zeros is not None else _declared("zeros"))
+    # THE RESOLVED VALUE AND NOT THE SUPPLIED ONE, because an omitted argument is
+    # legitimately ``None`` and the contract's own default is what replaces it.
+    # ASKED BEFORE ``str``, which would turn any object at all into a name the
+    # dispatch could not find: MEASURED with the beartype hook absent, every
+    # undeclared spelling of either argument raised ``KeyError`` out of
+    # ``_ESTIMATORS[zeros][family]`` -- a crash out of a node rather than a
+    # refusal a caller can act on.
+    supplied_family = family if family is not None else _declared("family")
+    supplied_zeros = zeros if zeros is not None else _declared("zeros")
+    require_a_declared_option(
+        supplied_family,
+        allowed=_options("family"),
+        fn=_FN,
+        arg="family",
+        remedy=(
+            "Name the distribution of the counts themselves: a Poisson, a negative "
+            "binomial where they are overdispersed, or a generalised Poisson."
+        ),
+    )
+    require_a_declared_option(
+        supplied_zeros,
+        allowed=_options("zeros"),
+        fn=_FN,
+        arg="zeros",
+        remedy=(
+            "Name how the zeros arise: not at all, from a second inflation "
+            "equation, from a hurdle crossed before any count, or not observably "
+            "at all in a truncated sample."
+        ),
+    )
+    chosen_family = str(supplied_family)
+    chosen_zeros = str(supplied_zeros)
     level = float(conf_level if conf_level is not None else _declared("conf_level"))
 
     require_strictly_inside(level, low=0.0, high=1.0, fn=_FN, arg="conf_level")

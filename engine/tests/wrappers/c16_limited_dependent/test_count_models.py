@@ -24,6 +24,9 @@ from __future__ import annotations
 import json
 import math
 import os
+import subprocess
+import sys
+import textwrap
 from pathlib import Path
 from typing import Any
 
@@ -160,6 +163,128 @@ def fitted(**overrides: Any) -> dict[str, Any]:
 
 class TestGatesBlock:
     """Class A -- one passing and one refused input for every declared gate."""
+
+    def test_an_undeclared_family_or_zero_rule_is_refused_in_the_shipped_package(
+        self,
+    ) -> None:
+        """GATE 0. THE SUITE CANNOT SEE THIS DEFECT FROM INSIDE ITSELF.
+
+        ``tests/conftest.py`` installs ``beartype.claw`` over ``econflow_engine``,
+        so under pytest a direct call with an undeclared ``family`` or ``zeros`` is
+        stopped by the annotation before any gate runs. beartype is a DEV
+        dependency and that comment says the hook must never move into the
+        package, so the SHIPPED package had no such check and both values went
+        straight to ``_ESTIMATORS[zeros][family]``. MEASURED without the hook, on
+        the published table: ``family='gaussian'``, ``'X'``, ``''`` and
+        ``'Poisson'`` each raised ``KeyError`` out of that subscript, as did
+        ``zeros='X'``, ``''``, ``'None'`` and ``'hurdle_'``. A ``KeyError`` is a
+        CRASH out of a node, not a refusal, and ``errors.py`` gives a caller
+        nothing to act on when one escapes.
+
+        SO THE CALL IS MADE IN A SUBPROCESS, which loads no ``conftest`` and
+        therefore installs no hook. That is the only configuration in which this
+        assertion is about the package a user installs rather than about beartype.
+        """
+        # THE PASS HALF IS TOTAL OVER THE CONTRACT AND NOT OVER A LIST WRITTEN
+        # HERE. The gate refuses against `NODE_META[fn]`, so a corpus edit that
+        # added a fourth family would widen the refusal silently; sweeping the
+        # declared set is what turns that into a failing fit instead. The two
+        # equalities are the anti-vacuity half -- an empty enum would sweep
+        # nothing.
+        families = next(a for a in wrapper.NODE_META[FN].args if a.name == "family").enum
+        zero_rules = next(a for a in wrapper.NODE_META[FN].args if a.name == "zeros").enum
+        assert families == ("poisson", "negative_binomial", "generalised_poisson")
+        assert zero_rules == ("none", "zero_inflated", "hurdle", "truncated")
+        y, x = overdispersed()
+        for family in families:
+            assert fitted(y=y, x=x, family=family, exposure=None)["nobs"] == 200
+        for zeros in zero_rules:
+            counts, design = (
+                overdispersed_positives() if zeros == "truncated" else (y, x)
+            )
+            fit = fitted(
+                y=counts, x=design, family="poisson", zeros=zeros, exposure=None
+            )
+            assert fit["zeros"] == zeros
+
+        program = textwrap.dedent(
+            """
+            import json
+            import numpy as np
+            import pandas as pd
+            from econflow_engine.errors import GateError
+            from econflow_engine.wrappers.c16_limited_dependent import (
+                count_models as body,
+            )
+
+            rng = np.random.default_rng(11)
+            n = 200
+            x = pd.DataFrame({"w": rng.normal(size=n), "v": rng.normal(size=n)})
+            mean = np.exp(0.8 + 0.6 * x["w"].to_numpy())
+            counts = rng.poisson(mean * rng.gamma(shape=2.0, scale=0.5, size=n))
+            y = pd.Series(counts.astype(float), name="events")
+
+            out = {"module": body.__file__}
+            # The hook really is absent, or this proves nothing.
+            out["beartyped"] = hasattr(body.ld_count_model, "__beartype_wrapper__")
+            passing = body.ld_count_model(y=y, x=x, family="poisson")
+            out["nobs_for_poisson"] = passing["nobs"]
+            for argument, spellings in (
+                ("family", ("gaussian", "X", "", "Poisson")),
+                ("zeros", ("X", "", "None", "hurdle_")),
+            ):
+                for bad in spellings:
+                    call = {"y": y, "x": x, argument: bad}
+                    if argument == "zeros":
+                        call["family"] = "poisson"
+                    try:
+                        got = body.ld_count_model(**call)
+                        out[argument + ":" + bad] = {"accepted": got["nobs"]}
+                    except GateError as exc:
+                        out[argument + ":" + bad] = {
+                            "refused": str(exc), "code": exc.detail_code
+                        }
+            print(json.dumps(out))
+            """
+        )
+        # PYTHONPATH IS PINNED TO THIS TREE'S OWN src/, AND THAT IS THE ASSERTION
+        # BEHIND THE ASSERTION. pyproject.toml sets `pythonpath = ["src"]`, which
+        # pytest applies to ITSELF and cannot pass to a child; a bare `python -c`
+        # from engine/ therefore imports whatever econflow_engine is installed.
+        # MEASURED on the sibling ROC control: under another checkout's virtualenv
+        # it resolved to THAT tree, where the node is still a stub. A green run
+        # against the wrong source is the one outcome this file must never
+        # produce, so the path is pinned and the module the child actually
+        # imported is asserted below.
+        finished = subprocess.run(  # noqa: S603 - fixed argv, no shell
+            [sys.executable, "-c", program],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=300,
+            cwd=ENGINE_ROOT,
+            env={**os.environ, "PYTHONPATH": str(ENGINE_ROOT / "src")},
+        )
+        assert finished.returncode == 0, (
+            f"the child exited {finished.returncode}; stderr:\n{finished.stderr}"
+        )
+        answered = json.loads(finished.stdout)
+        assert answered["module"] == str(
+            ENGINE_ROOT / "src/econflow_engine/wrappers/c16_limited_dependent/count_models.py"
+        ), f"the child imported {answered['module']}, which is not the tree under test"
+        assert answered["beartyped"] is False
+        assert answered["nobs_for_poisson"] == 200
+        for argument, spellings, listed in (
+            ("family", ("gaussian", "X", "", "Poisson"), "'poisson'"),
+            ("zeros", ("X", "", "None", "hurdle_"), "'none'"),
+        ):
+            for bad in spellings:
+                seen = answered[argument + ":" + bad]
+                assert "refused" in seen, f"{argument}={bad!r} was accepted: {seen}"
+                assert seen["code"] == "precondition-domain"
+                assert "is not one of the values this argument declares" in seen["refused"]
+                assert f'"{argument}" was sent as {bad!r}' in seen["refused"]
+                assert listed in seen["refused"]
 
     def test_a_whole_number_response_passes_and_a_fractional_one_is_refused(self) -> None:
         """GATE 1. MEASURED: ``Poisson`` fits a fractional response with NO warning.
