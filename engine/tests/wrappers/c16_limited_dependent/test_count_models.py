@@ -104,6 +104,38 @@ def positives() -> tuple[pd.Series, pd.DataFrame]:
     return kept, x.loc[kept.index]
 
 
+def overdispersed() -> tuple[pd.Series, pd.DataFrame]:
+    """A 200-row sample from a genuine negative-binomial process, with excess zeros.
+
+    WHY A SECOND SAMPLE AND NOT :func:`sample`. MEASURED on the pinned libraries:
+    ``sample`` draws its counts from a Poisson, so a negative binomial fitted on it
+    has no overdispersion to identify its own dispersion parameter, and all three
+    of its two-equation fits -- ``zero_inflated``, ``truncated`` and ``hurdle`` --
+    fail to converge and are refused by :func:`require_convergence`. That refusal
+    is correct behaviour on that sample, and it is also why those three branches
+    could not be exercised as passing fits until this sample existed.
+
+    The counts are a Poisson mixed over a gamma, which is the negative binomial by
+    construction, and about a third of the rows are then forced to zero so a zero
+    equation is identified. The seed is fixed, so every number asserted against it
+    is the same on every run.
+    """
+    rng = np.random.default_rng(11)
+    n = 200
+    x = pd.DataFrame({"w": rng.normal(size=n), "v": rng.normal(size=n)})
+    mean = np.exp(0.8 + 0.6 * x["w"].to_numpy())
+    counts = rng.poisson(mean * rng.gamma(shape=2.0, scale=0.5, size=n)).astype(float)
+    counts[rng.random(n) < 0.30] = 0.0
+    return pd.Series(counts, name="events"), x
+
+
+def overdispersed_positives() -> tuple[pd.Series, pd.DataFrame]:
+    """:func:`overdispersed` with the zeros dropped, for the truncated branch."""
+    y, x = overdispersed()
+    kept = y[y > 0]
+    return kept, x.loc[kept.index]
+
+
 def counts_and_design() -> tuple[pd.Series, pd.DataFrame, pd.Series]:
     """The published table, built through the real fixture loader.
 
@@ -796,6 +828,74 @@ class TestStructure:
         assert result["nobs"] == len(y)
         assert math.isfinite(result["llf"])
         assert stubs_free(to_mcp(result))
+
+    @pytest.mark.parametrize(
+        ("family", "zeros", "has_dispersion", "has_inflation"),
+        [
+            ("poisson", "none", False, False),
+            ("poisson", "zero_inflated", False, True),
+            ("poisson", "truncated", False, False),
+            ("poisson", "hurdle", False, False),
+            ("negative_binomial", "none", True, False),
+            ("negative_binomial", "zero_inflated", True, True),
+            ("negative_binomial", "truncated", True, False),
+            ("negative_binomial", "hurdle", True, False),
+            ("generalised_poisson", "none", True, False),
+            ("generalised_poisson", "zero_inflated", True, True),
+            ("generalised_poisson", "truncated", True, False),
+        ],
+        ids=[
+            "poisson", "poisson-zi", "poisson-trunc", "poisson-hurdle",
+            "negbin", "negbin-zi", "negbin-trunc", "negbin-hurdle",
+            "genpoisson", "genpoisson-zi", "genpoisson-trunc",
+        ],
+    )
+    def test_the_count_block_is_read_positionally_in_all_eleven_combinations(
+        self, family: str, zeros: str, has_dispersion: bool, has_inflation: bool
+    ) -> None:
+        """``_blocks``'s positional rule, asserted over every combination it claims.
+
+        WHAT IS BEING PINNED. ``_blocks`` states that across all eleven combinations
+        statsmodels 0.14.6 fits, the count coefficients are the last ``width``
+        entries before the dispersion parameter. That sentence was prose over a
+        measurement and nothing held it: the twelfth combination is refused by name
+        and tested elsewhere, but five of the eleven reached no call at all, and the
+        four that carry BOTH a zero equation and a dispersion parameter -- where a
+        rule that is off by one silently returns the zero equation's coefficients
+        under the count equation's names -- were among them.
+
+        THE SAMPLE IS CHOSEN PER ROW AND THE REASON IS THE ESTIMATOR'S, NOT THIS
+        FILE'S. A negative binomial needs overdispersion to identify its dispersion
+        parameter; see :func:`overdispersed`. A truncated model is defined only on
+        the positive rows.
+        """
+        y, x = (
+            (overdispersed_positives() if zeros == "truncated" else overdispersed())
+            if family == "negative_binomial"
+            else (positives() if zeros == "truncated" else sample())
+        )
+        result = wrapper.ld_count_model(y=y, x=x, family=family, zeros=zeros)  # type: ignore[arg-type]
+
+        # The positional rule itself: the reported coefficients are the design's
+        # columns and the intercept, in that order, and nothing from a zero
+        # equation or a dispersion parameter has leaked into them.
+        assert list(result["params"]) == ["const", "w", "v"]
+        assert (result["dispersion"] is not None) is has_dispersion
+        # THE SHAPE ALONE DOES NOT PIN THE RULE. A block read one position too far
+        # keeps its LENGTH on the five single-equation rows and only corrupts the
+        # values, so the dispersion parameter arrives under the last covariate's
+        # name. MEASURED: with `_blocks` stripped of its dispersion adjustment,
+        # the length assertion above catches `negbin-zi`, `negbin-hurdle` and
+        # `genpoisson-zi` and passes `negbin` and `genpoisson`; this one catches
+        # those two as well.
+        if has_dispersion:
+            assert result["dispersion"] not in set(result["params"].values())
+        assert (result["zero_inflation"] is not None) is has_inflation
+        assert set(result) == CARD_KEYS
+        assert result["family"] == family
+        assert result["zeros"] == zeros
+        assert result["nobs"] == len(y)
+        assert math.isfinite(result["llf"])
 
     def test_a_hurdle_reports_its_zero_equation_in_the_table_and_not_as_inflation(
         self,

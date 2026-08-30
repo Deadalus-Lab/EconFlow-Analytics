@@ -337,6 +337,29 @@ def _fit_the_model(
         )
 
 
+def _likelihood_scalars(fit: Any) -> tuple[float, float, float]:
+    """``llf``, ``aic`` and ``bic``, read under the estimator's own error state.
+
+    THE LOG-LIKELIHOOD IS COMPUTED LAZILY, ON FIRST READ, and therefore OUTSIDE
+    the block that wraps the fit -- so that block's relaxed state does not cover
+    it, and the caller's does. MEASURED under ``np.seterr(all='raise')``, which is
+    how this repository's suite runs: a truncated generalised Poisson over 200
+    overdispersed rows raises ``FloatingPointError: underflow encountered in
+    nextafter`` on the first read of ``fit.llf``, and again on ``aic`` and
+    ``bic``, which are functions of it. On the same fit, ``params``, ``predict``,
+    ``bse`` and ``pvalues`` all read cleanly, so it is these three and not the fit
+    as a whole.
+
+    The underflow is the truncation correction evaluated where its probability IS
+    zero, which is the same kind of intermediate the block around the fit already
+    relaxes, and for the same reason: it is the caller's ``seterr`` rather than
+    the data that turns it into an exception. The reads stay separate from this
+    engine's own arithmetic, which is not inside the block.
+    """
+    with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+        return float(fit.llf), float(fit.aic), float(fit.bic)
+
+
 def _blocks(fit: Any, *, family: str, width: int) -> tuple[int, int]:
     """Where the COUNT equation's coefficients start and stop in the vector.
 
@@ -381,6 +404,7 @@ def _the_result(
     the caller's.
     """
     values = np.asarray(fit.params, dtype=float)
+    llf, aic, bic = _likelihood_scalars(fit)
     start, end = _blocks(fit, family=family, width=len(design.columns))
     names = [str(name) for name in design.columns]
     reported = [str(term) for term in fit.params.index]
@@ -439,9 +463,9 @@ def _the_result(
         "fitted_values": pd.Series(
             np.asarray(fit.predict(), dtype=float), index=y.index, name="fitted_values"
         ),
-        "llf": float(fit.llf),
-        "aic": float(fit.aic),
-        "bic": float(fit.bic),
+        "llf": llf,
+        "aic": aic,
+        "bic": bic,
         "nobs": int(fit.nobs),
         "family": family,
         "zeros": zeros,
@@ -740,7 +764,7 @@ def ld_count_model(
     # fields are null ON PURPOSE and a finiteness rule over the whole of it would
     # refuse a Poisson for estimating no dispersion.
     require_finite_estimates(
-        pd.concat([fit.params, pd.Series({"llf": float(fit.llf)})]),
+        pd.concat([fit.params, pd.Series({"llf": _likelihood_scalars(fit)[0]})]),
         fn=_FN,
         quantity="coefficients and log-likelihood",
         remedy=(
